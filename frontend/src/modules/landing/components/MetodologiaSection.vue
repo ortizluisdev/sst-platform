@@ -110,7 +110,7 @@ const tools = [
     <component :is="AnimatedNetworkBackgroundAsync" />
 
     <div class="relative z-[2] mx-auto max-w-[1280px]">
-      <div class="mx-auto mb-7 max-w-[720px] text-center">
+      <div v-reveal class="mx-auto mb-7 max-w-[720px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >
@@ -128,7 +128,7 @@ const tools = [
       </div>
 
       <!-- shift statement -->
-      <div class="mx-auto my-14 mb-[88px] grid max-w-[920px] items-center gap-6 rounded-md border border-line-strong bg-white p-8 shadow-[0_24px_60px_rgba(11,26,51,0.06)] max-[720px]:grid-cols-1 min-[721px]:grid-cols-[1fr_auto_1fr] min-[721px]:gap-9">
+      <div v-reveal class="mx-auto my-14 mb-[88px] grid max-w-[920px] items-center gap-6 rounded-md border border-line-strong bg-white p-8 shadow-[0_24px_60px_rgba(11,26,51,0.06)] max-[720px]:grid-cols-1 min-[721px]:grid-cols-[1fr_auto_1fr] min-[721px]:gap-9">
         <div class="text-center">
           <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700 opacity-60">Modelo tradicional</span>
           <div class="mb-2 font-serif text-lg font-semibold text-navy-700 opacity-65">Matriz de riesgo estática</div>
@@ -157,8 +157,9 @@ const tools = [
       </p>
       <div class="mb-[100px] grid grid-cols-4 border-y border-line-strong max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
         <article
-          v-for="card in compCards"
+          v-for="(card, index) in compCards"
           :key="card.title"
+          v-reveal="index * 80"
           class="border-l border-line-strong px-5 py-8 text-center first:border-l-0 max-[900px]:border-t max-[900px]:[&:nth-child(-n+2)]:border-t-0 max-[900px]:odd:border-l-0 max-[560px]:border-l-0 max-[560px]:first:border-t-0"
         >
           <div class="mx-auto mb-[18px] h-[46px] w-[46px] [&>svg]:block [&>svg]:h-full [&>svg]:w-full" v-html="card.icon" />
@@ -167,7 +168,7 @@ const tools = [
         </article>
       </div>
 
-      <div class="mx-auto mb-12 max-w-[680px] text-center">
+      <div v-reveal class="mx-auto mb-12 max-w-[680px] text-center">
         <h3 class="mb-3.5 font-serif text-[clamp(22px,2.6vw,30px)] font-semibold text-navy-900">
           Un ciclo continuo, no un ejercicio anual.
         </h3>
@@ -177,7 +178,7 @@ const tools = [
         </p>
       </div>
 
-      <div class="mb-[110px]">
+      <div v-reveal class="mb-[110px]">
         <AccordionPanel :items="cycleStages">
           <template #content="{ item }">
             <p class="mb-auto max-w-[660px] text-[13.5px] leading-[1.75] text-navy-700">{{ (item as CycleStage).description }}</p>
@@ -188,7 +189,7 @@ const tools = [
         </AccordionPanel>
       </div>
 
-      <div class="mx-auto mb-10 max-w-[680px] text-center">
+      <div v-reveal class="mx-auto mb-10 max-w-[680px] text-center">
         <h3 class="mb-3.5 font-serif text-[clamp(22px,2.6vw,30px)] font-semibold text-navy-900">
           Las herramientas matemáticas detrás del modelo.
         </h3>
@@ -197,7 +198,7 @@ const tools = [
         </p>
       </div>
 
-      <div class="mb-[110px] overflow-x-auto rounded-md border border-line-strong bg-white shadow-[0_24px_60px_rgba(11,26,51,0.06)]">
+      <div v-reveal class="mb-[110px] overflow-x-auto rounded-md border border-line-strong bg-white shadow-[0_24px_60px_rgba(11,26,51,0.06)]">
         <table class="w-full min-w-[560px] border-collapse">
           <thead>
             <tr>
@@ -217,7 +218,7 @@ const tools = [
       </div>
 
       <!-- MSSV network explorer — placeholder (interactive explorer not yet delivered) -->
-      <div class="mx-auto max-w-[1180px] overflow-hidden rounded-lg border border-line-strong bg-white shadow-[0_30px_70px_rgba(11,26,51,0.1)]">
+      <div v-reveal class="mx-auto max-w-[1180px] overflow-hidden rounded-lg border border-line-strong bg-white shadow-[0_30px_70px_rgba(11,26,51,0.1)]">
         <div class="flex flex-wrap items-start justify-between gap-6 border-b border-line-strong px-6 pb-6 pt-9 sm:px-10 md:px-13">
           <div>
             <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-400">Modelo en vivo</span>

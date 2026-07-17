@@ -10,7 +10,7 @@ const cardClasses =
     <component :is="AnimatedNetworkBackgroundAsync" />
 
     <div class="relative z-[2] mx-auto max-w-[1240px]">
-      <div class="mx-auto mb-[72px] max-w-[640px] text-center">
+      <div v-reveal class="mx-auto mb-[72px] max-w-[640px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >
@@ -23,7 +23,7 @@ const cardClasses =
 
       <div class="grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12">
         <!-- R -->
-        <article :class="cardClasses" class="group">
+        <article v-reveal="0" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
             <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">R</span>
             <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +47,7 @@ const cardClasses =
         </article>
 
         <!-- O -->
-        <article :class="cardClasses" class="group">
+        <article v-reveal="100" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
             <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">O</span>
             <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +70,7 @@ const cardClasses =
         </article>
 
         <!-- M -->
-        <article :class="cardClasses" class="group">
+        <article v-reveal="200" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
             <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">M</span>
             <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -93,7 +93,7 @@ const cardClasses =
         </article>
 
         <!-- A -->
-        <article :class="cardClasses" class="group">
+        <article v-reveal="300" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
             <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">A</span>
             <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

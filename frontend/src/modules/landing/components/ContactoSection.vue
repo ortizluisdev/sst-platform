@@ -25,7 +25,7 @@ const inputClasses =
 <template>
   <section id="contacto" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <div class="relative z-[2] mx-auto max-w-[720px]">
-      <div class="mx-auto mb-12 max-w-[560px] text-center">
+      <div v-reveal class="mx-auto mb-12 max-w-[560px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >

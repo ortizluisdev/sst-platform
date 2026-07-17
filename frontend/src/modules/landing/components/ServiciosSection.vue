@@ -91,7 +91,7 @@ const items: ServiceItem[] = [
     <component :is="AnimatedNetworkBackgroundAsync" />
 
     <div class="relative z-[2] mx-auto max-w-[1280px]">
-      <div class="mx-auto mb-16 max-w-[680px] text-center">
+      <div v-reveal class="mx-auto mb-16 max-w-[680px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >
@@ -106,7 +106,8 @@ const items: ServiceItem[] = [
         </p>
       </div>
 
-      <AccordionPanel :items="items">
+      <div v-reveal="100">
+        <AccordionPanel :items="items">
         <template #content="{ item }">
           <p class="mb-[22px] max-w-[660px] text-sm leading-[1.75] text-navy-700 [&_strong]:font-semibold [&_strong]:text-navy-900" v-html="(item as ServiceItem).description" />
           <div class="mb-auto flex flex-wrap gap-2">
@@ -122,7 +123,8 @@ const items: ServiceItem[] = [
             <strong>{{ (item as ServiceItem).techLabel }}</strong> <span v-html="(item as ServiceItem).techText" />
           </div>
         </template>
-      </AccordionPanel>
+        </AccordionPanel>
+      </div>
     </div>
   </section>
 </template>

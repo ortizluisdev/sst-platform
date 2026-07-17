@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
+import { useScrollSpy } from '@/composables/useScrollSpy'
 
 const isScrolled = ref(false)
 const isNavOpen = ref(false)
@@ -19,6 +20,8 @@ const navLinks = [
   { href: '#metodologia', label: 'Metodología' },
   { href: '#nosotros', label: 'Nosotros' },
 ]
+
+const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'metodologia', 'nosotros', 'contacto'])
 </script>
 
 <template>
@@ -46,15 +49,31 @@ const navLinks = [
 
     <button
       type="button"
-      class="p-1 md:hidden"
+      class="relative flex h-6 w-6 items-center justify-center md:hidden"
       aria-label="Abrir menú"
       :aria-expanded="isNavOpen"
       @click="isNavOpen = !isNavOpen"
     >
-      <span class="my-1.5 block h-[1.5px] w-[22px]" :class="isScrolled ? 'bg-white' : 'bg-navy-900'" />
-      <span class="my-1.5 block h-[1.5px] w-[22px]" :class="isScrolled ? 'bg-white' : 'bg-navy-900'" />
-      <span class="my-1.5 block h-[1.5px] w-[22px]" :class="isScrolled ? 'bg-white' : 'bg-navy-900'" />
+      <span
+        class="absolute h-[1.5px] w-[22px] transition-all duration-300"
+        :class="[isScrolled ? 'bg-white' : 'bg-navy-900', isNavOpen ? 'rotate-45' : '-translate-y-2']"
+      />
+      <span
+        class="absolute h-[1.5px] w-[22px] transition-all duration-300"
+        :class="[isScrolled ? 'bg-white' : 'bg-navy-900', isNavOpen ? 'opacity-0' : 'opacity-100']"
+      />
+      <span
+        class="absolute h-[1.5px] w-[22px] transition-all duration-300"
+        :class="[isScrolled ? 'bg-white' : 'bg-navy-900', isNavOpen ? '-rotate-45' : 'translate-y-2']"
+      />
     </button>
+
+    <!-- mobile nav backdrop -->
+    <div
+      v-if="isNavOpen"
+      class="fixed inset-0 z-[99] bg-navy-900/40 md:hidden"
+      @click="isNavOpen = false"
+    />
 
     <nav
       id="mainNav"
@@ -65,8 +84,8 @@ const navLinks = [
         v-for="link in navLinks"
         :key="link.href"
         :href="link.href"
-        class="relative pb-1 text-[17px] font-medium tracking-wide text-navy-900 no-underline after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-sky-400 after:transition-[width] after:duration-[250ms] hover:after:w-full md:text-sm"
-        :class="isScrolled ? 'md:text-white' : ''"
+        class="relative pb-1 text-[17px] font-medium tracking-wide text-navy-900 no-underline after:absolute after:bottom-0 after:left-0 after:h-px after:bg-sky-400 after:transition-[width] after:duration-[250ms] hover:after:w-full md:text-sm"
+        :class="[isScrolled ? 'md:text-white' : '', activeId === link.href.slice(1) ? 'after:w-full' : 'after:w-0']"
         @click="isNavOpen = false"
       >
         {{ link.label }}
@@ -74,6 +93,7 @@ const navLinks = [
       <a
         href="#contacto"
         class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-sky-400 to-navy-500 px-5 py-2.5 text-[13px] font-bold tracking-wide text-white shadow-[0_4px_14px_rgba(46,84,144,0.35)] transition-all duration-[250ms] hover:-translate-y-px hover:shadow-[0_6px_18px_rgba(46,84,144,0.45)]"
+        :class="activeId === 'contacto' ? 'ring-2 ring-sky-200 ring-offset-2 ring-offset-cream' : ''"
         @click="isNavOpen = false"
       >
         RoMa+

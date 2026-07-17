@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B1A33" />
 
     <title>RoMa — Ciencia Aplicada a la Seguridad Industrial e Higiene Ocupacional</title>
     <meta
       name="description"
       content="RoMa aplica ciencia de la complejidad y ciencia de redes a la gestión del riesgo: higiene industrial, seguridad vial, riesgo mecánico y locativo, mantenimiento basado en riesgo y modelado de comportamiento social."
     />
-    <link rel="canonical" href="https://www.roma-ciencia-aplicada.com/" />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="RoMa — Ciencia Aplicada" />
@@ -19,8 +22,8 @@
       property="og:description"
       content="Modelos científicos que transforman la incertidumbre en decisiones que incrementan la seguridad, la confiabilidad y la productividad."
     />
-    <meta property="og:url" content="https://www.roma-ciencia-aplicada.com/" />
-    <meta property="og:image" content="https://www.roma-ciencia-aplicada.com/og-image.png" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.png" />
     <meta property="og:locale" content="es_CO" />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -29,10 +32,33 @@
       name="twitter:description"
       content="Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo industrial."
     />
-    <meta name="twitter:image" content="https://www.roma-ciencia-aplicada.com/og-image.png" />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "RoMa — Ciencia Aplicada",
+        "url": "%VITE_SITE_URL%/",
+        "logo": "%VITE_SITE_URL%/apple-touch-icon.png",
+        "description": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo, la seguridad industrial y la higiene ocupacional.",
+        "areaServed": "CO",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "telephone": "+%VITE_WHATSAPP_NUMBER%"
+        },
+        "sameAs": [
+          "%VITE_FACEBOOK_URL%",
+          "%VITE_INSTAGRAM_URL%",
+          "%VITE_TIKTOK_URL%",
+          "%VITE_X_URL%"
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>

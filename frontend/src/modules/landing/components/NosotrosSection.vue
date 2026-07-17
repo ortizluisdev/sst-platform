@@ -83,7 +83,7 @@ function toggleResearch(index: number) {
     <component :is="AnimatedNetworkBackgroundAsync" />
 
     <div class="relative z-[2] mx-auto max-w-[1180px]">
-      <div class="mx-auto mb-14 max-w-[680px] text-center">
+      <div v-reveal class="mx-auto mb-14 max-w-[680px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >
@@ -95,7 +95,7 @@ function toggleResearch(index: number) {
       </div>
 
       <!-- STAT STRIP -->
-      <div class="mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3">
+      <div v-reveal class="mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3">
         <div v-for="stat in stats" :key="stat.label" class="bg-white px-5 py-[26px] text-center transition-colors hover:bg-sky-100">
           <div :ref="(el) => (stat.el.value = el as HTMLElement | null)" class="mb-2 font-serif text-[clamp(26px,3.4vw,36px)] font-semibold leading-none text-navy-900">
             {{ stat.current.value }}<span class="text-sky-400">+</span>
@@ -105,7 +105,7 @@ function toggleResearch(index: number) {
       </div>
 
       <!-- PROFILE -->
-      <div class="mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16">
+      <div v-reveal class="mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16">
         <div class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none">
           <div class="absolute inset-3.5 rounded border border-sky-200 opacity-0 transition-opacity duration-[350ms] group-hover:opacity-100" />
           <div class="flex h-full items-center justify-center">
@@ -154,7 +154,7 @@ function toggleResearch(index: number) {
 
       <div class="mb-8 grid gap-8 md:grid-cols-2">
         <!-- FORMACIÓN ACADÉMICA -->
-        <div class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
+        <div v-reveal class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
           <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
             <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8l10-5 10 5-10 5-10-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.4" /></svg>
             Formación Académica
@@ -181,7 +181,7 @@ function toggleResearch(index: number) {
         </div>
 
         <!-- INVESTIGACIÓN CIENTÍFICA -->
-        <div class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
+        <div v-reveal="100" class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
           <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
             <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.4" /><path d="M20 20l-4.3-4.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
             Investigación Científica
@@ -225,7 +225,7 @@ function toggleResearch(index: number) {
       </div>
 
       <!-- ANÁLISIS DE INVESTIGACIONES (placeholder) -->
-      <div class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
+      <div v-reveal class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
         <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
           <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 19V9M10 19V5M16 19v-8M4 19h16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
           Análisis de Investigaciones
