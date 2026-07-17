@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { AnimatedNetworkBackgroundAsync } from '@/components/shared/AnimatedNetworkBackground.async'
+
+const { t } = useI18n()
 
 const cardClasses =
   'relative border-l border-line-strong pt-2 text-center first:border-l-0 max-[900px]:odd:border-l-0 max-[560px]:border-l-0 max-[560px]:border-t max-[560px]:border-line-strong max-[560px]:pt-9 max-[560px]:first:border-t-0 max-[560px]:first:pt-0 px-5 sm:px-7 md:px-9'
@@ -14,11 +17,11 @@ const cardClasses =
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
         >
-          Nuestros pilares
+          {{ t('propuestaValor.eyebrow') }}
         </div>
-        <h2 class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
-          Cuatro convicciones detrás de <em class="font-medium italic text-sky-400">cada</em> diagnóstico.
-        </h2>
+        <i18n-t keypath="propuestaValor.title" tag="h2" class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
+          <template #accent><em class="font-medium italic text-sky-400">{{ t('propuestaValor.titleAccent') }}</em></template>
+        </i18n-t>
       </div>
 
       <div class="grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12">
@@ -38,11 +41,10 @@ const cardClasses =
               <line x1="52" y1="40" x2="32" y2="56" stroke="#5B8DC7" stroke-width="0.8" opacity="0.5" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">Ciencia de la Complejidad</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">Comprender el riesgo antes de intervenirlo.</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.0.title') }}</h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.0.lead') }}</p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
-            Aplicamos ciencia de la complejidad para modelar la interacción entre personas, procesos, tecnologías y
-            entorno, fortaleciendo decisiones basadas en evidencia.
+            {{ t('propuestaValor.cards.0.body') }}
           </p>
         </article>
 
@@ -61,11 +63,10 @@ const cardClasses =
               <line x1="8" y1="50" x2="56" y2="50" stroke="#5B8DC7" stroke-width="0.8" opacity="0.35" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">Experiencia que comprende su negocio</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">Cada organización es un sistema único.</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.1.title') }}</h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.1.lead') }}</p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
-            Nuestra experiencia asesorando empresas de los principales sectores económicos de Colombia nos permite
-            diseñar soluciones alineadas con la realidad de cada organización.
+            {{ t('propuestaValor.cards.1.body') }}
           </p>
         </article>
 
@@ -84,11 +85,10 @@ const cardClasses =
               <line x1="10" y1="46" x2="54" y2="46" stroke="#5B8DC7" stroke-width="0.8" opacity="0.3" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">Seguridad que genera valor</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">La gestión del riesgo debe impulsar el negocio, no limitarlo.</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.2.title') }}</h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.2.lead') }}</p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
-            Integramos la seguridad con la productividad, la continuidad del negocio y la excelencia operacional,
-            demostrando que proteger a las personas fortalece el desempeño.
+            {{ t('propuestaValor.cards.2.body') }}
           </p>
         </article>
 
@@ -105,11 +105,10 @@ const cardClasses =
               <line x1="22" y1="34" x2="42" y2="34" stroke="#5B8DC7" stroke-width="0.8" opacity="0.45" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">Nuestra filosofía</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">Proteger la vida es el propósito. Todo lo demás es consecuencia.</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.3.title') }}</h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.3.lead') }}</p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
-            Creemos que ninguna lesión, enfermedad laboral o pérdida humana es aceptable. Nuestra razón de ser es
-            que las personas regresen a casa sanas y seguras cada día.
+            {{ t('propuestaValor.cards.3.body') }}
           </p>
         </article>
       </div>

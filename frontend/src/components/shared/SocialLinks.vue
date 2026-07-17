@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 withDefaults(defineProps<{ variant?: 'floating' | 'footer' }>(), { variant: 'footer' })
 
+const { t } = useI18n()
+
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER ?? '573000000000'
-const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola RoMa, quiero agendar un diagnóstico')}`
+const whatsappHref = computed(() => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t('social.whatsappMessage'))}`)
 const facebookHref = import.meta.env.VITE_FACEBOOK_URL ?? '#'
 const instagramHref = import.meta.env.VITE_INSTAGRAM_URL ?? '#'
 const tiktokHref = import.meta.env.VITE_TIKTOK_URL ?? '#'
@@ -16,13 +21,13 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
     :href="whatsappHref"
     target="_blank"
     rel="noopener"
-    aria-label="Escríbenos por WhatsApp"
+    :aria-label="t('social.whatsappTooltip')"
     class="group fixed bottom-6 right-6 z-[200] flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp shadow-[0_6px_18px_rgba(11,26,51,0.22)] transition-transform duration-200 hover:scale-[1.08]"
   >
     <span
       class="pointer-events-none absolute right-[66px] top-1/2 -translate-y-1/2 whitespace-nowrap rounded bg-navy-900 px-3 py-1.5 text-[12.5px] text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
     >
-      Escríbenos por WhatsApp
+      {{ t('social.whatsappTooltip') }}
     </span>
     <svg class="h-7 w-7" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

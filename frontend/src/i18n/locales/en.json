@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "title": "RoMa — Applied Science for Industrial Safety and Occupational Hygiene",
+    "description": "RoMa applies complexity science and network science to risk management: industrial hygiene, road safety, mechanical and facility risk, risk-based maintenance, and social behavior modeling.",
+    "ogDescription": "Scientific models that turn uncertainty into decisions that increase safety, reliability, and productivity.",
+    "twitterDescription": "Complexity science and network science applied to industrial risk management.",
+    "jsonLdDescription": "Complexity science and network science applied to risk management, industrial safety, and occupational hygiene."
+  },
+  "nav": {
+    "inicio": "Home",
+    "servicios": "Services",
+    "metodologia": "Methodology",
+    "nosotros": "About",
+    "cta": "RoMa+",
+    "openMenu": "Open menu",
+    "switchTo": "Español"
+  },
+  "hero": {
+    "eyebrow": "Complexity science",
+    "title": "The difference between reacting and anticipating lies in {accent}.",
+    "titleAccent": "science",
+    "lead": "We develop scientific models that reveal the hidden relationships within management systems, turning uncertainty into decisions that increase safety, reliability, and productivity.",
+    "ctaPrimary": "Schedule a diagnostic →",
+    "ctaSecondary": "View services",
+    "sideCard": {
+      "kicker": "Risk context",
+      "title": "Where workplace accident rates in Colombia stand",
+      "text": "Check the official figures reported by Fasecolda and the Colombian Safety Council.",
+      "link": "View observatory →",
+      "source": "Source: CCS · Fasecolda"
+    },
+    "caption": {
+      "label": "Risk Assessment:",
+      "identification": "Identification",
+      "analysis": "Analysis",
+      "valuation": "Valuation",
+      "treatment": "Risk Treatment"
+    }
+  },
+  "propuestaValor": {
+    "eyebrow": "Our pillars",
+    "title": "Four convictions behind {accent} diagnosis.",
+    "titleAccent": "every",
+    "cards": [
+      {
+        "letter": "R",
+        "title": "Complexity Science",
+        "lead": "Understanding risk before intervening.",
+        "body": "We apply complexity science to model the interaction between people, processes, technologies, and environment, strengthening evidence-based decisions."
+      },
+      {
+        "letter": "O",
+        "title": "Experience that understands your business",
+        "lead": "Every organization is a unique system.",
+        "body": "Our experience advising companies across Colombia's leading economic sectors lets us design solutions aligned with each organization's reality."
+      },
+      {
+        "letter": "M",
+        "title": "Safety that creates value",
+        "lead": "Risk management should drive the business, not limit it.",
+        "body": "We integrate safety with productivity, business continuity, and operational excellence, demonstrating that protecting people strengthens performance."
+      },
+      {
+        "letter": "A",
+        "title": "Our philosophy",
+        "lead": "Protecting life is the purpose. Everything else follows.",
+        "body": "We believe no injury, occupational illness, or loss of life is acceptable. Our reason for being is that people return home healthy and safe every day."
+      }
+    ]
+  },
+  "servicios": {
+    "eyebrow": "What we do",
+    "title": "Five fronts of intervention, {accent} scientific method.",
+    "titleAccent": "a single",
+    "subtitle": "Each service combines verifiable technical foundations with its own intervention model, designed to turn field data into management decisions.",
+    "items": [
+      {
+        "label": "Industrial Hygiene",
+        "title": "Industrial Hygiene",
+        "tagline": "A systems model for studying what the eye can't measure.",
+        "description": "We design and implement a <strong>hygiene studies systems model</strong> that translates the physical conditions of the work environment—sound, light, and temperature—into actionable management information. Instead of a single, isolated measurement, we build full-operation <strong>sound maps</strong> and <strong>lighting maps</strong>, backed by sound level surveys, lux surveys, and thermal stress assessments, and cross-reference them with the production process to prioritize where to intervene first.",
+        "tags": ["Sound Maps", "Lighting Maps", "Thermal Stress", "Sound Level Surveys", "Lux Surveys"],
+        "techLabel": "Technical foundations:",
+        "techText": "industrial acoustics (Crocker), ergonomics and thermal engineering (Parsons, Incropera), thermal comfort and stress (Fanger), and lighting engineering (Boyce, IES, CIE). Aligned with ISO 7730, ISO 7243, ISO 7933, and ISO 11079."
+      },
+      {
+        "label": "Road Safety",
+        "title": "Road Safety",
+        "tagline": "Systemic Road Safety Model: regulatory compliance and behavioral science, in a single framework.",
+        "description": "We work road safety on two complementary levels. The <strong>classic PESV</strong> (Colombia's statutory road safety plan), which meets the current regulatory framework for owned and contracted fleets. And our own <strong>Systemic Road Safety Model</strong>, which goes beyond documentary compliance: it measures and models the operation's actual road risk based on driver behavior, the vehicle, and the environment.",
+        "tags": ["Classic PESV", "Systemic Road Safety Model"],
+        "techLabel": "Technical foundations:",
+        "techText": "road risk measurement and modeling (Evans — <em>Traffic Safety</em>), behavioral science and driver performance (Evans — <em>Traffic Safety and the Driver</em>), and an evidence-based systemic understanding of motorcyclist accident rates (The Hurt Report)."
+      },
+      {
+        "label": "Mechanical and Facility Risk",
+        "title": "Mechanical and Facility Risk",
+        "tagline": "Systemic Intervention Model: continuous improvement applied to operations, tools, and machinery.",
+        "description": "A strategy that guides the intervention of the most significant risks arising from operations, and the use of tools, equipment, and machinery, in production plants, workshops, and operations with critical assets, through a systematic continuous improvement process.",
+        "tags": ["Technical diagnosis", "Prioritization", "Continuous improvement"],
+        "techLabel": "Intervention model:",
+        "techText": "defining responsibilities and scope → identifying and prioritizing critical areas, processes, equipment, and activities → technical diagnosis of the conditions causing the risk → designing and implementing measures for people, equipment, and processes → tracking through management indicators → evaluating and continuously improving the strategy."
+      },
+      {
+        "label": "Risk-Based Maintenance",
+        "title": "Risk-Based Maintenance",
+        "tagline": "Systemic Maintenance Model: fewer incidents, more reliability.",
+        "description": "We design risk-based maintenance strategies aimed at reducing the operation's accident rate—both what affects <strong>people</strong> and what compromises <strong>property and critical infrastructure</strong>. We prioritize investment and technical effort based on the actual probability and consequence of each asset's failure, integrating operational reliability with process safety management.",
+        "tags": ["People Risk", "Infrastructure Risk", "Reliability"],
+        "techLabel": "Approach:",
+        "techText": "criticality analysis and risk-based inspection (RBI), and reliability-centered maintenance (RCM), adjusted to each plant's operating reality."
+      },
+      {
+        "label": "Scientific Modeling of Social Behavior",
+        "title": "Scientific Modeling of Social Behavior",
+        "tagline": "Systemic Behavior Model: fixed environments and variable environments.",
+        "description": "We build a systemic model that interprets human behavior toward risk based on two forces: <strong>fixed environments</strong>—structure, rules, and organizational culture—and <strong>variable environments</strong>—the context, pressure, and opportunity of the moment. It's the same framework we use to understand why people expose themselves to risk in operations, one we extend to broader organizational behavior phenomena, such as <strong>public and private corruption models</strong>: another form of systemic behavior that can also be explained—and addressed—through its fixed and variable environments.",
+        "tags": ["Fixed Environments", "Variable Environments", "Public and Private Corruption"],
+        "techLabel": "Approach:",
+        "techText": "complexity science applied to human behavior, integrating organizational, social, and individual variables within a single systemic analysis framework."
+      }
+    ]
+  },
+  "metodologia": {
+    "eyebrow": "Our methodology",
+    "title": "From the static matrix to the {accent} of risk.",
+    "titleAccent": "dynamic network",
+    "intro": "GTC 45 organizes hazards into independent columns, each with its own action plan. In practice, hazards coexist and interact: evidence on musculoskeletal disorders and on systemic accident models shows that risk emerges from that interaction, not from the sum of isolated parts. That's why we adopt ISO 31000 as our framework and network science as our calculation engine.",
+    "shift": {
+      "fromKicker": "Traditional model",
+      "fromTitle": "Static risk matrix",
+      "fromDesc": "A fixed value per hazard, revalued once a year, with seven categories managed in separate columns.",
+      "toKicker": "RoMa model",
+      "toTitle": "Dynamic risk network",
+      "toDesc": "Agents and Conditions interact continuously; the risk level is recalculated with the system's actual state."
+    },
+    "componentsLabel": "The model's four components, per ISO 31000",
+    "frequencyLabel": "Frequency:",
+    "components": [
+      { "title": "Agents", "description": "People: capabilities, physiological, cognitive, and psychosocial state, internal and external behavior, social interaction." },
+      { "title": "Conditions", "description": "The work environment: technologies, processes, organizational factors, physical infrastructure, and external environment." },
+      { "title": "Events", "description": "Emerging node-types by damage mechanism: falls, entrapment, overexertion, chemical exposure, and more." },
+      { "title": "Consequences", "description": "Expected severity, calibrated with historical accident data instead of a fixed, subjective table." }
+    ],
+    "cycleTitle": "A continuous cycle, not an annual exercise.",
+    "cycleSubtitle": "The four stages recognized by GTC 45 and ISO 31000 remain, but they now run on the dynamic network: each with its own update frequency.",
+    "stages": [
+      {
+        "label": "Identification",
+        "title": "Identification",
+        "tagline": "Build and update the network's structure.",
+        "description": "This defines which nodes exist—agents, conditions, events—and what connections exist between them. It's the lowest-frequency stage: reviewed when processes or technology change, or when new evidence emerges about previously unconsidered interactions.",
+        "frequency": "low — only when the work system's structure changes."
+      },
+      {
+        "label": "Valuation",
+        "title": "Valuation",
+        "tagline": "Calculate the risk level in real time.",
+        "description": "Probability and consequence of each event-node are combined at a given moment. Unlike GTC 45, this valuation isn't done once a year: it's recalculated continuously as the source nodes' values change—shift by shift or daily.",
+        "frequency": "continuous — shift by shift or daily."
+      },
+      {
+        "label": "Evaluation",
+        "title": "Evaluation",
+        "tagline": "Prioritize which events require intervention.",
+        "description": "The calculated risk level is compared against acceptability bands—acceptable, tolerable, not acceptable, unacceptable—to determine which events require priority intervention at a given time.",
+        "frequency": "punctual — every time the valuation is recalculated."
+      },
+      {
+        "label": "Control",
+        "title": "Control",
+        "tagline": "Intervene where sensitivity analysis points to.",
+        "description": "Interventions are applied specifically to the nodes that, according to the network's sensitivity analysis, contribute most to the assessed risk, and it's verified that the intervention reduced the projected trajectory.",
+        "frequency": "targeted — when an alert triggers or an improvement cycle closes."
+      }
+    ],
+    "toolsTitle": "The mathematical tools behind the model.",
+    "toolsSubtitle": "Systems thinking and network science, translated into concrete calculation and diagnostic tools.",
+    "toolsTable": {
+      "headers": ["Tool", "Function in the model", "Frequency"],
+      "rows": [
+        {
+          "name": "Network centrality analysis",
+          "fn": "Identifies the structurally most critical nodes, regardless of the specific value they take at a given moment.",
+          "freq": "Low — when the network's structure changes"
+        },
+        {
+          "name": "State-space model",
+          "fn": "Projects the evolution of each node's risk level over time and allows simulating the effect of interventions.",
+          "freq": "Continuous — shift by shift / daily"
+        },
+        {
+          "name": "Dynamic Bayesian Networks",
+          "fn": "Diagnoses, when an event crosses the critical threshold, which node or combination of nodes contributed the most.",
+          "freq": "Punctual — when an alert triggers"
+        },
+        {
+          "name": "Noisy-OR function",
+          "fn": "Aggregates leaf nodes within each sub-hub without diluting the effect of an individually severe node.",
+          "freq": "Every time a sub-hub is recalculated"
+        }
+      ]
+    },
+    "mssv": {
+      "kicker": "Live model",
+      "title": "Explore the MSSV network",
+      "description": "The complete map of agents, conditions, and events feeding the model: every node with its definition and associated measurement instrument.",
+      "legendNode": "Model node",
+      "legendConnection": "Structural connection",
+      "placeholderTitle": "Coming soon",
+      "placeholderDesc": "The interactive MSSV network explorer is under construction. Here you'll be able to navigate the model's complete map of agents, conditions, and events.",
+      "footer": "Network built in Obsidian based on the theoretical framework of the Systemic Road Safety Model."
+    }
+  },
+  "nosotros": {
+    "eyebrow": "About us",
+    "title": "Science, engineering, and experience at the service of {accent} diagnosis.",
+    "titleAccent": "every",
+    "stats": [
+      { "label": "Years of experience" },
+      { "label": "Organizations advised" },
+      { "label": "Economic sectors" }
+    ],
+    "profile": {
+      "roleEyebrow": "Founder · Chief Scientific Officer",
+      "roleTitle": "Chief Scientific Officer",
+      "degreesSub": ["Mechanical Engineer", "Specialist in Applied Mathematics", "Specialist in Occupational Risk Management", "M.Sc. in Industrial Engineering", "M.Sc. Candidate in Materials Engineering", "Ph.D. Candidate in Industry and Organizations"],
+      "photoLabel": "Photo coming soon",
+      "bio": [
+        "With more than 15 years of experience leading engineering, risk management, industrial safety, occupational hygiene, road safety, and integrated management systems projects for organizations across Colombia's leading economic sectors.",
+        "His career integrates professional practice, scientific research, and technology development to design evidence-based solutions that make it possible to understand, model, and control complex systems. His work focuses on applying complexity science, network science, systems dynamics, advanced analytics, and engineering as tools to transform risk management and strengthen decision-making in organizations.",
+        "He has advised more than 100 organizations, working on projects across the oil and gas, energy, infrastructure, construction, manufacturing, transportation, and services sectors, integrating international standards, innovation, and applied science."
+      ]
+    },
+    "formacionTitle": "Academic Background",
+    "degrees": ["Mechanical Engineer", "Specialist in Applied Mathematics", "Specialist in Occupational Risk Management", "M.Sc. in Industrial Engineering", "M.Sc. Candidate in Materials Engineering", "Ph.D. Candidate in Industry and Organizations"],
+    "investigacionTitle": "Scientific Research",
+    "research": [
+      {
+        "degree": "M.Sc. in Industrial Engineering",
+        "title": "Research trends and gaps in applying network science and systems dynamics to the study of corruption in the public sector.",
+        "description": "Research aimed at identifying, through a scoping review, bibliometric analysis, and science mapping, the trends, methodological gaps, and integration opportunities between Network Science and Systems Dynamics for analyzing complex organizational phenomena."
+      },
+      {
+        "degree": "M.Sc. in Materials Engineering (in progress)",
+        "title": "Characterization of the plasma generated by RF reactive co-sputtering of ZrO–Ni using optical emission spectroscopy (OES).",
+        "description": "Research aimed at the spectroscopic characterization of plasma using Optical Emission Spectroscopy (OES) to determine physical parameters and optimize RF Reactive Magnetron Sputtering processes, contributing to the development of functional coatings and advanced materials."
+      }
+    ],
+    "analisisTitle": "Research Analysis",
+    "analisisPlaceholderTitle": "Coming soon",
+    "analisisPlaceholderDesc": "Here we'll present applied research analysis on complexity science, with real findings and results from RoMa's scientific work."
+  },
+  "contacto": {
+    "eyebrow": "Contact",
+    "title": "Let's start with a {accent}.",
+    "titleAccent": "diagnosis",
+    "subtitle": "Tell us about your operation and we'll reach out to schedule an initial conversation.",
+    "form": {
+      "nombre": "Name",
+      "nombrePlaceholder": "Your full name",
+      "correo": "Email",
+      "correoPlaceholder": "you\\@company.com",
+      "telefono": "Phone",
+      "telefonoPlaceholder": "+57 300 000 0000",
+      "empresa": "Company",
+      "empresaPlaceholder": "Optional",
+      "mensaje": "Message",
+      "mensajePlaceholder": "Tell us about your operation and what you'd like to solve.",
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "successTitle": "Thank you! We've received your message.",
+      "successBody": "We'll reach out soon to schedule your initial diagnostic.",
+      "sendAnother": "Send another message",
+      "genericError": "We couldn't send your message. Please try again."
+    },
+    "validation": {
+      "nombreRequired": "Enter your full name",
+      "correoInvalid": "Enter a valid email",
+      "telefonoRequired": "Enter a valid phone number",
+      "telefonoInvalid": "Numbers, spaces, and +()- only",
+      "mensajeRequired": "Tell us a bit more (minimum 10 characters)"
+    }
+  },
+  "footer": {
+    "tagline": "Complexity science and network science applied to risk management, industrial safety, and occupational hygiene.",
+    "navTitle": "Navigation",
+    "socialTitle": "Follow us",
+    "contacto": "Contact",
+    "copyright": "RoMa — Applied Science. All rights reserved."
+  },
+  "social": {
+    "whatsappTooltip": "Message us on WhatsApp",
+    "whatsappMessage": "Hi RoMa, I'd like to schedule a diagnostic"
+  }
+}

@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
 import { useScrollSpy } from '@/composables/useScrollSpy'
+import type { Locale } from '@/i18n'
+
+const { t, locale } = useI18n()
+const route = useRoute()
 
 const isScrolled = ref(false)
 const isNavOpen = ref(false)
@@ -15,13 +21,16 @@ onMounted(() => window.addEventListener('scroll', handleScroll, { passive: true 
 onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 const navLinks = [
-  { href: '#inicio', label: 'Inicio' },
-  { href: '#servicios', label: 'Servicios' },
-  { href: '#metodologia', label: 'Metodología' },
-  { href: '#nosotros', label: 'Nosotros' },
+  { href: '#inicio', key: 'nav.inicio' },
+  { href: '#servicios', key: 'nav.servicios' },
+  { href: '#metodologia', key: 'nav.metodologia' },
+  { href: '#nosotros', key: 'nav.nosotros' },
 ]
 
 const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'metodologia', 'nosotros', 'contacto'])
+
+const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
+const switchTo = computed(() => ({ path: `/${otherLocale.value}/`, hash: route.hash }))
 </script>
 
 <template>
@@ -50,7 +59,7 @@ const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'me
     <button
       type="button"
       class="relative flex h-6 w-6 items-center justify-center md:hidden"
-      aria-label="Abrir menú"
+      :aria-label="t('nav.openMenu')"
       :aria-expanded="isNavOpen"
       @click="isNavOpen = !isNavOpen"
     >
@@ -88,7 +97,7 @@ const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'me
         :class="[isScrolled ? 'md:text-white' : '', activeId === link.href.slice(1) ? 'after:w-full' : 'after:w-0']"
         @click="isNavOpen = false"
       >
-        {{ link.label }}
+        {{ t(link.key) }}
       </a>
       <a
         href="#contacto"
@@ -96,8 +105,18 @@ const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'me
         :class="activeId === 'contacto' ? 'ring-2 ring-sky-200 ring-offset-2 ring-offset-cream' : ''"
         @click="isNavOpen = false"
       >
-        RoMa+
+        {{ t('nav.cta') }}
       </a>
+
+      <router-link
+        :to="switchTo"
+        class="text-[13px] font-semibold tracking-wide text-navy-700 no-underline transition-colors hover:text-sky-400 md:text-xs"
+        :class="isScrolled ? 'md:text-sky-200 md:hover:text-white' : ''"
+        :aria-label="`${t('nav.switchTo')}`"
+        @click="isNavOpen = false"
+      >
+        {{ otherLocale.toUpperCase() }}
+      </router-link>
     </nav>
   </header>
 </template>

@@ -25,6 +25,8 @@ export default defineConfig({
           if (/[\\/](vue|vue-router|pinia)[\\/]/.test(id)) return 'vendor-vue'
           if (/[\\/](vee-validate|@vee-validate|zod)[\\/]/.test(id)) return 'vendor-forms'
           if (/[\\/]axios[\\/]/.test(id)) return 'vendor-http'
+          if (/[\\/]vue-i18n[\\/]/.test(id)) return 'vendor-i18n'
+          if (/[\\/]@unhead[\\/]/.test(id)) return 'vendor-head'
         },
       },
     },

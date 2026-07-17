@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { DEFAULT_LOCALE, isSupportedLocale, setLocale } from '@/i18n'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,12 +8,24 @@ const router = createRouter({
     return { top: 0 }
   },
   routes: [
+    { path: '/', redirect: `/${DEFAULT_LOCALE}/` },
     {
-      path: '/',
+      path: '/:locale(es|en)/',
       name: 'landing',
       component: () => import('@/modules/landing/views/LandingView.vue'),
     },
+    { path: '/:pathMatch(.*)*', redirect: `/${DEFAULT_LOCALE}/` },
   ],
+})
+
+router.beforeEach(async (to) => {
+  const rawLocale = to.params.locale
+  const locale = Array.isArray(rawLocale) ? rawLocale[0] : rawLocale
+  if (isSupportedLocale(locale)) {
+    await setLocale(locale)
+    return true
+  }
+  return `/${DEFAULT_LOCALE}/`
 })
 
 export default router
