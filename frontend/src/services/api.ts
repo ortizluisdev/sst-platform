@@ -2,7 +2,11 @@ import axios from 'axios'
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 10_000,
+  // 35s: el backend en el free tier de Render "duerme" tras 15 min sin tráfico
+  // y la primera petición tras eso puede tardar 30-50s en despertar. Un timeout
+  // corto perdería ese primer lead con un error de red aunque el backend sí
+  // responda, solo que tarde.
+  timeout: 35_000,
 })
 
 /**

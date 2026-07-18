@@ -1,10 +1,13 @@
 # RoMa — Backend
 
-Backend del formulario de contacto de RoMa. Node.js + TypeScript + Fastify + Prisma (MySQL) + Nodemailer.
+Backend del formulario de contacto de RoMa. Node.js + TypeScript + Fastify + Prisma (PostgreSQL) + Nodemailer.
+Pensado para desplegarse en Render, con la base de datos en Supabase (ambos con tier gratuito).
 
 ## Levantar el proyecto
 
-Requiere una base de datos MySQL accesible (en producción, el servidor Contabo ya provisionado; en local, cualquier MySQL/MariaDB, incluido uno en Docker).
+Requiere una base de datos PostgreSQL accesible. En Supabase, usa el connection string del **Session pooler**
+(puerto 5432) — funciona bien tanto para conexiones persistentes como para redes IPv4, lo más común en
+plataformas como Render.
 
 ```bash
 npm install
@@ -27,7 +30,7 @@ Ver `.env.example`. Las más importantes:
 
 | Variable                      | Uso                                                                                                             |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                 | Cadena de conexión MySQL de Prisma.                                                                             |
+| `DATABASE_URL`                 | Cadena de conexión PostgreSQL de Prisma (Supabase — Session pooler, puerto 5432).                              |
 | `FRONTEND_URL`                 | Único origen (además de `localhost:5173` en dev) permitido por CORS — nunca se usa `*`.                        |
 | `ZOHO_SMTP_*`                  | Credenciales SMTP de Zoho. Mientras falten, el envío de correo se omite de forma controlada (log, no crash).    |
 | `CONTACT_NOTIFICATION_EMAIL`   | Destinatario interno de la notificación de cada envío del formulario.                                            |
