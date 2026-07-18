@@ -133,7 +133,8 @@ export function useCanvasNetwork(canvasRef: Ref<HTMLCanvasElement | null>, optio
     for (const n of nodes) {
       ctx.beginPath()
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
-      ctx.fillStyle = n.tone === 'sky' ? `rgba(91,141,199,${opts.nodeAlphaSky})` : `rgba(11,26,51,${opts.nodeAlphaNavy})`
+      ctx.fillStyle =
+        n.tone === 'sky' ? `rgba(91,141,199,${opts.nodeAlphaSky})` : `rgba(11,26,51,${opts.nodeAlphaNavy})`
       ctx.shadowBlur = opts.shadowBlur
       ctx.shadowColor = n.tone === 'sky' ? 'rgba(91,141,199,0.5)' : 'rgba(11,26,51,0.25)'
       ctx.fill()

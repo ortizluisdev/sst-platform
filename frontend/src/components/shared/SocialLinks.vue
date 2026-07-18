@@ -7,7 +7,9 @@ withDefaults(defineProps<{ variant?: 'floating' | 'footer' }>(), { variant: 'foo
 const { t } = useI18n()
 
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER ?? '573000000000'
-const whatsappHref = computed(() => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t('social.whatsappMessage'))}`)
+const whatsappHref = computed(
+  () => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t('social.whatsappMessage'))}`,
+)
 const facebookHref = import.meta.env.VITE_FACEBOOK_URL ?? '#'
 const instagramHref = import.meta.env.VITE_INSTAGRAM_URL ?? '#'
 const tiktokHref = import.meta.env.VITE_TIKTOK_URL ?? '#'
@@ -54,11 +56,20 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
       aria-label="WhatsApp"
       class="flex h-10 w-10 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp transition-colors hover:bg-whatsapp hover:text-white"
     >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M12 2.5C6.75 2.5 2.5 6.75 2.5 12c0 1.83.52 3.53 1.4 4.98L2.5 21.5l4.65-1.36a9.44 9.44 0 0 0 4.85 1.34c5.25 0 9.5-4.25 9.5-9.5S17.25 2.5 12 2.5z"
         />
-        <path d="M8.5 8.8c.4-.9 1.1-.85 1.65-.85.2 0 .43.15.6.55l.7 1.8c.13.3.06.55-.1.75l-.5.6c-.15.2-.1.45.05.7.5.85 1.65 2 2.9 2.6.25.12.5.1.68-.1l.65-.75c.2-.22.4-.28.68-.16l1.8.8c.3.13.4.3.4.6-.03.85-.9 1.55-1.7 1.6-1.5.1-3.2-.55-4.9-2.1-1.5-1.4-2.35-2.9-2.7-4.1-.15-.5-.3-1.15-.16-1.94z" />
+        <path
+          d="M8.5 8.8c.4-.9 1.1-.85 1.65-.85.2 0 .43.15.6.55l.7 1.8c.13.3.06.55-.1.75l-.5.6c-.15.2-.1.45.05.7.5.85 1.65 2 2.9 2.6.25.12.5.1.68-.1l.65-.75c.2-.22.4-.28.68-.16l1.8.8c.3.13.4.3.4.6-.03.85-.9 1.55-1.7 1.6-1.5.1-3.2-.55-4.9-2.1-1.5-1.4-2.35-2.9-2.7-4.1-.15-.5-.3-1.15-.16-1.94z"
+        />
       </svg>
     </a>
     <a
@@ -68,11 +79,15 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
       aria-label="Facebook"
       class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-navy-700 transition-colors hover:bg-navy-900 hover:text-white"
     >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M15 4h-2a4 4 0 0 0-4 4v2H7v3h2v7h3v-7h2.6l.4-3H12V8a1 1 0 0 1 1-1h2V4z"
-          stroke-linejoin="round"
-        />
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M15 4h-2a4 4 0 0 0-4 4v2H7v3h2v7h3v-7h2.6l.4-3H12V8a1 1 0 0 1 1-1h2V4z" stroke-linejoin="round" />
       </svg>
     </a>
     <a
@@ -82,7 +97,14 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
       aria-label="Instagram"
       class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-navy-700 transition-colors hover:bg-navy-900 hover:text-white"
     >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <rect x="3" y="3" width="18" height="18" rx="5" />
         <circle cx="12" cy="12" r="4" />
         <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
@@ -95,7 +117,16 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
       aria-label="TikTok"
       class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-navy-700 transition-colors hover:bg-navy-900 hover:text-white"
     >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path d="M15 3v10.8a3.6 3.6 0 1 1-3-3.55" />
         <path d="M15 3c.3 2.4 2 4.2 4.4 4.5" />
       </svg>
@@ -107,7 +138,15 @@ const xHref = import.meta.env.VITE_X_URL ?? '#'
       aria-label="X (Twitter)"
       class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-navy-700 transition-colors hover:bg-navy-900 hover:text-white"
     >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path d="M5 5l14 14M19 5L5 19" />
       </svg>
     </a>

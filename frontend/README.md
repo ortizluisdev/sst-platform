@@ -21,13 +21,13 @@ npm run preview    # sirve el build de dist/ localmente
 
 Definidas en `.env.example`, se copian a `.env` (ignorado por git):
 
-| Variable | Uso |
-|---|---|
-| `VITE_API_BASE_URL` | Base URL de la instancia de Axios (`src/services/api.ts`). |
-| `VITE_CONTACT_API_ENDPOINT` | Endpoint al que se envía el formulario de contacto (`src/services/contact.service.ts`). El backend debe implementarlo; si no está definido, el envío falla explícitamente en vez de fallar en silencio. |
-| `VITE_SITE_URL` | Dominio público, usado en meta tags SEO/Open Graph y `sitemap.xml`. |
-| `VITE_WHATSAPP_NUMBER` | Número de WhatsApp (formato `573000000000`) para el botón flotante y el footer. |
-| `VITE_FACEBOOK_URL` / `VITE_INSTAGRAM_URL` | Enlaces directos de redes sociales en el footer. |
+| Variable                                   | Uso                                                                                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`                        | Base URL de la instancia de Axios (`src/services/api.ts`).                                                                                                                                              |
+| `VITE_CONTACT_API_ENDPOINT`                | Endpoint al que se envía el formulario de contacto (`src/services/contact.service.ts`). El backend debe implementarlo; si no está definido, el envío falla explícitamente en vez de fallar en silencio. |
+| `VITE_SITE_URL`                            | Dominio público, usado en meta tags SEO/Open Graph y `sitemap.xml`.                                                                                                                                     |
+| `VITE_WHATSAPP_NUMBER`                     | Número de WhatsApp (formato `573000000000`) para el botón flotante y el footer.                                                                                                                         |
+| `VITE_FACEBOOK_URL` / `VITE_INSTAGRAM_URL` | Enlaces directos de redes sociales en el footer.                                                                                                                                                        |
 
 Todos son placeholders de ejemplo — reemplázalos antes de producción.
 
@@ -48,8 +48,8 @@ Todos son placeholders de ejemplo — reemplázalos antes de producción.
 
 - Contenido en `src/i18n/locales/{es,en}.json`, namespaced por sección (`hero`, `servicios`, `metodologia`, etc.). Solo el idioma activo se carga al inicio; el otro se carga bajo demanda (`import.meta.glob` + import dinámico en `src/i18n/index.ts`) al cambiar de idioma.
 - Rutas: `/es/` y `/en/` sobre la misma `LandingView`; un guard en `router/index.ts` activa el idioma correcto antes de renderizar. El selector de idioma en `SiteHeader.vue` navega a la misma ruta con el otro prefijo, preservando el hash actual.
-- Encabezados con una palabra/frase resaltada (ej. "La diferencia... está en *la ciencia*") usan `<i18n-t>` con un slot con nombre, no HTML embebido en el JSON — así el estilo vive en el componente, no en la traducción.
-- **Gotcha real que ya nos mordió**: vue-i18n interpreta `@` como inicio de un "mensaje enlazado" (`@:otra.key`). Cualquier `@` literal en un string de traducción (como un placeholder de correo `tu@empresa.com`) rompe la compilación del mensaje — y como el error se traga silenciosamente en producción, el síntoma es que *toda la sección que usa ese mensaje deja de reaccionar al cambio de idioma*, no un error visible. Se soluciona escapando como `tu\\@empresa.com` en el JSON (backslash + arroba). Si agregas contenido nuevo con `@`, escápalo así.
+- Encabezados con una palabra/frase resaltada (ej. "La diferencia... está en _la ciencia_") usan `<i18n-t>` con un slot con nombre, no HTML embebido en el JSON — así el estilo vive en el componente, no en la traducción.
+- **Gotcha real que ya nos mordió**: vue-i18n interpreta `@` como inicio de un "mensaje enlazado" (`@:otra.key`). Cualquier `@` literal en un string de traducción (como un placeholder de correo `tu@empresa.com`) rompe la compilación del mensaje — y como el error se traga silenciosamente en producción, el síntoma es que _toda la sección que usa ese mensaje deja de reaccionar al cambio de idioma_, no un error visible. Se soluciona escapando como `tu\\@empresa.com` en el JSON (backslash + arroba). Si agregas contenido nuevo con `@`, escápalo así.
 - Al agregar un tercer idioma: crear `src/i18n/locales/<code>.json` con las mismas claves que `es.json`, agregarlo a `SUPPORTED_LOCALES` en `src/i18n/index.ts`, y al patrón de ruta `(es|en)` en `router/index.ts`.
 
 ## Convenciones de carpetas (para cuando se agregue el dashboard)

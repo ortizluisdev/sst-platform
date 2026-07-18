@@ -6,7 +6,10 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <section id="inicio" class="relative flex min-h-screen flex-col items-center justify-center gap-14 overflow-hidden px-6 pb-24 pt-[150px]">
+  <section
+    id="inicio"
+    class="relative flex min-h-screen flex-col items-center justify-center gap-14 overflow-hidden px-6 pb-24 pt-[150px]"
+  >
     <component
       :is="AnimatedNetworkBackgroundAsync"
       :node-count-desktop="78"
@@ -23,9 +26,13 @@ const { t } = useI18n()
       :shadow-blur="7"
     />
 
-    <div class="relative z-[2] grid w-full max-w-[1180px] items-center gap-8 md:grid-cols-[1fr_auto] md:gap-[clamp(32px,6vw,90px)]">
+    <div
+      class="relative z-[2] grid w-full max-w-[1180px] items-center gap-8 md:grid-cols-[1fr_auto] md:gap-[clamp(32px,6vw,90px)]"
+    >
       <div class="max-w-[640px] text-center md:text-left">
-        <div class="mb-6 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong">
+        <div
+          class="mb-6 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong"
+        >
           {{ t('hero.eyebrow') }}
         </div>
         <i18n-t
@@ -33,7 +40,9 @@ const { t } = useI18n()
           tag="h1"
           class="mb-4 font-serif text-[clamp(34px,4.6vw,56px)] font-semibold leading-[1.18] tracking-[-0.01em] text-navy-900"
         >
-          <template #accent><em class="font-serif font-medium italic text-sky-400">{{ t('hero.titleAccent') }}</em></template>
+          <template #accent
+            ><em class="font-serif font-medium italic text-sky-400">{{ t('hero.titleAccent') }}</em></template
+          >
         </i18n-t>
         <p class="mx-auto mb-10 max-w-[480px] text-[clamp(15px,1.4vw,17px)] leading-relaxed text-navy-700 md:mx-0">
           {{ t('hero.lead') }}
@@ -55,8 +64,12 @@ const { t } = useI18n()
         </div>
       </div>
 
-      <div class="flex max-w-[270px] flex-col gap-3.5 border-line-strong px-6 py-6 text-center md:border-l md:px-8 md:text-left">
-        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-400">{{ t('hero.sideCard.kicker') }}</span>
+      <div
+        class="flex max-w-[270px] flex-col gap-3.5 border-line-strong px-6 py-6 text-center md:border-l md:px-8 md:text-left"
+      >
+        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-500">{{
+          t('hero.sideCard.kicker')
+        }}</span>
         <h3 class="font-serif text-[19px] font-semibold leading-snug text-navy-900">
           {{ t('hero.sideCard.title') }}
         </h3>
@@ -75,9 +88,12 @@ const { t } = useI18n()
       </div>
     </div>
 
-    <p class="relative z-[2] flex max-w-[900px] flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 text-center text-[13.5px] tracking-wide text-navy-700">
-      <strong class="font-semibold text-navy-900">{{ t('hero.caption.label') }}</strong> {{ t('hero.caption.identification') }}
-      <span class="font-semibold text-sky-400">→</span> {{ t('hero.caption.analysis') }} <span class="font-semibold text-sky-400">→</span>
+    <p
+      class="relative z-[2] flex max-w-[900px] flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 text-center text-[13.5px] tracking-wide text-navy-700"
+    >
+      <strong class="font-semibold text-navy-900">{{ t('hero.caption.label') }}</strong>
+      {{ t('hero.caption.identification') }} <span class="font-semibold text-sky-500">→</span>
+      {{ t('hero.caption.analysis') }} <span class="font-semibold text-sky-500">→</span>
       {{ t('hero.caption.valuation') }}
       <span class="px-0.5 text-line-strong">|</span>
       {{ t('hero.caption.treatment') }}

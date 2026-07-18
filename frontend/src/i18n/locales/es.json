@@ -13,7 +13,8 @@
     "nosotros": "Nosotros",
     "cta": "RoMa+",
     "openMenu": "Abrir menú",
-    "switchTo": "English"
+    "switchTo": "English",
+    "skipToContent": "Saltar al contenido"
   },
   "hero": {
     "eyebrow": "Ciencia de la complejidad",
@@ -137,10 +138,22 @@
     "componentsLabel": "Los cuatro componentes del modelo, según ISO 31000",
     "frequencyLabel": "Frecuencia:",
     "components": [
-      { "title": "Agentes", "description": "Las personas: capacidades, estado fisiológico, cognitivo y psicosocial, conducta interna y externa, interacción social." },
-      { "title": "Condiciones", "description": "El entorno de trabajo: tecnologías, procesos, factores organizacionales, infraestructura física y entorno externo." },
-      { "title": "Eventos", "description": "Nodos-tipo emergentes por mecanismo de daño: caídas, atrapamiento, sobreesfuerzo, exposición química y más." },
-      { "title": "Consecuencias", "description": "Severidad esperada, calibrada con datos históricos de accidentalidad en lugar de una tabla fija y subjetiva." }
+      {
+        "title": "Agentes",
+        "description": "Las personas: capacidades, estado fisiológico, cognitivo y psicosocial, conducta interna y externa, interacción social."
+      },
+      {
+        "title": "Condiciones",
+        "description": "El entorno de trabajo: tecnologías, procesos, factores organizacionales, infraestructura física y entorno externo."
+      },
+      {
+        "title": "Eventos",
+        "description": "Nodos-tipo emergentes por mecanismo de daño: caídas, atrapamiento, sobreesfuerzo, exposición química y más."
+      },
+      {
+        "title": "Consecuencias",
+        "description": "Severidad esperada, calibrada con datos históricos de accidentalidad en lugar de una tabla fija y subjetiva."
+      }
     ],
     "cycleTitle": "Un ciclo continuo, no un ejercicio anual.",
     "cycleSubtitle": "Las cuatro etapas reconocidas por la GTC 45 y la ISO 31000 se conservan, pero se ejecutan sobre la red dinámica: cada una con su propia frecuencia de actualización.",
@@ -224,7 +237,14 @@
     "profile": {
       "roleEyebrow": "Fundador · Director Científico",
       "roleTitle": "Chief Scientific Officer",
-      "degreesSub": ["Ingeniero Mecánico", "Especialista en Matemáticas Aplicadas", "Especialista en Gerencia de Riesgos Laborales", "Magíster en Ingeniería Industrial", "Maestrante en Ingeniería de Materiales", "Doctorando en Industria y Organizaciones"],
+      "degreesSub": [
+        "Ingeniero Mecánico",
+        "Especialista en Matemáticas Aplicadas",
+        "Especialista en Gerencia de Riesgos Laborales",
+        "Magíster en Ingeniería Industrial",
+        "Maestrante en Ingeniería de Materiales",
+        "Doctorando en Industria y Organizaciones"
+      ],
       "photoLabel": "Foto próximamente",
       "bio": [
         "Con más de 15 años de experiencia liderando proyectos de ingeniería, gestión del riesgo, seguridad industrial, higiene ocupacional, seguridad vial y sistemas integrados de gestión para organizaciones de los principales sectores económicos de Colombia.",
@@ -233,7 +253,14 @@
       ]
     },
     "formacionTitle": "Formación Académica",
-    "degrees": ["Ingeniero Mecánico", "Especialista en Matemáticas Aplicadas", "Especialista en Gerencia de Riesgos Laborales", "Magíster en Ingeniería Industrial", "Maestrante en Ingeniería de Materiales", "Doctorando en Industria y Organizaciones"],
+    "degrees": [
+      "Ingeniero Mecánico",
+      "Especialista en Matemáticas Aplicadas",
+      "Especialista en Gerencia de Riesgos Laborales",
+      "Magíster en Ingeniería Industrial",
+      "Maestrante en Ingeniería de Materiales",
+      "Doctorando en Industria y Organizaciones"
+    ],
     "investigacionTitle": "Investigación Científica",
     "research": [
       {
@@ -287,6 +314,7 @@
     "navTitle": "Navegación",
     "socialTitle": "Síguenos",
     "contacto": "Contacto",
+    "emailUs": "Escríbenos",
     "copyright": "RoMa — Ciencia Aplicada. Todos los derechos reservados."
   },
   "social": {

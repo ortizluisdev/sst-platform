@@ -5,6 +5,4 @@ import { defineAsyncComponent } from 'vue'
  * promise on this object, so importing it from multiple sections still
  * only fetches and mounts one chunk.
  */
-export const AnimatedNetworkBackgroundAsync = defineAsyncComponent(
-  () => import('./AnimatedNetworkBackground.vue'),
-)
+export const AnimatedNetworkBackgroundAsync = defineAsyncComponent(() => import('./AnimatedNetworkBackground.vue'))

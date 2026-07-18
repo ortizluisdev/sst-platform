@@ -4,6 +4,7 @@ import SocialLinks from './SocialLinks.vue'
 
 const { t } = useI18n()
 const year = new Date().getFullYear()
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL as string | undefined
 </script>
 
 <template>
@@ -17,7 +18,9 @@ const year = new Date().getFullYear()
       </div>
 
       <nav class="flex flex-col gap-3 text-[13.5px]">
-        <span class="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-400">{{ t('footer.navTitle') }}</span>
+        <span class="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-200">{{
+          t('footer.navTitle')
+        }}</span>
         <a href="#servicios" class="text-sky-100 transition-colors hover:text-white">{{ t('nav.servicios') }}</a>
         <a href="#metodologia" class="text-sky-100 transition-colors hover:text-white">{{ t('nav.metodologia') }}</a>
         <a href="#nosotros" class="text-sky-100 transition-colors hover:text-white">{{ t('nav.nosotros') }}</a>
@@ -25,8 +28,17 @@ const year = new Date().getFullYear()
       </nav>
 
       <div class="flex flex-col gap-4">
-        <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-400">{{ t('footer.socialTitle') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-200">{{
+          t('footer.socialTitle')
+        }}</span>
         <SocialLinks variant="footer" />
+        <a
+          v-if="contactEmail"
+          :href="`mailto:${contactEmail}`"
+          class="text-[13.5px] text-sky-100 transition-colors hover:text-white"
+        >
+          {{ t('footer.emailUs') }}: {{ contactEmail }}
+        </a>
       </div>
     </div>
 

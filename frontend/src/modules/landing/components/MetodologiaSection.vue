@@ -89,8 +89,14 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
         >
           {{ t('metodologia.eyebrow') }}
         </div>
-        <i18n-t keypath="metodologia.title" tag="h2" class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
-          <template #accent><em class="font-medium italic text-sky-400">{{ t('metodologia.titleAccent') }}</em></template>
+        <i18n-t
+          keypath="metodologia.title"
+          tag="h2"
+          class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900"
+        >
+          <template #accent
+            ><em class="font-medium italic text-sky-400">{{ t('metodologia.titleAccent') }}</em></template
+          >
         </i18n-t>
         <p class="mt-[18px] text-[15px] leading-[1.7] text-navy-700 opacity-85">
           {{ t('metodologia.intro') }}
@@ -98,21 +104,36 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
       </div>
 
       <!-- shift statement -->
-      <div v-reveal class="mx-auto my-14 mb-[88px] grid max-w-[920px] items-center gap-6 rounded-md border border-line-strong bg-white p-8 shadow-[0_24px_60px_rgba(11,26,51,0.06)] max-[720px]:grid-cols-1 min-[721px]:grid-cols-[1fr_auto_1fr] min-[721px]:gap-9">
+      <div
+        v-reveal
+        class="mx-auto my-14 mb-[88px] grid max-w-[920px] items-center gap-6 rounded-md border border-line-strong bg-white p-8 shadow-[0_24px_60px_rgba(11,26,51,0.06)] max-[720px]:grid-cols-1 min-[721px]:grid-cols-[1fr_auto_1fr] min-[721px]:gap-9"
+      >
         <div class="text-center">
-          <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700 opacity-60">{{ t('metodologia.shift.fromKicker') }}</span>
-          <div class="mb-2 font-serif text-lg font-semibold text-navy-700 opacity-65">{{ t('metodologia.shift.fromTitle') }}</div>
+          <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700 opacity-60">{{
+            t('metodologia.shift.fromKicker')
+          }}</span>
+          <div class="mb-2 font-serif text-lg font-semibold text-navy-700 opacity-65">
+            {{ t('metodologia.shift.fromTitle') }}
+          </div>
           <p class="text-[13px] leading-relaxed text-navy-700 opacity-85">
             {{ t('metodologia.shift.fromDesc') }}
           </p>
         </div>
         <div class="flex items-center justify-center text-sky-400 max-[720px]:mx-auto max-[720px]:rotate-90">
           <svg class="h-[34px] w-[34px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M4 12h15M13 6l6 6-6 6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
         <div class="text-center">
-          <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700 opacity-60">{{ t('metodologia.shift.toKicker') }}</span>
+          <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700 opacity-60">{{
+            t('metodologia.shift.toKicker')
+          }}</span>
           <div class="mb-2 font-serif text-lg font-semibold text-navy-900">{{ t('metodologia.shift.toTitle') }}</div>
           <p class="text-[13px] leading-relaxed text-navy-700 opacity-85">
             {{ t('metodologia.shift.toDesc') }}
@@ -123,14 +144,21 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
       <p class="mb-8 text-center text-xs uppercase tracking-[0.2em] font-semibold text-navy-700 opacity-60">
         {{ t('metodologia.componentsLabel') }}
       </p>
-      <div class="mb-[100px] grid grid-cols-4 border-y border-line-strong max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
+      <div
+        class="mb-[100px] grid grid-cols-4 border-y border-line-strong max-[900px]:grid-cols-2 max-[560px]:grid-cols-1"
+      >
         <article
           v-for="(card, index) in compCards"
           :key="card.title"
           v-reveal="index * 80"
           class="border-l border-line-strong px-5 py-8 text-center first:border-l-0 max-[900px]:border-t max-[900px]:[&:nth-child(-n+2)]:border-t-0 max-[900px]:odd:border-l-0 max-[560px]:border-l-0 max-[560px]:first:border-t-0"
         >
-          <div class="mx-auto mb-[18px] h-[46px] w-[46px] [&>svg]:block [&>svg]:h-full [&>svg]:w-full" v-html="card.icon" />
+          <!-- eslint-disable vue/no-v-html -- static SVG markup authored in-repo, never user input -->
+          <div
+            class="mx-auto mb-[18px] h-[46px] w-[46px] [&>svg]:block [&>svg]:h-full [&>svg]:w-full"
+            v-html="card.icon"
+          />
+          <!-- eslint-enable vue/no-v-html -->
           <h3 class="mb-2.5 text-sm font-semibold text-navy-900">{{ card.title }}</h3>
           <p class="text-[12.5px] leading-relaxed text-navy-700 opacity-85">{{ card.description }}</p>
         </article>
@@ -148,9 +176,12 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
       <div v-reveal class="mb-[110px]">
         <AccordionPanel :items="cycleStages">
           <template #content="{ item }">
-            <p class="mb-auto max-w-[660px] text-[13.5px] leading-[1.75] text-navy-700">{{ (item as CycleStage).description }}</p>
+            <p class="mb-auto max-w-[660px] text-[13.5px] leading-[1.75] text-navy-700">
+              {{ (item as CycleStage).description }}
+            </p>
             <div class="mt-5 border-t border-line-strong pt-4 text-xs tracking-wide text-navy-700 opacity-85">
-              <strong class="font-semibold text-navy-900 opacity-100">{{ t('metodologia.frequencyLabel') }}</strong> {{ (item as CycleStage).frequency }}
+              <strong class="font-semibold text-navy-900 opacity-100">{{ t('metodologia.frequencyLabel') }}</strong>
+              {{ (item as CycleStage).frequency }}
             </div>
           </template>
         </AccordionPanel>
@@ -165,18 +196,41 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
         </p>
       </div>
 
-      <div v-reveal class="mb-[110px] overflow-x-auto rounded-md border border-line-strong bg-white shadow-[0_24px_60px_rgba(11,26,51,0.06)]">
+      <div
+        v-reveal
+        class="mb-[110px] overflow-x-auto rounded-md border border-line-strong bg-white shadow-[0_24px_60px_rgba(11,26,51,0.06)]"
+      >
         <table class="w-full min-w-[560px] border-collapse">
           <thead>
             <tr>
-              <th class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700">{{ toolsHeaders[0] }}</th>
-              <th class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700">{{ toolsHeaders[1] }}</th>
-              <th class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700">{{ toolsHeaders[2] }}</th>
+              <th
+                class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700"
+              >
+                {{ toolsHeaders[0] }}
+              </th>
+              <th
+                class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700"
+              >
+                {{ toolsHeaders[1] }}
+              </th>
+              <th
+                class="border-b border-line-strong bg-sky-100 px-5 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-700"
+              >
+                {{ toolsHeaders[2] }}
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="tool in tools" :key="tool.name" class="[&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-line">
-              <td class="whitespace-nowrap px-5 py-5 align-top font-serif text-[13.5px] font-semibold italic text-navy-900">{{ tool.name }}</td>
+            <tr
+              v-for="tool in tools"
+              :key="tool.name"
+              class="[&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-line"
+            >
+              <td
+                class="whitespace-nowrap px-5 py-5 align-top font-serif text-[13.5px] font-semibold italic text-navy-900"
+              >
+                {{ tool.name }}
+              </td>
               <td class="px-5 py-5 align-top text-[13.5px] leading-relaxed text-navy-700">{{ tool.fn }}</td>
               <td class="whitespace-nowrap px-5 py-5 align-top text-xs text-navy-700 opacity-80">{{ tool.freq }}</td>
             </tr>
@@ -185,36 +239,60 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
       </div>
 
       <!-- MSSV network explorer — placeholder (interactive explorer not yet delivered) -->
-      <div v-reveal class="mx-auto max-w-[1180px] overflow-hidden rounded-lg border border-line-strong bg-white shadow-[0_30px_70px_rgba(11,26,51,0.1)]">
-        <div class="flex flex-wrap items-start justify-between gap-6 border-b border-line-strong px-6 pb-6 pt-9 sm:px-10 md:px-13">
+      <div
+        v-reveal
+        class="mx-auto max-w-[1180px] overflow-hidden rounded-lg border border-line-strong bg-white shadow-[0_30px_70px_rgba(11,26,51,0.1)]"
+      >
+        <div
+          class="flex flex-wrap items-start justify-between gap-6 border-b border-line-strong px-6 pb-6 pt-9 sm:px-10 md:px-13"
+        >
           <div>
-            <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-400">{{ t('metodologia.mssv.kicker') }}</span>
-            <h3 class="mb-2.5 max-w-[520px] font-serif text-[clamp(20px,2.2vw,26px)] font-semibold text-navy-900">{{ t('metodologia.mssv.title') }}</h3>
+            <span class="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-500">{{
+              t('metodologia.mssv.kicker')
+            }}</span>
+            <h3 class="mb-2.5 max-w-[520px] font-serif text-[clamp(20px,2.2vw,26px)] font-semibold text-navy-900">
+              {{ t('metodologia.mssv.title') }}
+            </h3>
             <p class="max-w-[560px] text-[13.5px] leading-[1.7] text-navy-700 opacity-85">
               {{ t('metodologia.mssv.description') }}
             </p>
           </div>
           <div class="flex flex-col gap-2 whitespace-nowrap text-xs text-navy-700">
-            <span class="flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-sky-400" /> {{ t('metodologia.mssv.legendNode') }}</span>
-            <span class="flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-navy-700" /> {{ t('metodologia.mssv.legendConnection') }}</span>
+            <span class="flex items-center gap-2"
+              ><i class="h-2.5 w-2.5 rounded-full bg-sky-400" /> {{ t('metodologia.mssv.legendNode') }}</span
+            >
+            <span class="flex items-center gap-2"
+              ><i class="h-2.5 w-2.5 rounded-full bg-navy-700" /> {{ t('metodologia.mssv.legendConnection') }}</span
+            >
           </div>
         </div>
 
         <div class="relative flex h-[460px] items-center justify-center bg-[#FAFBFD] px-6 sm:h-[620px]">
-          <div class="flex max-w-[420px] flex-col items-center gap-3.5 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-11 text-center">
-            <svg class="h-[34px] w-[34px] text-sky-400 opacity-60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div
+            class="flex max-w-[420px] flex-col items-center gap-3.5 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-11 text-center"
+          >
+            <svg
+              class="h-[34px] w-[34px] text-sky-400 opacity-60"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.3" />
               <path d="M20.5 20.5l-4.4-4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
               <path d="M8 11h6M11 8v6" stroke="currentColor" stroke-width="1.1" />
             </svg>
-            <div class="font-serif text-[15.5px] italic text-navy-900">{{ t('metodologia.mssv.placeholderTitle') }}</div>
+            <div class="font-serif text-[15.5px] italic text-navy-900">
+              {{ t('metodologia.mssv.placeholderTitle') }}
+            </div>
             <p class="text-[13.3px] leading-[1.7] text-navy-700 opacity-85">
               {{ t('metodologia.mssv.placeholderDesc') }}
             </p>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-4 bg-sky-100 px-6 py-[18px] text-[12.5px] text-navy-700 sm:px-10 md:px-13">
+        <div
+          class="flex flex-wrap items-center justify-between gap-4 bg-sky-100 px-6 py-[18px] text-[12.5px] text-navy-700 sm:px-10 md:px-13"
+        >
           <span>{{ t('metodologia.mssv.footer') }}</span>
         </div>
       </div>

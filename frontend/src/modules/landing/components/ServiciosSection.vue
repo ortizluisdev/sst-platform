@@ -73,8 +73,14 @@ const items = computed<ServiceItem[]>(() => {
         >
           {{ t('servicios.eyebrow') }}
         </div>
-        <i18n-t keypath="servicios.title" tag="h2" class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
-          <template #accent><em class="font-medium italic text-sky-400">{{ t('servicios.titleAccent') }}</em></template>
+        <i18n-t
+          keypath="servicios.title"
+          tag="h2"
+          class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900"
+        >
+          <template #accent
+            ><em class="font-medium italic text-sky-400">{{ t('servicios.titleAccent') }}</em></template
+          >
         </i18n-t>
         <p class="mt-[18px] text-[15px] leading-relaxed text-navy-700 opacity-85">
           {{ t('servicios.subtitle') }}
@@ -84,7 +90,12 @@ const items = computed<ServiceItem[]>(() => {
       <div v-reveal="100">
         <AccordionPanel :items="items">
           <template #content="{ item }">
-            <p class="mb-[22px] max-w-[660px] text-sm leading-[1.75] text-navy-700 [&_strong]:font-semibold [&_strong]:text-navy-900" v-html="(item as ServiceItem).description" />
+            <!-- eslint-disable vue/no-v-html -- content comes from src/i18n/locales/*.json, not user input -->
+            <p
+              class="mb-[22px] max-w-[660px] text-sm leading-[1.75] text-navy-700 [&_strong]:font-semibold [&_strong]:text-navy-900"
+              v-html="(item as ServiceItem).description"
+            />
+            <!-- eslint-enable vue/no-v-html -->
             <div class="mb-auto flex flex-wrap gap-2">
               <span
                 v-for="tag in (item as ServiceItem).tags"
@@ -94,8 +105,12 @@ const items = computed<ServiceItem[]>(() => {
                 {{ tag }}
               </span>
             </div>
-            <div class="mt-6 max-w-[680px] border-t border-line-strong pt-5 text-[12.5px] leading-relaxed text-navy-700 opacity-85 [&_strong]:font-semibold [&_strong]:text-navy-900 [&_strong]:opacity-100">
-              <strong>{{ (item as ServiceItem).techLabel }}</strong> <span v-html="(item as ServiceItem).techText" />
+            <div
+              class="mt-6 max-w-[680px] border-t border-line-strong pt-5 text-[12.5px] leading-relaxed text-navy-700 opacity-85 [&_strong]:font-semibold [&_strong]:text-navy-900 [&_strong]:opacity-100"
+            >
+              <strong>{{ (item as ServiceItem).techLabel }}</strong>
+              <!-- eslint-disable-next-line vue/no-v-html -- content comes from src/i18n/locales/*.json, not user input -->
+              <span v-html="(item as ServiceItem).techText" />
             </div>
           </template>
         </AccordionPanel>

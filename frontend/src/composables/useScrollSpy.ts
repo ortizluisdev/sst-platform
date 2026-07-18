@@ -9,9 +9,7 @@ export function useScrollSpy(sectionIds: string[]) {
   let observer: IntersectionObserver | null = null
 
   onMounted(() => {
-    const elements = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null)
+    const elements = sectionIds.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => el !== null)
 
     observer = new IntersectionObserver(
       (entries) => {

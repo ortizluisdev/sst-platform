@@ -39,24 +39,32 @@ function activate(index: number) {
     <article
       v-for="(item, index) in items"
       :key="item.id"
-      class="relative min-w-16 cursor-pointer overflow-hidden border-b border-line bg-white transition-[flex,background] duration-500 [transition-timing-function:cubic-bezier(.65,0,.35,1)] max-[860px]:h-16 max-[860px]:flex-none max-[860px]:border-b max-[860px]:border-r-0 md:h-full md:border-b-0 md:border-r md:border-line md:last:border-r-0"
+      role="button"
+      tabindex="0"
+      :aria-expanded="index === activeIndex"
+      :aria-label="item.label"
+      class="relative min-w-16 cursor-pointer overflow-hidden border-b border-line bg-white transition-[flex,background] duration-500 [transition-timing-function:cubic-bezier(.65,0,.35,1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 max-[860px]:h-16 max-[860px]:flex-none max-[860px]:border-b max-[860px]:border-r-0 md:h-full md:border-b-0 md:border-r md:border-line md:last:border-r-0"
       :class="[
         index === activeIndex
           ? 'cursor-default bg-white md:flex-[5.6] max-[860px]:h-auto max-[860px]:min-h-[420px]'
           : 'hover:bg-sky-100 md:flex-1',
       ]"
       @click="activate(index)"
+      @keydown.enter.prevent="activate(index)"
+      @keydown.space.prevent="activate(index)"
     >
       <!-- collapsed label -->
       <div
         class="absolute inset-0 flex flex-col items-center justify-end gap-0 px-0 py-8 pb-7 transition-opacity duration-300 max-[860px]:flex-row max-[860px]:items-center max-[860px]:justify-start max-[860px]:gap-4 max-[860px]:px-5 max-[860px]:py-0"
         :class="index === activeIndex ? 'pointer-events-none opacity-0' : 'opacity-100'"
       >
-        <span class="font-serif mb-4 text-[15px] italic text-sky-400 opacity-90 max-[860px]:mb-0">{{ item.num }}</span>
+        <span class="font-serif mb-4 text-[15px] italic text-sky-500 opacity-90 max-[860px]:mb-0">{{ item.num }}</span>
+        <!-- eslint-disable vue/no-v-html -- static SVG markup authored in-repo (see AccordionItem), never user input -->
         <span
           class="mb-5 h-9 w-9 opacity-95 max-[860px]:mb-0 max-[860px]:h-[26px] max-[860px]:w-[26px] [&>svg]:block [&>svg]:h-full [&>svg]:w-full"
           v-html="item.iconMini"
         />
+        <!-- eslint-enable vue/no-v-html -->
         <span
           class="whitespace-nowrap text-[13.5px] font-semibold uppercase tracking-wide text-navy-900 [writing-mode:vertical-rl] rotate-180 max-[860px]:[writing-mode:horizontal-tb] max-[860px]:rotate-0"
         >
@@ -67,11 +75,16 @@ function activate(index: number) {
       <!-- expanded content -->
       <div
         class="absolute inset-0 flex flex-col overflow-y-auto px-7 pb-10 pt-12 transition-[opacity,transform] delay-[120ms] duration-[400ms] sm:px-9 max-[860px]:static max-[860px]:px-5 max-[860px]:pb-8 max-[860px]:pt-6"
-        :class="index === activeIndex ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'"
+        :class="
+          index === activeIndex
+            ? 'pointer-events-auto translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-2 opacity-0'
+        "
       >
         <div class="mb-5 flex items-start justify-between gap-6">
+          <!-- eslint-disable-next-line vue/no-v-html -- static SVG markup authored in-repo, never user input -->
           <span class="h-14 w-14 flex-shrink-0 [&>svg]:block [&>svg]:h-full [&>svg]:w-full" v-html="item.iconBig" />
-          <span class="font-serif whitespace-nowrap text-[15px] italic text-sky-400 opacity-85"
+          <span class="font-serif whitespace-nowrap text-[15px] italic text-sky-500 opacity-85"
             >{{ item.num }} / {{ items.length.toString().padStart(2, '0') }}</span
           >
         </div>
@@ -79,7 +92,7 @@ function activate(index: number) {
         <h3 class="font-serif mb-1.5 text-[clamp(22px,2.2vw,28px)] font-semibold leading-tight text-navy-900">
           {{ item.title }}
         </h3>
-        <p class="font-serif mb-[18px] text-[14.5px] font-medium italic text-sky-400">{{ item.tagline }}</p>
+        <p class="font-serif mb-[18px] text-[14.5px] font-medium italic text-sky-500">{{ item.tagline }}</p>
 
         <slot name="content" :item="item" :index="index" />
       </div>

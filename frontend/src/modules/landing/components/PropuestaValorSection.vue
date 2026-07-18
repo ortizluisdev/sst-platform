@@ -19,17 +19,33 @@ const cardClasses =
         >
           {{ t('propuestaValor.eyebrow') }}
         </div>
-        <i18n-t keypath="propuestaValor.title" tag="h2" class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
-          <template #accent><em class="font-medium italic text-sky-400">{{ t('propuestaValor.titleAccent') }}</em></template>
+        <i18n-t
+          keypath="propuestaValor.title"
+          tag="h2"
+          class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900"
+        >
+          <template #accent
+            ><em class="font-medium italic text-sky-400">{{ t('propuestaValor.titleAccent') }}</em></template
+          >
         </i18n-t>
       </div>
 
-      <div class="grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12">
+      <div
+        class="grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12"
+      >
         <!-- R -->
         <article v-reveal="0" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
-            <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">R</span>
-            <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span
+              class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400"
+              >R</span
+            >
+            <svg
+              class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="32" cy="10" r="2.4" fill="#5B8DC7" />
               <circle cx="12" cy="40" r="2.4" fill="#5B8DC7" />
               <circle cx="52" cy="40" r="2.4" fill="#5B8DC7" />
@@ -41,8 +57,12 @@ const cardClasses =
               <line x1="52" y1="40" x2="32" y2="56" stroke="#5B8DC7" stroke-width="0.8" opacity="0.5" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.0.title') }}</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.0.lead') }}</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">
+            {{ t('propuestaValor.cards.0.title') }}
+          </h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
+            {{ t('propuestaValor.cards.0.lead') }}
+          </p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.0.body') }}
           </p>
@@ -51,8 +71,16 @@ const cardClasses =
         <!-- O -->
         <article v-reveal="100" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
-            <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">O</span>
-            <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span
+              class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400"
+              >O</span
+            >
+            <svg
+              class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="12" cy="14" r="2.2" fill="#5B8DC7" />
               <circle cx="52" cy="14" r="2.2" fill="#5B8DC7" />
               <circle cx="8" cy="50" r="2" fill="#AFC9E8" />
@@ -63,8 +91,12 @@ const cardClasses =
               <line x1="8" y1="50" x2="56" y2="50" stroke="#5B8DC7" stroke-width="0.8" opacity="0.35" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.1.title') }}</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.1.lead') }}</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">
+            {{ t('propuestaValor.cards.1.title') }}
+          </h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
+            {{ t('propuestaValor.cards.1.lead') }}
+          </p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.1.body') }}
           </p>
@@ -73,8 +105,16 @@ const cardClasses =
         <!-- M -->
         <article v-reveal="200" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
-            <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">M</span>
-            <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span
+              class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400"
+              >M</span
+            >
+            <svg
+              class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="10" cy="46" r="2.2" fill="#5B8DC7" />
               <circle cx="24" cy="20" r="2" fill="#AFC9E8" />
               <circle cx="40" cy="20" r="2" fill="#AFC9E8" />
@@ -85,8 +125,12 @@ const cardClasses =
               <line x1="10" y1="46" x2="54" y2="46" stroke="#5B8DC7" stroke-width="0.8" opacity="0.3" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.2.title') }}</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.2.lead') }}</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">
+            {{ t('propuestaValor.cards.2.title') }}
+          </h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
+            {{ t('propuestaValor.cards.2.lead') }}
+          </p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.2.body') }}
           </p>
@@ -95,8 +139,16 @@ const cardClasses =
         <!-- A -->
         <article v-reveal="300" :class="cardClasses" class="group">
           <div class="relative mx-auto mb-[22px] h-16 w-16">
-            <span class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400">A</span>
-            <svg class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span
+              class="relative z-[2] font-serif text-[40px] font-semibold text-navy-900 transition-colors duration-300 group-hover:text-sky-400"
+              >A</span
+            >
+            <svg
+              class="absolute inset-0 z-[1] h-full w-full scale-[.85] opacity-0 transition-all duration-[350ms] group-hover:scale-100 group-hover:opacity-100"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="32" cy="8" r="2.4" fill="#5B8DC7" />
               <circle cx="14" cy="50" r="2" fill="#AFC9E8" />
               <circle cx="50" cy="50" r="2" fill="#AFC9E8" />
@@ -105,8 +157,12 @@ const cardClasses =
               <line x1="22" y1="34" x2="42" y2="34" stroke="#5B8DC7" stroke-width="0.8" opacity="0.45" />
             </svg>
           </div>
-          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">{{ t('propuestaValor.cards.3.title') }}</h3>
-          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-400">{{ t('propuestaValor.cards.3.lead') }}</p>
+          <h3 class="mb-[18px] text-[14.5px] font-semibold uppercase leading-snug tracking-[0.03em] text-navy-900">
+            {{ t('propuestaValor.cards.3.title') }}
+          </h3>
+          <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
+            {{ t('propuestaValor.cards.3.lead') }}
+          </p>
           <p class="text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.3.body') }}
           </p>

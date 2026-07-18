@@ -13,7 +13,8 @@
     "nosotros": "About",
     "cta": "RoMa+",
     "openMenu": "Open menu",
-    "switchTo": "Español"
+    "switchTo": "Español",
+    "skipToContent": "Skip to content"
   },
   "hero": {
     "eyebrow": "Complexity science",
@@ -137,10 +138,22 @@
     "componentsLabel": "The model's four components, per ISO 31000",
     "frequencyLabel": "Frequency:",
     "components": [
-      { "title": "Agents", "description": "People: capabilities, physiological, cognitive, and psychosocial state, internal and external behavior, social interaction." },
-      { "title": "Conditions", "description": "The work environment: technologies, processes, organizational factors, physical infrastructure, and external environment." },
-      { "title": "Events", "description": "Emerging node-types by damage mechanism: falls, entrapment, overexertion, chemical exposure, and more." },
-      { "title": "Consequences", "description": "Expected severity, calibrated with historical accident data instead of a fixed, subjective table." }
+      {
+        "title": "Agents",
+        "description": "People: capabilities, physiological, cognitive, and psychosocial state, internal and external behavior, social interaction."
+      },
+      {
+        "title": "Conditions",
+        "description": "The work environment: technologies, processes, organizational factors, physical infrastructure, and external environment."
+      },
+      {
+        "title": "Events",
+        "description": "Emerging node-types by damage mechanism: falls, entrapment, overexertion, chemical exposure, and more."
+      },
+      {
+        "title": "Consequences",
+        "description": "Expected severity, calibrated with historical accident data instead of a fixed, subjective table."
+      }
     ],
     "cycleTitle": "A continuous cycle, not an annual exercise.",
     "cycleSubtitle": "The four stages recognized by GTC 45 and ISO 31000 remain, but they now run on the dynamic network: each with its own update frequency.",
@@ -224,7 +237,14 @@
     "profile": {
       "roleEyebrow": "Founder · Chief Scientific Officer",
       "roleTitle": "Chief Scientific Officer",
-      "degreesSub": ["Mechanical Engineer", "Specialist in Applied Mathematics", "Specialist in Occupational Risk Management", "M.Sc. in Industrial Engineering", "M.Sc. Candidate in Materials Engineering", "Ph.D. Candidate in Industry and Organizations"],
+      "degreesSub": [
+        "Mechanical Engineer",
+        "Specialist in Applied Mathematics",
+        "Specialist in Occupational Risk Management",
+        "M.Sc. in Industrial Engineering",
+        "M.Sc. Candidate in Materials Engineering",
+        "Ph.D. Candidate in Industry and Organizations"
+      ],
       "photoLabel": "Photo coming soon",
       "bio": [
         "With more than 15 years of experience leading engineering, risk management, industrial safety, occupational hygiene, road safety, and integrated management systems projects for organizations across Colombia's leading economic sectors.",
@@ -233,7 +253,14 @@
       ]
     },
     "formacionTitle": "Academic Background",
-    "degrees": ["Mechanical Engineer", "Specialist in Applied Mathematics", "Specialist in Occupational Risk Management", "M.Sc. in Industrial Engineering", "M.Sc. Candidate in Materials Engineering", "Ph.D. Candidate in Industry and Organizations"],
+    "degrees": [
+      "Mechanical Engineer",
+      "Specialist in Applied Mathematics",
+      "Specialist in Occupational Risk Management",
+      "M.Sc. in Industrial Engineering",
+      "M.Sc. Candidate in Materials Engineering",
+      "Ph.D. Candidate in Industry and Organizations"
+    ],
     "investigacionTitle": "Scientific Research",
     "research": [
       {
@@ -287,6 +314,7 @@
     "navTitle": "Navigation",
     "socialTitle": "Follow us",
     "contacto": "Contact",
+    "emailUs": "Email us",
     "copyright": "RoMa — Applied Science. All rights reserved."
   },
   "social": {

@@ -48,7 +48,9 @@ const degrees = computed(() => {
   return degreeIcons.map((icon, index) => ({ icon, label: labels[index] }))
 })
 
-const researchItems = computed(() => tm('nosotros.research') as unknown as { degree: string; title: string; description: string }[])
+const researchItems = computed(
+  () => tm('nosotros.research') as unknown as { degree: string; title: string; description: string }[],
+)
 const bioParagraphs = computed(() => tm('nosotros.profile.bio') as unknown as string[])
 const degreesSub = computed(() => tm('nosotros.profile.degreesSub') as unknown as string[])
 
@@ -69,15 +71,31 @@ function toggleResearch(index: number) {
         >
           {{ t('nosotros.eyebrow') }}
         </div>
-        <i18n-t keypath="nosotros.title" tag="h2" class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900">
-          <template #accent><em class="font-medium italic text-sky-400">{{ t('nosotros.titleAccent') }}</em></template>
+        <i18n-t
+          keypath="nosotros.title"
+          tag="h2"
+          class="font-serif text-[clamp(28px,3.6vw,40px)] font-semibold leading-[1.28] text-navy-900"
+        >
+          <template #accent
+            ><em class="font-medium italic text-sky-400">{{ t('nosotros.titleAccent') }}</em></template
+          >
         </i18n-t>
       </div>
 
       <!-- STAT STRIP -->
-      <div v-reveal class="mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3">
-        <div v-for="(stat, index) in stats" :key="index" class="bg-white px-5 py-[26px] text-center transition-colors hover:bg-sky-100">
-          <div :ref="(el) => (stat.el.value = el as HTMLElement | null)" class="mb-2 font-serif text-[clamp(26px,3.4vw,36px)] font-semibold leading-none text-navy-900">
+      <div
+        v-reveal
+        class="mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3"
+      >
+        <div
+          v-for="(stat, index) in stats"
+          :key="index"
+          class="bg-white px-5 py-[26px] text-center transition-colors hover:bg-sky-100"
+        >
+          <div
+            :ref="(el) => (stat.el.value = el as HTMLElement | null)"
+            class="mb-2 font-serif text-[clamp(26px,3.4vw,36px)] font-semibold leading-none text-navy-900"
+          >
             {{ stat.current.value }}<span class="text-sky-400">+</span>
           </div>
           <div class="text-xs tracking-wide text-navy-700 opacity-85">{{ statLabels[index]?.label }}</div>
@@ -85,31 +103,57 @@ function toggleResearch(index: number) {
       </div>
 
       <!-- PROFILE -->
-      <div v-reveal class="mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16">
-        <div class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none">
-          <div class="absolute inset-3.5 rounded border border-sky-200 opacity-0 transition-opacity duration-[350ms] group-hover:opacity-100" />
+      <div
+        v-reveal
+        class="mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16"
+      >
+        <div
+          class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none"
+        >
+          <div
+            class="absolute inset-3.5 rounded border border-sky-200 opacity-0 transition-opacity duration-[350ms] group-hover:opacity-100"
+          />
           <div class="flex h-full items-center justify-center">
-            <svg class="h-[36%] w-[36%] opacity-50 transition-all duration-[400ms] group-hover:scale-[1.08] group-hover:opacity-75" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              class="h-[36%] w-[36%] opacity-50 transition-all duration-[400ms] group-hover:scale-[1.08] group-hover:opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="12" cy="8" r="4" stroke="#5B8DC7" stroke-width="1.2" />
               <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#5B8DC7" stroke-width="1.2" stroke-linecap="round" />
             </svg>
           </div>
-          <span class="absolute inset-x-0 bottom-3.5 text-center text-[11px] uppercase tracking-wide text-navy-700 opacity-55">{{ t('nosotros.profile.photoLabel') }}</span>
+          <span
+            class="absolute inset-x-0 bottom-3.5 text-center text-[11px] uppercase tracking-wide text-navy-700 opacity-55"
+            >{{ t('nosotros.profile.photoLabel') }}</span
+          >
         </div>
 
         <div>
-          <div class="mb-2.5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-400">
-            <svg class="h-3.5 w-3.5 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.4" /></svg>
+          <div
+            class="mb-2.5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-500"
+          >
+            <svg class="h-3.5 w-3.5 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.4" />
+            </svg>
             {{ t('nosotros.profile.roleEyebrow') }}
           </div>
-          <h3 class="mb-1.5 font-serif text-[clamp(22px,2.6vw,28px)] font-semibold leading-[1.3] text-navy-900">{{ t('nosotros.profile.roleTitle') }}</h3>
+          <h3 class="mb-1.5 font-serif text-[clamp(22px,2.6vw,28px)] font-semibold leading-[1.3] text-navy-900">
+            {{ t('nosotros.profile.roleTitle') }}
+          </h3>
           <p class="mb-[22px] flex flex-wrap gap-y-1.5 text-[13.5px] leading-[1.7] text-navy-700">
             <template v-for="(item, index) in degreesSub" :key="item">
-              <span>{{ item }}</span><span v-if="index < degreesSub.length - 1" class="mx-2 text-line-strong">·</span>
+              <span>{{ item }}</span
+              ><span v-if="index < degreesSub.length - 1" class="mx-2 text-line-strong">·</span>
             </template>
           </p>
 
-          <p v-for="(paragraph, index) in bioParagraphs" :key="index" class="mb-4 text-[14.5px] leading-[1.8] text-navy-700 last:mb-0">
+          <p
+            v-for="(paragraph, index) in bioParagraphs"
+            :key="index"
+            class="mb-4 text-[14.5px] leading-[1.8] text-navy-700 last:mb-0"
+          >
             {{ paragraph }}
           </p>
         </div>
@@ -118,8 +162,13 @@ function toggleResearch(index: number) {
       <div class="mb-8 grid gap-8 md:grid-cols-2">
         <!-- FORMACIÓN ACADÉMICA -->
         <div v-reveal class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
-          <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
-            <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8l10-5 10 5-10 5-10-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.4" /></svg>
+          <h4
+            class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900"
+          >
+            <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 8l10-5 10 5-10 5-10-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+              <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.4" />
+            </svg>
             {{ t('nosotros.formacionTitle') }}
           </h4>
           <ul class="flex flex-col gap-1">
@@ -128,7 +177,10 @@ function toggleResearch(index: number) {
               :key="degree.label"
               class="group flex items-center gap-3.5 rounded-md px-2.5 py-2.5 text-[13.6px] leading-snug text-navy-700 transition-all hover:translate-x-0.5 hover:bg-sky-100"
             >
-              <span class="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-sky-100 transition-colors group-hover:bg-sky-400">
+              <span
+                class="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-sky-100 transition-colors group-hover:bg-sky-400"
+              >
+                <!-- eslint-disable vue/no-v-html -- static SVG markup authored in-repo, never user input -->
                 <svg
                   class="h-4 w-4 stroke-sky-400 transition-colors group-hover:stroke-white"
                   viewBox="0 0 24 24"
@@ -137,6 +189,7 @@ function toggleResearch(index: number) {
                   xmlns="http://www.w3.org/2000/svg"
                   v-html="degree.icon"
                 />
+                <!-- eslint-enable vue/no-v-html -->
               </span>
               {{ degree.label }}
             </li>
@@ -145,8 +198,13 @@ function toggleResearch(index: number) {
 
         <!-- INVESTIGACIÓN CIENTÍFICA -->
         <div v-reveal="100" class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
-          <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
-            <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.4" /><path d="M20 20l-4.3-4.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+          <h4
+            class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900"
+          >
+            <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.4" />
+              <path d="M20 20l-4.3-4.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
             {{ t('nosotros.investigacionTitle') }}
           </h4>
 
@@ -167,10 +225,18 @@ function toggleResearch(index: number) {
                   class="flex h-5 w-5 flex-none items-center justify-center text-sky-400 transition-transform duration-300"
                   :class="openResearchIndex === index ? 'rotate-90' : ''"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M9 6l6 6-6 6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
                 </span>
                 <span class="min-w-0 flex-1">
-                  <span class="mb-1 block font-serif text-[13px] italic text-sky-400">{{ item.degree }}</span>
+                  <span class="mb-1 block font-serif text-[13px] italic text-sky-500">{{ item.degree }}</span>
                   <span class="block text-[13.8px] font-semibold leading-snug text-navy-900">{{ item.title }}</span>
                 </span>
               </button>
@@ -189,12 +255,28 @@ function toggleResearch(index: number) {
 
       <!-- ANÁLISIS DE INVESTIGACIONES (placeholder) -->
       <div v-reveal class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
-        <h4 class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900">
-          <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 19V9M10 19V5M16 19v-8M4 19h16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+        <h4
+          class="mb-[22px] flex items-center gap-2.5 border-b border-line pb-4 text-xs font-bold uppercase tracking-[0.1em] text-navy-900"
+        >
+          <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 19V9M10 19V5M16 19v-8M4 19h16"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
           {{ t('nosotros.analisisTitle') }}
         </h4>
-        <div class="flex flex-col items-center gap-3.5 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-11 text-center">
-          <svg class="h-[34px] w-[34px] text-sky-400 opacity-60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div
+          class="flex flex-col items-center gap-3.5 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-11 text-center"
+        >
+          <svg
+            class="h-[34px] w-[34px] text-sky-400 opacity-60"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.3" />
             <path d="M20.5 20.5l-4.4-4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
             <path d="M8 11h6M11 8v6" stroke="currentColor" stroke-width="1.1" />

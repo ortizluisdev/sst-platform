@@ -78,11 +78,7 @@ const switchTo = computed(() => ({ path: `/${otherLocale.value}/`, hash: route.h
     </button>
 
     <!-- mobile nav backdrop -->
-    <div
-      v-if="isNavOpen"
-      class="fixed inset-0 z-[99] bg-navy-900/40 md:hidden"
-      @click="isNavOpen = false"
-    />
+    <div v-if="isNavOpen" class="fixed inset-0 z-[99] bg-navy-900/40 md:hidden" @click="isNavOpen = false" />
 
     <nav
       id="mainNav"
