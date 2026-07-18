@@ -1,4 +1,6 @@
+import { resolve4 } from 'node:dns/promises'
 import nodemailer, { type Transporter } from 'nodemailer'
+import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js'
 import { env, isZohoConfigured } from '../config/env.js'
 
 const TIMEOUT_MS = 10_000
@@ -6,8 +8,25 @@ const TIMEOUT_MS = 10_000
 let transporter: Transporter | null = null
 
 if (isZohoConfigured) {
-  transporter = nodemailer.createTransport({
-    host: env.ZOHO_SMTP_HOST,
+  // dns.setDefaultResultOrder('ipv4first') (server.ts) no basta: Nodemailer
+  // resuelve tanto A como AAAA en lib/shared/index.js y elige una dirección AL
+  // AZAR entre ambas para conectar (no respeta el orden). En Render, sin salida
+  // IPv6, eso hace que ~50% de los intentos fallen con ENETUNREACH. Resolvemos
+  // nosotros la IPv4 y se la pasamos como host literal — `resolveHostname` la
+  // deja pasar tal cual cuando ya es una IP, sin tocar IPv6 en absoluto.
+  // `servername` va aparte para que la verificación TLS siga validando contra
+  // el hostname real, no contra la IP.
+  let smtpHost: string = env.ZOHO_SMTP_HOST!
+  try {
+    const addresses = await resolve4(env.ZOHO_SMTP_HOST!)
+    if (addresses[0]) smtpHost = addresses[0]
+  } catch (err) {
+    console.warn(`[mailer] No se pudo resolver IPv4 de ${env.ZOHO_SMTP_HOST}, se usa el hostname tal cual:`, err)
+  }
+
+  const transportOptions: SMTPTransport.Options & { servername?: string } = {
+    host: smtpHost,
+    servername: env.ZOHO_SMTP_HOST,
     port: env.ZOHO_SMTP_PORT,
     secure: env.ZOHO_SMTP_PORT === 465,
     auth: {
@@ -17,7 +36,9 @@ if (isZohoConfigured) {
     connectionTimeout: TIMEOUT_MS,
     greetingTimeout: TIMEOUT_MS,
     socketTimeout: TIMEOUT_MS,
-  })
+  }
+
+  transporter = nodemailer.createTransport(transportOptions)
 } else {
   console.warn('[mailer] ZOHO_SMTP_* no está configurado — el envío de correo queda deshabilitado hasta que se agregue.')
 }
