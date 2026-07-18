@@ -10,6 +10,11 @@ export async function buildApp() {
     logger: {
       level: env.NODE_ENV === 'production' ? 'info' : 'debug',
     },
+    // Render (y la mayoría de PaaS) pone la app detrás de un proxy inverso —
+    // sin esto, request.ip siempre sería la IP interna del proxy en vez de la
+    // del visitante real, lo que rompe la trazabilidad anti-spam de ip_address
+    // y el rate-limit por IP.
+    trustProxy: true,
   })
 
   await registerPrisma(app)
