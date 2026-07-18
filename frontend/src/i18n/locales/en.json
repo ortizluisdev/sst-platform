@@ -278,6 +278,13 @@
     "analisisPlaceholderTitle": "Coming soon",
     "analisisPlaceholderDesc": "Here we'll present applied research analysis on complexity science, with real findings and results from RoMa's scientific work."
   },
+  "romaPlus": {
+    "eyebrow": "Client platform",
+    "title": "RoMa+",
+    "badge": "Coming soon",
+    "description": "The portal where each client logs in with their own account to their indicator dashboard — regulatory compliance status, variable history, and trend tracking for their safety and occupational hygiene processes.",
+    "cta": "Schedule a diagnostic →"
+  },
   "contacto": {
     "eyebrow": "Contact",
     "title": "Let's start with a {accent}.",

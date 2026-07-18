@@ -27,7 +27,15 @@ const navLinks = [
   { href: '#nosotros', key: 'nav.nosotros' },
 ]
 
-const { activeId } = useScrollSpy(['inicio', 'propuesta-valor', 'servicios', 'metodologia', 'nosotros', 'contacto'])
+const { activeId } = useScrollSpy([
+  'inicio',
+  'propuesta-valor',
+  'servicios',
+  'metodologia',
+  'nosotros',
+  'roma-plus',
+  'contacto',
+])
 
 const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
 const switchTo = computed(() => ({ path: `/${otherLocale.value}/`, hash: route.hash }))
@@ -96,9 +104,9 @@ const switchTo = computed(() => ({ path: `/${otherLocale.value}/`, hash: route.h
         {{ t(link.key) }}
       </a>
       <a
-        href="#contacto"
+        href="#roma-plus"
         class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-sky-400 to-navy-500 px-5 py-2.5 text-[13px] font-bold tracking-wide text-white shadow-[0_4px_14px_rgba(46,84,144,0.35)] transition-all duration-[250ms] hover:-translate-y-px hover:shadow-[0_6px_18px_rgba(46,84,144,0.45)]"
-        :class="activeId === 'contacto' ? 'ring-2 ring-sky-200 ring-offset-2 ring-offset-cream' : ''"
+        :class="activeId === 'roma-plus' ? 'ring-2 ring-sky-200 ring-offset-2 ring-offset-cream' : ''"
         @click="isNavOpen = false"
       >
         {{ t('nav.cta') }}

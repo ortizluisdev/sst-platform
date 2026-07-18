@@ -278,6 +278,13 @@
     "analisisPlaceholderTitle": "Próximamente",
     "analisisPlaceholderDesc": "Aquí presentaremos los análisis de investigación aplicada sobre ciencia de la complejidad, con hallazgos y resultados reales del trabajo científico de RoMa."
   },
+  "romaPlus": {
+    "eyebrow": "Plataforma de clientes",
+    "title": "RoMa+",
+    "badge": "Próximamente",
+    "description": "El portal donde cada cliente accede con su propio usuario a su dashboard de indicadores — semáforo normativo, historial de variables y tendencias de sus procesos de seguridad e higiene ocupacional.",
+    "cta": "Agendar diagnóstico →"
+  },
   "contacto": {
     "eyebrow": "Contacto",
     "title": "Empecemos con un {accent}.",
