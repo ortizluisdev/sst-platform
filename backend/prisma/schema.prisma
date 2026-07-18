@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ContactSubmission {
+  id         Int      @id @default(autoincrement())
+  nombre     String   @db.VarChar(255)
+  correo     String   @db.VarChar(255)
+  telefono   String   @db.VarChar(50)
+  empresa    String?  @db.VarChar(255)
+  mensaje    String   @db.Text
+  ipAddress  String   @map("ip_address") @db.VarChar(45)
+  emailSent  Boolean  @default(false) @map("email_sent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("contact_submissions")
+}

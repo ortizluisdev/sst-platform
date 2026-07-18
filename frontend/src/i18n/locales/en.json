@@ -301,6 +301,8 @@
       "empresaPlaceholder": "Optional",
       "mensaje": "Message",
       "mensajePlaceholder": "Tell us about your operation and what you'd like to solve.",
+      "consentText": "I accept the {link} for the processing of my personal data.",
+      "consentLink": "Personal Data Processing Policy",
       "submit": "Send message",
       "submitting": "Sending…",
       "successTitle": "Thank you! We've received your message.",
@@ -313,8 +315,22 @@
       "correoInvalid": "Enter a valid email",
       "telefonoRequired": "Enter a valid phone number",
       "telefonoInvalid": "Numbers, spaces, and +()- only",
-      "mensajeRequired": "Tell us a bit more (minimum 10 characters)"
+      "mensajeRequired": "Tell us a bit more (minimum 10 characters)",
+      "consentRequired": "You must accept the personal data processing terms to continue."
     }
+  },
+  "privacyPolicy": {
+    "title": "Personal Data Processing Policy",
+    "updated": "Last updated: 2026",
+    "intro": "In compliance with Colombian Law 1581 of 2012 and Decree 1377 of 2013, RoMa Applied Science S.A.S. discloses how it processes the personal data you provide through this site's forms.",
+    "purposeTitle": "Purpose of processing",
+    "purposeBody": "The data you provide (name, email, phone, company, and your message) is used exclusively to respond to your contact request, schedule an initial diagnostic, and, if you authorize it, inform you about our services.",
+    "confidentialityTitle": "Confidentiality",
+    "confidentialityBody": "Your data is treated confidentially and is not shared with third parties, except where required by a competent legal authority.",
+    "rightsTitle": "Your rights",
+    "rightsBody": "You have the right to know, update, correct, and request deletion of your personal data, and to revoke this authorization at any time by writing to {email}.",
+    "consentTitle": "Authorization",
+    "consentBody": "By checking the consent box and submitting the contact form, you expressly authorize RoMa Applied Science S.A.S. to process your personal data in accordance with this policy."
   },
   "footer": {
     "tagline": "Complexity science and network science applied to risk management, industrial safety, and occupational hygiene.",

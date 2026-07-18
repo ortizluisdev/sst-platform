@@ -6,6 +6,7 @@ export interface ContactValidationMessages {
   telefonoRequired: string
   telefonoInvalid: string
   mensajeRequired: string
+  consentRequired: string
 }
 
 export function createContactSchema(messages: ContactValidationMessages) {
@@ -18,6 +19,12 @@ export function createContactSchema(messages: ContactValidationMessages) {
       .regex(/^[+()\d\s-]+$/, messages.telefonoInvalid),
     empresa: z.string().optional().or(z.literal('')),
     mensaje: z.string().min(10, messages.mensajeRequired),
+    consent: z.boolean().refine((value) => value === true, { message: messages.consentRequired }),
+    // Honeypot anti-spam: un usuario real nunca lo ve ni lo llena (oculto vía
+    // CSS en ContactoSection.vue, no vía type="hidden"). Se envía siempre junto
+    // al resto del payload; el backend descarta silenciosamente cualquier envío
+    // donde llegue con contenido.
+    website: z.string().optional().default(''),
   })
 }
 

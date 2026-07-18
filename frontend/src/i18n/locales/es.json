@@ -301,6 +301,8 @@
       "empresaPlaceholder": "Opcional",
       "mensaje": "Mensaje",
       "mensajePlaceholder": "Cuéntanos sobre tu operación y qué te gustaría resolver.",
+      "consentText": "Acepto la {link} para el tratamiento de mis datos personales.",
+      "consentLink": "Política de Tratamiento de Datos Personales",
       "submit": "Enviar mensaje",
       "submitting": "Enviando…",
       "successTitle": "¡Gracias! Recibimos tu mensaje.",
@@ -313,8 +315,22 @@
       "correoInvalid": "Ingresa un correo válido",
       "telefonoRequired": "Ingresa un teléfono válido",
       "telefonoInvalid": "Solo números, espacios y +()-",
-      "mensajeRequired": "Cuéntanos un poco más (mínimo 10 caracteres)"
+      "mensajeRequired": "Cuéntanos un poco más (mínimo 10 caracteres)",
+      "consentRequired": "Debes aceptar el tratamiento de datos personales para continuar."
     }
+  },
+  "privacyPolicy": {
+    "title": "Política de Tratamiento de Datos Personales",
+    "updated": "Última actualización: 2026",
+    "intro": "En cumplimiento de la Ley 1581 de 2012 y el Decreto 1377 de 2013 de la República de Colombia, RoMa Applied Science S.A.S. informa la forma en que trata los datos personales que usted proporciona a través de los formularios de este sitio.",
+    "purposeTitle": "Finalidad del tratamiento",
+    "purposeBody": "Los datos que nos proporciona (nombre, correo electrónico, teléfono, empresa y el contenido de su mensaje) se usan exclusivamente para responder su solicitud de contacto, agendar un diagnóstico inicial y, si usted lo autoriza, informarle sobre nuestros servicios.",
+    "confidentialityTitle": "Confidencialidad",
+    "confidentialityBody": "Sus datos se tratan de forma confidencial y no se comparten con terceros, salvo requerimiento legal de una autoridad competente.",
+    "rightsTitle": "Sus derechos",
+    "rightsBody": "Usted tiene derecho a conocer, actualizar, rectificar y solicitar la eliminación de sus datos personales, así como a revocar en cualquier momento la autorización otorgada, escribiendo a {email}.",
+    "consentTitle": "Autorización",
+    "consentBody": "Al marcar la casilla de aceptación y enviar el formulario de contacto, usted autoriza expresamente a RoMa Applied Science S.A.S. para tratar sus datos personales conforme a esta política."
   },
   "footer": {
     "tagline": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo, la seguridad industrial y la higiene ocupacional.",

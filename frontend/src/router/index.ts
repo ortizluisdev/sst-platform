@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'landing',
       component: () => import('@/modules/landing/views/LandingView.vue'),
     },
+    {
+      path: '/:locale(es|en)/politica-de-privacidad',
+      name: 'privacy-policy',
+      component: () => import('@/modules/legal/views/PrivacyPolicyView.vue'),
+    },
     { path: '/:pathMatch(.*)*', redirect: `/${DEFAULT_LOCALE}/` },
   ],
 })

@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useContactForm } from '@/composables/useContactForm'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const {
   status,
@@ -18,6 +18,10 @@ const {
   empresaAttrs,
   mensaje,
   mensajeAttrs,
+  consent,
+  consentAttrs,
+  website,
+  websiteAttrs,
   submit,
 } = useContactForm()
 
@@ -66,8 +70,10 @@ const inputClasses =
               type="text"
               :class="inputClasses"
               :placeholder="t('contacto.form.nombrePlaceholder')"
+              :aria-invalid="!!errors.nombre"
+              :aria-describedby="errors.nombre ? 'nombre-error' : undefined"
             />
-            <p v-if="errors.nombre" class="mt-1.5 text-xs text-red-600">{{ errors.nombre }}</p>
+            <p v-if="errors.nombre" id="nombre-error" class="mt-1.5 text-xs text-red-600">{{ errors.nombre }}</p>
           </div>
           <div>
             <label for="correo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700"
@@ -80,8 +86,10 @@ const inputClasses =
               type="email"
               :class="inputClasses"
               :placeholder="t('contacto.form.correoPlaceholder')"
+              :aria-invalid="!!errors.correo"
+              :aria-describedby="errors.correo ? 'correo-error' : undefined"
             />
-            <p v-if="errors.correo" class="mt-1.5 text-xs text-red-600">{{ errors.correo }}</p>
+            <p v-if="errors.correo" id="correo-error" class="mt-1.5 text-xs text-red-600">{{ errors.correo }}</p>
           </div>
         </div>
 
@@ -97,8 +105,10 @@ const inputClasses =
               type="tel"
               :class="inputClasses"
               :placeholder="t('contacto.form.telefonoPlaceholder')"
+              :aria-invalid="!!errors.telefono"
+              :aria-describedby="errors.telefono ? 'telefono-error' : undefined"
             />
-            <p v-if="errors.telefono" class="mt-1.5 text-xs text-red-600">{{ errors.telefono }}</p>
+            <p v-if="errors.telefono" id="telefono-error" class="mt-1.5 text-xs text-red-600">{{ errors.telefono }}</p>
           </div>
           <div>
             <label for="empresa" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
@@ -126,8 +136,53 @@ const inputClasses =
             rows="4"
             :class="inputClasses"
             :placeholder="t('contacto.form.mensajePlaceholder')"
+            :aria-invalid="!!errors.mensaje"
+            :aria-describedby="errors.mensaje ? 'mensaje-error' : undefined"
           />
-          <p v-if="errors.mensaje" class="mt-1.5 text-xs text-red-600">{{ errors.mensaje }}</p>
+          <p v-if="errors.mensaje" id="mensaje-error" class="mt-1.5 text-xs text-red-600">{{ errors.mensaje }}</p>
+        </div>
+
+        <!--
+          Honeypot anti-spam: oculto con CSS (Tailwind `hidden` = display:none),
+          nunca con type="hidden" — los bots simples detectan ese patrón con más
+          facilidad. Un usuario real nunca lo ve ni lo completa; si llega con
+          contenido, el backend descarta el envío en silencio.
+        -->
+        <div class="hidden" aria-hidden="true">
+          <label for="website">Website</label>
+          <input
+            id="website"
+            v-model="website"
+            v-bind="websiteAttrs"
+            name="website"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
+        <div>
+          <label class="flex cursor-pointer items-start gap-2.5 text-xs leading-relaxed text-navy-700">
+            <input
+              id="consent"
+              v-model="consent"
+              v-bind="consentAttrs"
+              type="checkbox"
+              class="mt-0.5 h-4 w-4 flex-none accent-navy-900"
+              :aria-invalid="!!errors.consent"
+              :aria-describedby="errors.consent ? 'consent-error' : undefined"
+            />
+            <i18n-t keypath="contacto.form.consentText" tag="span">
+              <template #link
+                ><router-link
+                  :to="`/${locale}/politica-de-privacidad`"
+                  class="text-sky-500 underline underline-offset-2"
+                  >{{ t('contacto.form.consentLink') }}</router-link
+                ></template
+              >
+            </i18n-t>
+          </label>
+          <p v-if="errors.consent" id="consent-error" class="mt-1.5 text-xs text-red-600">{{ errors.consent }}</p>
         </div>
 
         <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
