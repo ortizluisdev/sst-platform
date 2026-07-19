@@ -51,7 +51,15 @@ const DEFAULTS: Required<CanvasNetworkOptions> = {
  * Ported from the approved mockups' vanilla JS; only the tuning constants differ per section.
  */
 export function useCanvasNetwork(canvasRef: Ref<HTMLCanvasElement | null>, options: CanvasNetworkOptions = {}) {
-  const opts = { ...DEFAULTS, ...options }
+  // Vue's `withDefaults(defineProps<...>(), {})` still sets every unpassed prop
+  // to `undefined` (not "absent") — spreading that object straight over DEFAULTS
+  // would let those `undefined`s clobber the real defaults (e.g. nodeCountDesktop
+  // becomes undefined, Array.from({ length: undefined }) => 0 nodes => nothing
+  // ever renders). Only override a default when the caller actually passed a value.
+  const definedOptions = Object.fromEntries(
+    Object.entries(options).filter(([, value]) => value !== undefined),
+  ) as CanvasNetworkOptions
+  const opts = { ...DEFAULTS, ...definedOptions }
 
   let ctx: CanvasRenderingContext2D | null = null
   let nodes: NetworkNode[] = []
