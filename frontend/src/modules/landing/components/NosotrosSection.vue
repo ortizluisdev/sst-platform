@@ -52,6 +52,7 @@ const researchItems = computed(
   () => tm('nosotros.research') as unknown as { degree: string; title: string; description: string }[],
 )
 const bioParagraphs = computed(() => tm('nosotros.profile.bio') as unknown as string[])
+const credentials = computed(() => tm('nosotros.profile.credentials') as unknown as string[])
 const degreesSub = computed(() => tm('nosotros.profile.degreesSub') as unknown as string[])
 
 const openResearchIndex = ref(0)
@@ -107,27 +108,40 @@ function toggleResearch(index: number) {
         v-reveal
         class="pointer-events-auto mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16"
       >
-        <div
-          class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none"
-        >
+        <div>
           <div
-            class="absolute inset-3.5 rounded border border-sky-200 opacity-0 transition-opacity duration-[350ms] group-hover:opacity-100"
-          />
-          <div class="flex h-full items-center justify-center">
-            <svg
-              class="h-[36%] w-[36%] opacity-50 transition-all duration-[400ms] group-hover:scale-[1.08] group-hover:opacity-75"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="12" cy="8" r="4" stroke="#5B8DC7" stroke-width="1.2" />
-              <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#5B8DC7" stroke-width="1.2" stroke-linecap="round" />
-            </svg>
-          </div>
-          <span
-            class="absolute inset-x-0 bottom-3.5 text-center text-[11px] uppercase tracking-wide text-navy-700 opacity-55"
-            >{{ t('nosotros.profile.photoLabel') }}</span
+            class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none"
           >
+            <div
+              class="absolute inset-3.5 rounded border border-sky-200 opacity-0 transition-opacity duration-[350ms] group-hover:opacity-100"
+            />
+            <div class="flex h-full items-center justify-center">
+              <svg
+                class="h-[36%] w-[36%] opacity-50 transition-all duration-[400ms] group-hover:scale-[1.08] group-hover:opacity-75"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="12" cy="8" r="4" stroke="#5B8DC7" stroke-width="1.2" />
+                <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#5B8DC7" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <span
+              class="absolute inset-x-0 bottom-3.5 text-center text-[11px] uppercase tracking-wide text-navy-700 opacity-55"
+              >{{ t('nosotros.profile.photoLabel') }}</span
+            >
+          </div>
+
+          <ul class="mx-auto mt-5 flex max-w-[220px] flex-col gap-2 border-t border-line pt-5 md:max-w-none">
+            <li
+              v-for="(item, index) in credentials"
+              :key="index"
+              class="flex items-start gap-2 text-[12.5px] leading-[1.55] text-navy-700"
+            >
+              <span class="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-sky-400" />
+              {{ item }}
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -139,9 +153,11 @@ function toggleResearch(index: number) {
             </svg>
             {{ t('nosotros.profile.roleEyebrow') }}
           </div>
-          <h3 class="mb-1.5 font-serif text-[clamp(22px,2.6vw,28px)] font-semibold leading-[1.3] text-navy-900">
+
+          <h3 class="mb-2 font-serif text-[clamp(20px,2.4vw,26px)] font-semibold leading-[1.3] text-navy-900">
             {{ t('nosotros.profile.roleTitle') }}
           </h3>
+
           <p class="mb-[22px] flex flex-wrap gap-y-1.5 text-[13.5px] leading-[1.7] text-navy-700">
             <template v-for="(item, index) in degreesSub" :key="item">
               <span>{{ item }}</span

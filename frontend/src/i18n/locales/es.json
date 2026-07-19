@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "RoMa — Ciencia Aplicada a la Seguridad Industrial e Higiene Ocupacional",
+    "title": "RoMa — Ciencia Aplicada para la Seguridad Industrial y la Higiene Ocupacional",
     "description": "RoMa aplica ciencia de la complejidad y ciencia de redes a la gestión del riesgo: higiene industrial, seguridad vial, riesgo mecánico y locativo, mantenimiento basado en riesgo y modelado de comportamiento social.",
     "ogDescription": "Modelos científicos que transforman la incertidumbre en decisiones que incrementan la seguridad, la confiabilidad y la productividad.",
     "twitterDescription": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo industrial.",
@@ -29,8 +29,8 @@
       "text": "Consulta las cifras oficiales que reportan Fasecolda y el Consejo Colombiano de Seguridad.",
       "link": "Ver observatorio →",
       "source": "Fuente: CCS · Fasecolda",
-      "dashboardTitle": "Dashboard de siniestralidad — Fasecolda",
-      "dashboardLink": "Ver dashboard oficial →"
+      "dashboardTitle": "Panel de siniestralidad laboral — Fasecolda",
+      "dashboardLink": "Ver panel oficial →"
     },
     "caption": {
       "label": "Evaluación del Riesgo:",
@@ -47,7 +47,7 @@
     "cards": [
       {
         "letter": "R",
-        "title": "Ciencia de la Complejidad",
+        "title": "Ciencia de la complejidad",
         "lead": "Comprender el riesgo antes de intervenirlo.",
         "body": "Aplicamos ciencia de la complejidad para modelar la interacción entre personas, procesos, tecnologías y entorno, fortaleciendo decisiones basadas en evidencia."
       },
@@ -73,8 +73,8 @@
   },
   "servicios": {
     "eyebrow": "Servicios",
-    "title": "Cinco frentes de intervención, {accent} científico.",
-    "titleAccent": "un mismo método",
+    "title": "Cinco frentes de intervención, {accent} método científico.",
+    "titleAccent": "un mismo",
     "subtitle": "Cada servicio combina fundamentos técnicos verificables con un modelo de intervención propio, diseñado para transformar datos de campo en decisiones de gestión.",
     "items": [
       {
@@ -90,37 +90,37 @@
         "label": "Seguridad Vial",
         "title": "Seguridad Vial",
         "tagline": "Modelo Sistémico de Seguridad Vial: cumplimiento normativo y ciencia del comportamiento, en un solo marco.",
-        "description": "Trabajamos la seguridad vial en dos niveles complementarios. El <strong>PESV clásico</strong>, que responde a la estructura normativa vigente para flotas propias y contratadas. Y un <strong>Modelo Sistémico de Seguridad Vial</strong> propio, que va más allá del cumplimiento documental: mide y modela el riesgo vial real de la operación a partir del comportamiento del conductor, el vehículo y el entorno.",
+        "description": "Trabajamos la seguridad vial en dos niveles complementarios. El <strong>PESV clásico</strong> (Plan Estratégico de Seguridad Vial reglamentario en Colombia), que cumple con el marco normativo vigente para flotas propias y contratadas. Y nuestro propio <strong>Modelo Sistémico de Seguridad Vial</strong>, que va más allá del cumplimiento documental: mide y modela el riesgo vial real de la operación a partir del comportamiento del conductor, el vehículo y el entorno.",
         "tags": ["PESV Clásico", "Modelo Sistémico de Seguridad Vial"],
         "techLabel": "Fundamentos técnicos:",
-        "techText": "medición y modelación del riesgo vial (Evans — <em>Traffic Safety</em>), ciencia del comportamiento y desempeño del conductor (Evans — <em>Traffic Safety and the Driver</em>) y comprensión sistémica de la accidentalidad en motociclistas basada en evidencia (The Hurt Report)."
+        "techText": "medición y modelado del riesgo vial (Evans — <em>Traffic Safety</em>), ciencia del comportamiento y desempeño del conductor (Evans — <em>Traffic Safety and the Driver</em>), y una comprensión sistémica basada en evidencia de la accidentalidad de motociclistas (The Hurt Report)."
       },
       {
         "label": "Riesgo Mecánico y Locativo",
         "title": "Riesgo Mecánico y Locativo",
-        "tagline": "Modelo Sistémico de Intervención: mejora continua aplicada a la operación, las herramientas y la maquinaria.",
-        "description": "Una estrategia que orienta la intervención de los riesgos más representativos derivados de la operación, el uso de herramientas, equipos y maquinaria, en plantas de producción, talleres y operaciones con activos críticos, a través de un proceso sistemático de mejora continua.",
+        "tagline": "Modelo de Intervención Sistémica: mejora continua aplicada a operaciones, herramientas y maquinaria.",
+        "description": "Una estrategia que orienta la intervención de los riesgos más significativos derivados de las operaciones y del uso de herramientas, equipos y maquinaria, en plantas de producción, talleres y operaciones con activos críticos, a través de un proceso sistemático de mejora continua.",
         "tags": ["Diagnóstico técnico", "Priorización", "Mejora continua"],
         "techLabel": "Modelo de intervención:",
-        "techText": "definición de responsabilidades y alcance → identificación y priorización de áreas, procesos, equipos y actividades críticas → diagnóstico técnico de las condiciones que originan el riesgo → diseño e implementación de medidas sobre personas, equipos y procesos → seguimiento por indicadores de gestión → evaluación y mejora continua de la estrategia."
+        "techText": "definición de responsabilidades y alcance → identificación y priorización de áreas, procesos, equipos y actividades críticas → diagnóstico técnico de las condiciones que originan el riesgo → diseño e implementación de medidas para personas, equipos y procesos → seguimiento mediante indicadores de gestión → evaluación y mejora continua de la estrategia."
       },
       {
         "label": "Mantenimiento Basado en Riesgo",
         "title": "Mantenimiento Basado en Riesgo",
-        "tagline": "Modelo Sistémico de Mantenimiento: menos siniestros, más confiabilidad.",
-        "description": "Diseñamos estrategias de mantenimiento basadas en riesgo orientadas a reducir la siniestralidad de la operación, tanto la que afecta a las <strong>personas</strong> como la que compromete la <strong>propiedad y la infraestructura crítica</strong>. Priorizamos la inversión y el esfuerzo técnico según la probabilidad y la consecuencia real de falla de cada activo, integrando confiabilidad operacional con gestión de seguridad de procesos.",
-        "tags": ["Riesgo de Personas", "Riesgo de Infraestructura", "Confiabilidad"],
+        "tagline": "Modelo Sistémico de Mantenimiento: menos incidentes, más confiabilidad.",
+        "description": "Diseñamos estrategias de mantenimiento basado en riesgo orientadas a reducir la accidentalidad de la operación —tanto lo que afecta a las <strong>personas</strong> como lo que compromete los <strong>bienes e infraestructura crítica</strong>. Priorizamos la inversión y el esfuerzo técnico según la probabilidad y consecuencia reales de falla de cada activo, integrando la confiabilidad operacional con la gestión de seguridad de procesos.",
+        "tags": ["Riesgo a las Personas", "Riesgo de Infraestructura", "Confiabilidad"],
         "techLabel": "Enfoque:",
-        "techText": "análisis de criticidad e inspección basada en riesgo (RBI) y mantenimiento centrado en confiabilidad (RCM), ajustados a la realidad operativa de cada planta."
+        "techText": "análisis de criticidad e inspección basada en riesgo (RBI), y mantenimiento centrado en confiabilidad (RCM), ajustados a la realidad operativa de cada planta."
       },
       {
-        "label": "Modelado Científico de Comportamiento Social",
-        "title": "Modelado Científico de Comportamiento Social",
+        "label": "Modelado Científico del Comportamiento Social",
+        "title": "Modelado Científico del Comportamiento Social",
         "tagline": "Modelo Sistémico de Comportamiento: entornos fijos y entornos variables.",
-        "description": "Construimos un modelo sistémico que interpreta la conducta humana frente al riesgo a partir de dos fuerzas: los <strong>entornos fijos</strong> —la estructura, las normas y la cultura organizacional— y los <strong>entornos variables</strong> —el contexto, la presión y la oportunidad del momento. Es el mismo marco que usamos para entender por qué las personas se exponen al riesgo en la operación, y que extendemos a fenómenos de conducta organizacional más amplios, como los <strong>modelos de corrupción pública y privada</strong>: otra forma de comportamiento sistémico que también se explica —y se interviene— desde sus entornos fijos y variables.",
+        "description": "Construimos un modelo sistémico que interpreta el comportamiento humano frente al riesgo a partir de dos fuerzas: los <strong>entornos fijos</strong> —estructura, normas y cultura organizacional— y los <strong>entornos variables</strong> —el contexto, la presión y la oportunidad del momento. Es el mismo marco que usamos para entender por qué las personas se exponen al riesgo en las operaciones, uno que extendemos a fenómenos de comportamiento organizacional más amplios, como los <strong>modelos de corrupción pública y privada</strong>: otra forma de comportamiento sistémico que también puede explicarse —y abordarse— a través de sus entornos fijos y variables.",
         "tags": ["Entornos Fijos", "Entornos Variables", "Corrupción Pública y Privada"],
         "techLabel": "Enfoque:",
-        "techText": "ciencia de la complejidad aplicada al comportamiento humano, integrando variables organizacionales, sociales e individuales en un mismo marco de análisis sistémico."
+        "techText": "ciencia de la complejidad aplicada al comportamiento humano, integrando variables organizacionales, sociales e individuales dentro de un único marco de análisis sistémico."
       }
     ]
   },
@@ -158,35 +158,35 @@
       }
     ],
     "cycleTitle": "Un ciclo continuo, no un ejercicio anual.",
-    "cycleSubtitle": "Las cuatro etapas reconocidas por la GTC 45 y la ISO 31000 se conservan, pero se ejecutan sobre la red dinámica: cada una con su propia frecuencia de actualización.",
+    "cycleSubtitle": "Las cuatro etapas reconocidas por la GTC 45 y la ISO 31000 se mantienen, pero ahora corren sobre la red dinámica: cada una con su propia frecuencia de actualización.",
     "stages": [
       {
         "label": "Identificación",
         "title": "Identificación",
         "tagline": "Construir y actualizar la estructura de la red.",
-        "description": "Se definen qué nodos existen —agentes, condiciones, eventos— y qué conexiones hay entre ellos. Es la etapa de menor frecuencia: se revisa cuando cambian los procesos, la tecnología, o cuando aparece evidencia nueva sobre interacciones no consideradas previamente.",
+        "description": "Aquí se define qué nodos existen —agentes, condiciones, eventos— y qué conexiones hay entre ellos. Es la etapa de menor frecuencia: se revisa cuando cambian los procesos o la tecnología, o cuando surge nueva evidencia sobre interacciones antes no consideradas.",
         "frequency": "baja — solo cuando cambia la estructura del sistema de trabajo."
       },
       {
         "label": "Valoración",
         "title": "Valoración",
         "tagline": "Calcular el nivel de riesgo en tiempo real.",
-        "description": "Se combina probabilidad y consecuencia de cada nodo-evento en un instante determinado. A diferencia de la GTC 45, esta valoración no se realiza una vez al año: se recalcula de forma continua a medida que cambian los valores de los nodos fuente —turno a turno o de forma diaria.",
-        "frequency": "continua — turno a turno o diaria."
+        "description": "Se combina la probabilidad y la consecuencia de cada nodo-evento en un momento dado. A diferencia de la GTC 45, esta valoración no se hace una vez al año: se recalcula de forma continua a medida que cambian los valores de los nodos de origen —turno a turno o a diario.",
+        "frequency": "continua — turno a turno o a diario."
       },
       {
         "label": "Evaluación",
         "title": "Evaluación",
         "tagline": "Priorizar qué eventos requieren intervención.",
-        "description": "El nivel de riesgo calculado se compara frente a bandas de aceptabilidad —aceptable, tolerable, no aceptable, inaceptable— para determinar cuáles eventos requieren intervención prioritaria en un momento dado.",
+        "description": "El nivel de riesgo calculado se compara con bandas de aceptabilidad —aceptable, tolerable, no aceptable, inaceptable— para determinar qué eventos requieren intervención prioritaria en un momento dado.",
         "frequency": "puntual — cada vez que se recalcula la valoración."
       },
       {
         "label": "Control",
         "title": "Control",
-        "tagline": "Intervenir donde el análisis de sensibilidad lo indica.",
-        "description": "Se aplican intervenciones dirigidas específicamente a los nodos que, según el análisis de sensibilidad de la red, muestran mayor contribución al riesgo evaluado, y se verifica que la intervención redujo la trayectoria proyectada.",
-        "frequency": "dirigida — al activarse una alerta o al cerrar un ciclo de mejora."
+        "tagline": "Intervenir donde el análisis de sensibilidad lo indique.",
+        "description": "Las intervenciones se aplican de forma específica sobre los nodos que, según el análisis de sensibilidad de la red, más contribuyen al riesgo evaluado, y se verifica que la intervención redujo la trayectoria proyectada.",
+        "frequency": "focalizada — cuando se activa una alerta o se cierra un ciclo de mejora."
       }
     ],
     "toolsTitle": "Las herramientas matemáticas detrás del modelo.",
@@ -195,23 +195,23 @@
       "headers": ["Herramienta", "Función en el modelo", "Frecuencia"],
       "rows": [
         {
-          "name": "Análisis de centralidad de redes",
-          "fn": "Identifica los nodos estructuralmente más críticos, independientemente del valor puntual que tomen en un momento dado.",
+          "name": "Análisis de centralidad de red",
+          "fn": "Identifica los nodos estructuralmente más críticos, independientemente del valor específico que tomen en un momento dado.",
           "freq": "Baja — cuando cambia la estructura de la red"
         },
         {
           "name": "Modelo de espacio de estados",
-          "fn": "Proyecta la evolución del nivel de riesgo de cada nodo en el tiempo y permite simular el efecto de intervenciones.",
+          "fn": "Proyecta la evolución del nivel de riesgo de cada nodo en el tiempo y permite simular el efecto de las intervenciones.",
           "freq": "Continua — turno a turno / diaria"
         },
         {
           "name": "Redes Bayesianas Dinámicas",
-          "fn": "Diagnostica, cuando un evento cruza el umbral crítico, qué nodo o combinación de nodos tuvo mayor contribución.",
-          "freq": "Puntual — al activarse una alerta"
+          "fn": "Diagnostica, cuando un evento cruza el umbral crítico, qué nodo o combinación de nodos contribuyó más.",
+          "freq": "Puntual — cuando se activa una alerta"
         },
         {
           "name": "Función Noisy-OR",
-          "fn": "Agrega los nodos hoja dentro de cada sub-hub sin diluir el efecto de un nodo individualmente grave.",
+          "fn": "Agrega los nodos hoja dentro de cada sub-hub sin diluir el efecto de un nodo individualmente severo.",
           "freq": "Cada vez que se recalcula un sub-hub"
         }
       ]
@@ -219,7 +219,7 @@
     "mssv": {
       "kicker": "Modelo en vivo",
       "title": "Explora la red MSSV",
-      "description": "El mapa completo de agentes, condiciones y eventos que alimenta el modelo: cada nodo con su definición y el instrumento de medición asociado.",
+      "description": "Explora la red de conocimiento utilizada para representar sistemas complejos mediante agentes, condiciones, eventos y relaciones causales. Cada nodo incluye su definición, indicadores e instrumentos de medición para apoyar el análisis y la gestión del riesgo.",
       "legendNode": "Nodo del modelo",
       "legendConnection": "Conexión estructural",
       "placeholderTitle": "Próximamente",
@@ -228,7 +228,7 @@
     }
   },
   "nosotros": {
-    "eyebrow": "Nosotros",
+    "eyebrow": "Sobre nosotros",
     "title": "Ciencia, ingeniería y experiencia al servicio de {accent} diagnóstico.",
     "titleAccent": "cada",
     "stats": [
@@ -237,8 +237,8 @@
       { "label": "Sectores económicos" }
     ],
     "profile": {
-      "roleEyebrow": "Fundador · Director Científico",
-      "roleTitle": "Chief Scientific Officer",
+      "roleEyebrow": "Fundador · Chief Scientific Officer",
+      "roleTitle": "Roger Mauricio Pérez Cruz",
       "degreesSub": [
         "Ingeniero Mecánico",
         "Especialista en Matemáticas Aplicadas",
@@ -249,9 +249,17 @@
       ],
       "photoLabel": "Foto próximamente",
       "bio": [
-        "Con más de 15 años de experiencia liderando proyectos de ingeniería, gestión del riesgo, seguridad industrial, higiene ocupacional, seguridad vial y sistemas integrados de gestión para organizaciones de los principales sectores económicos de Colombia.",
-        "Su trayectoria integra la práctica profesional, la investigación científica y el desarrollo tecnológico para diseñar soluciones basadas en evidencia que permitan comprender, modelar y controlar sistemas complejos. Su trabajo se enfoca en la aplicación de la ciencia de la complejidad, la ciencia de redes, la dinámica de sistemas, la analítica avanzada y la ingeniería como herramientas para transformar la gestión del riesgo y fortalecer la toma de decisiones en las organizaciones.",
-        "Ha asesorado a más de 100 organizaciones, participando en proyectos para los sectores de hidrocarburos, energía, infraestructura, construcción, manufactura, transporte y servicios, integrando estándares internacionales, innovación y ciencia aplicada."
+        "Roger Mauricio Pérez Cruz es Ingeniero Mecánico, Especialista en Matemáticas Aplicadas (énfasis en Investigación de Operaciones), Especialista en Gerencia de Riesgos Laborales, Magíster en Ingeniería Industrial, Maestrante en Ingeniería de Materiales y Doctorando en Industria y Organizaciones. Cuenta con más de 15 años de experiencia profesional y 8 años de experiencia como docente universitario en ingeniería y ciencias básicas.",
+        "A lo largo de su trayectoria ha liderado proyectos de ingeniería, investigación y consultoría para organizaciones de los sectores de hidrocarburos, energía, infraestructura, construcción, manufactura, transporte y servicios, asesorando a más de 100 organizaciones en gestión integral del riesgo, seguridad industrial, higiene ocupacional, seguridad vial, administración de flotas, ergonomía y sistemas integrados de gestión.",
+        "Su actividad científica integra el modelado de sistemas complejos, la ciencia de redes, la dinámica de sistemas, la investigación de operaciones, la analítica avanzada, la inteligencia artificial, la ingeniería de materiales y la física del plasma, incluyendo investigación en espectroscopía de emisión óptica (OES) y magnetron sputtering para el desarrollo de materiales avanzados. Su trabajo se orienta al diseño de modelos científicos y soluciones basadas en evidencia que permitan comprender, predecir y optimizar sistemas complejos, fortaleciendo la toma de decisiones en organizaciones e instituciones."
+      ],
+      "credentials": [
+        "Coach en Gestión del Riesgo.",
+        "Auditor Interno ISO 9001.",
+        "Auditor Interno ISO 39001.",
+        "Auditor Interno ISO 31000.",
+        "Auditor 5Z.",
+        "Auditor Técnico Especializado en Gestión del Riesgo Eléctrico (RETIE – Resolución 40117 de 2024)."
       ]
     },
     "formacionTitle": "Formación Académica",
@@ -267,36 +275,36 @@
     "research": [
       {
         "degree": "Magíster en Ingeniería Industrial",
-        "title": "Tendencias y vacíos de investigación sobre la aplicación de la ciencia de redes y la dinámica de sistemas al estudio del fenómeno de la corrupción en el sector público.",
-        "description": "Investigación orientada a identificar, mediante revisión de alcance, análisis bibliométrico y cartografía científica, las tendencias, vacíos metodológicos y oportunidades de integración entre la Ciencia de Redes y la Dinámica de Sistemas para el análisis de fenómenos organizacionales complejos."
+        "title": "Tendencias y vacíos de investigación en la aplicación de la ciencia de redes y la dinámica de sistemas al estudio de la corrupción en el sector público.",
+        "description": "Investigación orientada a identificar, mediante una revisión de alcance, análisis bibliométrico y mapeo científico, las tendencias, vacíos metodológicos y oportunidades de integración entre la Ciencia de Redes y la Dinámica de Sistemas para el análisis de fenómenos organizacionales complejos."
       },
       {
         "degree": "Maestría en Ingeniería de Materiales (en curso)",
         "title": "Caracterización del plasma generado por co-sputtering reactivo RF de ZrO–Ni mediante espectroscopía de emisión óptica (OES).",
-        "description": "Investigación orientada a la caracterización espectroscópica del plasma mediante Optical Emission Spectroscopy (OES) para la determinación de parámetros físicos y la optimización de procesos de Magnetron Sputtering Reactivo RF, contribuyendo al desarrollo de recubrimientos funcionales y materiales avanzados."
+        "description": "Investigación orientada a la caracterización espectroscópica del plasma mediante Espectroscopía de Emisión Óptica (OES) para determinar parámetros físicos y optimizar procesos de Magnetron Sputtering Reactivo RF, contribuyendo al desarrollo de recubrimientos funcionales y materiales avanzados."
       }
     ],
     "analisisTitle": "Análisis de Investigaciones",
     "analisisPlaceholderTitle": "Próximamente",
-    "analisisPlaceholderDesc": "Aquí presentaremos los análisis de investigación aplicada sobre ciencia de la complejidad, con hallazgos y resultados reales del trabajo científico de RoMa."
+    "analisisPlaceholderDesc": "Aquí presentaremos análisis de investigaciones aplicadas en ciencia de la complejidad, con hallazgos y resultados reales del trabajo científico de RoMa."
   },
   "romaPlus": {
     "eyebrow": "Plataforma de clientes",
     "title": "RoMa+",
     "badge": "Próximamente",
-    "description": "El portal donde cada cliente accede con su propio usuario a su dashboard de indicadores — semáforo normativo, historial de variables y tendencias de sus procesos de seguridad e higiene ocupacional.",
+    "description": "El portal donde cada cliente ingresa con su propia cuenta a su panel de indicadores — estado de cumplimiento normativo, histórico de variables y seguimiento de tendencias para sus procesos de seguridad y higiene ocupacional.",
     "cta": "Agendar diagnóstico →"
   },
   "contacto": {
     "eyebrow": "Contacto",
     "title": "Empecemos con un {accent}.",
     "titleAccent": "diagnóstico",
-    "subtitle": "Cuéntanos sobre tu operación y te contactaremos para agendar una primera conversación.",
+    "subtitle": "Cuéntanos sobre tu operación y te contactaremos para agendar una conversación inicial.",
     "form": {
       "nombre": "Nombre",
       "nombrePlaceholder": "Tu nombre completo",
-      "correo": "Correo",
-      "correoPlaceholder": "tu\\@empresa.com",
+      "correo": "Correo electrónico",
+      "correoPlaceholder": "tu@empresa.com",
       "telefono": "Teléfono",
       "telefonoPlaceholder": "+57 300 000 0000",
       "empresa": "Empresa",
@@ -307,15 +315,15 @@
       "consentLink": "Política de Tratamiento de Datos Personales",
       "submit": "Enviar mensaje",
       "submitting": "Enviando…",
-      "successTitle": "¡Gracias! Recibimos tu mensaje.",
-      "successBody": "Te contactaremos pronto para agendar tu diagnóstico inicial.",
+      "successTitle": "¡Gracias! Hemos recibido tu mensaje.",
+      "successBody": "Nos pondremos en contacto pronto para agendar tu diagnóstico inicial.",
       "sendAnother": "Enviar otro mensaje",
-      "genericError": "No pudimos enviar tu mensaje. Intenta de nuevo."
+      "genericError": "No pudimos enviar tu mensaje. Por favor intenta de nuevo."
     },
     "validation": {
       "nombreRequired": "Ingresa tu nombre completo",
       "correoInvalid": "Ingresa un correo válido",
-      "telefonoRequired": "Ingresa un teléfono válido",
+      "telefonoRequired": "Ingresa un número de teléfono válido",
       "telefonoInvalid": "Solo números, espacios y +()-",
       "mensajeRequired": "Cuéntanos un poco más (mínimo 10 caracteres)",
       "consentRequired": "Debes aceptar el tratamiento de datos personales para continuar."
@@ -324,15 +332,15 @@
   "privacyPolicy": {
     "title": "Política de Tratamiento de Datos Personales",
     "updated": "Última actualización: 2026",
-    "intro": "En cumplimiento de la Ley 1581 de 2012 y el Decreto 1377 de 2013 de la República de Colombia, RoMa Applied Science S.A.S. informa la forma en que trata los datos personales que usted proporciona a través de los formularios de este sitio.",
+    "intro": "En cumplimiento de la Ley 1581 de 2012 y el Decreto 1377 de 2013 de Colombia, RoMa Applied Science S.A.S. informa cómo trata los datos personales que usted proporciona a través de los formularios de este sitio.",
     "purposeTitle": "Finalidad del tratamiento",
-    "purposeBody": "Los datos que nos proporciona (nombre, correo electrónico, teléfono, empresa y el contenido de su mensaje) se usan exclusivamente para responder su solicitud de contacto, agendar un diagnóstico inicial y, si usted lo autoriza, informarle sobre nuestros servicios.",
+    "purposeBody": "Los datos que usted proporciona (nombre, correo, teléfono, empresa y su mensaje) se usan exclusivamente para responder a su solicitud de contacto, agendar un diagnóstico inicial y, si usted lo autoriza, informarle sobre nuestros servicios.",
     "confidentialityTitle": "Confidencialidad",
-    "confidentialityBody": "Sus datos se tratan de forma confidencial y no se comparten con terceros, salvo requerimiento legal de una autoridad competente.",
+    "confidentialityBody": "Sus datos son tratados de forma confidencial y no se comparten con terceros, salvo que lo requiera una autoridad legal competente.",
     "rightsTitle": "Sus derechos",
-    "rightsBody": "Usted tiene derecho a conocer, actualizar, rectificar y solicitar la eliminación de sus datos personales, así como a revocar en cualquier momento la autorización otorgada, escribiendo a {email}.",
+    "rightsBody": "Usted tiene derecho a conocer, actualizar, rectificar y solicitar la eliminación de sus datos personales, y a revocar esta autorización en cualquier momento escribiendo a {email}.",
     "consentTitle": "Autorización",
-    "consentBody": "Al marcar la casilla de aceptación y enviar el formulario de contacto, usted autoriza expresamente a RoMa Applied Science S.A.S. para tratar sus datos personales conforme a esta política."
+    "consentBody": "Al marcar la casilla de consentimiento y enviar el formulario de contacto, usted autoriza expresamente a RoMa Applied Science S.A.S. a tratar sus datos personales de acuerdo con esta política."
   },
   "footer": {
     "tagline": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo, la seguridad industrial y la higiene ocupacional.",
@@ -344,6 +352,6 @@
   },
   "social": {
     "whatsappTooltip": "Escríbenos por WhatsApp",
-    "whatsappMessage": "🚀 Quiero conocer cómo la ciencia y la innovación pueden transformar la gestión del riesgo en mi organización.\n👉 ¡Quiero más información!"
+    "whatsappMessage": "🚀 Quiero saber cómo la ciencia y la innovación pueden transformar la gestión del riesgo en mi organización.\n👉 ¡Quiero más información!"
   }
 }

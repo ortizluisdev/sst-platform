@@ -219,7 +219,7 @@
     "mssv": {
       "kicker": "Live model",
       "title": "Explore the MSSV network",
-      "description": "The complete map of agents, conditions, and events feeding the model: every node with its definition and associated measurement instrument.",
+      "description": "Explore the knowledge network used to represent complex systems through agents, conditions, events, and causal relationships. Each node includes its definition, indicators, and measurement instruments to support risk analysis and management.",
       "legendNode": "Model node",
       "legendConnection": "Structural connection",
       "placeholderTitle": "Coming soon",
@@ -238,7 +238,7 @@
     ],
     "profile": {
       "roleEyebrow": "Founder · Chief Scientific Officer",
-      "roleTitle": "Chief Scientific Officer",
+      "roleTitle": "Roger Mauricio Pérez Cruz",
       "degreesSub": [
         "Mechanical Engineer",
         "Specialist in Applied Mathematics",
@@ -249,9 +249,17 @@
       ],
       "photoLabel": "Photo coming soon",
       "bio": [
-        "With more than 15 years of experience leading engineering, risk management, industrial safety, occupational hygiene, road safety, and integrated management systems projects for organizations across Colombia's leading economic sectors.",
-        "His career integrates professional practice, scientific research, and technology development to design evidence-based solutions that make it possible to understand, model, and control complex systems. His work focuses on applying complexity science, network science, systems dynamics, advanced analytics, and engineering as tools to transform risk management and strengthen decision-making in organizations.",
-        "He has advised more than 100 organizations, working on projects across the oil and gas, energy, infrastructure, construction, manufacturing, transportation, and services sectors, integrating international standards, innovation, and applied science."
+        "Roger Mauricio Pérez Cruz is a Mechanical Engineer, Specialist in Applied Mathematics (with an emphasis in Operations Research), Specialist in Occupational Risk Management, M.Sc. in Industrial Engineering, M.Sc. Candidate in Materials Engineering, and Ph.D. Candidate in Industry and Organizations. He has more than 15 years of professional experience and 8 years of experience as a university lecturer in engineering and basic sciences.",
+        "Throughout his career, he has led engineering, research, and consulting projects for organizations in the oil and gas, energy, infrastructure, construction, manufacturing, transportation, and services sectors, advising more than 100 organizations on comprehensive risk management, industrial safety, occupational hygiene, road safety, fleet management, ergonomics, and integrated management systems.",
+        "His scientific work integrates complex systems modeling, network science, systems dynamics, operations research, advanced analytics, artificial intelligence, materials engineering, and plasma physics, including research in optical emission spectroscopy (OES) and magnetron sputtering for the development of advanced materials. His work focuses on designing scientific models and evidence-based solutions that make it possible to understand, predict, and optimize complex systems, strengthening decision-making in organizations and institutions."
+      ],
+      "credentials": [
+        "Risk Management Coach.",
+        "ISO 9001 Internal Auditor.",
+        "ISO 39001 Internal Auditor.",
+        "ISO 31000 Internal Auditor.",
+        "5Z Auditor.",
+        "Technical Auditor Specialized in Electrical Risk Management (RETIE – Resolution 40117 of 2024)."
       ]
     },
     "formacionTitle": "Academic Background",
