@@ -34,7 +34,7 @@ const inputClasses =
   <section id="contacto" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <component :is="AnimatedNetworkBackgroundAsync" />
 
-    <div class="relative z-[2] mx-auto max-w-[720px]">
+    <div class="pointer-events-none relative z-[2] mx-auto max-w-[720px]">
       <div v-reveal class="mx-auto mb-12 max-w-[560px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
@@ -57,7 +57,7 @@ const inputClasses =
 
       <form
         v-if="status !== 'success'"
-        class="grid gap-5 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.06)] sm:p-10"
+        class="pointer-events-auto grid gap-5 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.06)] sm:p-10"
         novalidate
         @submit.prevent="submit"
       >
@@ -219,7 +219,7 @@ const inputClasses =
 
       <div
         v-else
-        class="flex flex-col items-center gap-3.5 rounded-lg border border-line-strong bg-white p-12 text-center shadow-[0_24px_60px_rgba(11,26,51,0.06)]"
+        class="pointer-events-auto flex flex-col items-center gap-3.5 rounded-lg border border-line-strong bg-white p-12 text-center shadow-[0_24px_60px_rgba(11,26,51,0.06)]"
       >
         <svg class="h-10 w-10 text-sky-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />

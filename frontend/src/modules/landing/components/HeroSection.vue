@@ -34,8 +34,8 @@ const FASECOLDA_PAGE_URL = 'https://www.fasecolda.com/ramos/riesgos-laborales/rl
       :shadow-blur="7"
     />
 
-    <div class="relative z-[2] flex w-full max-w-[1180px] flex-col items-center gap-12 md:items-start">
-      <div class="max-w-[640px] text-center md:text-left">
+    <div class="relative z-[2] flex w-full max-w-[1180px] flex-col items-center gap-12 pointer-events-none">
+      <div class="pointer-events-auto max-w-[640px] text-center">
         <div
           class="mb-6 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong"
         >
@@ -50,11 +50,11 @@ const FASECOLDA_PAGE_URL = 'https://www.fasecolda.com/ramos/riesgos-laborales/rl
             ><em class="font-serif font-medium italic text-sky-400">{{ t('hero.titleAccent') }}</em></template
           >
         </i18n-t>
-        <p class="mx-auto mb-10 max-w-[480px] text-[clamp(15px,1.4vw,17px)] leading-relaxed text-navy-700 md:mx-0">
+        <p class="mx-auto mb-10 max-w-[480px] text-[clamp(15px,1.4vw,17px)] leading-relaxed text-navy-700">
           {{ t('hero.lead') }}
         </p>
 
-        <div class="flex flex-wrap justify-center gap-4 md:justify-start">
+        <div class="flex flex-wrap justify-center gap-4">
           <a
             href="#servicios"
             class="inline-flex items-center gap-2 rounded-sm border border-navy-900 bg-navy-900 px-7 py-3.5 text-sm font-medium tracking-wide text-cream transition-all duration-250 hover:bg-transparent hover:text-navy-900"
@@ -66,7 +66,7 @@ const FASECOLDA_PAGE_URL = 'https://www.fasecolda.com/ramos/riesgos-laborales/rl
 
       <!-- Contexto del riesgo: tarjeta horizontal con el dashboard oficial de Fasecolda -->
       <div
-        class="w-full rounded-lg border border-line-strong bg-white/80 p-6 shadow-[0_20px_50px_rgba(11,26,51,0.08)] backdrop-blur-sm sm:p-8"
+        class="pointer-events-auto w-full rounded-lg border border-line-strong bg-white/80 p-6 shadow-[0_20px_50px_rgba(11,26,51,0.08)] backdrop-blur-sm sm:p-8"
       >
         <div class="grid gap-8 md:grid-cols-[minmax(220px,300px)_1fr] md:items-center">
           <div class="flex flex-col gap-3.5 text-center md:text-left">
@@ -122,7 +122,7 @@ const FASECOLDA_PAGE_URL = 'https://www.fasecolda.com/ramos/riesgos-laborales/rl
     </div>
 
     <p
-      class="relative z-[2] flex max-w-[900px] flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 text-center text-[13.5px] tracking-wide text-navy-700"
+      class="pointer-events-none relative z-[2] flex max-w-[900px] flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 text-center text-[13.5px] tracking-wide text-navy-700"
     >
       <strong class="font-semibold text-navy-900">{{ t('hero.caption.label') }}</strong>
       {{ t('hero.caption.identification') }} <span class="font-semibold text-sky-500">→</span>

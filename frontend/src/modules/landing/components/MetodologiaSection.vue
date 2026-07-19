@@ -82,7 +82,7 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
   <section id="metodologia" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <component :is="AnimatedNetworkBackgroundAsync" />
 
-    <div class="relative z-[2] mx-auto max-w-[1280px]">
+    <div class="pointer-events-none relative z-[2] mx-auto max-w-[1280px]">
       <div v-reveal class="mx-auto mb-7 max-w-[720px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
@@ -173,7 +173,7 @@ const toolsHeaders = computed(() => tm('metodologia.toolsTable.headers') as unkn
         </p>
       </div>
 
-      <div v-reveal class="mb-[110px]">
+      <div v-reveal class="pointer-events-auto mb-[110px]">
         <AccordionPanel :items="cycleStages">
           <template #content="{ item }">
             <p class="mb-auto max-w-[660px] text-[13.5px] leading-[1.75] text-navy-700">

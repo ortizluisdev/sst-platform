@@ -64,7 +64,7 @@ function toggleResearch(index: number) {
   <section id="nosotros" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <component :is="AnimatedNetworkBackgroundAsync" />
 
-    <div class="relative z-[2] mx-auto max-w-[1180px]">
+    <div class="pointer-events-none relative z-[2] mx-auto max-w-[1180px]">
       <div v-reveal class="mx-auto mb-14 max-w-[680px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
@@ -85,7 +85,7 @@ function toggleResearch(index: number) {
       <!-- STAT STRIP -->
       <div
         v-reveal
-        class="mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3"
+        class="pointer-events-auto mb-14 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[0_18px_46px_rgba(11,26,51,0.06)] sm:grid-cols-3"
       >
         <div
           v-for="(stat, index) in stats"
@@ -105,7 +105,7 @@ function toggleResearch(index: number) {
       <!-- PROFILE -->
       <div
         v-reveal
-        class="mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16"
+        class="pointer-events-auto mb-14 grid items-start gap-9 rounded-lg border border-line-strong bg-white p-7 shadow-[0_24px_60px_rgba(11,26,51,0.08)] sm:p-10 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] lg:gap-16"
       >
         <div
           class="group relative mx-auto aspect-[4/5] w-full max-w-[220px] overflow-hidden rounded-md border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white transition-colors hover:border-sky-400 md:max-w-none"
@@ -159,7 +159,7 @@ function toggleResearch(index: number) {
         </div>
       </div>
 
-      <div class="mb-8 grid gap-8 md:grid-cols-2">
+      <div class="pointer-events-auto mb-8 grid gap-8 md:grid-cols-2">
         <!-- FORMACIÓN ACADÉMICA -->
         <div v-reveal class="rounded-lg border border-line-strong bg-white p-7 sm:p-9">
           <h4

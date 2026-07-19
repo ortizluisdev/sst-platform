@@ -9,7 +9,7 @@ const { t } = useI18n()
   <section id="roma-plus" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <component :is="AnimatedNetworkBackgroundAsync" />
 
-    <div class="relative z-[2] mx-auto max-w-[820px]">
+    <div class="pointer-events-none relative z-[2] mx-auto max-w-[820px]">
       <div v-reveal class="mx-auto mb-14 max-w-[640px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
@@ -23,7 +23,7 @@ const { t } = useI18n()
 
       <div
         v-reveal
-        class="flex flex-col items-center gap-4 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-14 text-center sm:px-14"
+        class="pointer-events-auto flex flex-col items-center gap-4 rounded-lg border border-dashed border-line-strong bg-gradient-to-br from-sky-100 to-white px-6 py-14 text-center sm:px-14"
       >
         <svg class="h-9 w-9 text-sky-400 opacity-70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="4" width="18" height="13" rx="1.5" stroke="currentColor" stroke-width="1.4" />

@@ -12,7 +12,7 @@ const cardClasses =
   <section id="propuesta-valor" class="relative overflow-hidden px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
     <component :is="AnimatedNetworkBackgroundAsync" />
 
-    <div class="relative z-[2] mx-auto max-w-[1240px]">
+    <div class="pointer-events-none relative z-[2] mx-auto max-w-[1240px]">
       <div v-reveal class="mx-auto mb-[72px] max-w-[640px] text-center">
         <div
           class="mb-5 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.28em] text-navy-700 before:h-px before:w-[26px] before:content-[''] before:bg-line-strong after:h-px after:w-[26px] after:content-[''] after:bg-line-strong"
@@ -31,7 +31,7 @@ const cardClasses =
       </div>
 
       <div
-        class="grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12"
+        class="pointer-events-auto grid grid-cols-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-14 max-[560px]:grid-cols-1 max-[560px]:gap-y-12"
       >
         <!-- R -->
         <article v-reveal="0" :class="cardClasses" class="group">
