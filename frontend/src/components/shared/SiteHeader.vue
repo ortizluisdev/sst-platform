@@ -25,6 +25,7 @@ const navLinks = [
   { href: '#servicios', key: 'nav.servicios' },
   { href: '#metodologia', key: 'nav.metodologia' },
   { href: '#nosotros', key: 'nav.nosotros' },
+  { href: '#contacto', key: 'nav.contactos' },
 ]
 
 const { activeId } = useScrollSpy([

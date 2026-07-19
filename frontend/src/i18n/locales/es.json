@@ -11,6 +11,7 @@
     "servicios": "Servicios",
     "metodologia": "Metodología",
     "nosotros": "Nosotros",
+    "contactos": "Contactos",
     "cta": "RoMa+",
     "openMenu": "Abrir menú",
     "switchTo": "English",
@@ -21,14 +22,15 @@
     "title": "La diferencia entre reaccionar y anticiparse está en {accent}.",
     "titleAccent": "la ciencia",
     "lead": "Desarrollamos modelos científicos que revelan las relaciones ocultas dentro de los sistemas de gestión para transformar la incertidumbre en decisiones que incrementan la seguridad, la confiabilidad y la productividad.",
-    "ctaPrimary": "Agendar un diagnóstico →",
     "ctaSecondary": "Ver servicios",
     "sideCard": {
       "kicker": "Contexto del riesgo",
       "title": "Así vamos con la siniestralidad en Colombia",
       "text": "Consulta las cifras oficiales que reportan Fasecolda y el Consejo Colombiano de Seguridad.",
       "link": "Ver observatorio →",
-      "source": "Fuente: CCS · Fasecolda"
+      "source": "Fuente: CCS · Fasecolda",
+      "dashboardTitle": "Dashboard de siniestralidad — Fasecolda",
+      "dashboardLink": "Ver dashboard oficial →"
     },
     "caption": {
       "label": "Evaluación del Riesgo:",

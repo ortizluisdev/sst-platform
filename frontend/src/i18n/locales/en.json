@@ -11,6 +11,7 @@
     "servicios": "Services",
     "metodologia": "Methodology",
     "nosotros": "About",
+    "contactos": "Contact",
     "cta": "RoMa+",
     "openMenu": "Open menu",
     "switchTo": "Español",
@@ -21,14 +22,15 @@
     "title": "The difference between reacting and anticipating lies in {accent}.",
     "titleAccent": "science",
     "lead": "We develop scientific models that reveal the hidden relationships within management systems, turning uncertainty into decisions that increase safety, reliability, and productivity.",
-    "ctaPrimary": "Schedule a diagnostic →",
     "ctaSecondary": "View services",
     "sideCard": {
       "kicker": "Risk context",
       "title": "Where workplace accident rates in Colombia stand",
       "text": "Check the official figures reported by Fasecolda and the Colombian Safety Council.",
       "link": "View observatory →",
-      "source": "Source: CCS · Fasecolda"
+      "source": "Source: CCS · Fasecolda",
+      "dashboardTitle": "Workplace accident rate dashboard — Fasecolda",
+      "dashboardLink": "View official dashboard →"
     },
     "caption": {
       "label": "Risk Assessment:",
