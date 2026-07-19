@@ -63,7 +63,7 @@ const cardClasses =
           <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
             {{ t('propuestaValor.cards.0.lead') }}
           </p>
-          <p class="text-[13.5px] leading-relaxed text-navy-700">
+          <p class="text-justify text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.0.body') }}
           </p>
         </article>
@@ -97,7 +97,7 @@ const cardClasses =
           <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
             {{ t('propuestaValor.cards.1.lead') }}
           </p>
-          <p class="text-[13.5px] leading-relaxed text-navy-700">
+          <p class="text-justify text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.1.body') }}
           </p>
         </article>
@@ -131,7 +131,7 @@ const cardClasses =
           <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
             {{ t('propuestaValor.cards.2.lead') }}
           </p>
-          <p class="text-[13.5px] leading-relaxed text-navy-700">
+          <p class="text-justify text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.2.body') }}
           </p>
         </article>
@@ -163,7 +163,7 @@ const cardClasses =
           <p class="mb-3.5 font-serif text-[15.5px] font-medium italic leading-snug text-sky-500">
             {{ t('propuestaValor.cards.3.lead') }}
           </p>
-          <p class="text-[13.5px] leading-relaxed text-navy-700">
+          <p class="text-justify text-[13.5px] leading-relaxed text-navy-700">
             {{ t('propuestaValor.cards.3.body') }}
           </p>
         </article>

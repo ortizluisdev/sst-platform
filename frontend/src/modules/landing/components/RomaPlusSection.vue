@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { AnimatedNetworkBackgroundAsync } from '@/components/shared/AnimatedNetworkBackground.async'
 
 const { t } = useI18n()
 </script>
 
 <template>
   <section id="roma-plus" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
+    <component :is="AnimatedNetworkBackgroundAsync" />
+
     <div class="relative z-[2] mx-auto max-w-[820px]">
       <div v-reveal class="mx-auto mb-14 max-w-[640px] text-center">
         <div

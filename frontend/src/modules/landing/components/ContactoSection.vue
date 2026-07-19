@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { AnimatedNetworkBackgroundAsync } from '@/components/shared/AnimatedNetworkBackground.async'
 import { useContactForm } from '@/composables/useContactForm'
 
 const { t, locale } = useI18n()
@@ -31,6 +32,8 @@ const inputClasses =
 
 <template>
   <section id="contacto" class="relative overflow-hidden bg-cream px-6 py-[120px] pb-[130px] sm:px-8 md:px-16">
+    <component :is="AnimatedNetworkBackgroundAsync" />
+
     <div class="relative z-[2] mx-auto max-w-[720px]">
       <div v-reveal class="mx-auto mb-12 max-w-[560px] text-center">
         <div
