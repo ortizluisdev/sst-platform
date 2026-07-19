@@ -1,6 +1,5 @@
 /// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
@@ -8,7 +7,31 @@ import { compression } from 'vite-plugin-compression2'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), compression({ algorithms: ['gzip', 'brotliCompress'] })],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    compression({ algorithms: ['gzip', 'brotliCompress'] }),
+    {
+      name: 'html-charset-utf8',
+      configureServer(server) {
+        server.middlewares.use((_req, res, next) => {
+          const originalSetHeader = res.setHeader.bind(res)
+          res.setHeader = (name, value) => {
+            if (
+              name.toLowerCase() === 'content-type' &&
+              typeof value === 'string' &&
+              value.startsWith('text/html') &&
+              !value.includes('charset')
+            ) {
+              value = 'text/html; charset=utf-8'
+            }
+            return originalSetHeader(name, value)
+          }
+          next()
+        })
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
