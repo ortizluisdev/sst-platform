@@ -53,7 +53,6 @@ const researchItems = computed(
 )
 const bioParagraphs = computed(() => tm('nosotros.profile.bio') as unknown as string[])
 const credentials = computed(() => tm('nosotros.profile.credentials') as unknown as string[])
-const degreesSub = computed(() => tm('nosotros.profile.degreesSub') as unknown as string[])
 
 const openResearchIndex = ref(0)
 function toggleResearch(index: number) {
@@ -157,13 +156,6 @@ function toggleResearch(index: number) {
           <h3 class="mb-2 font-serif text-[clamp(20px,2.4vw,26px)] font-semibold leading-[1.3] text-navy-900">
             {{ t('nosotros.profile.roleTitle') }}
           </h3>
-
-          <p class="mb-[22px] flex flex-wrap gap-y-1.5 text-[13.5px] leading-[1.7] text-navy-700">
-            <template v-for="(item, index) in degreesSub" :key="item">
-              <span>{{ item }}</span
-              ><span v-if="index < degreesSub.length - 1" class="mx-2 text-line-strong">·</span>
-            </template>
-          </p>
 
           <p
             v-for="(paragraph, index) in bioParagraphs"

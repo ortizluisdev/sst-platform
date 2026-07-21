@@ -218,7 +218,7 @@
     },
     "mssv": {
       "kicker": "Modelo en vivo",
-      "title": "Explora la red MSSV",
+      "title": "Explora la red de riesgos dinámica",
       "description": "Explora la red de conocimiento utilizada para representar sistemas complejos mediante agentes, condiciones, eventos y relaciones causales. Cada nodo incluye su definición, indicadores e instrumentos de medición para apoyar el análisis y la gestión del riesgo.",
       "legendNode": "Nodo del modelo",
       "legendConnection": "Conexión estructural",
@@ -239,17 +239,9 @@
     "profile": {
       "roleEyebrow": "Fundador · Chief Scientific Officer",
       "roleTitle": "Roger Mauricio Pérez Cruz",
-      "degreesSub": [
-        "Ingeniero Mecánico",
-        "Especialista en Matemáticas Aplicadas",
-        "Especialista en Gerencia de Riesgos Laborales",
-        "Magíster en Ingeniería Industrial",
-        "Maestrante en Ingeniería de Materiales",
-        "Doctorando en Industria y Organizaciones"
-      ],
       "photoLabel": "Foto próximamente",
       "bio": [
-        "Roger Mauricio Pérez Cruz es Ingeniero Mecánico, Especialista en Matemáticas Aplicadas (énfasis en Investigación de Operaciones), Especialista en Gerencia de Riesgos Laborales, Magíster en Ingeniería Industrial, Maestrante en Ingeniería de Materiales y Doctorando en Industria y Organizaciones. Cuenta con más de 15 años de experiencia profesional y 8 años de experiencia como docente universitario en ingeniería y ciencias básicas.",
+        "Es Ingeniero Mecánico, Especialista en Matemáticas Aplicadas (énfasis en Investigación de Operaciones), Especialista en Gerencia de Riesgos Laborales, Magíster en Ingeniería Industrial, Maestrante en Ingeniería de Materiales y Doctorando en Industria y Organizaciones. Cuenta con más de 15 años de experiencia profesional y 8 años de experiencia como docente universitario en ingeniería y ciencias básicas.",
         "A lo largo de su trayectoria ha liderado proyectos de ingeniería, investigación y consultoría para organizaciones de los sectores de hidrocarburos, energía, infraestructura, construcción, manufactura, transporte y servicios, asesorando a más de 100 organizaciones en gestión integral del riesgo, seguridad industrial, higiene ocupacional, seguridad vial, administración de flotas, ergonomía y sistemas integrados de gestión.",
         "Su actividad científica integra el modelado de sistemas complejos, la ciencia de redes, la dinámica de sistemas, la investigación de operaciones, la analítica avanzada, la inteligencia artificial, la ingeniería de materiales y la física del plasma, incluyendo investigación en espectroscopía de emisión óptica (OES) y magnetron sputtering para el desarrollo de materiales avanzados. Su trabajo se orienta al diseño de modelos científicos y soluciones basadas en evidencia que permitan comprender, predecir y optimizar sistemas complejos, fortaleciendo la toma de decisiones en organizaciones e instituciones."
       ],

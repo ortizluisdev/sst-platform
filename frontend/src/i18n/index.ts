@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 export type Locale = 'es' | 'en'
 export const SUPPORTED_LOCALES: Locale[] = ['es', 'en']
-export const DEFAULT_LOCALE: Locale = 'es'
+export const DEFAULT_LOCALE: Locale = 'en'
 export const LOCALE_STORAGE_KEY = 'roma-locale'
 
 const localeModules = import.meta.glob<{ default: Record<string, unknown> }>('./locales/*.json')

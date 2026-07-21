@@ -218,7 +218,7 @@
     },
     "mssv": {
       "kicker": "Live model",
-      "title": "Explore the MSSV network",
+      "title": "Explore the Dynamic Risk Network",
       "description": "Explore the knowledge network used to represent complex systems through agents, conditions, events, and causal relationships. Each node includes its definition, indicators, and measurement instruments to support risk analysis and management.",
       "legendNode": "Model node",
       "legendConnection": "Structural connection",
@@ -239,17 +239,9 @@
     "profile": {
       "roleEyebrow": "Founder · Chief Scientific Officer",
       "roleTitle": "Roger Mauricio Pérez Cruz",
-      "degreesSub": [
-        "Mechanical Engineer",
-        "Specialist in Applied Mathematics",
-        "Specialist in Occupational Risk Management",
-        "M.Sc. in Industrial Engineering",
-        "M.Sc. Candidate in Materials Engineering",
-        "Ph.D. Candidate in Industry and Organizations"
-      ],
       "photoLabel": "Photo coming soon",
       "bio": [
-        "Roger Mauricio Pérez Cruz is a Mechanical Engineer, Specialist in Applied Mathematics (with an emphasis in Operations Research), Specialist in Occupational Risk Management, M.Sc. in Industrial Engineering, M.Sc. Candidate in Materials Engineering, and Ph.D. Candidate in Industry and Organizations. He has more than 15 years of professional experience and 8 years of experience as a university lecturer in engineering and basic sciences.",
+        "He is a Mechanical Engineer, Specialist in Applied Mathematics (with an emphasis in Operations Research), Specialist in Occupational Risk Management, M.Sc. in Industrial Engineering, M.Sc. Candidate in Materials Engineering, and Ph.D. Candidate in Industry and Organizations. He has more than 15 years of professional experience and 8 years of experience as a university lecturer in engineering and basic sciences.",
         "Throughout his career, he has led engineering, research, and consulting projects for organizations in the oil and gas, energy, infrastructure, construction, manufacturing, transportation, and services sectors, advising more than 100 organizations on comprehensive risk management, industrial safety, occupational hygiene, road safety, fleet management, ergonomics, and integrated management systems.",
         "His scientific work integrates complex systems modeling, network science, systems dynamics, operations research, advanced analytics, artificial intelligence, materials engineering, and plasma physics, including research in optical emission spectroscopy (OES) and magnetron sputtering for the development of advanced materials. His work focuses on designing scientific models and evidence-based solutions that make it possible to understand, predict, and optimize complex systems, strengthening decision-making in organizations and institutions."
       ],
