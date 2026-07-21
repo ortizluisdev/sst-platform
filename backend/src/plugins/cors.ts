@@ -22,5 +22,10 @@ export async function registerCors(app: FastifyInstance) {
       callback(null, !origin || allowedOrigins.has(origin))
     },
     methods: ['POST', 'OPTIONS'],
+    // Necesario para que el navegador envíe/reciba las cookies httpOnly de
+    // sesión (access/refresh token) en requests cross-origin en dev
+    // (localhost:5173 → localhost:3000). Solo es seguro combinado con la
+    // lista blanca de orígenes de arriba — nunca junto a origin: "*".
+    credentials: true,
   })
 }

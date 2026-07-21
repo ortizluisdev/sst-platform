@@ -283,9 +283,9 @@
   "romaPlus": {
     "eyebrow": "Client platform",
     "title": "RoMa+",
-    "badge": "Coming soon",
     "description": "The portal where each client logs in with their own account to their indicator dashboard — regulatory compliance status, variable history, and trend tracking for their safety and occupational hygiene processes.",
-    "cta": "Schedule a diagnostic →"
+    "loginCta": "Log in",
+    "registerCta": "Register your organization"
   },
   "contacto": {
     "eyebrow": "Contact",
@@ -319,6 +319,67 @@
       "telefonoInvalid": "Numbers, spaces, and +()- only",
       "mensajeRequired": "Tell us a bit more (minimum 10 characters)",
       "consentRequired": "You must accept the personal data processing terms to continue."
+    }
+  },
+  "auth": {
+    "backToHome": "Back to home",
+    "form": {
+      "nombre": "Full name",
+      "nombrePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you{'@'}company.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "passwordHint": "At least 10 characters, with uppercase, lowercase, and a number",
+      "organizationName": "Your organization's name",
+      "organizationNamePlaceholder": "E.g. Company Inc.",
+      "submitting": "Submitting...",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email",
+      "passwordRequired": "Enter your password",
+      "passwordMin": "Password must be at least 10 characters",
+      "passwordLowercase": "Must include at least one lowercase letter",
+      "passwordUppercase": "Must include at least one uppercase letter",
+      "passwordNumber": "Must include at least one number",
+      "nombreRequired": "Enter your full name",
+      "organizationNameRequired": "Enter your organization's name",
+      "tokenRequired": "Invalid link"
+    },
+    "login": {
+      "title": "Log in",
+      "subtitle": "Access your RoMa+ indicator dashboard.",
+      "submit": "Log in",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register your organization",
+      "successGreeting": "Welcome, {nombre}!",
+      "successPending": "The indicator dashboard is under construction — your per-service dashboards will appear here soon."
+    },
+    "register": {
+      "title": "Register your organization",
+      "subtitle": "Create your organization's account on RoMa+.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "backToLogin": "Go to log in"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "We'll send you a link to reset it.",
+      "submit": "Send link",
+      "successBody": "If that email is registered, we've sent a password reset link. Check your inbox.",
+      "backToLogin": "Back to log in"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Choose a new password for your account.",
+      "newPassword": "New password",
+      "submit": "Save new password",
+      "successBody": "Your password was updated. You can now log in with your new password.",
+      "backToLogin": "Go to log in",
+      "missingToken": "This link isn't valid. Request a new one from the forgot password page."
     }
   },
   "privacyPolicy": {

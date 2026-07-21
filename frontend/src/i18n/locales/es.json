@@ -283,9 +283,9 @@
   "romaPlus": {
     "eyebrow": "Plataforma de clientes",
     "title": "RoMa+",
-    "badge": "Próximamente",
     "description": "El portal donde cada cliente ingresa con su propia cuenta a su panel de indicadores — estado de cumplimiento normativo, histórico de variables y seguimiento de tendencias para sus procesos de seguridad y higiene ocupacional.",
-    "cta": "Agendar diagnóstico →"
+    "loginCta": "Iniciar sesión",
+    "registerCta": "Registra tu organización"
   },
   "contacto": {
     "eyebrow": "Contacto",
@@ -319,6 +319,67 @@
       "telefonoInvalid": "Solo números, espacios y +()-",
       "mensajeRequired": "Cuéntanos un poco más (mínimo 10 caracteres)",
       "consentRequired": "Debes aceptar el tratamiento de datos personales para continuar."
+    }
+  },
+  "auth": {
+    "backToHome": "Volver al inicio",
+    "form": {
+      "nombre": "Nombre completo",
+      "nombrePlaceholder": "Tu nombre completo",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu{'@'}empresa.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Tu contraseña",
+      "passwordHint": "Mínimo 10 caracteres, con mayúscula, minúscula y número",
+      "organizationName": "Nombre de tu organización",
+      "organizationNamePlaceholder": "Ej. Empresa S.A.S.",
+      "submitting": "Enviando...",
+      "genericError": "Ocurrió un error. Por favor intenta de nuevo."
+    },
+    "validation": {
+      "emailInvalid": "Ingresa un correo válido",
+      "passwordRequired": "Ingresa tu contraseña",
+      "passwordMin": "La contraseña debe tener al menos 10 caracteres",
+      "passwordLowercase": "Debe incluir al menos una minúscula",
+      "passwordUppercase": "Debe incluir al menos una mayúscula",
+      "passwordNumber": "Debe incluir al menos un número",
+      "nombreRequired": "Ingresa tu nombre completo",
+      "organizationNameRequired": "Ingresa el nombre de tu organización",
+      "tokenRequired": "Enlace inválido"
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Ingresa a tu panel de indicadores RoMa+.",
+      "submit": "Iniciar sesión",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes cuenta?",
+      "registerLink": "Registra tu organización",
+      "successGreeting": "¡Bienvenido, {nombre}!",
+      "successPending": "El panel de indicadores está en construcción — pronto verás aquí tus dashboards por servicio."
+    },
+    "register": {
+      "title": "Registra tu organización",
+      "subtitle": "Crea la cuenta de tu organización en RoMa+.",
+      "submit": "Crear cuenta",
+      "haveAccount": "¿Ya tienes cuenta?",
+      "loginLink": "Inicia sesión",
+      "backToLogin": "Ir a iniciar sesión"
+    },
+    "forgotPassword": {
+      "title": "Recuperar contraseña",
+      "subtitle": "Te enviaremos un enlace para restablecerla.",
+      "submit": "Enviar enlace",
+      "successBody": "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada.",
+      "backToLogin": "Volver a iniciar sesión"
+    },
+    "resetPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Elige una nueva contraseña para tu cuenta.",
+      "newPassword": "Nueva contraseña",
+      "submit": "Guardar nueva contraseña",
+      "successBody": "Tu contraseña fue actualizada. Ya puedes iniciar sesión con tu nueva contraseña.",
+      "backToLogin": "Ir a iniciar sesión",
+      "missingToken": "Este enlace no es válido. Solicita uno nuevo desde la página de recuperar contraseña."
     }
   },
   "privacyPolicy": {

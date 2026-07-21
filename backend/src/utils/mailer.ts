@@ -125,3 +125,39 @@ export async function sendAutoReply(payload: ContactMailPayload): Promise<boolea
     return false
   }
 }
+
+function passwordResetTemplate(nombre: string, resetUrl: string): string {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #0B1A33; max-width: 560px;">
+      <h2 style="margin: 0 0 16px;">Restablece tu contraseña</h2>
+      <p style="font-size: 14px; line-height: 1.6;">Hola ${escapeHtml(nombre)},</p>
+      <p style="font-size: 14px; line-height: 1.6;">
+        Recibimos una solicitud para restablecer tu contraseña. Este enlace es
+        válido por 1 hora y solo se puede usar una vez.
+      </p>
+      <p style="margin: 24px 0;">
+        <a href="${resetUrl}" style="background:#2454FF;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Restablecer contraseña</a>
+      </p>
+      <p style="font-size: 13px; line-height: 1.6; color: #5C5F78;">
+        Si no solicitaste este cambio, puedes ignorar este correo — tu contraseña actual sigue siendo válida.
+      </p>
+    </div>
+  `
+}
+
+/** Best-effort — un fallo aquí no debe revelar si el correo existe o no. */
+export async function sendPasswordResetEmail(email: string, nombre: string, resetUrl: string): Promise<boolean> {
+  if (!transporter) return false
+  try {
+    await transporter.sendMail({
+      from: `"RoMa" <${env.ZOHO_SMTP_USER}>`,
+      to: email,
+      subject: 'Restablece tu contraseña — RoMa',
+      html: passwordResetTemplate(nombre, resetUrl),
+    })
+    return true
+  } catch (err) {
+    console.error('[mailer] Error enviando correo de reset de contraseña:', err)
+    return false
+  }
+}

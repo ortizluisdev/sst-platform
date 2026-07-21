@@ -3,20 +3,373 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+// ============================================================
+// NÚCLEO: usuarios, organizaciones, roles y servicios
+// ============================================================
+
+/// Catálogo de permisos individuales. `key` es el identificador que revisa
+/// el código (ej. "dashboard.higiene_industrial.view", "menu.servicios.manage").
+/// La clave especial "*" significa "todos los permisos" — ver utils/permissions.ts.
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique @db.VarChar(150)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+/// Un rol es un paquete de permisos reutilizable (ej. "super-admin",
+/// "org-admin", "org-user"). El sistema se controla por permisos, no por el
+/// nombre del rol — el rol es solo el mecanismo para asignar varios permisos
+/// a la vez. `isSystem` protege los roles base de borrarse desde la UI futura.
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.VarChar(255)
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions    RolePermission[]
+  platformUsers  User[]
+  orgMemberships UserOrganization[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId       String @map("role_id")
+  permissionId String @map("permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  nombre       String   @db.VarChar(255)
+  fotoUrl      String?  @map("foto_url") @db.VarChar(500)
+  /// Rol a nivel PLATAFORMA (ej. super-admin). null para un cliente normal:
+  /// sus permisos vienen exclusivamente de su(s) UserOrganization.role.
+  roleId       String?  @map("role_id")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  role                  Role?                @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  organizations         UserOrganization[]
+  refreshTokens         RefreshToken[]
+  passwordResetTokens   PasswordResetToken[]
+  notificationsReceived Notification[]       @relation("NotificationRecipient")
+  notificationsSent     Notification[]       @relation("NotificationSender")
+  variableUploads       VariableUpload[]
+  announcements         Announcement[]
+  auditLogs             AuditLog[]
+
+  @@index([email])
+  @@index([roleId])
+  @@map("users")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  nombre    String   @db.VarChar(255)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users           UserOrganization[]
+  services        OrganizationService[]
+  variableUploads VariableUpload[]
+  auditLogs       AuditLog[]
+
+  @@map("organizations")
+}
+
+/// Relación usuario↔organización. Un usuario tiene un único rol por
+/// organización (una fila = una membresía); puede pertenecer a varias
+/// organizaciones con roles distintos en cada una. `roleId` es obligatorio:
+/// toda membresía necesita un paquete de permisos (ej. "org-admin", "org-user").
+model UserOrganization {
+  id             Int      @id @default(autoincrement())
+  userId         String   @map("user_id")
+  organizationId String   @map("organization_id")
+  roleId         String   @map("role_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([roleId])
+  @@map("user_organizations")
+}
+
+/// Catálogo de los 5 servicios que ofrece RoMa.
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique @db.VarChar(100)
+  nombre      String   @db.VarChar(255)
+  descripcion String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  organizations       OrganizationService[]
+  variableDefinitions VariableDefinition[]
+  variableUploads     VariableUpload[]
+
+  @@map("services")
+}
+
+/// Determina qué dashboards ve cada organización: solo los servicios
+/// contratados y activos aparecen en su panel.
+model OrganizationService {
+  id             Int      @id @default(autoincrement())
+  organizationId String   @map("organization_id")
+  serviceId      String   @map("service_id")
+  isActive       Boolean  @default(true) @map("is_active")
+  contractedAt   DateTime @default(now()) @map("contracted_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service      Service      @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, serviceId])
+  @@index([serviceId])
+  @@map("organization_services")
+}
+
+// ============================================================
+// SESIONES Y RECUPERACIÓN DE CONTRASEÑA
+// ============================================================
+
+/// Refresh token rotativo: cada uso genera uno nuevo y revoca este.
+/// Se guarda solo el hash, nunca el token en texto plano. Cada fila
+/// representa además una sesión activa (o ya revocada/expirada).
+model RefreshToken {
+  id                String    @id @default(cuid())
+  userId            String    @map("user_id")
+  tokenHash         String    @unique @map("token_hash") @db.VarChar(255)
+  expiresAt         DateTime  @map("expires_at")
+  revokedAt         DateTime? @map("revoked_at")
+  replacedByTokenId String?   @map("replaced_by_token_id") @db.VarChar(191)
+  userAgent         String?   @map("user_agent") @db.VarChar(255)
+  ipAddress         String?   @map("ip_address") @db.VarChar(45)
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+/// Token de un solo uso para restablecer contraseña. Expiración corta
+/// (ej. 1 hora), se guarda hasheado, y usedAt evita reutilizarlo.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ============================================================
+// NOTIFICACIONES
+// ============================================================
+
+enum NotificationType {
+  ASIGNACION
+  SOPORTE
+  SISTEMA
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String           @map("recipient_id")
+  senderId    String?          @map("sender_id")
+  type        NotificationType
+  message     String           @db.Text
+  isRead      Boolean          @default(false) @map("is_read")
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  recipient User  @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender    User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([recipientId, isRead])
+  @@map("notifications")
+}
+
+// ============================================================
+// VARIABLES DE SEGURIDAD E HIGIENE OCUPACIONAL
+// Cada uno de los 5 servicios tiene su propio catálogo de ~50 variables.
+// ============================================================
+
+/// Catálogo normativo de variables por servicio (nombre, rango de
+/// cumplimiento, unidad de medida). Los rangos deben confirmarse contra
+/// normativa técnica real (ISO 7730, ISO 7243, etc.) — no se generan aquí.
+model VariableDefinition {
+  id           String   @id @default(cuid())
+  serviceId    String   @map("service_id")
+  codigo       String   @db.VarChar(50)
+  nombre       String   @db.VarChar(255)
+  unidadMedida String   @map("unidad_medida") @db.VarChar(50)
+  limiteMin    Float?   @map("limite_min")
+  limiteMax    Float?   @map("limite_max")
+  normativaRef String?  @map("normativa_ref") @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  service  Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  readings VariableReading[]
+
+  @@unique([serviceId, codigo])
+  @@index([serviceId])
+  @@map("variable_definitions")
+}
+
+enum UploadStatus {
+  PENDIENTE
+  PROCESADO
+  ERROR
+}
+
+/// Carga semanal de archivo (CSV/Excel) con la lectura más reciente de
+/// variables de UN servicio de UNA organización. organizationId y
+/// serviceId son los campos que toda query debe usar para aislar datos
+/// por cliente — nunca un parámetro que venga del frontend.
+model VariableUpload {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  serviceId      String       @map("service_id")
+  uploadedById   String       @map("uploaded_by_id")
+  originalFile   String       @map("original_file") @db.VarChar(500)
+  status         UploadStatus @default(PENDIENTE)
+  errorMessage   String?      @map("error_message") @db.Text
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service      Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  uploadedBy   User              @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  readings     VariableReading[]
+
+  @@index([organizationId, serviceId, createdAt])
+  @@map("variable_uploads")
+}
+
+enum SemaphoreStatus {
+  VERDE
+  AMARILLO
+  ROJO
+}
+
+/// Lectura individual de una variable dentro de una carga, con el
+/// resultado del semáforo ya calculado contra VariableDefinition.
+model VariableReading {
+  id           String          @id @default(cuid())
+  uploadId     String          @map("upload_id")
+  definitionId String          @map("definition_id")
+  valor        Float
+  semaforo     SemaphoreStatus
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  upload     VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  definition VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+
+  @@index([uploadId])
+  @@index([definitionId])
+  @@map("variable_readings")
+}
+
+// ============================================================
+// LANDING PAGE PÚBLICA Y AUDITORÍA
+// ============================================================
+
+model Announcement {
+  id          String    @id @default(cuid())
+  authorId    String    @map("author_id")
+  titulo      String    @db.VarChar(255)
+  contenido   String    @db.Text
+  isPublished Boolean   @default(false) @map("is_published")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([isPublished, publishedAt])
+  @@map("announcements")
+}
+
+enum AuditAction {
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  ROLE_CHANGED
+  ORG_SERVICE_GRANTED
+  ORG_SERVICE_REVOKED
+  DASHBOARD_ACCESSED
+  USER_REGISTERED
+  USER_APPROVED
+}
+
+/// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda
+/// detalles específicos de la acción (ej. rol anterior/nuevo) como JSON.
+model AuditLog {
+  id             String      @id @default(cuid())
+  userId         String?     @map("user_id")
+  organizationId String?     @map("organization_id")
+  action         AuditAction
+  metadata       Json?
+  ipAddress      String?     @map("ip_address") @db.VarChar(45)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// FORMULARIO DE CONTACTO (existente, sin cambios de estructura)
+// ============================================================
+
 model ContactSubmission {
-  id         Int      @id @default(autoincrement())
-  nombre     String   @db.VarChar(255)
-  correo     String   @db.VarChar(255)
-  telefono   String   @db.VarChar(50)
-  empresa    String?  @db.VarChar(255)
-  mensaje    String   @db.Text
-  ipAddress  String   @map("ip_address") @db.VarChar(45)
-  emailSent  Boolean  @default(false) @map("email_sent")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement())
+  nombre    String   @db.VarChar(255)
+  correo    String   @db.VarChar(255)
+  telefono  String   @db.VarChar(50)
+  empresa   String?  @db.VarChar(255)
+  mensaje   String   @db.Text
+  ipAddress String   @map("ip_address") @db.VarChar(45)
+  emailSent Boolean  @default(false) @map("email_sent")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("contact_submissions")
 }
