@@ -6,7 +6,9 @@ import {
   logoutHandler,
   passwordResetRequestHandler,
   passwordResetConfirmHandler,
+  meHandler,
 } from './auth.controller.js'
+import { requireAuth } from '../../plugins/auth-guard.js'
 
 async function assertJsonContentType(request: FastifyRequest, reply: FastifyReply) {
   const contentType = request.headers['content-type'] ?? ''
@@ -59,4 +61,6 @@ export async function authRoutes(app: FastifyInstance) {
     },
     passwordResetConfirmHandler,
   )
+
+  app.get('/api/auth/me', { preHandler: [requireAuth] }, meHandler)
 }

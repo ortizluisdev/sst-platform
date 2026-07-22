@@ -117,3 +117,23 @@ export async function passwordResetConfirmHandler(request: FastifyRequest, reply
     return sendAuthError(reply, err)
   }
 }
+
+/** El frontend nunca puede leer las cookies httpOnly de sesión — este
+ * endpoint es cómo sabe "quién soy" al cargar la app o navegar a una ruta
+ * protegida (guard de router). Requiere requireAuth en la ruta. */
+export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = await request.server.prisma.user.findUnique({ where: { id: request.user.sub } })
+  if (!user || !user.isActive) return reply.code(401).send({ message: 'No autenticado' })
+
+  const membership = await request.server.prisma.userOrganization.findFirst({
+    where: { userId: user.id },
+    select: { organizationId: true },
+  })
+
+  const permissions = await resolveUserPermissions(request.server.prisma, user.id, membership?.organizationId)
+  return reply.code(200).send({
+    user: { id: user.id, email: user.email, nombre: user.nombre },
+    organizationId: membership?.organizationId ?? null,
+    permissions: [...permissions],
+  })
+}

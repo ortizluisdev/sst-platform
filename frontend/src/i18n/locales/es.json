@@ -355,7 +355,7 @@
       "noAccount": "¿No tienes cuenta?",
       "registerLink": "Registra tu organización",
       "successGreeting": "¡Bienvenido, {nombre}!",
-      "successPending": "El panel de indicadores está en construcción — pronto verás aquí tus dashboards por servicio."
+      "successPending": "Tu cuenta aún no tiene servicios contratados con dashboard disponible. Contacta a tu administrador de RoMa+."
     },
     "register": {
       "title": "Registra tu organización",
@@ -406,5 +406,112 @@
   "social": {
     "whatsappTooltip": "Escríbenos por WhatsApp",
     "whatsappMessage": "\uD83D\uDE80 Quiero saber cómo la ciencia y la innovación pueden transformar la gestión del riesgo en mi organización.\n\uD83D\uDC49 ¡Quiero más información!"
+  },
+  "dashboard": {
+    "layout": {
+      "openMenu": "Abrir menú de navegación",
+      "logout": "Cerrar sesión",
+      "noDataYet": "Sin datos aún",
+      "lastSync": "Última sincronización de datos: ",
+      "copyright": "RoMa Applied Science S.A.S."
+    },
+    "sidebar": {
+      "navAriaLabel": "Navegación del dashboard",
+      "navLabel": "Navegación",
+      "closeMenu": "Cerrar menú de navegación"
+    },
+    "tabs": {
+      "dashboard": "Dashboard",
+      "comparativoNormativo": "Comparativo Normativo",
+      "historial": "Historial",
+      "reportes": "Reportes"
+    },
+    "summaryCard": {
+      "complianceLabel": "Cumplimiento normativo: "
+    },
+    "semaphore": {
+      "cumple": "Cumple",
+      "alerta": "Alerta",
+      "critico": "Crítico"
+    },
+    "complianceRing": {
+      "title": "Cumplimiento normativo global",
+      "centerLabel": "Cumplimiento"
+    },
+    "comparisonTable": {
+      "variable": "Variable",
+      "medicion": "Medición",
+      "norma": "Norma",
+      "pctCumplimiento": "% Cumplimiento",
+      "estado": "Estado"
+    },
+    "uploadForm": {
+      "missingFields": "Selecciona un archivo y una fecha de evaluación.",
+      "processError": "Error al procesar el archivo.",
+      "heading": "Cargar variables (CSV o Excel)",
+      "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor.",
+      "processing": "Procesando...",
+      "submit": "Subir",
+      "successPrefix": "Carga exitosa: ",
+      "successRows": " filas, ",
+      "successSuffix": " puestos de trabajo afectados."
+    },
+    "resumen": {
+      "titlePrefix": "Dashboard ",
+      "lastUpdatePrefix": "Última actualización: ",
+      "workPointsSuffix": " puestos de trabajo evaluados",
+      "emptyState": "Todavía no hay cargas de variables para esta organización."
+    },
+    "category": {
+      "detailHeading": "Detalle por punto de trabajo",
+      "workPoint": "Punto de trabajo",
+      "areaPlant": "Área / Planta",
+      "heatmapPlaceholder": "Mapa de calor espacial — disponible cuando se definan coordenadas de planta para los puntos de trabajo.",
+      "trendPrefix": "Tendencia — "
+    },
+    "comparativo": {
+      "subtitle": "Vista de auditoría: todas las variables de todas las categorías, en una sola tabla."
+    },
+    "historial": {
+      "desde": "Desde",
+      "hasta": "Hasta",
+      "loading": "Cargando historial...",
+      "loadError": "Ocurrió un error al cargar el historial de cargas.",
+      "empty": "No hay cargas en el rango de fechas seleccionado.",
+      "fechaEvaluacion": "Fecha de evaluación",
+      "cargadoPor": "Cargado por",
+      "archivo": "Archivo",
+      "puestos": "Puestos",
+      "lecturas": "Lecturas",
+      "loadingDetail": "Cargando detalle...",
+      "valor": "Valor",
+      "statusProcesado": "Procesado",
+      "statusError": "Error",
+      "statusPendiente": "Pendiente"
+    },
+    "reportes": {
+      "exportCsv": "Exportar a Excel (CSV)",
+      "exportPdf": "Exportar a PDF (imprimir)",
+      "reportTitlePrefix": "Reporte de cumplimiento — ",
+      "generatedOn": "Generado el ",
+      "csvHeaders": ["Categoria", "Variable", "Medicion", "Unidad", "Norma", "PorcentajeCumplimiento", "Estado"]
+    },
+    "clientView": {
+      "pageTitle": "Dashboard Higiene Industrial — RoMa+",
+      "loading": "Cargando dashboard...",
+      "loadError": "Ocurrió un error al cargar el dashboard."
+    },
+    "adminView": {
+      "pageTitle": "Administración — Higiene Industrial — RoMa+",
+      "noOrgs": "Ninguna organización tiene contratado este servicio todavía.",
+      "loadOrgsError": "Error al cargar organizaciones.",
+      "adminZone": "Zona de administración",
+      "organization": "Organización"
+    },
+    "roleLabel": {
+      "superAdmin": "Super-Admin",
+      "cliente": "Cliente"
+    },
+    "genericError": "Ocurrió un error"
   }
 }

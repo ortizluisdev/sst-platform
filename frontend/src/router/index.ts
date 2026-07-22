@@ -1,5 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { DEFAULT_LOCALE, isSupportedLocale, setLocale } from '@/i18n'
+import { useAuthStore } from '@/stores/auth'
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean
+    permission?: string
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +47,18 @@ const router = createRouter({
       name: 'reset-password',
       component: () => import('@/modules/auth/views/ResetPasswordView.vue'),
     },
+    {
+      path: '/:locale(es|en)/dashboard/higiene-industrial',
+      name: 'dashboard-higiene-industrial',
+      component: () => import('@/modules/dashboard/views/ClientDashboardView.vue'),
+      meta: { requiresAuth: true, permission: 'dashboard.higiene-industrial.view' },
+    },
+    {
+      path: '/:locale(es|en)/admin/higiene-industrial',
+      name: 'admin-higiene-industrial',
+      component: () => import('@/modules/dashboard/views/AdminDashboardView.vue'),
+      meta: { requiresAuth: true, permission: 'platform.variables.upload' },
+    },
     // El backend genera el link de reset SIN prefijo de idioma (no conoce el
     // locale del usuario): FRONTEND_URL/restablecer-contrasena?token=...
     // Sin esta ruta puente, ese link caería en el catch-all de abajo y el
@@ -54,11 +74,19 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const rawLocale = to.params.locale
   const locale = Array.isArray(rawLocale) ? rawLocale[0] : rawLocale
-  if (isSupportedLocale(locale)) {
-    await setLocale(locale)
-    return true
+  if (!isSupportedLocale(locale)) return `/${DEFAULT_LOCALE}/`
+  await setLocale(locale)
+
+  if (to.meta.requiresAuth) {
+    const auth = useAuthStore()
+    if (auth.isAuthenticated === null) await auth.fetchMe()
+    if (!auth.isAuthenticated) return `/${locale}/ingresar`
+
+    const permission = to.meta.permission as string | undefined
+    if (permission && !auth.hasPermission(permission)) return `/${locale}/`
   }
-  return `/${DEFAULT_LOCALE}/`
+
+  return true
 })
 
 export default router

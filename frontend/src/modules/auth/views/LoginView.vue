@@ -1,16 +1,33 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import AuthCard from '@/components/ui/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useLoginForm } from '@/composables/useLoginForm'
+import { useAuthStore } from '@/stores/auth'
 
 const { t, locale } = useI18n()
+const router = useRouter()
+const auth = useAuthStore()
 const { status, errorMessage, user, errors, email, emailAttrs, password, passwordAttrs, submit } = useLoginForm()
 
 // noindex: página funcional, no de contenido — no debe competir en buscadores.
 useHead(() => ({ title: `${t('auth.login.title')} — RoMa`, meta: [{ name: 'robots', content: 'noindex' }] }))
+
+// Tras login exitoso, la cookie de sesión ya está puesta — /auth/me revela
+// los permisos reales para decidir a qué dashboard enviar al usuario.
+watch(status, async (value) => {
+  if (value !== 'success') return
+  await auth.fetchMe()
+  if (auth.hasPermission('platform.variables.upload')) {
+    router.push(`/${locale.value}/admin/higiene-industrial`)
+  } else if (auth.hasPermission('dashboard.higiene-industrial.view')) {
+    router.push(`/${locale.value}/dashboard/higiene-industrial`)
+  }
+})
 </script>
 
 <template>

@@ -355,7 +355,7 @@
       "noAccount": "Don't have an account?",
       "registerLink": "Register your organization",
       "successGreeting": "Welcome, {nombre}!",
-      "successPending": "The indicator dashboard is under construction — your per-service dashboards will appear here soon."
+      "successPending": "Your account doesn't have any contracted services with an available dashboard yet. Contact your RoMa+ administrator."
     },
     "register": {
       "title": "Register your organization",
@@ -406,5 +406,112 @@
   "social": {
     "whatsappTooltip": "Message us on WhatsApp",
     "whatsappMessage": "🚀 I want to learn how science and innovation can transform risk management in my organization.\n👉 I'd like more information!"
+  },
+  "dashboard": {
+    "layout": {
+      "openMenu": "Open navigation menu",
+      "logout": "Log out",
+      "noDataYet": "No data yet",
+      "lastSync": "Last data sync: ",
+      "copyright": "RoMa Applied Science S.A.S."
+    },
+    "sidebar": {
+      "navAriaLabel": "Dashboard navigation",
+      "navLabel": "Navigation",
+      "closeMenu": "Close navigation menu"
+    },
+    "tabs": {
+      "dashboard": "Dashboard",
+      "comparativoNormativo": "Regulatory Comparison",
+      "historial": "History",
+      "reportes": "Reports"
+    },
+    "summaryCard": {
+      "complianceLabel": "Regulatory compliance: "
+    },
+    "semaphore": {
+      "cumple": "Compliant",
+      "alerta": "Warning",
+      "critico": "Critical"
+    },
+    "complianceRing": {
+      "title": "Global regulatory compliance",
+      "centerLabel": "Compliance"
+    },
+    "comparisonTable": {
+      "variable": "Variable",
+      "medicion": "Measurement",
+      "norma": "Standard",
+      "pctCumplimiento": "% Compliance",
+      "estado": "Status"
+    },
+    "uploadForm": {
+      "missingFields": "Select a file and an evaluation date.",
+      "processError": "Error processing the file.",
+      "heading": "Upload variables (CSV or Excel)",
+      "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor.",
+      "processing": "Processing...",
+      "submit": "Upload",
+      "successPrefix": "Upload successful: ",
+      "successRows": " rows, ",
+      "successSuffix": " work points affected."
+    },
+    "resumen": {
+      "titlePrefix": "Dashboard ",
+      "lastUpdatePrefix": "Last updated: ",
+      "workPointsSuffix": " work points evaluated",
+      "emptyState": "No variable uploads yet for this organization."
+    },
+    "category": {
+      "detailHeading": "Detail by work point",
+      "workPoint": "Work point",
+      "areaPlant": "Area / Plant",
+      "heatmapPlaceholder": "Spatial heat map — available once plant coordinates are defined for work points.",
+      "trendPrefix": "Trend — "
+    },
+    "comparativo": {
+      "subtitle": "Audit view: every variable across all categories, in a single table."
+    },
+    "historial": {
+      "desde": "From",
+      "hasta": "To",
+      "loading": "Loading history...",
+      "loadError": "An error occurred loading the upload history.",
+      "empty": "No uploads in the selected date range.",
+      "fechaEvaluacion": "Evaluation date",
+      "cargadoPor": "Uploaded by",
+      "archivo": "File",
+      "puestos": "Work points",
+      "lecturas": "Readings",
+      "loadingDetail": "Loading detail...",
+      "valor": "Value",
+      "statusProcesado": "Processed",
+      "statusError": "Error",
+      "statusPendiente": "Pending"
+    },
+    "reportes": {
+      "exportCsv": "Export to Excel (CSV)",
+      "exportPdf": "Export to PDF (print)",
+      "reportTitlePrefix": "Compliance report — ",
+      "generatedOn": "Generated on ",
+      "csvHeaders": ["Category", "Variable", "Measurement", "Unit", "Standard", "CompliancePercentage", "Status"]
+    },
+    "clientView": {
+      "pageTitle": "Industrial Hygiene Dashboard — RoMa+",
+      "loading": "Loading dashboard...",
+      "loadError": "An error occurred loading the dashboard."
+    },
+    "adminView": {
+      "pageTitle": "Administration — Industrial Hygiene — RoMa+",
+      "noOrgs": "No organization has this service contracted yet.",
+      "loadOrgsError": "Error loading organizations.",
+      "adminZone": "Administration zone",
+      "organization": "Organization"
+    },
+    "roleLabel": {
+      "superAdmin": "Super-Admin",
+      "cliente": "Client"
+    },
+    "genericError": "An error occurred"
   }
 }

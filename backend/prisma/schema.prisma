@@ -93,6 +93,7 @@ model Organization {
 
   users           UserOrganization[]
   services        OrganizationService[]
+  workPoints      WorkPoint[]
   variableUploads VariableUpload[]
   auditLogs       AuditLog[]
 
@@ -120,14 +121,24 @@ model UserOrganization {
   @@map("user_organizations")
 }
 
+/// Con qué frecuencia se espera una carga nueva de variables para un
+/// servicio. No está confirmado con el cliente final si los 5 servicios
+/// comparten periodicidad — se deja configurable por servicio para que el
+/// sistema funcione igual sin importar cuál resulte ser el escenario real.
+enum UpdateFrequency {
+  WEEKLY
+  BIWEEKLY
+}
+
 /// Catálogo de los 5 servicios que ofrece RoMa.
 model Service {
-  id          String   @id @default(cuid())
-  slug        String   @unique @db.VarChar(100)
-  nombre      String   @db.VarChar(255)
-  descripcion String?  @db.Text
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id              String          @id @default(cuid())
+  slug            String          @unique @db.VarChar(100)
+  nombre          String          @db.VarChar(255)
+  descripcion     String?         @db.Text
+  updateFrequency UpdateFrequency @default(WEEKLY) @map("update_frequency")
+  isActive        Boolean         @default(true) @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
 
   organizations       OrganizationService[]
   variableDefinitions VariableDefinition[]
@@ -222,24 +233,78 @@ model Notification {
 
 // ============================================================
 // VARIABLES DE SEGURIDAD E HIGIENE OCUPACIONAL
-// Cada uno de los 5 servicios tiene su propio catálogo de ~50 variables.
+// Cada uno de los 5 servicios tiene su propio catálogo de variables
+// (confirmado con la imagen de referencia: ~12 para Higiene Industrial,
+// el cliente final menciona ~50 en total — tamaño distinto por servicio).
 // ============================================================
 
-/// Catálogo normativo de variables por servicio (nombre, rango de
-/// cumplimiento, unidad de medida). Los rangos deben confirmarse contra
-/// normativa técnica real (ISO 7730, ISO 7243, etc.) — no se generan aquí.
+enum WorkShift {
+  DIURNA
+  NOCTURNA
+  MIXTA
+}
+
+/// Puesto de trabajo evaluado. Pertenece a una organización, no a un
+/// servicio específico: el mismo puesto físico puede recibir lecturas de
+/// más de un servicio contratado (ej. Higiene Industrial y Riesgo Mecánico
+/// sobre el mismo operario) — el servicio queda determinado por qué
+/// VariableDefinition/VariableUpload se referencia en cada lectura.
+model WorkPoint {
+  id               String    @id @default(cuid())
+  organizationId   String    @map("organization_id")
+  codigo           String    @db.VarChar(50)
+  nombre           String    @db.VarChar(255)
+  areaPlanta       String    @map("area_planta") @db.VarChar(255)
+  procesoActividad String    @map("proceso_actividad") @db.VarChar(255)
+  jornada          WorkShift @default(DIURNA)
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  readings     VariableReading[]
+
+  @@unique([organizationId, codigo])
+  @@index([organizationId])
+  @@map("work_points")
+}
+
+/// Cómo se interpreta el rango normativo de una variable al calcular el
+/// semáforo: RANGE (debe estar entre limiteMin y limiteMax, ej. iluminancia),
+/// MAX_LIMIT (no debe superar limiteMax, ej. ruido), MIN_LIMIT (no debe
+/// bajar de limiteMin).
+enum VariableComparisonType {
+  RANGE
+  MAX_LIMIT
+  MIN_LIMIT
+}
+
+/// Catálogo normativo de variables por servicio (nombre, categoría, rango
+/// de cumplimiento, unidad de medida). Los rangos deben confirmarse contra
+/// la ficha técnica oficial de cada norma (ISO 7730, ISO 7243, ISO 9612,
+/// ISO 8995-1/RETILAP, etc.) antes de producción — los del seed son de
+/// referencia técnica real pero no auditados formalmente.
 model VariableDefinition {
-  id           String   @id @default(cuid())
-  serviceId    String   @map("service_id")
-  codigo       String   @db.VarChar(50)
-  nombre       String   @db.VarChar(255)
-  unidadMedida String   @map("unidad_medida") @db.VarChar(50)
-  limiteMin    Float?   @map("limite_min")
-  limiteMax    Float?   @map("limite_max")
-  normativaRef String?  @map("normativa_ref") @db.VarChar(255)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id               String                 @id @default(cuid())
+  serviceId        String                 @map("service_id")
+  /// Libre, no enum: cada servicio define sus propias categorías (para
+  /// Higiene Industrial: Iluminación/Ruido/Confort Térmico; otro servicio
+  /// tendría categorías completamente distintas).
+  categoria        String                 @db.VarChar(100)
+  codigo           String                 @db.VarChar(50)
+  nombre           String                 @db.VarChar(255)
+  unidadMedida     String                 @map("unidad_medida") @db.VarChar(50)
+  comparisonType   VariableComparisonType @default(RANGE) @map("comparison_type")
+  limiteMin        Float?                 @map("limite_min")
+  limiteMax        Float?                 @map("limite_max")
+  /// Margen (ej. 0.1 = 10%) más allá de limiteMin/limiteMax que se marca
+  /// AMARILLO en vez de ROJO — el semáforo de la imagen de referencia tiene
+  /// 3 estados, no un corte binario. Validar el % real contra cada norma.
+  toleranciaAlerta Float                  @default(0.1) @map("tolerancia_alerta")
+  normativaRef     String?                @map("normativa_ref") @db.VarChar(255)
+  isActive         Boolean                @default(true) @map("is_active")
+  createdAt        DateTime               @default(now()) @map("created_at")
+  updatedAt        DateTime               @updatedAt @map("updated_at")
 
   service  Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   readings VariableReading[]
@@ -255,26 +320,29 @@ enum UploadStatus {
   ERROR
 }
 
-/// Carga semanal de archivo (CSV/Excel) con la lectura más reciente de
-/// variables de UN servicio de UNA organización. organizationId y
-/// serviceId son los campos que toda query debe usar para aislar datos
-/// por cliente — nunca un parámetro que venga del frontend.
+/// Carga de archivo (CSV/Excel) con lecturas de variables de UN servicio de
+/// UNA organización, subida por el super-admin (único rol autorizado).
+/// organizationId y serviceId son los campos que toda query debe usar para
+/// aislar datos por cliente — nunca un parámetro que venga del frontend.
 model VariableUpload {
-  id             String       @id @default(cuid())
-  organizationId String       @map("organization_id")
-  serviceId      String       @map("service_id")
-  uploadedById   String       @map("uploaded_by_id")
-  originalFile   String       @map("original_file") @db.VarChar(500)
-  status         UploadStatus @default(PENDIENTE)
-  errorMessage   String?      @map("error_message") @db.Text
-  createdAt      DateTime     @default(now()) @map("created_at")
+  id              String       @id @default(cuid())
+  organizationId  String       @map("organization_id")
+  serviceId       String       @map("service_id")
+  uploadedById    String       @map("uploaded_by_id")
+  originalFile    String       @map("original_file") @db.VarChar(500)
+  /// Fecha real de la evaluación en campo — puede diferir de createdAt
+  /// (cuándo se subió el archivo). Es la fecha que se grafica en tendencia.
+  fechaEvaluacion DateTime     @map("fecha_evaluacion")
+  status          UploadStatus @default(PENDIENTE)
+  errorMessage    String?      @map("error_message") @db.Text
+  createdAt       DateTime     @default(now()) @map("created_at")
 
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   service      Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   uploadedBy   User              @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   readings     VariableReading[]
 
-  @@index([organizationId, serviceId, createdAt])
+  @@index([organizationId, serviceId, fechaEvaluacion])
   @@map("variable_uploads")
 }
 
@@ -284,20 +352,24 @@ enum SemaphoreStatus {
   ROJO
 }
 
-/// Lectura individual de una variable dentro de una carga, con el
-/// resultado del semáforo ya calculado contra VariableDefinition.
+/// Lectura individual de una variable en un puesto de trabajo, dentro de
+/// una carga, con el resultado del semáforo ya calculado contra
+/// VariableDefinition (comparisonType + tolerancia).
 model VariableReading {
   id           String          @id @default(cuid())
   uploadId     String          @map("upload_id")
+  workPointId  String          @map("work_point_id")
   definitionId String          @map("definition_id")
   valor        Float
   semaforo     SemaphoreStatus
   createdAt    DateTime        @default(now()) @map("created_at")
 
   upload     VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  workPoint  WorkPoint          @relation(fields: [workPointId], references: [id], onDelete: Cascade)
   definition VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
 
-  @@index([uploadId])
+  @@unique([uploadId, workPointId, definitionId])
+  @@index([workPointId])
   @@index([definitionId])
   @@map("variable_readings")
 }
@@ -334,6 +406,7 @@ enum AuditAction {
   DASHBOARD_ACCESSED
   USER_REGISTERED
   USER_APPROVED
+  VARIABLES_UPLOADED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

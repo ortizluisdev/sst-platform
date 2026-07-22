@@ -4,9 +4,11 @@ import { registerRateLimit } from './plugins/rate-limit.js'
 import { registerPrisma } from './plugins/prisma.js'
 import { registerCookie } from './plugins/cookie.js'
 import { registerJwt } from './plugins/jwt.js'
+import { registerMultipart } from './plugins/multipart.js'
 import { contactRoutes } from './modules/contact/contact.routes.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
 import { usersRoutes } from './modules/users/users.routes.js'
+import { variablesRoutes } from './modules/variables/variables.routes.js'
 import { env } from './config/env.js'
 
 export async function buildApp() {
@@ -26,12 +28,14 @@ export async function buildApp() {
   await registerRateLimit(app)
   await registerCookie(app)
   await registerJwt(app)
+  await registerMultipart(app)
 
   app.get('/health', async () => ({ status: 'ok' }))
 
   await app.register(contactRoutes)
   await app.register(authRoutes)
   await app.register(usersRoutes)
+  await app.register(variablesRoutes)
 
   return app
 }

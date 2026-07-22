@@ -1,0 +1,124 @@
+import { isAxiosError } from 'axios'
+import { apiClient } from './api'
+import type { DashboardData, OrganizationOption, UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
+
+export class DashboardRequestError extends Error {
+  status: number
+  fieldErrors?: Record<string, string>
+
+  constructor(status: number, message: string, fieldErrors?: Record<string, string>) {
+    super(message)
+    this.name = 'DashboardRequestError'
+    this.status = status
+    this.fieldErrors = fieldErrors
+  }
+}
+
+function rethrow(err: unknown): never {
+  if (isAxiosError(err) && err.response) {
+    const { status, data } = err.response as { status: number; data: { message?: string; errors?: Record<string, string> } }
+    throw new DashboardRequestError(status, data.message ?? 'Ocurrió un error', data.errors)
+  }
+  throw err
+}
+
+/** Cliente: siempre su propia organización (derivada de la sesión en el backend). */
+export async function getClientDashboard(serviceSlug: string): Promise<DashboardData> {
+  try {
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}`)
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: cualquier organización, explícita en la ruta. */
+export async function getAdminDashboard(organizationId: string, serviceSlug: string): Promise<DashboardData> {
+  try {
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}`)
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function listOrganizations(serviceSlug: string): Promise<OrganizationOption[]> {
+  try {
+    const { data } = await apiClient.get('/admin/organizations', { params: { serviceSlug } })
+    return data.organizations
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Cliente: historial de cargas de su propia organización. */
+export async function getClientUploadHistory(serviceSlug: string): Promise<UploadHistoryEntry[]> {
+  try {
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}/uploads`)
+    return data.uploads
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: historial de cargas de cualquier organización. */
+export async function getAdminUploadHistory(organizationId: string, serviceSlug: string): Promise<UploadHistoryEntry[]> {
+  try {
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/uploads`)
+    return data.uploads
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function getClientUploadDetail(serviceSlug: string, uploadId: string): Promise<UploadDetail> {
+  try {
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}/uploads/${uploadId}`)
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function getAdminUploadDetail(
+  organizationId: string,
+  serviceSlug: string,
+  uploadId: string,
+): Promise<UploadDetail> {
+  try {
+    const { data } = await apiClient.get(
+      `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/uploads/${uploadId}`,
+    )
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export interface UploadResult {
+  uploadId: string
+  filasProcesadas: number
+  puestosAfectados: number
+}
+
+export async function uploadVariablesFile(input: {
+  organizationId: string
+  serviceSlug: string
+  file: File
+  fechaEvaluacion: string
+}): Promise<UploadResult> {
+  const formData = new FormData()
+  formData.append('file', input.file)
+  formData.append('fechaEvaluacion', input.fechaEvaluacion)
+
+  try {
+    const { data } = await apiClient.post(
+      `/admin/organizations/${input.organizationId}/services/${input.serviceSlug}/variables/upload`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
