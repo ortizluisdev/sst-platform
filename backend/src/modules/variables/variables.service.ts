@@ -2,6 +2,58 @@ import type { PrismaClient, WorkShift } from '@prisma/client'
 import { createVariablesRepository } from './variables.repository.js'
 import { parseVariableFile, VariableFileParseError } from '../../utils/variableFileParser.js'
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
+import { createNotificationService } from '../notifications/notifications.service.js'
+
+interface CriticalReading {
+  variable: string
+  valor: number
+  unidadMedida: string
+  limiteMin: number | null
+  limiteMax: number | null
+  puesto: string
+  areaPlanta: string
+}
+
+function normLabel(r: CriticalReading): string {
+  if (r.limiteMin !== null && r.limiteMax !== null) return `${r.limiteMin} - ${r.limiteMax} ${r.unidadMedida}`
+  if (r.limiteMax !== null) return `≤ ${r.limiteMax} ${r.unidadMedida}`
+  if (r.limiteMin !== null) return `≥ ${r.limiteMin} ${r.unidadMedida}`
+  return 'sin límite definido'
+}
+
+function escapeHtmlLocal(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function buildCriticalEmailBody(readings: CriticalReading[], serviceNombre: string): string {
+  const rows = readings
+    .map(
+      (r) => `
+      <tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(r.variable)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(r.puesto)} (${escapeHtmlLocal(r.areaPlanta)})</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${r.valor} ${escapeHtmlLocal(r.unidadMedida)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(normLabel(r))}</td>
+      </tr>`,
+    )
+    .join('')
+
+  return `
+    <p>Se detectaron <strong>${readings.length}</strong> resultado(s) fuera de norma en tu evaluación de <strong>${escapeHtmlLocal(serviceNombre)}</strong>:</p>
+    <table style="border-collapse:collapse;width:100%;font-size:13px;margin-top:8px;">
+      <thead>
+        <tr style="text-align:left;color:#5C5F78;">
+          <th style="padding:6px 8px;">Variable</th>
+          <th style="padding:6px 8px;">Puesto</th>
+          <th style="padding:6px 8px;">Valor medido</th>
+          <th style="padding:6px 8px;">Límite normativo</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="margin-top:16px;">Te recomendamos revisar estos puntos con prioridad.</p>
+  `
+}
 
 export class VariablesError extends Error {
   constructor(
@@ -26,6 +78,7 @@ function normalizeShift(value: string): WorkShift {
 
 export function createVariablesService(prisma: PrismaClient) {
   const repository = createVariablesRepository(prisma)
+  const notifications = createNotificationService(prisma)
 
   return {
     /**
@@ -59,7 +112,16 @@ export function createVariablesService(prisma: PrismaClient) {
       try {
         rows = await parseVariableFile(input.fileBuffer, input.filename)
       } catch (err) {
-        if (err instanceof VariableFileParseError) throw new VariablesError('INVALID_FILE', err.message)
+        if (err instanceof VariableFileParseError) {
+          await notifications.notify({
+            type: 'CARGA_CON_ERROR',
+            recipientIds: [input.uploadedById],
+            toAdmins: true,
+            message: `La carga de "${input.filename}" para "${organization.nombre}" falló: ${err.message}`,
+            metadata: { filename: input.filename, serviceSlug: input.serviceSlug, error: err.message },
+          })
+          throw new VariablesError('INVALID_FILE', err.message)
+        }
         throw err
       }
 
@@ -68,11 +130,18 @@ export function createVariablesService(prisma: PrismaClient) {
 
       const unknownCodes = [...new Set(rows.map((r) => r.codigoVariable))].filter((c) => !definitionByCode.has(c))
       if (unknownCodes.length > 0) {
-        throw new VariablesError(
-          'UNKNOWN_VARIABLES',
-          `El archivo contiene variables que no existen en el catálogo de "${service.nombre}": ${unknownCodes.join(', ')}`,
-        )
+        const message = `El archivo contiene variables que no existen en el catálogo de "${service.nombre}": ${unknownCodes.join(', ')}`
+        await notifications.notify({
+          type: 'CARGA_CON_ERROR',
+          recipientIds: [input.uploadedById],
+          toAdmins: true,
+          message: `La carga de "${input.filename}" para "${organization.nombre}" falló: ${message}`,
+          metadata: { filename: input.filename, serviceSlug: input.serviceSlug, unknownCodes },
+        })
+        throw new VariablesError('UNKNOWN_VARIABLES', message)
       }
+
+      const criticalReadings: CriticalReading[] = []
 
       const preparedRows = rows.map((row) => {
         const definition = definitionByCode.get(row.codigoVariable)!
@@ -82,6 +151,17 @@ export function createVariablesService(prisma: PrismaClient) {
           limiteMax: definition.limiteMax,
           toleranciaAlerta: definition.toleranciaAlerta,
         })
+        if (semaforo === 'ROJO') {
+          criticalReadings.push({
+            variable: definition.nombre,
+            valor: row.valor,
+            unidadMedida: definition.unidadMedida,
+            limiteMin: definition.limiteMin,
+            limiteMax: definition.limiteMax,
+            puesto: row.nombrePuesto,
+            areaPlanta: row.areaPlanta,
+          })
+        }
         return {
           codigoPuesto: row.codigoPuesto,
           nombrePuesto: row.nombrePuesto,
@@ -110,6 +190,38 @@ export function createVariablesService(prisma: PrismaClient) {
         metadata: { serviceSlug: input.serviceSlug, uploadId: upload.id, filas: preparedRows.length },
         ipAddress: input.ipAddress,
       })
+
+      await notifications.notify({
+        type: 'CARGA_PROCESADA',
+        recipientIds: [input.uploadedById],
+        message: `Tu carga de ${preparedRows.length} lectura(s) para "${service.nombre}" fue procesada correctamente.`,
+        link: `/dashboard/historial/${upload.id}`,
+        entityType: 'VARIABLE_UPLOAD',
+        entityId: upload.id,
+      })
+
+      // Agrupado por CARGA (no por fila individual): una sola notificación
+      // crítica por esta carga con todas las variables fuera de norma, para
+      // no saturar al cliente/admin si varias lecturas del mismo archivo
+      // caen en rojo a la vez (ver diagnóstico Fase 0).
+      if (criticalReadings.length > 0) {
+        await notifications.notify({
+          type: 'SEMAFORO_CRITICO',
+          organizationId: input.organizationId,
+          toAdmins: true,
+          message: `${criticalReadings.length} resultado(s) crítico(s) en "${service.nombre}" para "${organization.nombre}": ${criticalReadings
+            .map((r) => `${r.variable} en "${r.puesto}" (${r.valor} ${r.unidadMedida})`)
+            .join('; ')}`,
+          metadata: { uploadId: upload.id, serviceSlug: input.serviceSlug, criticalReadings },
+          link: `/dashboard/historial/${upload.id}`,
+          entityType: 'VARIABLE_UPLOAD',
+          entityId: upload.id,
+          emailSubject: `Alerta crítica — ${criticalReadings.length} resultado(s) fuera de norma en ${service.nombre}`,
+          emailTitle: `Resultados críticos detectados en tu evaluación de ${service.nombre}`,
+          emailBodyHtml: buildCriticalEmailBody(criticalReadings, service.nombre),
+          emailLinkLabel: 'Ver resultados',
+        })
+      }
 
       return { uploadId: upload.id, filasProcesadas: preparedRows.length, puestosAfectados: new Set(rows.map((r) => r.codigoPuesto)).size }
     },

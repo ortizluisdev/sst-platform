@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { createContactRepository } from './contact.repository.js'
 import { sendAutoReply, sendContactNotification } from '../../utils/mailer.js'
+import { createNotificationService } from '../notifications/notifications.service.js'
 
 export interface SubmitContactInput {
   nombre: string
@@ -12,6 +13,7 @@ export interface SubmitContactInput {
 
 export function createContactService(prisma: PrismaClient) {
   const repository = createContactRepository(prisma)
+  const notifications = createNotificationService(prisma)
 
   return {
     async submit(input: SubmitContactInput, ipAddress: string) {
@@ -34,6 +36,15 @@ export function createContactService(prisma: PrismaClient) {
         await sendAutoReply(input)
         await repository.markEmailSent(submission.id, true)
       }
+
+      // Notificación in-app además del correo a CONTACT_NOTIFICATION_EMAIL —
+      // centraliza la visibilidad en el panel de admin sin duplicar el envío
+      // (CONTACTO_RECIBIDO no dispara email propio, ver notification-types.ts).
+      await notifications.notify({
+        type: 'CONTACTO_RECIBIDO',
+        toAdmins: true,
+        message: `Nuevo mensaje de contacto de ${input.nombre} (${input.correo}).`,
+      })
 
       return submission
     },

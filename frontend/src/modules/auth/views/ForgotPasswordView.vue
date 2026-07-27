@@ -7,7 +7,7 @@ import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useForgotPasswordForm } from '@/composables/useForgotPasswordForm'
 
 const { t, locale } = useI18n()
-const { status, errorMessage, errors, email, emailAttrs, submit } = useForgotPasswordForm()
+const { status, errorMessage, errors, documentNumber, documentNumberAttrs, submit } = useForgotPasswordForm()
 
 useHead(() => ({ title: `${t('auth.forgotPassword.title')} — RoMa`, meta: [{ name: 'robots', content: 'noindex' }] }))
 </script>
@@ -31,14 +31,15 @@ useHead(() => ({ title: `${t('auth.forgotPassword.title')} — RoMa`, meta: [{ n
 
     <form v-else class="grid gap-5" novalidate @submit.prevent="submit">
       <FormField
-        id="email"
-        v-model="email"
-        v-bind="emailAttrs"
-        type="email"
-        :label="t('auth.form.email')"
-        :placeholder="t('auth.form.emailPlaceholder')"
-        autocomplete="email"
-        :error="errors.email"
+        id="documentNumber"
+        v-model="documentNumber"
+        v-bind="documentNumberAttrs"
+        type="text"
+        inputmode="numeric"
+        :label="t('auth.form.documentNumber')"
+        :placeholder="t('auth.form.documentNumberPlaceholder')"
+        autocomplete="username"
+        :error="errors.documentNumber"
       />
 
       <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

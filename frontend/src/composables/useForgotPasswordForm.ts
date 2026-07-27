@@ -13,23 +13,23 @@ export function useForgotPasswordForm() {
   const errorMessage = ref('')
 
   const validationSchema = computed(() =>
-    toTypedSchema(createForgotPasswordSchema({ emailInvalid: t('auth.validation.emailInvalid') })),
+    toTypedSchema(createForgotPasswordSchema({ documentInvalid: t('auth.validation.documentInvalid') })),
   )
 
   const { defineField, handleSubmit, errors } = useForm<ForgotPasswordFormValues>({
     validationSchema,
-    initialValues: { email: '' },
+    initialValues: { documentNumber: '' },
   })
 
-  const [email, emailAttrs] = defineField('email')
+  const [documentNumber, documentNumberAttrs] = defineField('documentNumber')
 
   const submit = handleSubmit(async (values) => {
     status.value = 'loading'
     errorMessage.value = ''
     try {
       await postForgotPassword(values)
-      // El backend responde 200 exista o no el correo — nunca hay un caso de
-      // error "de negocio" aquí, solo fallas de red/servidor.
+      // El backend responde 200 exista o no el documento — nunca hay un caso
+      // de error "de negocio" acá, solo fallas de red/servidor.
       status.value = 'success'
     } catch (err) {
       status.value = 'error'
@@ -37,5 +37,5 @@ export function useForgotPasswordForm() {
     }
   })
 
-  return { status, errorMessage, errors, email, emailAttrs, submit }
+  return { status, errorMessage, errors, documentNumber, documentNumberAttrs, submit }
 }

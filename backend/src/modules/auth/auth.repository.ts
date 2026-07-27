@@ -5,42 +5,12 @@ const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000 // 1 hora
 
 export function createAuthRepository(prisma: PrismaClient) {
   return {
-    findUserByEmail(email: string) {
-      return prisma.user.findUnique({ where: { email } })
+    findUserByDocument(documentNumber: string) {
+      return prisma.user.findUnique({ where: { documentNumber } })
     },
 
     findUserById(id: string) {
       return prisma.user.findUnique({ where: { id } })
-    },
-
-/** Crea Organization + User (sin rol de plataforma, INACTIVO) +
-     * UserOrganization (rol "cliente") atómicamente. isActive queda en false
-     * a propósito: un super-admin/adminsystem debe aprobar la cuenta antes
-     * de que pueda iniciar sesión (ver users.repository.ts). El rol
-     * "cliente" debe existir — lo crea el seed. */
-    async registerClient(input: { email: string; passwordHash: string; nombre: string; organizationName: string }) {
-      const clienteRole = await prisma.role.findUnique({ where: { name: 'cliente' } })
-      if (!clienteRole) {
-        throw new Error('Rol "cliente" no existe — corre el seed (npm run prisma:seed) antes de registrar clientes.')
-      }
-
-      return prisma.$transaction(async (tx) => {
-        const organization = await tx.organization.create({
-          data: { nombre: input.organizationName },
-        })
-        const user = await tx.user.create({
-          data: {
-            email: input.email,
-            passwordHash: input.passwordHash,
-            nombre: input.nombre,
-            isActive: false,
-          },
-        })
-        await tx.userOrganization.create({
-          data: { userId: user.id, organizationId: organization.id, roleId: clienteRole.id },
-        })
-        return { user, organization }
-      })
     },
 
     createRefreshToken(input: {
@@ -98,6 +68,16 @@ export function createAuthRepository(prisma: PrismaClient) {
 
     updateUserPassword(userId: string, passwordHash: string) {
       return prisma.user.update({ where: { id: userId }, data: { passwordHash } })
+    },
+
+    /** Completa el perfil obligatorio (Fase B.5) y limpia `mustUpdateProfile`
+     * — el guard de rutas del frontend deja de forzar esta pantalla apenas
+     * el backend confirma el guardado. */
+    updateProfile(userId: string, input: { cargo: string; telefono: string }) {
+      return prisma.user.update({
+        where: { id: userId },
+        data: { cargo: input.cargo, telefono: input.telefono, mustUpdateProfile: false },
+      })
     },
 
     createAuditLog(input: {

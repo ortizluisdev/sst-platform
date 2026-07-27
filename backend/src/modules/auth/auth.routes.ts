@@ -1,12 +1,12 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import {
-  registerHandler,
   loginHandler,
   refreshHandler,
   logoutHandler,
   passwordResetRequestHandler,
   passwordResetConfirmHandler,
   meHandler,
+  updateProfileHandler,
 } from './auth.controller.js'
 import { requireAuth } from '../../plugins/auth-guard.js'
 
@@ -18,15 +18,6 @@ async function assertJsonContentType(request: FastifyRequest, reply: FastifyRepl
 }
 
 export async function authRoutes(app: FastifyInstance) {
-  app.post(
-    '/api/auth/register',
-    {
-      config: { rateLimit: { max: 3, timeWindow: '1 hour' } },
-      preHandler: assertJsonContentType,
-    },
-    registerHandler,
-  )
-
   app.post(
     '/api/auth/login',
     {
@@ -63,4 +54,10 @@ export async function authRoutes(app: FastifyInstance) {
   )
 
   app.get('/api/auth/me', { preHandler: [requireAuth] }, meHandler)
+
+  app.patch(
+    '/api/auth/profile',
+    { preHandler: [requireAuth, assertJsonContentType] },
+    updateProfileHandler,
+  )
 }

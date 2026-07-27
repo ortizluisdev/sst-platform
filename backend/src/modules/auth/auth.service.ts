@@ -5,11 +5,16 @@ import { createAuthRepository } from './auth.repository.js'
 import { generateRefreshToken, hashToken } from '../../utils/tokens.js'
 import { sendPasswordResetEmail } from '../../utils/mailer.js'
 import { env } from '../../config/env.js'
-import type { RegisterInput, LoginInput } from './auth.schema.js'
+import type { LoginInput, UpdateProfileInput } from './auth.schema.js'
 
 export class AuthError extends Error {
   constructor(
-    public code: 'EMAIL_TAKEN' | 'INVALID_CREDENTIALS' | 'ACCOUNT_INACTIVE' | 'INVALID_TOKEN' | 'TOKEN_EXPIRED',
+    public code:
+      | 'INVALID_CREDENTIALS'
+      | 'ACCOUNT_PENDING_ACTIVATION'
+      | 'ACCOUNT_SUSPENDED'
+      | 'INVALID_TOKEN'
+      | 'TOKEN_EXPIRED',
     message: string,
   ) {
     super(message)
@@ -37,38 +42,16 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
   }
 
   return {
-    async register(input: RegisterInput, ctx: RequestContext) {
-      const existing = await repository.findUserByEmail(input.email)
-      if (existing) throw new AuthError('EMAIL_TAKEN', 'Ese correo ya está registrado')
-
-      const passwordHash = await argon2.hash(input.password)
-      const { user, organization } = await repository.registerClient({
-        email: input.email,
-        passwordHash,
-        nombre: input.nombre,
-        organizationName: input.organizationName,
-      })
-
-      // Sin login automático: la cuenta queda inactiva hasta que un
-      // super-admin/adminsystem la apruebe (ver users.service.ts).
-      await repository.createAuditLog({
-        userId: user.id,
-        organizationId: organization.id,
-        action: 'USER_REGISTERED',
-        ipAddress: ctx.ipAddress,
-      })
-
-      return { user, organization }
-    },
-
     async login(input: LoginInput, ctx: RequestContext) {
-      const user = await repository.findUserByEmail(input.email)
+      const user = await repository.findUserByDocument(input.documentNumber)
 
       // Mismo mensaje de error para "no existe" y "contraseña incorrecta" —
-      // no se debe revelar si un email está registrado.
-      if (!user) {
+      // no se debe revelar si un documento está registrado. Una cuenta
+      // PENDING_ACTIVATION no tiene passwordHash todavía — cae en el mismo
+      // camino (credenciales inválidas), no revela que el documento existe.
+      if (!user || !user.passwordHash) {
         await repository.createAuditLog({ action: 'LOGIN_FAILED', ipAddress: ctx.ipAddress })
-        throw new AuthError('INVALID_CREDENTIALS', 'Correo o contraseña incorrectos')
+        throw new AuthError('INVALID_CREDENTIALS', 'Documento o contraseña incorrectos')
       }
 
       const validPassword = await argon2.verify(user.passwordHash, input.password)
@@ -78,11 +61,23 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
           action: 'LOGIN_FAILED',
           ipAddress: ctx.ipAddress,
         })
-        throw new AuthError('INVALID_CREDENTIALS', 'Correo o contraseña incorrectos')
+        throw new AuthError('INVALID_CREDENTIALS', 'Documento o contraseña incorrectos')
       }
 
-      if (!user.isActive) {
-        throw new AuthError('ACCOUNT_INACTIVE', 'Esta cuenta está inactiva')
+      if (user.accountStatus === 'PENDING_ACTIVATION') {
+        throw new AuthError(
+          'ACCOUNT_PENDING_ACTIVATION',
+          'Tu cuenta todavía no está activada. Revisa el correo de invitación que te enviamos.',
+        )
+      }
+      if (user.accountStatus === 'SUSPENDED') {
+        const reason = user.suspendReason?.trim()
+        throw new AuthError(
+          'ACCOUNT_SUSPENDED',
+          reason
+            ? `Tu cuenta fue suspendida. Motivo: ${reason}. Si crees que esto es un error, contáctanos.`
+            : 'Tu cuenta fue suspendida. Si crees que esto es un error, contáctanos.',
+        )
       }
 
       const tokens = await issueTokenPair(user.id, ctx)
@@ -101,7 +96,7 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
       }
 
       const user = await repository.findUserById(stored.userId)
-      if (!user || !user.isActive) {
+      if (!user || user.accountStatus !== 'ACTIVE') {
         throw new AuthError('INVALID_TOKEN', 'Sesión inválida o expirada')
       }
 
@@ -119,9 +114,9 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
       }
     },
 
-    /** Siempre resuelve sin error — el llamador responde 200 exista o no el correo. */
-    async requestPasswordReset(email: string) {
-      const user = await repository.findUserByEmail(email)
+    /** Siempre resuelve sin error — el llamador responde 200 exista o no el documento. */
+    async requestPasswordReset(documentNumber: string) {
+      const user = await repository.findUserByDocument(documentNumber)
       if (!user) return
 
       const rawToken = generateRefreshToken()
@@ -145,6 +140,15 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
       // Un cambio de contraseña invalida cualquier sesión abierta con la clave vieja.
       await repository.revokeAllRefreshTokensForUser(stored.userId)
       await repository.createAuditLog({ userId: stored.userId, action: 'PASSWORD_RESET_COMPLETED' })
+    },
+
+    /** Fase B.5 — completa cargo/teléfono obligatorios en el primer login.
+     * No valida `mustUpdateProfile` acá: si ya está en false, sobrescribir
+     * de nuevo es inofensivo (el usuario simplemente está editando su perfil). */
+    async updateProfile(userId: string, input: UpdateProfileInput, ipAddress: string) {
+      const updated = await repository.updateProfile(userId, input)
+      await repository.createAuditLog({ userId, action: 'PROFILE_UPDATED', ipAddress })
+      return updated
     },
   }
 }

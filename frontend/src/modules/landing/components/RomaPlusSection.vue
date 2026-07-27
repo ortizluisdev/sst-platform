@@ -48,12 +48,12 @@ const { t, locale } = useI18n()
           >
             {{ t('romaPlus.loginCta') }}
           </router-link>
-          <router-link
-            :to="`/${locale}/registro`"
+          <a
+            href="#contacto"
             class="inline-flex items-center gap-2 rounded-sm border border-navy-900 bg-transparent px-7 py-3.5 text-sm font-medium tracking-wide text-navy-900 transition-all duration-250 hover:bg-navy-900 hover:text-cream"
           >
             {{ t('romaPlus.registerCta') }}
-          </router-link>
+          </a>
         </div>
       </div>
     </div>

@@ -1,0 +1,36 @@
+import { z } from 'zod'
+
+export interface OrganizationFormMessages {
+  nombreRequired: string
+  nitInvalid: string
+  contactEmailInvalid: string
+  serviceRequired: string
+  responsableDocumentInvalid: string
+  responsableNombreRequired: string
+  responsableEmailInvalid: string
+  responsableCargoRequired: string
+}
+
+/** Reglas espejo de backend/src/modules/organizations/organizations.schema.ts. */
+export function createOrganizationSchema(messages: OrganizationFormMessages) {
+  return z.object({
+    nombre: z.string().min(2, messages.nombreRequired),
+    nit: z.string().regex(/^\d{5,20}$/, messages.nitInvalid),
+    contactEmail: z.string().email(messages.contactEmailInvalid),
+    serviceSlug: z.string().min(1, messages.serviceRequired),
+    responsable: z.object({
+      documentType: z.enum(['CC', 'NIT']),
+      documentNumber: z.string().regex(/^\d{5,20}$/, messages.responsableDocumentInvalid),
+      nombre: z.string().min(2, messages.responsableNombreRequired),
+      email: z.string().email(messages.responsableEmailInvalid),
+      cargo: z.string().min(2, messages.responsableCargoRequired),
+    }),
+  })
+}
+
+export type CreateOrganizationFormValues = z.infer<ReturnType<typeof createOrganizationSchema>>
+
+export interface ServiceOption {
+  slug: string
+  nombre: string
+}

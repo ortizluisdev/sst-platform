@@ -1,11 +1,6 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
-import type {
-  ForgotPasswordFormValues,
-  LoginFormValues,
-  RegisterFormValues,
-  ResetPasswordFormValues,
-} from '@/types/auth'
+import type { ForgotPasswordFormValues, LoginFormValues, ResetPasswordFormValues } from '@/types/auth'
 
 /** Errores 422 del backend, mapeados por campo. */
 export class AuthValidationError extends Error {
@@ -43,28 +38,13 @@ function rethrowKnownAuthError(err: unknown): never {
 
 export interface AuthenticatedUser {
   id: string
-  email: string
+  documentNumber: string
   nombre: string
 }
 
-export async function postLogin(values: LoginFormValues): Promise<{ user: AuthenticatedUser }> {
+export async function postLogin(values: LoginFormValues): Promise<{ user: AuthenticatedUser; mustUpdateProfile: boolean }> {
   try {
     const { data } = await apiClient.post('/auth/login', values)
-    return data
-  } catch (err) {
-    rethrowKnownAuthError(err)
-  }
-}
-
-export interface RegisterResult {
-  user: AuthenticatedUser
-  organization: { id: string; nombre: string }
-  message: string
-}
-
-export async function postRegister(values: RegisterFormValues): Promise<RegisterResult> {
-  try {
-    const { data } = await apiClient.post('/auth/register', values)
     return data
   } catch (err) {
     rethrowKnownAuthError(err)

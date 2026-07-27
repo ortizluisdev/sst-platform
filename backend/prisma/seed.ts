@@ -82,7 +82,11 @@ const PERMISSIONS = [
     description: 'Ver el dashboard de CUALQUIER organización (para verificar cargas). Solo super-admin/adminsystem.',
   },
   { key: 'landing.anuncios.manage', description: 'CRUD de anuncios/guías de la landing page pública.' },
-  { key: 'platform.users.approve', description: 'Aprobar cuentas nuevas de clientes autorregistrados.' },
+  { key: 'platform.users.approve', description: 'Suspender/reactivar cuentas de responsables de empresa.' },
+  {
+    key: 'platform.organizations.manage',
+    description: 'Crear empresas y su responsable (Fase B). Solo super-admin/adminsystem.',
+  },
 ] as const
 
 /**
@@ -114,17 +118,21 @@ const ROLES = [
   },
 ] as const
 
-/** Usuarios de plataforma (roleId directo en User, no ligados a una organización).
- * Las contraseñas se leen de .env — nunca en texto plano aquí. */
+/** Usuarios de plataforma (roleId directo en User, no ligados a una
+ * organización). Las contraseñas se leen de .env — nunca en texto plano
+ * acá. Cuentas creadas directamente ACTIVE (no pasan por el flujo de
+ * invitación/activación — son cuentas de equipo/desarrollo, no clientes). */
 function buildPlatformUsers() {
   return [
     {
+      documentNumber: '1000000001',
       email: 'ortiz.luis.dev@gmail.com',
       password: requireEnv('SEED_SUPERADMIN_PASSWORD'),
       nombre: 'Luis Ortiz',
       roleName: 'super-admin',
     },
     {
+      documentNumber: '1000000002',
       email: 'luisangel930115@gmail.com',
       password: requireEnv('SEED_ADMINSYSTEM_PASSWORD'),
       nombre: 'Luis Angel (Dev)',
@@ -136,34 +144,40 @@ function buildPlatformUsers() {
 type ComplianceProfile = 'saludable' | 'critico'
 
 interface ClientOrgSeed {
+  documentNumber: string
   email: string
   password: string
   nombre: string
   organizationName: string
+  organizationNit: string
   workPointCount: number
   complianceProfile: ComplianceProfile
 }
 
-/** Usuarios cliente de prueba: cada uno crea su propia organización y queda
- * como miembro con rol "cliente". Perfiles de cumplimiento distintos a
- * propósito — para poder comparar visualmente cómo se comporta el dashboard
- * (semáforo, cumplimiento global, tendencia) entre una organización sana y
- * una con hallazgos críticos frecuentes. */
+/** Usuarios cliente de prueba: cada uno es el responsable (login por
+ * cédula) de su propia organización, con rol "cliente". Perfiles de
+ * cumplimiento distintos a propósito — para poder comparar visualmente
+ * cómo se comporta el dashboard (semáforo, cumplimiento global, tendencia)
+ * entre una organización sana y una con hallazgos críticos frecuentes. */
 function buildClientUsers(): ClientOrgSeed[] {
   return [
     {
+      documentNumber: '1000000003',
       email: 'LAOR14548662@soy.sena.edu.co',
       password: requireEnv('SEED_CLIENTE_PASSWORD'),
       nombre: 'Usuario Organización 1',
       organizationName: 'Organizacion 1',
+      organizationNit: '900000001-1',
       workPointCount: 20,
       complianceProfile: 'saludable',
     },
     {
+      documentNumber: '1000000004',
       email: 'dimigaar1990@gmail.com',
       password: requireEnv('SEED_CLIENTE2_PASSWORD'),
       nombre: 'Usuario Organización 2',
       organizationName: 'Organizacion 2',
+      organizationNit: '900000002-1',
       workPointCount: 14,
       complianceProfile: 'critico',
     },
@@ -504,13 +518,16 @@ async function main() {
     const role = await prisma.role.findUniqueOrThrow({ where: { name: platformUser.roleName } })
     const passwordHash = await argon2.hash(platformUser.password)
     const user = await prisma.user.upsert({
-      where: { email: platformUser.email },
-      update: { roleId: role.id, nombre: platformUser.nombre },
+      where: { documentNumber: platformUser.documentNumber },
+      update: { roleId: role.id, nombre: platformUser.nombre, email: platformUser.email },
       create: {
+        documentType: 'CC',
+        documentNumber: platformUser.documentNumber,
         email: platformUser.email,
         passwordHash,
         nombre: platformUser.nombre,
         roleId: role.id,
+        accountStatus: 'ACTIVE',
       },
     })
     if (platformUser.roleName === 'super-admin') superAdminUserId = user.id
@@ -518,17 +535,34 @@ async function main() {
 
   const clienteRole = await prisma.role.findUniqueOrThrow({ where: { name: 'cliente' } })
 
+  // Limpieza de organizaciones huérfanas de antes de que `nit` existiera en
+  // el schema (Fase B) — sin nit no hay forma de que el upsert de abajo las
+  // reconozca como la misma fila, así que quedarían duplicadas en cada
+  // corrida si no se limpian primero. `users: { none: {} }` las distingue de
+  // cualquier organización real (que sí tiene al menos un miembro).
+  await prisma.organization.deleteMany({
+    where: { nit: null, users: { none: {} } },
+  })
+
   for (const clientUser of CLIENT_USERS) {
     const clientPasswordHash = await argon2.hash(clientUser.password)
     const clientOrganizationId = await prisma.$transaction(async (tx) => {
-      // Organization.nombre no es @unique en el schema — find-or-create manual
-      // en vez de upsert (que requiere una clave única para el `where`).
-      const existingOrg = await tx.organization.findFirst({ where: { nombre: clientUser.organizationName } })
-      const organization = existingOrg ?? (await tx.organization.create({ data: { nombre: clientUser.organizationName } }))
+      const organization = await tx.organization.upsert({
+        where: { nit: clientUser.organizationNit },
+        update: { nombre: clientUser.organizationName },
+        create: { nombre: clientUser.organizationName, nit: clientUser.organizationNit },
+      })
       const user = await tx.user.upsert({
-        where: { email: clientUser.email },
-        update: { nombre: clientUser.nombre },
-        create: { email: clientUser.email, passwordHash: clientPasswordHash, nombre: clientUser.nombre },
+        where: { documentNumber: clientUser.documentNumber },
+        update: { nombre: clientUser.nombre, email: clientUser.email },
+        create: {
+          documentType: 'CC',
+          documentNumber: clientUser.documentNumber,
+          email: clientUser.email,
+          passwordHash: clientPasswordHash,
+          nombre: clientUser.nombre,
+          accountStatus: 'ACTIVE',
+        },
       })
       await tx.userOrganization.upsert({
         where: { userId_organizationId: { userId: user.id, organizationId: organization.id } },
@@ -542,9 +576,9 @@ async function main() {
   }
 
   console.log(`Seed completo: ${SERVICES.length} servicios, ${PERMISSIONS.length} permisos, ${ROLES.length} roles.`)
-  console.log(`Usuarios de plataforma: ${PLATFORM_USERS.map((u) => u.email).join(', ')}`)
+  console.log(`Usuarios de plataforma (login por documento): ${PLATFORM_USERS.map((u) => u.documentNumber).join(', ')}`)
   console.log(
-    `Usuarios cliente: ${CLIENT_USERS.map((u) => `${u.email} (${u.organizationName}, perfil ${u.complianceProfile})`).join(', ')}`,
+    `Usuarios cliente: ${CLIENT_USERS.map((u) => `${u.documentNumber} (${u.organizationName}, perfil ${u.complianceProfile})`).join(', ')}`,
   )
 }
 

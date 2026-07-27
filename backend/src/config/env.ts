@@ -7,6 +7,13 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL es obligatoria'),
   FRONTEND_URL: z.string().url('FRONTEND_URL debe ser una URL válida'),
   CONTACT_NOTIFICATION_EMAIL: z.string().email('CONTACT_NOTIFICATION_EMAIL debe ser un correo válido'),
+  // Mismo número real que VITE_WHATSAPP_NUMBER del frontend — se muestra en el
+  // footer de los correos transaccionales (ver utils/mailer.ts).
+  CONTACT_WHATSAPP_NUMBER: z.string().optional(),
+  // Vencimiento del link de activación de cuenta (Fase B) — 48h por defecto,
+  // más generoso que un reset de contraseña porque un contacto B2B no
+  // necesariamente revisa su correo el mismo día. Configurable sin tocar código.
+  ACTIVATION_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(48),
   // Firman JWT y cookies respectivamente — deben ser distintos entre sí y de
   // al menos 32 bytes (64 caracteres en hex). Ver .env.example.
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),

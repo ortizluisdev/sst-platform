@@ -3,7 +3,7 @@ import { apiClient } from '@/services/api'
 
 export interface CurrentUser {
   id: string
-  email: string
+  documentNumber: string
   nombre: string
 }
 
@@ -13,6 +13,9 @@ interface AuthState {
   permissions: string[]
   /** null = todavía no se consultó /api/auth/me; false/true = resultado conocido. */
   isAuthenticated: boolean | null
+  /** true tras login/fetchMe si la cuenta debe completar su perfil antes de
+   * usar el resto del dashboard (ver Fase B.5 — todavía sin guard aplicado). */
+  mustUpdateProfile: boolean
 }
 
 /**
@@ -26,6 +29,7 @@ export const useAuthStore = defineStore('auth', {
     organizationId: null,
     permissions: [],
     isAuthenticated: null,
+    mustUpdateProfile: false,
   }),
 
   getters: {
@@ -47,6 +51,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = data.user
         this.organizationId = data.organizationId
         this.permissions = data.permissions
+        this.mustUpdateProfile = data.mustUpdateProfile
         this.isAuthenticated = true
       } catch {
         this.$reset()

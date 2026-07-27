@@ -8,11 +8,13 @@ import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useLoginForm } from '@/composables/useLoginForm'
 import { useAuthStore } from '@/stores/auth'
+import { getDashboardPath } from '@/utils/dashboardRedirect'
 
 const { t, locale } = useI18n()
 const router = useRouter()
 const auth = useAuthStore()
-const { status, errorMessage, user, errors, email, emailAttrs, password, passwordAttrs, submit } = useLoginForm()
+const { status, errorMessage, user, errors, documentNumber, documentNumberAttrs, password, passwordAttrs, submit } =
+  useLoginForm()
 
 // noindex: página funcional, no de contenido — no debe competir en buscadores.
 useHead(() => ({ title: `${t('auth.login.title')} — RoMa`, meta: [{ name: 'robots', content: 'noindex' }] }))
@@ -22,11 +24,7 @@ useHead(() => ({ title: `${t('auth.login.title')} — RoMa`, meta: [{ name: 'rob
 watch(status, async (value) => {
   if (value !== 'success') return
   await auth.fetchMe()
-  if (auth.hasPermission('platform.variables.upload')) {
-    router.push(`/${locale.value}/admin/higiene-industrial`)
-  } else if (auth.hasPermission('dashboard.higiene-industrial.view')) {
-    router.push(`/${locale.value}/dashboard/higiene-industrial`)
-  }
+  router.push(getDashboardPath(auth, locale.value))
 })
 </script>
 
@@ -53,14 +51,15 @@ watch(status, async (value) => {
 
     <form v-else class="grid gap-5" novalidate @submit.prevent="submit">
       <FormField
-        id="email"
-        v-model="email"
-        v-bind="emailAttrs"
-        type="email"
-        :label="t('auth.form.email')"
-        :placeholder="t('auth.form.emailPlaceholder')"
-        autocomplete="email"
-        :error="errors.email"
+        id="documentNumber"
+        v-model="documentNumber"
+        v-bind="documentNumberAttrs"
+        type="text"
+        inputmode="numeric"
+        :label="t('auth.form.documentNumber')"
+        :placeholder="t('auth.form.documentNumberPlaceholder')"
+        autocomplete="username"
+        :error="errors.documentNumber"
       />
       <FormField
         id="password"
@@ -88,12 +87,5 @@ watch(status, async (value) => {
         {{ t('auth.login.submit') }}
       </SubmitButton>
     </form>
-
-    <template #footer>
-      {{ t('auth.login.noAccount') }}
-      <router-link :to="`/${locale}/registro`" class="font-semibold text-sky-500 underline underline-offset-2">
-        {{ t('auth.login.registerLink') }}
-      </router-link>
-    </template>
   </AuthCard>
 </template>

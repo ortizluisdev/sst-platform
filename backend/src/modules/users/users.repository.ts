@@ -1,15 +1,24 @@
-import type { PrismaClient } from '@prisma/client'
+import type { AccountStatus, Prisma, PrismaClient } from '@prisma/client'
 
 export function createUsersRepository(prisma: PrismaClient) {
   return {
-    findPendingUsers() {
+    /** Usado por el panel de gestión de cuentas — pestañas Activas/Suspendidas.
+     * Nunca incluye cuentas de plataforma (roleId: null filtra a solo
+     * responsables de empresa/clientes independientes). */
+    findUsersByStatus(status: AccountStatus) {
       return prisma.user.findMany({
-        where: { isActive: false, roleId: null }, // solo clientes autorregistrados, nunca cuentas de plataforma
+        where: { accountStatus: status, roleId: null },
         select: {
           id: true,
+          documentType: true,
+          documentNumber: true,
           email: true,
           nombre: true,
+          cargo: true,
+          accountStatus: true,
+          suspendReason: true,
           createdAt: true,
+          updatedAt: true,
           organizations: {
             select: { organization: { select: { id: true, nombre: true } }, role: { select: { name: true } } },
           },
@@ -22,14 +31,36 @@ export function createUsersRepository(prisma: PrismaClient) {
       return prisma.user.findUnique({ where: { id } })
     },
 
-    approveUser(id: string) {
-      return prisma.user.update({ where: { id }, data: { isActive: true } })
+    reactivateUser(id: string) {
+      return prisma.user.update({
+        where: { id },
+        data: { accountStatus: 'ACTIVE', suspendReason: null },
+      })
+    },
+
+    suspendUser(id: string, suspendReason: string) {
+      return prisma.user.update({
+        where: { id },
+        data: { accountStatus: 'SUSPENDED', suspendReason },
+      })
+    },
+
+    /** Nombre de la primera organización a la que pertenece — usado solo
+     * para personalizar el correo de reenvío de invitación, no crítico si
+     * el usuario no tiene membresía todavía. */
+    async findOrganizationNombreForUser(userId: string): Promise<string | null> {
+      const membership = await prisma.userOrganization.findFirst({
+        where: { userId },
+        select: { organization: { select: { nombre: true } } },
+      })
+      return membership?.organization.nombre ?? null
     },
 
     createAuditLog(input: {
       userId?: string | null
       organizationId?: string | null
-      action: 'USER_APPROVED'
+      action: 'USER_SUSPENDED' | 'USER_REACTIVATED' | 'ACTIVATION_INVITE_RESENT'
+      metadata?: Record<string, unknown>
       ipAddress?: string | null
     }) {
       return prisma.auditLog.create({
@@ -37,6 +68,7 @@ export function createUsersRepository(prisma: PrismaClient) {
           userId: input.userId,
           organizationId: input.organizationId,
           action: input.action,
+          metadata: input.metadata as Prisma.InputJsonValue | undefined,
           ipAddress: input.ipAddress,
         },
       })

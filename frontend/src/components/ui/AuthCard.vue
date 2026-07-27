@@ -14,7 +14,7 @@ const { t, locale } = useI18n()
 <template>
   <section class="relative flex min-h-[calc(100vh-1px)] items-center justify-center bg-cream px-6 py-16 sm:px-8">
     <!-- El logo ya lleva al inicio, pero no es obvio que sea clicable — este
-    link explícito es la salida real para quien entra a /ingresar o /registro
+    link explícito es la salida real para quien entra a una pantalla de auth
     y todavía no quiere continuar. -->
     <router-link
       :to="`/${locale}/`"

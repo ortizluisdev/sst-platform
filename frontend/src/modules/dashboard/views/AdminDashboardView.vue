@@ -17,7 +17,7 @@ import type { DashboardData, OrganizationOption } from '@/types/dashboard'
 
 const SERVICE_SLUG = 'higiene-industrial'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const organizations = ref<OrganizationOption[]>([])
 const selectedOrgId = ref('')
@@ -70,9 +70,25 @@ function fetchUploadDetail(uploadId: string) {
   <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null">
     <div class="grid gap-6">
       <section class="overflow-hidden rounded-lg border border-navy-500/30 bg-sky-100/40 print:hidden">
-        <div class="flex items-center gap-2 bg-navy-900 px-4 py-2.5 sm:px-5">
-          <ShieldCheck class="h-4 w-4 shrink-0 text-sky-200" aria-hidden="true" />
-          <p class="text-xs font-semibold uppercase tracking-wide text-sky-100">{{ t('dashboard.adminView.adminZone') }}</p>
+        <div class="flex items-center justify-between gap-2 bg-navy-900 px-4 py-2.5 sm:px-5">
+          <div class="flex items-center gap-2">
+            <ShieldCheck class="h-4 w-4 shrink-0 text-sky-200" aria-hidden="true" />
+            <p class="text-xs font-semibold uppercase tracking-wide text-sky-100">{{ t('dashboard.adminView.adminZone') }}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <router-link
+              :to="`/${locale}/dashboard/admin/empresas/crear`"
+              class="text-xs font-semibold uppercase tracking-wide text-sky-200 underline-offset-2 hover:text-white hover:underline"
+            >
+              {{ t('dashboard.adminView.createOrganizationLink') }}
+            </router-link>
+            <router-link
+              :to="`/${locale}/dashboard/admin/cuentas`"
+              class="text-xs font-semibold uppercase tracking-wide text-sky-200 underline-offset-2 hover:text-white hover:underline"
+            >
+              {{ t('dashboard.adminView.accountManagementLink') }}
+            </router-link>
+          </div>
         </div>
 
         <div class="grid gap-4 p-4 sm:gap-5 sm:p-5">

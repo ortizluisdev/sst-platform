@@ -21,6 +21,7 @@ export function useResetPasswordForm(token: string) {
         passwordLowercase: t('auth.validation.passwordLowercase'),
         passwordUppercase: t('auth.validation.passwordUppercase'),
         passwordNumber: t('auth.validation.passwordNumber'),
+        passwordSpecial: t('auth.validation.passwordSpecial'),
       }),
     ),
   )

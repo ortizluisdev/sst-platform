@@ -16,7 +16,7 @@ export function useLoginForm() {
   const validationSchema = computed(() =>
     toTypedSchema(
       createLoginSchema({
-        emailInvalid: t('auth.validation.emailInvalid'),
+        documentInvalid: t('auth.validation.documentInvalid'),
         passwordRequired: t('auth.validation.passwordRequired'),
       }),
     ),
@@ -24,10 +24,10 @@ export function useLoginForm() {
 
   const { defineField, handleSubmit, errors } = useForm<LoginFormValues>({
     validationSchema,
-    initialValues: { email: '', password: '' },
+    initialValues: { documentNumber: '', password: '' },
   })
 
-  const [email, emailAttrs] = defineField('email')
+  const [documentNumber, documentNumberAttrs] = defineField('documentNumber')
   const [password, passwordAttrs] = defineField('password')
 
   const submit = handleSubmit(async (values) => {
@@ -49,5 +49,5 @@ export function useLoginForm() {
     }
   })
 
-  return { status, errorMessage, user, errors, email, emailAttrs, password, passwordAttrs, submit }
+  return { status, errorMessage, user, errors, documentNumber, documentNumberAttrs, password, passwordAttrs, submit }
 }

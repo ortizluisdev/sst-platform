@@ -8,6 +8,9 @@ dist
 *.local
 .env
 
+# Volcados manuales de datos antes de migraciones destructivas — nunca al repo.
+backups/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

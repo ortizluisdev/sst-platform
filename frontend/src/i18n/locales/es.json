@@ -82,7 +82,13 @@
         "title": "Higiene Industrial",
         "tagline": "Un modelo de sistemas para estudiar lo que el ojo no mide.",
         "description": "Diseñamos e implementamos un <strong>modelo de sistemas de estudios higiénicos</strong> que traduce las condiciones físicas del entorno de trabajo —sonido, luz y temperatura— en información accionable para la gestión. En lugar de una medición puntual y aislada, construimos <strong>mapas de sonido</strong> y <strong>mapas de iluminación</strong> de la operación completa, soportados en sonometrías, luxometrías y evaluaciones de estrés térmico, y los cruzamos con el proceso productivo para priorizar dónde intervenir primero.",
-        "tags": ["Mapas de Sonido", "Mapas de Iluminación", "Estrés Térmico", "Sonometrías", "Luxometrías"],
+        "tags": [
+          "Mapas de Sonido",
+          "Mapas de Iluminación",
+          "Estrés Térmico",
+          "Sonometrías",
+          "Luxometrías"
+        ],
         "techLabel": "Fundamentos técnicos:",
         "techText": "acústica industrial (Crocker), ergonomía e ingeniería térmica (Parsons, Incropera), confort y estrés térmico (Fanger) e ingeniería de iluminación (Boyce, IES, CIE). Alineado a ISO 7730, ISO 7243, ISO 7933 e ISO 11079."
       },
@@ -91,7 +97,10 @@
         "title": "Seguridad Vial",
         "tagline": "Modelo Sistémico de Seguridad Vial: cumplimiento normativo y ciencia del comportamiento, en un solo marco.",
         "description": "Trabajamos la seguridad vial en dos niveles complementarios. El <strong>PESV clásico</strong> (Plan Estratégico de Seguridad Vial reglamentario en Colombia), que cumple con el marco normativo vigente para flotas propias y contratadas. Y nuestro propio <strong>Modelo Sistémico de Seguridad Vial</strong>, que va más allá del cumplimiento documental: mide y modela el riesgo vial real de la operación a partir del comportamiento del conductor, el vehículo y el entorno.",
-        "tags": ["PESV Clásico", "Modelo Sistémico de Seguridad Vial"],
+        "tags": [
+          "PESV Clásico",
+          "Modelo Sistémico de Seguridad Vial"
+        ],
         "techLabel": "Fundamentos técnicos:",
         "techText": "medición y modelado del riesgo vial (Evans — <em>Traffic Safety</em>), ciencia del comportamiento y desempeño del conductor (Evans — <em>Traffic Safety and the Driver</em>), y una comprensión sistémica basada en evidencia de la accidentalidad de motociclistas (The Hurt Report)."
       },
@@ -100,7 +109,11 @@
         "title": "Riesgo Mecánico y Locativo",
         "tagline": "Modelo de Intervención Sistémica: mejora continua aplicada a operaciones, herramientas y maquinaria.",
         "description": "Una estrategia que orienta la intervención de los riesgos más significativos derivados de las operaciones y del uso de herramientas, equipos y maquinaria, en plantas de producción, talleres y operaciones con activos críticos, a través de un proceso sistemático de mejora continua.",
-        "tags": ["Diagnóstico técnico", "Priorización", "Mejora continua"],
+        "tags": [
+          "Diagnóstico técnico",
+          "Priorización",
+          "Mejora continua"
+        ],
         "techLabel": "Modelo de intervención:",
         "techText": "definición de responsabilidades y alcance → identificación y priorización de áreas, procesos, equipos y actividades críticas → diagnóstico técnico de las condiciones que originan el riesgo → diseño e implementación de medidas para personas, equipos y procesos → seguimiento mediante indicadores de gestión → evaluación y mejora continua de la estrategia."
       },
@@ -109,7 +122,11 @@
         "title": "Mantenimiento Basado en Riesgo",
         "tagline": "Modelo Sistémico de Mantenimiento: menos incidentes, más confiabilidad.",
         "description": "Diseñamos estrategias de mantenimiento basado en riesgo orientadas a reducir la accidentalidad de la operación —tanto lo que afecta a las <strong>personas</strong> como lo que compromete los <strong>bienes e infraestructura crítica</strong>. Priorizamos la inversión y el esfuerzo técnico según la probabilidad y consecuencia reales de falla de cada activo, integrando la confiabilidad operacional con la gestión de seguridad de procesos.",
-        "tags": ["Riesgo a las Personas", "Riesgo de Infraestructura", "Confiabilidad"],
+        "tags": [
+          "Riesgo a las Personas",
+          "Riesgo de Infraestructura",
+          "Confiabilidad"
+        ],
         "techLabel": "Enfoque:",
         "techText": "análisis de criticidad e inspección basada en riesgo (RBI), y mantenimiento centrado en confiabilidad (RCM), ajustados a la realidad operativa de cada planta."
       },
@@ -118,7 +135,11 @@
         "title": "Modelado Científico del Comportamiento Social",
         "tagline": "Modelo Sistémico de Comportamiento: entornos fijos y entornos variables.",
         "description": "Construimos un modelo sistémico que interpreta el comportamiento humano frente al riesgo a partir de dos fuerzas: los <strong>entornos fijos</strong> —estructura, normas y cultura organizacional— y los <strong>entornos variables</strong> —el contexto, la presión y la oportunidad del momento. Es el mismo marco que usamos para entender por qué las personas se exponen al riesgo en las operaciones, uno que extendemos a fenómenos de comportamiento organizacional más amplios, como los <strong>modelos de corrupción pública y privada</strong>: otra forma de comportamiento sistémico que también puede explicarse —y abordarse— a través de sus entornos fijos y variables.",
-        "tags": ["Entornos Fijos", "Entornos Variables", "Corrupción Pública y Privada"],
+        "tags": [
+          "Entornos Fijos",
+          "Entornos Variables",
+          "Corrupción Pública y Privada"
+        ],
         "techLabel": "Enfoque:",
         "techText": "ciencia de la complejidad aplicada al comportamiento humano, integrando variables organizacionales, sociales e individuales dentro de un único marco de análisis sistémico."
       }
@@ -192,7 +213,11 @@
     "toolsTitle": "Las herramientas matemáticas detrás del modelo.",
     "toolsSubtitle": "Pensamiento sistémico y ciencia de redes, traducidos en herramientas concretas de cálculo y diagnóstico.",
     "toolsTable": {
-      "headers": ["Herramienta", "Función en el modelo", "Frecuencia"],
+      "headers": [
+        "Herramienta",
+        "Función en el modelo",
+        "Frecuencia"
+      ],
       "rows": [
         {
           "name": "Análisis de centralidad de red",
@@ -232,9 +257,15 @@
     "title": "Ciencia, ingeniería y experiencia al servicio de {accent} diagnóstico.",
     "titleAccent": "cada",
     "stats": [
-      { "label": "Años de experiencia" },
-      { "label": "Organizaciones asesoradas" },
-      { "label": "Sectores económicos" }
+      {
+        "label": "Años de experiencia"
+      },
+      {
+        "label": "Organizaciones asesoradas"
+      },
+      {
+        "label": "Sectores económicos"
+      }
     ],
     "profile": {
       "roleEyebrow": "Fundador · Chief Scientific Officer",
@@ -285,7 +316,7 @@
     "title": "RoMa+",
     "description": "El portal donde cada cliente ingresa con su propia cuenta a su panel de indicadores — estado de cumplimiento normativo, histórico de variables y seguimiento de tendencias para sus procesos de seguridad y higiene ocupacional.",
     "loginCta": "Iniciar sesión",
-    "registerCta": "Registra tu organización"
+    "registerCta": "Contáctanos"
   },
   "contacto": {
     "eyebrow": "Contacto",
@@ -296,7 +327,7 @@
       "nombre": "Nombre",
       "nombrePlaceholder": "Tu nombre completo",
       "correo": "Correo electrónico",
-      "correoPlaceholder": "tu@empresa.com",
+      "correoPlaceholder": "tu{'@'}empresa.com",
       "telefono": "Teléfono",
       "telefonoPlaceholder": "+57 300 000 0000",
       "empresa": "Empresa",
@@ -324,52 +355,37 @@
   "auth": {
     "backToHome": "Volver al inicio",
     "form": {
-      "nombre": "Nombre completo",
-      "nombrePlaceholder": "Tu nombre completo",
-      "email": "Correo electrónico",
-      "emailPlaceholder": "tu{'@'}empresa.com",
       "password": "Contraseña",
       "passwordPlaceholder": "Tu contraseña",
-      "passwordHint": "Mínimo 10 caracteres, con mayúscula, minúscula y número",
-      "organizationName": "Nombre de tu organización",
-      "organizationNamePlaceholder": "Ej. Empresa S.A.S.",
+      "passwordHint": "Mínimo 10 caracteres, con mayúscula, minúscula, número y carácter especial",
       "submitting": "Enviando...",
-      "genericError": "Ocurrió un error. Por favor intenta de nuevo."
+      "genericError": "Ocurrió un error. Por favor intenta de nuevo.",
+      "documentNumber": "Número de documento",
+      "documentNumberPlaceholder": "Cédula o NIT, solo números"
     },
     "validation": {
-      "emailInvalid": "Ingresa un correo válido",
       "passwordRequired": "Ingresa tu contraseña",
       "passwordMin": "La contraseña debe tener al menos 10 caracteres",
       "passwordLowercase": "Debe incluir al menos una minúscula",
       "passwordUppercase": "Debe incluir al menos una mayúscula",
       "passwordNumber": "Debe incluir al menos un número",
-      "nombreRequired": "Ingresa tu nombre completo",
-      "organizationNameRequired": "Ingresa el nombre de tu organización",
-      "tokenRequired": "Enlace inválido"
+      "tokenRequired": "Enlace inválido",
+      "documentInvalid": "Ingresa un número de documento válido",
+      "passwordSpecial": "Debe incluir al menos un carácter especial"
     },
     "login": {
       "title": "Iniciar sesión",
       "subtitle": "Ingresa a tu panel de indicadores RoMa+.",
       "submit": "Iniciar sesión",
       "forgotPassword": "¿Olvidaste tu contraseña?",
-      "noAccount": "¿No tienes cuenta?",
-      "registerLink": "Registra tu organización",
       "successGreeting": "¡Bienvenido, {nombre}!",
       "successPending": "Tu cuenta aún no tiene servicios contratados con dashboard disponible. Contacta a tu administrador de RoMa+."
-    },
-    "register": {
-      "title": "Registra tu organización",
-      "subtitle": "Crea la cuenta de tu organización en RoMa+.",
-      "submit": "Crear cuenta",
-      "haveAccount": "¿Ya tienes cuenta?",
-      "loginLink": "Inicia sesión",
-      "backToLogin": "Ir a iniciar sesión"
     },
     "forgotPassword": {
       "title": "Recuperar contraseña",
       "subtitle": "Te enviaremos un enlace para restablecerla.",
       "submit": "Enviar enlace",
-      "successBody": "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada.",
+      "successBody": "Si el documento está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa tu correo.",
       "backToLogin": "Volver a iniciar sesión"
     },
     "resetPassword": {
@@ -380,6 +396,15 @@
       "successBody": "Tu contraseña fue actualizada. Ya puedes iniciar sesión con tu nueva contraseña.",
       "backToLogin": "Ir a iniciar sesión",
       "missingToken": "Este enlace no es válido. Solicita uno nuevo desde la página de recuperar contraseña."
+    },
+    "activation": {
+      "title": "Activa tu cuenta",
+      "subtitle": "Crea tu contraseña para empezar a usar RoMa+.",
+      "missingToken": "Este enlace no es válido. Revisa el correo de invitación que recibiste.",
+      "successBody": "Tu cuenta ya está activa. Ya puedes iniciar sesión.",
+      "goToLogin": "Ir a iniciar sesión",
+      "newPassword": "Nueva contraseña",
+      "submit": "Activar cuenta"
     }
   },
   "privacyPolicy": {
@@ -405,7 +430,7 @@
   },
   "social": {
     "whatsappTooltip": "Escríbenos por WhatsApp",
-    "whatsappMessage": "\uD83D\uDE80 Quiero saber cómo la ciencia y la innovación pueden transformar la gestión del riesgo en mi organización.\n\uD83D\uDC49 ¡Quiero más información!"
+    "whatsappMessage": "🚀 Quiero saber cómo la ciencia y la innovación pueden transformar la gestión del riesgo en mi organización.\n👉 ¡Quiero más información!"
   },
   "dashboard": {
     "layout": {
@@ -494,7 +519,15 @@
       "exportPdf": "Exportar a PDF (imprimir)",
       "reportTitlePrefix": "Reporte de cumplimiento — ",
       "generatedOn": "Generado el ",
-      "csvHeaders": ["Categoria", "Variable", "Medicion", "Unidad", "Norma", "PorcentajeCumplimiento", "Estado"]
+      "csvHeaders": [
+        "Categoria",
+        "Variable",
+        "Medicion",
+        "Unidad",
+        "Norma",
+        "PorcentajeCumplimiento",
+        "Estado"
+      ]
     },
     "clientView": {
       "pageTitle": "Dashboard Higiene Industrial — RoMa+",
@@ -506,12 +539,136 @@
       "noOrgs": "Ninguna organización tiene contratado este servicio todavía.",
       "loadOrgsError": "Error al cargar organizaciones.",
       "adminZone": "Zona de administración",
-      "organization": "Organización"
+      "organization": "Organización",
+      "accountManagementLink": "Gestión de cuentas",
+      "createOrganizationLink": "Crear empresa"
     },
     "roleLabel": {
       "superAdmin": "Super-Admin",
       "cliente": "Cliente"
     },
-    "genericError": "Ocurrió un error"
+    "genericError": "Ocurrió un error",
+    "notifications": {
+      "bellLabel": "Notificaciones",
+      "title": "Notificaciones",
+      "pageTitle": "Notificaciones — RoMa+",
+      "markRead": "Marcar como leída",
+      "markAllRead": "Marcar todas como leídas",
+      "loading": "Cargando notificaciones...",
+      "empty": "No tienes notificaciones.",
+      "loadError": "Error al cargar las notificaciones.",
+      "viewAll": "Ver todas",
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Aviso",
+        "info": "Info"
+      },
+      "type": {
+        "semaforoCritico": "Alerta crítica",
+        "cargaProcesada": "Carga procesada",
+        "cargaConError": "Error en carga",
+        "registroPendiente": "Registro pendiente",
+        "contactoRecibido": "Contacto recibido",
+        "cuentaSuspendida": "Cuenta suspendida",
+        "cuentaReactivada": "Cuenta reactivada"
+      },
+      "filters": {
+        "allStatus": "Todas",
+        "unread": "No leídas",
+        "read": "Leídas",
+        "allSeverities": "Toda severidad",
+        "allTypes": "Todo tipo"
+      },
+      "pagination": {
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "pageOf": "Página {page} de {totalPages}"
+      }
+    },
+    "accountManagement": {
+      "pageTitle": "Gestión de cuentas — RoMa+",
+      "loading": "Cargando cuentas...",
+      "loadError": "Error al cargar las cuentas.",
+      "actionError": "No se pudo completar la acción.",
+      "emptyActive": "No hay cuentas activas.",
+      "emptySuspended": "No hay cuentas suspendidas.",
+      "tabs": {
+        "active": "Activas",
+        "suspended": "Suspendidas",
+        "pending": "Pendientes de activación"
+      },
+      "documentType": {
+        "CC": "Cédula",
+        "NIT": "NIT"
+      },
+      "suspend": "Suspender",
+      "reactivate": "Reactivar",
+      "confirmReactivate": "¿Reactivar la cuenta de {nombre}?",
+      "suspendReasonLabel": "Motivo de la suspensión",
+      "suspendModal": {
+        "title": "Suspender cuenta",
+        "close": "Cerrar",
+        "description": "Vas a suspender la cuenta de {nombre} ({email}). Escribe un motivo claro — se incluirá en el correo que recibe.",
+        "reasonLabel": "Motivo",
+        "reasonPlaceholder": "Ej: el responsable ya no trabaja en la empresa...",
+        "reasonError": "Escribe un motivo de al menos 5 caracteres.",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar suspensión"
+      },
+      "emptyPending": "No hay cuentas pendientes de activación.",
+      "resendInvitation": "Reenviar invitación",
+      "invitationResent": "Invitación reenviada"
+    }
+  },
+  "organizations": {
+    "form": {
+      "pageTitle": "Crear empresa",
+      "pageSubtitle": "Registra una nueva empresa cliente y su responsable — recibirá un correo para activar su cuenta.",
+      "companySection": "Datos de la empresa",
+      "nombre": "Nombre de la empresa",
+      "nombrePlaceholder": "Ej. Empresa S.A.S.",
+      "nit": "NIT",
+      "nitPlaceholder": "Solo números",
+      "contactEmail": "Correo de contacto",
+      "contactEmailPlaceholder": "contacto{'@'}empresa.com",
+      "service": "Servicio contratado",
+      "servicePlaceholder": "Selecciona un servicio",
+      "loadServicesError": "No se pudieron cargar los servicios.",
+      "responsableSection": "Responsable de la cuenta",
+      "documentType": "Tipo de documento",
+      "responsableNombre": "Nombre completo",
+      "responsableNombrePlaceholder": "Nombre del responsable",
+      "responsableEmail": "Correo electrónico",
+      "responsableEmailPlaceholder": "responsable{'@'}empresa.com",
+      "responsableCargo": "Cargo",
+      "responsableCargoPlaceholder": "Ej. Gerente de SST",
+      "submit": "Crear empresa y enviar invitación",
+      "successBody": "Empresa creada. Se envió un correo de activación al responsable.",
+      "genericError": "Ocurrió un error. Por favor intenta de nuevo."
+    },
+    "validation": {
+      "nombreRequired": "Ingresa el nombre de la empresa",
+      "nitInvalid": "Ingresa un NIT válido (solo números)",
+      "contactEmailInvalid": "Ingresa un correo de contacto válido",
+      "serviceRequired": "Selecciona un servicio",
+      "responsableDocumentInvalid": "Ingresa un número de documento válido",
+      "responsableNombreRequired": "Ingresa el nombre del responsable",
+      "responsableEmailInvalid": "Ingresa un correo válido",
+      "responsableCargoRequired": "Ingresa el cargo del responsable"
+    }
+  },
+  "profile": {
+    "pageTitle": "Completa tu perfil",
+    "pageSubtitle": "Necesitamos estos datos antes de que continúes — solo te lo pedimos una vez.",
+    "cargo": "Cargo",
+    "cargoPlaceholder": "Ej. Gerente de SST",
+    "telefono": "Teléfono",
+    "telefonoPlaceholder": "Ej. +57 300 000 0000",
+    "submit": "Guardar y continuar",
+    "validation": {
+      "cargoRequired": "Ingresa tu cargo",
+      "telefonoRequired": "Ingresa un teléfono válido",
+      "telefonoInvalid": "Solo números, espacios y +()-"
+    }
   }
 }

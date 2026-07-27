@@ -56,46 +56,92 @@ model RolePermission {
   @@map("role_permissions")
 }
 
+/// Ciclo de vida de una cuenta creada por un admin (ya no hay autorregistro
+/// público — ver Fase B del rediseño de auth). PENDING_ACTIVATION: el admin
+/// la creó, el usuario todavía no definió contraseña (passwordHash null).
+/// ACTIVE: puede iniciar sesión con normalidad. SUSPENDED: un admin la
+/// desactivó (ej. el responsable ya no trabaja ahí) — bloqueada para login,
+/// reversible por un admin (reactivar → ACTIVE). Ver auditLogs para
+/// quién/cuándo hizo cada transición.
+enum AccountStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  SUSPENDED
+}
+
+/// CC: cédula de ciudadanía — identifica siempre a una PERSONA (el
+/// responsable de una empresa, o un cliente independiente sin empresa). NIT
+/// vive en Organization.nit (dato de la empresa), no como credencial de
+/// login de un User — hoy no se soporta login directo por NIT sin un
+/// responsable asociado.
+enum DocumentType {
+  CC
+  NIT
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
-  nombre       String   @db.VarChar(255)
-  fotoUrl      String?  @map("foto_url") @db.VarChar(500)
+  id             String        @id @default(cuid())
+  documentType   DocumentType  @default(CC) @map("document_type")
+  /// Credencial de login (reemplaza email). Único a nivel de plataforma.
+  documentNumber String        @unique @map("document_number") @db.VarChar(20)
+  /// Dato de contacto — ya no es la credencial de login, por eso no es único.
+  email          String        @db.VarChar(255)
+  /// Nullable: una cuenta PENDING_ACTIVATION todavía no tiene contraseña —
+  /// la define el propio usuario al activar (ver ActivationToken).
+  passwordHash   String?       @map("password_hash") @db.VarChar(255)
+  nombre         String        @db.VarChar(255)
+  cargo          String?       @db.VarChar(150)
+  telefono       String?       @db.VarChar(50)
+  fotoUrl        String?       @map("foto_url") @db.VarChar(500)
   /// Rol a nivel PLATAFORMA (ej. super-admin). null para un cliente normal:
   /// sus permisos vienen exclusivamente de su(s) UserOrganization.role.
-  roleId       String?  @map("role_id")
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  roleId         String?       @map("role_id")
+  accountStatus  AccountStatus @default(PENDING_ACTIVATION) @map("account_status")
+  /// Motivo que el admin escribió al suspender — se limpia al reactivar,
+  /// para que un motivo viejo no quede colgado tras la reactivación.
+  suspendReason  String?       @map("suspend_reason") @db.Text
+  /// true tras activar la cuenta por primera vez — el guard de rutas del
+  /// frontend fuerza la vista de actualización de datos antes de dejar
+  /// pasar a cualquier otra ruta protegida, hasta que se complete.
+  mustUpdateProfile Boolean    @default(false) @map("must_update_profile")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   role                  Role?                @relation(fields: [roleId], references: [id], onDelete: SetNull)
   organizations         UserOrganization[]
   refreshTokens         RefreshToken[]
   passwordResetTokens   PasswordResetToken[]
+  activationTokens      ActivationToken[]
   notificationsReceived Notification[]       @relation("NotificationRecipient")
   notificationsSent     Notification[]       @relation("NotificationSender")
   variableUploads       VariableUpload[]
   announcements         Announcement[]
   auditLogs             AuditLog[]
 
-  @@index([email])
+  @@index([documentNumber])
   @@index([roleId])
+  @@index([accountStatus])
   @@map("users")
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  nombre    String   @db.VarChar(255)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id     String @id @default(cuid())
+  nombre String @db.VarChar(255)
+  /// Nullable: organizaciones creadas antes del rediseño de auth no
+  /// necesariamente lo tienen todavía. El flujo de creación de empresa por
+  /// el admin (Fase B.3) lo exige a partir de ahora.
+  nit          String?  @unique @db.VarChar(20)
+  contactEmail String?  @map("contact_email") @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   users           UserOrganization[]
   services        OrganizationService[]
   workPoints      WorkPoint[]
   variableUploads VariableUpload[]
   auditLogs       AuditLog[]
+  notifications   Notification[]
 
   @@map("organizations")
 }
@@ -189,6 +235,26 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+/// Token de un solo uso para activar una cuenta creada por un admin (define
+/// contraseña por primera vez). Mismo patrón que PasswordResetToken: se
+/// guarda hasheado, usedAt evita reutilizarlo. Expiración configurable por
+/// ACTIVATION_TOKEN_TTL_HOURS (ver config/env.ts) — default 48h, más
+/// generoso que un reset de contraseña porque un contacto B2B no
+/// necesariamente revisa su correo el mismo día.
+model ActivationToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("activation_tokens")
+}
+
 /// Token de un solo uso para restablecer contraseña. Expiración corta
 /// (ej. 1 hora), se guarda hasheado, y usedAt evita reutilizarlo.
 model PasswordResetToken {
@@ -209,25 +275,68 @@ model PasswordResetToken {
 // NOTIFICACIONES
 // ============================================================
 
+/// Eventos de negocio que disparan notificaciones. Agregar uno nuevo es: una
+/// entrada acá + una fila en notification-types.ts (registro de
+/// severidad/canal/audiencia) + una llamada a NotificationService.notify()
+/// desde el módulo de origen — nunca tocar la lógica central del servicio.
+/// REGISTRO_PENDIENTE queda del modelo de autorregistro público (eliminado
+/// en la Fase B) — sin código que la dispare, pero se deja en el enum en
+/// vez de forzar otra migración solo para borrarla.
 enum NotificationType {
-  ASIGNACION
-  SOPORTE
-  SISTEMA
+  SEMAFORO_CRITICO
+  CARGA_PROCESADA
+  CARGA_CON_ERROR
+  CUENTA_SUSPENDIDA
+  CUENTA_REACTIVADA
+  REGISTRO_PENDIENTE
+  CONTACTO_RECIBIDO
 }
 
-model Notification {
-  id          String           @id @default(cuid())
-  recipientId String           @map("recipient_id")
-  senderId    String?          @map("sender_id")
-  type        NotificationType
-  message     String           @db.Text
-  isRead      Boolean          @default(false) @map("is_read")
-  createdAt   DateTime         @default(now()) @map("created_at")
+enum NotificationSeverity {
+  CRITICAL
+  WARNING
+  INFO
+}
 
-  recipient User  @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-  sender    User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+/// Cada fila es UN destinatario — el "fan-out" a una organización completa o
+/// a todos los admins pasa por NotificationService (createMany de una fila
+/// por destinatario), no por una relación compartida: cada quien necesita su
+/// propio isRead/readAt independiente del resto.
+model Notification {
+  id             String               @id @default(cuid())
+  recipientId    String               @map("recipient_id")
+  senderId       String?              @map("sender_id")
+  organizationId String?              @map("organization_id")
+  type           NotificationType
+  severity       NotificationSeverity @default(INFO)
+  message        String               @db.Text
+  /// Snapshot inmutable del contexto del evento (variable, valor medido,
+  /// límite normativo, puesto, archivo, etc.) — no se recalcula ni cambia si
+  /// la entidad origen cambia después. Mismo patrón que AuditLog.metadata.
+  metadata       Json?
+  /// Ruta relativa ya resuelta para el deep-link del frontend.
+  link           String?              @map("link") @db.VarChar(500)
+  /// Trazabilidad liviana hacia la entidad origen, sin FK real de Prisma
+  /// (evita una migración nueva cada vez que se agregue un tipo de evento).
+  entityType     String?              @map("entity_type") @db.VarChar(50)
+  entityId       String?              @map("entity_id")
+  isRead         Boolean              @default(false) @map("is_read")
+  readAt         DateTime?            @map("read_at")
+  /// Si el tipo de evento decidió (vía notification-types.ts) que este envío
+  /// debía intentar ir por email — independiente de si el envío tuvo éxito.
+  emailRequested Boolean              @default(false) @map("email_requested")
+  emailSentAt    DateTime?            @map("email_sent_at")
+  emailError     String?              @map("email_error") @db.Text
+  createdAt      DateTime             @default(now()) @map("created_at")
+
+  recipient    User          @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender       User?         @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
 
   @@index([recipientId, isRead])
+  @@index([recipientId, createdAt])
+  @@index([organizationId])
+  @@index([type])
   @@map("notifications")
 }
 
@@ -404,8 +513,14 @@ enum AuditAction {
   ORG_SERVICE_GRANTED
   ORG_SERVICE_REVOKED
   DASHBOARD_ACCESSED
-  USER_REGISTERED
-  USER_APPROVED
+  /// Empresa + responsable creados por un admin (Fase B.3) — reemplaza al
+  /// autorregistro público, que ya no existe.
+  USER_CREATED_BY_ADMIN
+  ACTIVATION_INVITE_RESENT
+  ACCOUNT_ACTIVATED
+  USER_SUSPENDED
+  USER_REACTIVATED
+  PROFILE_UPDATED
   VARIABLES_UPLOADED
 }
 

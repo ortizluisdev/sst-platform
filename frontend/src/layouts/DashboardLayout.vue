@@ -8,6 +8,7 @@ import logoWebp from '@/assets/logo/roma-logo.webp'
 import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { formatDate } from '@/utils/formatDate'
+import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
 import type { Locale } from '@/i18n'
 
 const props = defineProps<{ lastSync?: string | null }>()
@@ -56,6 +57,8 @@ const switchTo = computed(() => ({
         </div>
 
         <div class="flex shrink-0 items-center gap-2 sm:gap-4">
+          <NotificationBell v-if="auth.user" />
+
           <div v-if="auth.user" class="flex items-center gap-2">
             <UserCircle class="h-5 w-5 shrink-0 text-navy-700" aria-hidden="true" />
             <span class="hidden text-sm text-navy-700 min-[400px]:inline">{{ auth.user.nombre }}</span>

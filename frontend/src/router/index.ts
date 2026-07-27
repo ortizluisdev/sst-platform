@@ -1,11 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { DEFAULT_LOCALE, isSupportedLocale, setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
+import { getDashboardPath } from '@/utils/dashboardRedirect'
 
 declare module 'vue-router' {
   interface RouteMeta {
     requiresAuth?: boolean
     permission?: string
+    /** Rutas solo para visitantes sin sesión (login) — un usuario ya
+     * autenticado que navega acá manualmente se redirige a su dashboard en
+     * vez de ver el formulario de nuevo. */
+    guestOnly?: boolean
   }
 }
 
@@ -31,11 +36,7 @@ const router = createRouter({
       path: '/:locale(es|en)/ingresar',
       name: 'login',
       component: () => import('@/modules/auth/views/LoginView.vue'),
-    },
-    {
-      path: '/:locale(es|en)/registro',
-      name: 'register',
-      component: () => import('@/modules/auth/views/RegisterView.vue'),
+      meta: { guestOnly: true },
     },
     {
       path: '/:locale(es|en)/recuperar-contrasena',
@@ -46,6 +47,17 @@ const router = createRouter({
       path: '/:locale(es|en)/restablecer-contrasena',
       name: 'reset-password',
       component: () => import('@/modules/auth/views/ResetPasswordView.vue'),
+    },
+    {
+      path: '/:locale(es|en)/activar-cuenta',
+      name: 'activate-account',
+      component: () => import('@/modules/auth/views/ActivateAccountView.vue'),
+    },
+    {
+      path: '/:locale(es|en)/dashboard/completar-perfil',
+      name: 'complete-profile',
+      component: () => import('@/modules/profile/views/UpdateProfileView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/:locale(es|en)/dashboard/higiene-industrial',
@@ -59,13 +71,35 @@ const router = createRouter({
       component: () => import('@/modules/dashboard/views/AdminDashboardView.vue'),
       meta: { requiresAuth: true, permission: 'platform.variables.upload' },
     },
-    // El backend genera el link de reset SIN prefijo de idioma (no conoce el
-    // locale del usuario): FRONTEND_URL/restablecer-contrasena?token=...
-    // Sin esta ruta puente, ese link caería en el catch-all de abajo y el
-    // token se perdería.
+    {
+      path: '/:locale(es|en)/dashboard/notificaciones',
+      name: 'dashboard-notificaciones',
+      component: () => import('@/modules/notifications/views/NotificationsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/:locale(es|en)/dashboard/admin/cuentas',
+      name: 'admin-gestion-cuentas',
+      component: () => import('@/modules/notifications/views/AccountManagementView.vue'),
+      meta: { requiresAuth: true, permission: 'platform.users.approve' },
+    },
+    {
+      path: '/:locale(es|en)/dashboard/admin/empresas/crear',
+      name: 'admin-crear-empresa',
+      component: () => import('@/modules/organizations/views/CreateOrganizationView.vue'),
+      meta: { requiresAuth: true, permission: 'platform.organizations.manage' },
+    },
+    // El backend genera estos links SIN prefijo de idioma (no conoce el
+    // locale del usuario): FRONTEND_URL/restablecer-contrasena?token=... —
+    // sin esta ruta puente, caerían en el catch-all de abajo y el token se
+    // perdería.
     {
       path: '/restablecer-contrasena',
       redirect: (to) => ({ path: `/${DEFAULT_LOCALE}/restablecer-contrasena`, query: to.query }),
+    },
+    {
+      path: '/activar-cuenta',
+      redirect: (to) => ({ path: `/${DEFAULT_LOCALE}/activar-cuenta`, query: to.query }),
     },
     { path: '/:pathMatch(.*)*', redirect: `/${DEFAULT_LOCALE}/` },
   ],
@@ -82,8 +116,21 @@ router.beforeEach(async (to) => {
     if (auth.isAuthenticated === null) await auth.fetchMe()
     if (!auth.isAuthenticated) return `/${locale}/ingresar`
 
+    // Fase B.5: cargo/teléfono obligatorios en el primer login — bloquea
+    // cualquier otra ruta protegida hasta completarlos. Se excluye a sí
+    // misma para no crear un loop de redirect.
+    if (auth.mustUpdateProfile && to.name !== 'complete-profile') {
+      return `/${locale}/dashboard/completar-perfil`
+    }
+
     const permission = to.meta.permission as string | undefined
     if (permission && !auth.hasPermission(permission)) return `/${locale}/`
+  }
+
+  if (to.meta.guestOnly) {
+    const auth = useAuthStore()
+    if (auth.isAuthenticated === null) await auth.fetchMe()
+    if (auth.isAuthenticated) return getDashboardPath(auth, locale)
   }
 
   return true

@@ -82,7 +82,13 @@
         "title": "Industrial Hygiene",
         "tagline": "A systems model for studying what the eye can't measure.",
         "description": "We design and implement a <strong>hygiene studies systems model</strong> that translates the physical conditions of the work environment—sound, light, and temperature—into actionable management information. Instead of a single, isolated measurement, we build full-operation <strong>sound maps</strong> and <strong>lighting maps</strong>, backed by sound level surveys, lux surveys, and thermal stress assessments, and cross-reference them with the production process to prioritize where to intervene first.",
-        "tags": ["Sound Maps", "Lighting Maps", "Thermal Stress", "Sound Level Surveys", "Lux Surveys"],
+        "tags": [
+          "Sound Maps",
+          "Lighting Maps",
+          "Thermal Stress",
+          "Sound Level Surveys",
+          "Lux Surveys"
+        ],
         "techLabel": "Technical foundations:",
         "techText": "industrial acoustics (Crocker), ergonomics and thermal engineering (Parsons, Incropera), thermal comfort and stress (Fanger), and lighting engineering (Boyce, IES, CIE). Aligned with ISO 7730, ISO 7243, ISO 7933, and ISO 11079."
       },
@@ -91,7 +97,10 @@
         "title": "Road Safety",
         "tagline": "Systemic Road Safety Model: regulatory compliance and behavioral science, in a single framework.",
         "description": "We work road safety on two complementary levels. The <strong>classic PESV</strong> (Colombia's statutory road safety plan), which meets the current regulatory framework for owned and contracted fleets. And our own <strong>Systemic Road Safety Model</strong>, which goes beyond documentary compliance: it measures and models the operation's actual road risk based on driver behavior, the vehicle, and the environment.",
-        "tags": ["Classic PESV", "Systemic Road Safety Model"],
+        "tags": [
+          "Classic PESV",
+          "Systemic Road Safety Model"
+        ],
         "techLabel": "Technical foundations:",
         "techText": "road risk measurement and modeling (Evans — <em>Traffic Safety</em>), behavioral science and driver performance (Evans — <em>Traffic Safety and the Driver</em>), and an evidence-based systemic understanding of motorcyclist accident rates (The Hurt Report)."
       },
@@ -100,7 +109,11 @@
         "title": "Mechanical and Facility Risk",
         "tagline": "Systemic Intervention Model: continuous improvement applied to operations, tools, and machinery.",
         "description": "A strategy that guides the intervention of the most significant risks arising from operations, and the use of tools, equipment, and machinery, in production plants, workshops, and operations with critical assets, through a systematic continuous improvement process.",
-        "tags": ["Technical diagnosis", "Prioritization", "Continuous improvement"],
+        "tags": [
+          "Technical diagnosis",
+          "Prioritization",
+          "Continuous improvement"
+        ],
         "techLabel": "Intervention model:",
         "techText": "defining responsibilities and scope → identifying and prioritizing critical areas, processes, equipment, and activities → technical diagnosis of the conditions causing the risk → designing and implementing measures for people, equipment, and processes → tracking through management indicators → evaluating and continuously improving the strategy."
       },
@@ -109,7 +122,11 @@
         "title": "Risk-Based Maintenance",
         "tagline": "Systemic Maintenance Model: fewer incidents, more reliability.",
         "description": "We design risk-based maintenance strategies aimed at reducing the operation's accident rate—both what affects <strong>people</strong> and what compromises <strong>property and critical infrastructure</strong>. We prioritize investment and technical effort based on the actual probability and consequence of each asset's failure, integrating operational reliability with process safety management.",
-        "tags": ["People Risk", "Infrastructure Risk", "Reliability"],
+        "tags": [
+          "People Risk",
+          "Infrastructure Risk",
+          "Reliability"
+        ],
         "techLabel": "Approach:",
         "techText": "criticality analysis and risk-based inspection (RBI), and reliability-centered maintenance (RCM), adjusted to each plant's operating reality."
       },
@@ -118,7 +135,11 @@
         "title": "Scientific Modeling of Social Behavior",
         "tagline": "Systemic Behavior Model: fixed environments and variable environments.",
         "description": "We build a systemic model that interprets human behavior toward risk based on two forces: <strong>fixed environments</strong>—structure, rules, and organizational culture—and <strong>variable environments</strong>—the context, pressure, and opportunity of the moment. It's the same framework we use to understand why people expose themselves to risk in operations, one we extend to broader organizational behavior phenomena, such as <strong>public and private corruption models</strong>: another form of systemic behavior that can also be explained—and addressed—through its fixed and variable environments.",
-        "tags": ["Fixed Environments", "Variable Environments", "Public and Private Corruption"],
+        "tags": [
+          "Fixed Environments",
+          "Variable Environments",
+          "Public and Private Corruption"
+        ],
         "techLabel": "Approach:",
         "techText": "complexity science applied to human behavior, integrating organizational, social, and individual variables within a single systemic analysis framework."
       }
@@ -192,7 +213,11 @@
     "toolsTitle": "The mathematical tools behind the model.",
     "toolsSubtitle": "Systems thinking and network science, translated into concrete calculation and diagnostic tools.",
     "toolsTable": {
-      "headers": ["Tool", "Function in the model", "Frequency"],
+      "headers": [
+        "Tool",
+        "Function in the model",
+        "Frequency"
+      ],
       "rows": [
         {
           "name": "Network centrality analysis",
@@ -232,9 +257,15 @@
     "title": "Science, engineering, and experience at the service of {accent} diagnosis.",
     "titleAccent": "every",
     "stats": [
-      { "label": "Years of experience" },
-      { "label": "Organizations advised" },
-      { "label": "Economic sectors" }
+      {
+        "label": "Years of experience"
+      },
+      {
+        "label": "Organizations advised"
+      },
+      {
+        "label": "Economic sectors"
+      }
     ],
     "profile": {
       "roleEyebrow": "Founder · Chief Scientific Officer",
@@ -285,7 +316,7 @@
     "title": "RoMa+",
     "description": "The portal where each client logs in with their own account to their indicator dashboard — regulatory compliance status, variable history, and trend tracking for their safety and occupational hygiene processes.",
     "loginCta": "Log in",
-    "registerCta": "Register your organization"
+    "registerCta": "Contact us"
   },
   "contacto": {
     "eyebrow": "Contact",
@@ -324,52 +355,37 @@
   "auth": {
     "backToHome": "Back to home",
     "form": {
-      "nombre": "Full name",
-      "nombrePlaceholder": "Your full name",
-      "email": "Email",
-      "emailPlaceholder": "you{'@'}company.com",
       "password": "Password",
       "passwordPlaceholder": "Your password",
-      "passwordHint": "At least 10 characters, with uppercase, lowercase, and a number",
-      "organizationName": "Your organization's name",
-      "organizationNamePlaceholder": "E.g. Company Inc.",
+      "passwordHint": "At least 10 characters, with uppercase, lowercase, number and special character",
       "submitting": "Submitting...",
-      "genericError": "Something went wrong. Please try again."
+      "genericError": "Something went wrong. Please try again.",
+      "documentNumber": "Document number",
+      "documentNumberPlaceholder": "National ID or Tax ID, numbers only"
     },
     "validation": {
-      "emailInvalid": "Enter a valid email",
       "passwordRequired": "Enter your password",
       "passwordMin": "Password must be at least 10 characters",
       "passwordLowercase": "Must include at least one lowercase letter",
       "passwordUppercase": "Must include at least one uppercase letter",
       "passwordNumber": "Must include at least one number",
-      "nombreRequired": "Enter your full name",
-      "organizationNameRequired": "Enter your organization's name",
-      "tokenRequired": "Invalid link"
+      "tokenRequired": "Invalid link",
+      "documentInvalid": "Enter a valid document number",
+      "passwordSpecial": "Must include at least one special character"
     },
     "login": {
       "title": "Log in",
       "subtitle": "Access your RoMa+ indicator dashboard.",
       "submit": "Log in",
       "forgotPassword": "Forgot your password?",
-      "noAccount": "Don't have an account?",
-      "registerLink": "Register your organization",
       "successGreeting": "Welcome, {nombre}!",
       "successPending": "Your account doesn't have any contracted services with an available dashboard yet. Contact your RoMa+ administrator."
-    },
-    "register": {
-      "title": "Register your organization",
-      "subtitle": "Create your organization's account on RoMa+.",
-      "submit": "Create account",
-      "haveAccount": "Already have an account?",
-      "loginLink": "Log in",
-      "backToLogin": "Go to log in"
     },
     "forgotPassword": {
       "title": "Forgot password",
       "subtitle": "We'll send you a link to reset it.",
       "submit": "Send link",
-      "successBody": "If that email is registered, we've sent a password reset link. Check your inbox.",
+      "successBody": "If the document is registered, we've sent a link to reset your password. Check your email.",
       "backToLogin": "Back to log in"
     },
     "resetPassword": {
@@ -380,6 +396,15 @@
       "successBody": "Your password was updated. You can now log in with your new password.",
       "backToLogin": "Go to log in",
       "missingToken": "This link isn't valid. Request a new one from the forgot password page."
+    },
+    "activation": {
+      "title": "Activate your account",
+      "subtitle": "Create your password to start using RoMa+.",
+      "missingToken": "This link isn't valid. Check the invitation email you received.",
+      "successBody": "Your account is now active. You can log in now.",
+      "goToLogin": "Go to login",
+      "newPassword": "New password",
+      "submit": "Activate account"
     }
   },
   "privacyPolicy": {
@@ -494,7 +519,15 @@
       "exportPdf": "Export to PDF (print)",
       "reportTitlePrefix": "Compliance report — ",
       "generatedOn": "Generated on ",
-      "csvHeaders": ["Category", "Variable", "Measurement", "Unit", "Standard", "CompliancePercentage", "Status"]
+      "csvHeaders": [
+        "Category",
+        "Variable",
+        "Measurement",
+        "Unit",
+        "Standard",
+        "CompliancePercentage",
+        "Status"
+      ]
     },
     "clientView": {
       "pageTitle": "Industrial Hygiene Dashboard — RoMa+",
@@ -506,12 +539,136 @@
       "noOrgs": "No organization has this service contracted yet.",
       "loadOrgsError": "Error loading organizations.",
       "adminZone": "Administration zone",
-      "organization": "Organization"
+      "organization": "Organization",
+      "accountManagementLink": "Account management",
+      "createOrganizationLink": "Create company"
     },
     "roleLabel": {
       "superAdmin": "Super-Admin",
       "cliente": "Client"
     },
-    "genericError": "An error occurred"
+    "genericError": "An error occurred",
+    "notifications": {
+      "bellLabel": "Notifications",
+      "title": "Notifications",
+      "pageTitle": "Notifications — RoMa+",
+      "markRead": "Mark as read",
+      "markAllRead": "Mark all as read",
+      "loading": "Loading notifications...",
+      "empty": "You have no notifications.",
+      "loadError": "Error loading notifications.",
+      "viewAll": "View all",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      },
+      "type": {
+        "semaforoCritico": "Critical alert",
+        "cargaProcesada": "Upload processed",
+        "cargaConError": "Upload error",
+        "registroPendiente": "Pending registration",
+        "contactoRecibido": "Contact received",
+        "cuentaSuspendida": "Account suspended",
+        "cuentaReactivada": "Account reactivated"
+      },
+      "filters": {
+        "allStatus": "All",
+        "unread": "Unread",
+        "read": "Read",
+        "allSeverities": "All severities",
+        "allTypes": "All types"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {page} of {totalPages}"
+      }
+    },
+    "accountManagement": {
+      "pageTitle": "Account management — RoMa+",
+      "loading": "Loading accounts...",
+      "loadError": "Error loading accounts.",
+      "actionError": "Could not complete the action.",
+      "emptyActive": "No active accounts.",
+      "emptySuspended": "No suspended accounts.",
+      "tabs": {
+        "active": "Active",
+        "suspended": "Suspended",
+        "pending": "Pending activation"
+      },
+      "documentType": {
+        "CC": "National ID",
+        "NIT": "Tax ID"
+      },
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "confirmReactivate": "Reactivate {nombre}'s account?",
+      "suspendReasonLabel": "Suspension reason",
+      "suspendModal": {
+        "title": "Suspend account",
+        "close": "Close",
+        "description": "You're about to suspend {nombre}'s ({email}) account. Write a clear reason — it will be included in the email they receive.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "E.g: the responsible person no longer works there...",
+        "reasonError": "Write a reason of at least 5 characters.",
+        "cancel": "Cancel",
+        "confirm": "Confirm suspension"
+      },
+      "emptyPending": "No accounts pending activation.",
+      "resendInvitation": "Resend invitation",
+      "invitationResent": "Invitation resent"
+    }
+  },
+  "organizations": {
+    "form": {
+      "pageTitle": "Create company",
+      "pageSubtitle": "Register a new client company and its responsible contact — they'll receive an email to activate their account.",
+      "companySection": "Company details",
+      "nombre": "Company name",
+      "nombrePlaceholder": "E.g. Company Inc.",
+      "nit": "Tax ID",
+      "nitPlaceholder": "Numbers only",
+      "contactEmail": "Contact email",
+      "contactEmailPlaceholder": "contact{'@'}company.com",
+      "service": "Contracted service",
+      "servicePlaceholder": "Select a service",
+      "loadServicesError": "Could not load services.",
+      "responsableSection": "Account responsible contact",
+      "documentType": "Document type",
+      "responsableNombre": "Full name",
+      "responsableNombrePlaceholder": "Responsible contact's name",
+      "responsableEmail": "Email",
+      "responsableEmailPlaceholder": "responsible{'@'}company.com",
+      "responsableCargo": "Position",
+      "responsableCargoPlaceholder": "E.g. HSE Manager",
+      "submit": "Create company and send invitation",
+      "successBody": "Company created. An activation email was sent to the responsible contact.",
+      "genericError": "An error occurred. Please try again."
+    },
+    "validation": {
+      "nombreRequired": "Enter the company name",
+      "nitInvalid": "Enter a valid Tax ID (numbers only)",
+      "contactEmailInvalid": "Enter a valid contact email",
+      "serviceRequired": "Select a service",
+      "responsableDocumentInvalid": "Enter a valid document number",
+      "responsableNombreRequired": "Enter the responsible contact's name",
+      "responsableEmailInvalid": "Enter a valid email",
+      "responsableCargoRequired": "Enter the responsible contact's position"
+    }
+  },
+  "profile": {
+    "pageTitle": "Complete your profile",
+    "pageSubtitle": "We need these details before you continue — we only ask once.",
+    "cargo": "Position",
+    "cargoPlaceholder": "E.g. HSE Manager",
+    "telefono": "Phone",
+    "telefonoPlaceholder": "E.g. +1 300 000 0000",
+    "submit": "Save and continue",
+    "validation": {
+      "cargoRequired": "Enter your position",
+      "telefonoRequired": "Enter a valid phone number",
+      "telefonoInvalid": "Numbers, spaces and +()- only"
+    }
   }
 }

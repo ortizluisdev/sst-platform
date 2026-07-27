@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import {
-  registerSchema,
   loginSchema,
   passwordResetRequestSchema,
   passwordResetConfirmSchema,
+  updateProfileSchema,
   formatFieldErrors,
 } from './auth.schema.js'
 import { createAuthService, AuthError } from './auth.service.js'
@@ -17,34 +17,15 @@ function requestContext(request: FastifyRequest) {
 function sendAuthError(reply: FastifyReply, err: unknown) {
   if (err instanceof AuthError) {
     const statusByCode = {
-      EMAIL_TAKEN: 409,
       INVALID_CREDENTIALS: 401,
-      ACCOUNT_INACTIVE: 403,
+      ACCOUNT_PENDING_ACTIVATION: 403,
+      ACCOUNT_SUSPENDED: 403,
       INVALID_TOKEN: 401,
       TOKEN_EXPIRED: 401,
     } as const
     return reply.code(statusByCode[err.code]).send({ message: err.message })
   }
   throw err
-}
-
-export async function registerHandler(request: FastifyRequest, reply: FastifyReply) {
-  const parsed = registerSchema.safeParse(request.body)
-  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
-
-  const service = createAuthService(request.server.prisma, request.server)
-  try {
-    const { user, organization } = await service.register(parsed.data, requestContext(request))
-    // Sin cookies de sesión: la cuenta queda inactiva hasta que un
-    // super-admin/adminsystem la apruebe — no hay login automático.
-    return reply.code(201).send({
-      user: { id: user.id, email: user.email, nombre: user.nombre },
-      organization: { id: organization.id, nombre: organization.nombre },
-      message: 'Tu cuenta fue creada. Un administrador debe aprobarla antes de que puedas iniciar sesión.',
-    })
-  } catch (err) {
-    return sendAuthError(reply, err)
-  }
 }
 
 export async function loginHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -60,7 +41,8 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
     // selecciona/entra a esa organización — un usuario puede pertenecer a varias.
     const permissions = await resolveUserPermissions(request.server.prisma, user.id)
     return reply.code(200).send({
-      user: { id: user.id, email: user.email, nombre: user.nombre },
+      user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre },
+      mustUpdateProfile: user.mustUpdateProfile,
       permissions: [...permissions],
     })
   } catch (err) {
@@ -99,9 +81,9 @@ export async function passwordResetRequestHandler(request: FastifyRequest, reply
   if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
 
   const service = createAuthService(request.server.prisma, request.server)
-  await service.requestPasswordReset(parsed.data.email)
-  // Siempre 200, exista o no el correo — evita que el endpoint sirva para
-  // enumerar qué emails están registrados en la plataforma.
+  await service.requestPasswordReset(parsed.data.documentNumber)
+  // Siempre 200, exista o no el documento — evita que el endpoint sirva para
+  // enumerar qué documentos están registrados en la plataforma.
   return reply.code(200).send({ success: true })
 }
 
@@ -123,7 +105,7 @@ export async function passwordResetConfirmHandler(request: FastifyRequest, reply
  * protegida (guard de router). Requiere requireAuth en la ruta. */
 export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = await request.server.prisma.user.findUnique({ where: { id: request.user.sub } })
-  if (!user || !user.isActive) return reply.code(401).send({ message: 'No autenticado' })
+  if (!user || user.accountStatus !== 'ACTIVE') return reply.code(401).send({ message: 'No autenticado' })
 
   const membership = await request.server.prisma.userOrganization.findFirst({
     where: { userId: user.id },
@@ -132,8 +114,28 @@ export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
 
   const permissions = await resolveUserPermissions(request.server.prisma, user.id, membership?.organizationId)
   return reply.code(200).send({
-    user: { id: user.id, email: user.email, nombre: user.nombre },
+    user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre },
     organizationId: membership?.organizationId ?? null,
+    mustUpdateProfile: user.mustUpdateProfile,
     permissions: [...permissions],
+  })
+}
+
+/** Fase B.5 — el usuario completa cargo/teléfono en su primer login. */
+export async function updateProfileHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateProfileSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createAuthService(request.server.prisma, request.server)
+  const updated = await service.updateProfile(request.user.sub, parsed.data, request.ip)
+  return reply.code(200).send({
+    user: {
+      id: updated.id,
+      documentNumber: updated.documentNumber,
+      nombre: updated.nombre,
+      cargo: updated.cargo,
+      telefono: updated.telefono,
+    },
+    mustUpdateProfile: updated.mustUpdateProfile,
   })
 }
