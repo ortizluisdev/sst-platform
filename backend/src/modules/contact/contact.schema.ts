@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { noNewlines } from '../../utils/zodHelpers.js'
 
 /**
  * Mantener sincronizado con frontend/src/types/contact.ts — mismas reglas de
@@ -6,7 +7,9 @@ import { z } from 'zod'
  * lo que ya validó el cliente.
  */
 export const contactSchema = z.object({
-  nombre: z.string().min(2, 'Ingresa tu nombre completo'),
+  // "nombre" llega hasta el asunto del email de notificación (ver
+  // utils/mailer.ts) — sin \r\n no hay forma de inyectar headers adicionales.
+  nombre: noNewlines(z.string().min(2, 'Ingresa tu nombre completo')),
   correo: z.string().email('Ingresa un correo válido'),
   telefono: z
     .string()

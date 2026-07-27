@@ -5,6 +5,8 @@ import { registerPrisma } from './plugins/prisma.js'
 import { registerCookie } from './plugins/cookie.js'
 import { registerJwt } from './plugins/jwt.js'
 import { registerMultipart } from './plugins/multipart.js'
+import { registerHelmet } from './plugins/helmet.js'
+import { registerErrorHandler } from './plugins/error-handler.js'
 import { contactRoutes } from './modules/contact/contact.routes.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
 import { usersRoutes } from './modules/users/users.routes.js'
@@ -23,6 +25,8 @@ export async function buildApp() {
     trustProxy: true,
   })
 
+  await registerErrorHandler(app)
+  await registerHelmet(app)
   await registerPrisma(app)
   await registerCors(app)
   await registerRateLimit(app)

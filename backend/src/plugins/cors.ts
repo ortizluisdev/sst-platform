@@ -21,7 +21,12 @@ export async function registerCors(app: FastifyInstance) {
       // estándar — en vez de aparentar un 500 de servidor.
       callback(null, !origin || allowedOrigins.has(origin))
     },
-    methods: ['POST', 'OPTIONS'],
+    // GET/PATCH ya se usan hoy (dashboard, historial, aprobación de usuarios);
+    // PUT/DELETE quedan habilitados para CRUD futuro (ej. anuncios). CORS no
+    // es control de acceso — eso lo hacen requireAuth/requirePermission en
+    // cada ruta — así que ampliar los métodos aceptados no relaja seguridad,
+    // solo evita que el navegador bloquee el preflight de una ruta legítima.
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     // Necesario para que el navegador envíe/reciba las cookies httpOnly de
     // sesión (access/refresh token) en requests cross-origin en dev
     // (localhost:5173 → localhost:3000). Solo es seguro combinado con la
