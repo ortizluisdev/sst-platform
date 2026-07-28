@@ -87,6 +87,10 @@ const PERMISSIONS = [
     key: 'platform.organizations.manage',
     description: 'Crear empresas y su responsable (Fase B). Solo super-admin/adminsystem.',
   },
+  {
+    key: 'platform.services.manage',
+    description: 'CRUD del catálogo de servicios (Fase C). Solo super-admin/adminsystem.',
+  },
 ] as const
 
 /**

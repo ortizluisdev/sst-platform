@@ -14,12 +14,46 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       return prisma.service.findUnique({ where: { slug } })
     },
 
-    listActiveServices() {
-      return prisma.service.findMany({
-        where: { isActive: true },
-        select: { slug: true, nombre: true },
+    findById(id: string) {
+      return prisma.organization.findUnique({ where: { id } })
+    },
+
+    /** El responsable es el primer miembro (orden de creación) — hoy toda
+     * organización se crea con exactamente uno vía createWithResponsible(). */
+    listFull() {
+      return prisma.organization.findMany({
+        select: {
+          id: true,
+          nombre: true,
+          nit: true,
+          contactEmail: true,
+          isActive: true,
+          services: {
+            select: { isActive: true, service: { select: { slug: true, nombre: true } } },
+          },
+          users: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  nombre: true,
+                  documentType: true,
+                  documentNumber: true,
+                  email: true,
+                  accountStatus: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+            take: 1,
+          },
+        },
         orderBy: { nombre: 'asc' },
       })
+    },
+
+    update(id: string, data: { nombre?: string; nit?: string; contactEmail?: string }) {
+      return prisma.organization.update({ where: { id }, data })
     },
 
     /** Crea Organization + OrganizationService (contratado, activo) + User
@@ -71,7 +105,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
     createAuditLog(input: {
       userId: string
       organizationId: string
-      action: 'USER_CREATED_BY_ADMIN'
+      action: 'USER_CREATED_BY_ADMIN' | 'ORGANIZATION_UPDATED'
       metadata?: Record<string, unknown>
       ipAddress?: string | null
     }) {

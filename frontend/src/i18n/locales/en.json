@@ -537,11 +537,7 @@
     "adminView": {
       "pageTitle": "Administration — Industrial Hygiene — RoMa+",
       "noOrgs": "No organization has this service contracted yet.",
-      "loadOrgsError": "Error loading organizations.",
-      "adminZone": "Administration zone",
-      "organization": "Organization",
-      "accountManagementLink": "Account management",
-      "createOrganizationLink": "Create company"
+      "loadOrgsError": "Error loading organizations."
     },
     "roleLabel": {
       "superAdmin": "Super-Admin",
@@ -618,6 +614,49 @@
       "emptyPending": "No accounts pending activation.",
       "resendInvitation": "Resend invitation",
       "invitationResent": "Invitation resent"
+    },
+    "servicesManagement": {
+      "pageTitle": "Service management — RoMa+",
+      "newService": "+ New service",
+      "loading": "Loading services...",
+      "loadError": "Error loading services.",
+      "actionError": "The action could not be completed.",
+      "empty": "No services in the catalog.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "table": {
+        "nombre": "Name",
+        "descripcion": "Description",
+        "estado": "Status",
+        "acciones": "Actions"
+      },
+      "modal": {
+        "createTitle": "New service",
+        "editTitle": "Edit service",
+        "close": "Close",
+        "nombreLabel": "Name",
+        "nombreError": "Enter a name with at least 2 characters.",
+        "descripcionLabel": "Description",
+        "slugNotice": "Internal identifier: {slug} (not editable)",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
+    },
+    "adminShell": {
+      "navAriaLabel": "Admin navigation",
+      "operacionSection": "Operations",
+      "administracionSection": "Administration",
+      "orgSelectorLabel": "Organization",
+      "noContractedServices": "This organization has no contracted services.",
+      "empresasLink": "Organizations",
+      "cuentasLink": "Accounts",
+      "serviciosLink": "Services"
+    },
+    "operacion": {
+      "placeholder": "This panel is under construction — the service this organization contracted doesn't have a dashboard implemented yet."
     }
   },
   "organizations": {
@@ -655,6 +694,30 @@
       "responsableNombreRequired": "Enter the responsible contact's name",
       "responsableEmailInvalid": "Enter a valid email",
       "responsableCargoRequired": "Enter the responsible contact's position"
+    },
+    "list": {
+      "pageTitle": "Organizations",
+      "newOrganization": "+ New organization",
+      "loading": "Loading organizations...",
+      "loadError": "Error loading organizations.",
+      "actionError": "The action could not be completed.",
+      "empty": "No organizations registered.",
+      "table": {
+        "nombre": "Name",
+        "servicio": "Contracted service",
+        "responsable": "Responsible person",
+        "estado": "Status",
+        "acciones": "Actions"
+      },
+      "responsableStatus": {
+        "PENDING_ACTIVATION": "Pending activation",
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended"
+      }
+    },
+    "editModal": {
+      "title": "Edit organization",
+      "responsableNotice": "The responsible person's details are edited from their own profile, not from here."
     }
   },
   "profile": {

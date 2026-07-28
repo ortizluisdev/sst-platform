@@ -5,6 +5,7 @@ import {
   clientDashboardHandler,
   adminDashboardHandler,
   listOrganizationsHandler,
+  listOrgServicesHandler,
   clientHistoryHandler,
   adminHistoryHandler,
   clientUploadDetailHandler,
@@ -16,6 +17,12 @@ export async function variablesRoutes(app: FastifyInstance) {
     '/api/admin/organizations',
     { preHandler: [requireAuth, requirePermission('platform.dashboards.view')] },
     listOrganizationsHandler,
+  )
+
+  app.get<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId/services',
+    { preHandler: [requireAuth, requirePermission('platform.dashboards.view')] },
+    listOrgServicesHandler,
   )
 
   app.post<{ Params: { organizationId: string; serviceSlug: string } }>(

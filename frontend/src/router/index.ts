@@ -66,28 +66,54 @@ const router = createRouter({
       meta: { requiresAuth: true, permission: 'dashboard.higiene-industrial.view' },
     },
     {
-      path: '/:locale(es|en)/admin/higiene-industrial',
-      name: 'admin-higiene-industrial',
-      component: () => import('@/modules/dashboard/views/AdminDashboardView.vue'),
-      meta: { requiresAuth: true, permission: 'platform.variables.upload' },
-    },
-    {
       path: '/:locale(es|en)/dashboard/notificaciones',
       name: 'dashboard-notificaciones',
       component: () => import('@/modules/notifications/views/NotificationsView.vue'),
       meta: { requiresAuth: true },
     },
+    // Fase C: navegación admin unificada bajo un sidebar único (Operación +
+    // Administración) en vez de repartida entre banner y rutas sueltas —
+    // ver docs/superpowers/specs si se documenta después.
     {
-      path: '/:locale(es|en)/dashboard/admin/cuentas',
-      name: 'admin-gestion-cuentas',
-      component: () => import('@/modules/notifications/views/AccountManagementView.vue'),
-      meta: { requiresAuth: true, permission: 'platform.users.approve' },
+      path: '/:locale(es|en)/dashboard/admin',
+      component: () => import('@/layouts/AdminShell.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', redirect: { name: 'admin-operacion' } },
+        {
+          path: 'operacion/:orgId?/:serviceSlug?',
+          name: 'admin-operacion',
+          component: () => import('@/modules/dashboard/views/AdminOperacionView.vue'),
+          meta: { permission: 'platform.variables.upload' },
+        },
+        {
+          path: 'empresas',
+          name: 'admin-empresas',
+          component: () => import('@/modules/organizations/views/OrganizationsListView.vue'),
+          meta: { permission: 'platform.organizations.manage' },
+        },
+        // El formulario de "Crear empresa" ahora vive en un modal dentro del
+        // listado — este puente evita romper enlaces/marcadores viejos.
+        { path: 'empresas/crear', redirect: { name: 'admin-empresas' } },
+        {
+          path: 'cuentas',
+          name: 'admin-gestion-cuentas',
+          component: () => import('@/modules/notifications/views/AccountManagementView.vue'),
+          meta: { permission: 'platform.users.approve' },
+        },
+        {
+          path: 'servicios',
+          name: 'admin-servicios',
+          component: () => import('@/modules/services/views/ServicesListView.vue'),
+          meta: { permission: 'platform.services.manage' },
+        },
+      ],
     },
+    // Puente de compatibilidad: la vista de administración de Higiene
+    // Industrial vivía en esta ruta de nivel raíz antes de la Fase C.
     {
-      path: '/:locale(es|en)/dashboard/admin/empresas/crear',
-      name: 'admin-crear-empresa',
-      component: () => import('@/modules/organizations/views/CreateOrganizationView.vue'),
-      meta: { requiresAuth: true, permission: 'platform.organizations.manage' },
+      path: '/:locale(es|en)/admin/higiene-industrial',
+      redirect: (to) => `/${to.params.locale}/dashboard/admin/operacion`,
     },
     // El backend genera estos links SIN prefijo de idioma (no conoce el
     // locale del usuario): FRONTEND_URL/restablecer-contrasena?token=... —

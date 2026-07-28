@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import SuspendUserModal from '@/components/dashboard/notifications/SuspendUserModal.vue'
 import {
   listActiveUsers,
@@ -109,7 +108,7 @@ async function handleResendInvitation(user: ManagedUser) {
 </script>
 
 <template>
-  <DashboardLayout>
+  <div>
     <div class="mx-auto max-w-3xl">
       <h1 class="text-xl font-bold text-navy-900">{{ t('dashboard.accountManagement.pageTitle') }}</h1>
 
@@ -225,5 +224,5 @@ async function handleResendInvitation(user: ManagedUser) {
       @confirm="handleSuspend"
       @cancel="suspendTarget = null"
     />
-  </DashboardLayout>
+  </div>
 </template>

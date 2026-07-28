@@ -522,6 +522,10 @@ enum AuditAction {
   USER_REACTIVATED
   PROFILE_UPDATED
   VARIABLES_UPLOADED
+  /// Fase C: alta de empresa/servicios reorganizada bajo /dashboard/admin.
+  ORGANIZATION_UPDATED
+  SERVICE_CREATED
+  SERVICE_UPDATED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

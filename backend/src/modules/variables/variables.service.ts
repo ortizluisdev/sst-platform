@@ -233,6 +233,15 @@ export function createVariablesService(prisma: PrismaClient) {
       return repository.findOrganizationsByService(service.id)
     },
 
+    /** Servicios contratados de una organización — alimenta los sub-tabs de
+     * "Operación" (Fase C). */
+    async listContractedServices(organizationId: string) {
+      const organization = await repository.findOrganizationById(organizationId)
+      if (!organization) throw new VariablesError('ORG_NOT_FOUND', 'Organización no encontrada')
+      const rows = await repository.findContractedServices(organizationId)
+      return rows.map((r) => r.service)
+    },
+
     /** Datos agregados para el dashboard de un servicio de una organización. */
     async getDashboard(organizationId: string, serviceSlug: string) {
       const service = await repository.findServiceBySlug(serviceSlug)

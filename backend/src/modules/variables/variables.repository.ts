@@ -30,6 +30,16 @@ export function createVariablesRepository(prisma: PrismaClient) {
       })
     },
 
+    /** Para los sub-tabs de "Operación" (Fase C): todos los servicios que
+     * esta organización tiene contratados y activos, sin importar cuál. */
+    findContractedServices(organizationId: string) {
+      return prisma.organizationService.findMany({
+        where: { organizationId, isActive: true },
+        select: { service: { select: { slug: true, nombre: true } } },
+        orderBy: { service: { nombre: 'asc' } },
+      })
+    },
+
     /** Crea la carga completa (upload + upsert de work points + readings)
      * en una única transacción — todo o nada. */
     async createUploadTransaction(input: {

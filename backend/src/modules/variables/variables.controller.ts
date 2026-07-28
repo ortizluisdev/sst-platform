@@ -43,6 +43,21 @@ export async function listOrganizationsHandler(
   }
 }
 
+/** GET — servicios contratados de una organización, para los sub-tabs de
+ * "Operación" (Fase C). Protegido por requirePermission en la ruta. */
+export async function listOrgServicesHandler(
+  request: FastifyRequest<{ Params: { organizationId: string } }>,
+  reply: FastifyReply,
+) {
+  const service = createVariablesService(request.server.prisma)
+  try {
+    const services = await service.listContractedServices(request.params.organizationId)
+    return reply.code(200).send({ services })
+  } catch (err) {
+    return sendVariablesError(reply, err)
+  }
+}
+
 /** POST — exclusivo super-admin/adminsystem (verificado por requirePermission
  * en la ruta). Recibe multipart: campo "file" (CSV/Excel) + campo de texto
  * "fechaEvaluacion". */

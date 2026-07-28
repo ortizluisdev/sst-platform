@@ -1,11 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createOrganizationSchema, formatFieldErrors } from './organizations.schema.js'
+import { createOrganizationSchema, updateOrganizationSchema, formatFieldErrors } from './organizations.schema.js'
 import { createOrganizationsService, OrganizationsError } from './organizations.service.js'
 
-export async function listServicesHandler(request: FastifyRequest, reply: FastifyReply) {
-  const service = createOrganizationsService(request.server.prisma)
-  const services = await service.listServices()
-  return reply.code(200).send({ services })
+function statusForError(code: OrganizationsError['code']): number {
+  return code === 'SERVICE_NOT_FOUND' || code === 'NOT_FOUND' ? 404 : 409
 }
 
 export async function createOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -21,8 +19,30 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
     })
   } catch (err) {
     if (err instanceof OrganizationsError) {
-      const status = err.code === 'SERVICE_NOT_FOUND' ? 404 : 409
-      return reply.code(status).send({ message: err.message })
+      return reply.code(statusForError(err.code)).send({ message: err.message })
+    }
+    throw err
+  }
+}
+
+export async function listOrganizationsFullHandler(request: FastifyRequest, reply: FastifyReply) {
+  const service = createOrganizationsService(request.server.prisma)
+  const organizations = await service.list()
+  return reply.code(200).send({ organizations })
+}
+
+export async function updateOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateOrganizationSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const { organizationId } = request.params as { organizationId: string }
+  const service = createOrganizationsService(request.server.prisma)
+  try {
+    const organization = await service.update(organizationId, parsed.data, request.user.sub, request.ip)
+    return reply.code(200).send({ organization })
+  } catch (err) {
+    if (err instanceof OrganizationsError) {
+      return reply.code(statusForError(err.code)).send({ message: err.message })
     }
     throw err
   }

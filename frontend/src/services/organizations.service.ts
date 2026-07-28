@@ -1,6 +1,11 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
-import type { CreateOrganizationFormValues, ServiceOption } from '@/types/organization'
+import type {
+  CreateOrganizationFormValues,
+  OrganizationListItem,
+  ServiceOption,
+  UpdateOrganizationFormValues,
+} from '@/types/organization'
 
 export class OrganizationValidationError extends Error {
   fieldErrors: Record<string, string>
@@ -43,6 +48,23 @@ export async function listServices(): Promise<ServiceOption[]> {
 export async function createOrganization(values: CreateOrganizationFormValues): Promise<void> {
   try {
     await apiClient.post('/admin/organizations', values)
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function listOrganizationsFull(): Promise<OrganizationListItem[]> {
+  try {
+    const { data } = await apiClient.get('/admin/organizations/full')
+    return data.organizations
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function updateOrganization(organizationId: string, values: UpdateOrganizationFormValues): Promise<void> {
+  try {
+    await apiClient.patch(`/admin/organizations/${organizationId}`, values)
   } catch (err) {
     rethrow(err)
   }

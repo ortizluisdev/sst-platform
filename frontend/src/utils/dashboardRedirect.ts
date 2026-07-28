@@ -7,7 +7,7 @@ import type { useAuthStore } from '@/stores/auth'
  * desincronicen si cambian las claves de permiso.
  */
 export function getDashboardPath(auth: ReturnType<typeof useAuthStore>, locale: string): string {
-  if (auth.hasPermission('platform.variables.upload')) return `/${locale}/admin/higiene-industrial`
+  if (auth.hasPermission('platform.variables.upload')) return `/${locale}/dashboard/admin/operacion`
   if (auth.hasPermission('dashboard.higiene-industrial.view')) return `/${locale}/dashboard/higiene-industrial`
   return `/${locale}/`
 }

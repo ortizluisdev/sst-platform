@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client'
 import { createOrganizationsRepository } from './organizations.repository.js'
 import { createActivationService } from '../activation/activation.service.js'
-import type { CreateOrganizationInput } from './organizations.schema.js'
+import type { CreateOrganizationInput, UpdateOrganizationInput } from './organizations.schema.js'
 
 export class OrganizationsError extends Error {
   constructor(
-    public code: 'NIT_TAKEN' | 'DOCUMENT_TAKEN' | 'SERVICE_NOT_FOUND',
+    public code: 'NIT_TAKEN' | 'DOCUMENT_TAKEN' | 'SERVICE_NOT_FOUND' | 'NOT_FOUND',
     message: string,
   ) {
     super(message)
@@ -17,10 +17,6 @@ export function createOrganizationsService(prisma: PrismaClient) {
   const activation = createActivationService(prisma)
 
   return {
-    listServices() {
-      return repository.listActiveServices()
-    },
-
     async create(input: CreateOrganizationInput, createdByUserId: string, ipAddress: string) {
       const existingOrg = await repository.findByNit(input.nit)
       if (existingOrg) throw new OrganizationsError('NIT_TAKEN', 'Ya existe una empresa registrada con ese NIT')
@@ -57,6 +53,48 @@ export function createOrganizationsService(prisma: PrismaClient) {
       })
 
       return { organization, responsable }
+    },
+
+    async list() {
+      const organizations = await repository.listFull()
+      return organizations.map((org) => ({
+        id: org.id,
+        nombre: org.nombre,
+        nit: org.nit,
+        contactEmail: org.contactEmail,
+        isActive: org.isActive,
+        services: org.services.map((s) => ({ slug: s.service.slug, nombre: s.service.nombre, isActive: s.isActive })),
+        responsable: org.users[0]?.user ?? null,
+      }))
+    },
+
+    async update(
+      organizationId: string,
+      input: UpdateOrganizationInput,
+      updatedByUserId: string,
+      ipAddress: string,
+    ) {
+      const existing = await repository.findById(organizationId)
+      if (!existing) throw new OrganizationsError('NOT_FOUND', 'Empresa no encontrada')
+
+      if (input.nit) {
+        const nitOwner = await repository.findByNit(input.nit)
+        if (nitOwner && nitOwner.id !== organizationId) {
+          throw new OrganizationsError('NIT_TAKEN', 'Ya existe una empresa registrada con ese NIT')
+        }
+      }
+
+      const updated = await repository.update(organizationId, input)
+
+      await repository.createAuditLog({
+        userId: updatedByUserId,
+        organizationId,
+        action: 'ORGANIZATION_UPDATED',
+        metadata: { changes: input },
+        ipAddress,
+      })
+
+      return updated
     },
   }
 }

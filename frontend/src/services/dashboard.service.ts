@@ -51,6 +51,22 @@ export async function listOrganizations(serviceSlug: string): Promise<Organizati
   }
 }
 
+export interface ContractedService {
+  slug: string
+  nombre: string
+}
+
+/** Servicios contratados de una organización — alimenta los sub-tabs de
+ * "Operación" (Fase C). */
+export async function listOrgServices(organizationId: string): Promise<ContractedService[]> {
+  try {
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/services`)
+    return data.services
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
 /** Cliente: historial de cargas de su propia organización. */
 export async function getClientUploadHistory(serviceSlug: string): Promise<UploadHistoryEntry[]> {
   try {

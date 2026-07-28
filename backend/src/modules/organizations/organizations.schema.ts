@@ -26,6 +26,16 @@ export const createOrganizationSchema = z.object({
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>
 
+export const updateOrganizationSchema = z
+  .object({
+    nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')).optional(),
+    nit: nitSchema.optional(),
+    contactEmail: z.string().email('Ingresa un correo de contacto válido').optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, { message: 'No hay cambios para aplicar' })
+
+export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>
+
 export function formatFieldErrors(error: z.ZodError): Record<string, string> {
   const fieldErrors = error.flatten().fieldErrors
   const errors: Record<string, string> = {}

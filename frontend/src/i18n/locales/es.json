@@ -537,11 +537,7 @@
     "adminView": {
       "pageTitle": "Administración — Higiene Industrial — RoMa+",
       "noOrgs": "Ninguna organización tiene contratado este servicio todavía.",
-      "loadOrgsError": "Error al cargar organizaciones.",
-      "adminZone": "Zona de administración",
-      "organization": "Organización",
-      "accountManagementLink": "Gestión de cuentas",
-      "createOrganizationLink": "Crear empresa"
+      "loadOrgsError": "Error al cargar organizaciones."
     },
     "roleLabel": {
       "superAdmin": "Super-Admin",
@@ -618,6 +614,49 @@
       "emptyPending": "No hay cuentas pendientes de activación.",
       "resendInvitation": "Reenviar invitación",
       "invitationResent": "Invitación reenviada"
+    },
+    "servicesManagement": {
+      "pageTitle": "Gestión de servicios — RoMa+",
+      "newService": "+ Nuevo servicio",
+      "loading": "Cargando servicios...",
+      "loadError": "Error al cargar los servicios.",
+      "actionError": "No se pudo completar la acción.",
+      "empty": "No hay servicios en el catálogo.",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "edit": "Editar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "table": {
+        "nombre": "Nombre",
+        "descripcion": "Descripción",
+        "estado": "Estado",
+        "acciones": "Acciones"
+      },
+      "modal": {
+        "createTitle": "Nuevo servicio",
+        "editTitle": "Editar servicio",
+        "close": "Cerrar",
+        "nombreLabel": "Nombre",
+        "nombreError": "Ingresa un nombre de al menos 2 caracteres.",
+        "descripcionLabel": "Descripción",
+        "slugNotice": "Identificador interno: {slug} (no editable)",
+        "cancel": "Cancelar",
+        "save": "Guardar"
+      }
+    },
+    "adminShell": {
+      "navAriaLabel": "Navegación de administración",
+      "operacionSection": "Operación",
+      "administracionSection": "Administración",
+      "orgSelectorLabel": "Empresa",
+      "noContractedServices": "Esta empresa no tiene servicios contratados.",
+      "empresasLink": "Empresas",
+      "cuentasLink": "Cuentas",
+      "serviciosLink": "Servicios"
+    },
+    "operacion": {
+      "placeholder": "Este panel está en construcción — el servicio contratado por esta empresa todavía no tiene un dashboard implementado."
     }
   },
   "organizations": {
@@ -655,6 +694,30 @@
       "responsableNombreRequired": "Ingresa el nombre del responsable",
       "responsableEmailInvalid": "Ingresa un correo válido",
       "responsableCargoRequired": "Ingresa el cargo del responsable"
+    },
+    "list": {
+      "pageTitle": "Empresas",
+      "newOrganization": "+ Nueva empresa",
+      "loading": "Cargando empresas...",
+      "loadError": "Error al cargar las empresas.",
+      "actionError": "No se pudo completar la acción.",
+      "empty": "No hay empresas registradas.",
+      "table": {
+        "nombre": "Nombre",
+        "servicio": "Servicio contratado",
+        "responsable": "Responsable",
+        "estado": "Estado",
+        "acciones": "Acciones"
+      },
+      "responsableStatus": {
+        "PENDING_ACTIVATION": "Pendiente de activación",
+        "ACTIVE": "Activo",
+        "SUSPENDED": "Suspendido"
+      }
+    },
+    "editModal": {
+      "title": "Editar empresa",
+      "responsableNotice": "Los datos del responsable se editan desde su propio perfil, no desde aquí."
     }
   },
   "profile": {

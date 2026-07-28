@@ -34,3 +34,34 @@ export interface ServiceOption {
   slug: string
   nombre: string
 }
+
+export interface OrganizationResponsable {
+  id: string
+  nombre: string
+  documentType: 'CC' | 'NIT'
+  documentNumber: string
+  email: string
+  accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSPENDED'
+}
+
+export interface OrganizationContractedService {
+  slug: string
+  nombre: string
+  isActive: boolean
+}
+
+export interface OrganizationListItem {
+  id: string
+  nombre: string
+  nit: string | null
+  contactEmail: string | null
+  isActive: boolean
+  services: OrganizationContractedService[]
+  responsable: OrganizationResponsable | null
+}
+
+export interface UpdateOrganizationFormValues {
+  nombre?: string
+  nit?: string
+  contactEmail?: string
+}
