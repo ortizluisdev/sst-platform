@@ -5,6 +5,8 @@ import {
   adminDashboardParamsSchema,
   uploadDetailParamsSchema,
   adminUploadDetailParamsSchema,
+  correctReadingParamsSchema,
+  correctReadingBodySchema,
   formatFieldErrors,
 } from './variables.schema.js'
 import { createVariablesService, VariablesError } from './variables.service.js'
@@ -19,6 +21,7 @@ function sendVariablesError(reply: FastifyReply, err: unknown) {
       INVALID_FILE: 422,
       UNKNOWN_VARIABLES: 422,
       UPLOAD_NOT_FOUND: 404,
+      READING_NOT_FOUND: 404,
     } as const
     return reply.code(statusByCode[err.code]).send({ message: err.message })
   }
@@ -230,6 +233,37 @@ export async function adminUploadDetailHandler(
   try {
     const detail = await service.getUploadDetail(parsed.data.uploadId, parsed.data.organizationId)
     return reply.code(200).send(detail)
+  } catch (err) {
+    return sendVariablesError(reply, err)
+  }
+}
+
+/** PATCH — exclusivo super-admin/adminsystem (permiso platform.variables.correct,
+ * distinto de platform.variables.upload). organizationId viene de la ruta
+ * (nunca confiado del body), y el servicio lo cruza contra la carga real. */
+export async function correctReadingHandler(
+  request: FastifyRequest<{
+    Params: { organizationId: string; serviceSlug: string; readingId: string }
+    Body: { valor: number; reason: string }
+  }>,
+  reply: FastifyReply,
+) {
+  const paramsParsed = correctReadingParamsSchema.safeParse(request.params)
+  if (!paramsParsed.success) return reply.code(422).send({ errors: formatFieldErrors(paramsParsed.error) })
+
+  const bodyParsed = correctReadingBodySchema.safeParse(request.body)
+  if (!bodyParsed.success) return reply.code(422).send({ errors: formatFieldErrors(bodyParsed.error) })
+
+  const service = createVariablesService(request.server.prisma)
+  try {
+    const reading = await service.correctReading({
+      readingId: paramsParsed.data.readingId,
+      organizationId: paramsParsed.data.organizationId,
+      valor: bodyParsed.data.valor,
+      reason: bodyParsed.data.reason,
+      correctedByUserId: request.user.sub,
+    })
+    return reply.code(200).send({ reading })
   } catch (err) {
     return sendVariablesError(reply, err)
   }

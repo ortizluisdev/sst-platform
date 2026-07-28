@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import HigieneIndustrialPanel from '@/components/dashboard/operacion/HigieneIndustrialPanel.vue'
 import ServicePanelPlaceholder from '@/components/dashboard/operacion/ServicePanelPlaceholder.vue'
-import type { ContractedService } from '@/services/dashboard.service'
+import type { ServiceOption } from '@/types/organization'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -14,7 +14,7 @@ useHead(() => ({ title: t('dashboard.adminView.pageTitle'), meta: [{ name: 'robo
 
 // AdminShell.vue (el layout padre de esta ruta) siempre provee esto — el
 // default vacío solo evita un crash si esta vista se monta fuera de ese árbol.
-const services = inject<Ref<ContractedService[]>>('operacionServices', ref<ContractedService[]>([]))
+const services = inject<Ref<ServiceOption[]>>('operacionServices', ref<ServiceOption[]>([]))
 
 const orgId = computed(() => route.params.orgId as string | undefined)
 const serviceSlug = computed(() => route.params.serviceSlug as string | undefined)

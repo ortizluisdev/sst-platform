@@ -2,22 +2,18 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Building2, ChevronDown, ChevronRight, KeyRound, LayoutGrid, Wrench } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, LayoutGrid, Users, Wrench } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import type { OrganizationListItem } from '@/types/organization'
-import type { ContractedService } from '@/services/dashboard.service'
+import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
 
 const props = defineProps<{
-  organizations: OrganizationListItem[]
-  services: ContractedService[]
-  selectedOrgId: string
+  services: ServiceOption[]
   selectedServiceSlug: string
   serviceTabs: TabDef[]
 }>()
 
 const emit = defineEmits<{
-  'update:selectedOrgId': [value: string]
   'update:selectedServiceSlug': [value: string]
 }>()
 
@@ -39,17 +35,13 @@ function isExpandable(slug: string): boolean {
 // cargó) para que no compita con el estado de carga normal — serviceTabs
 // también está vacío un instante mientras el dashboard recién elegido
 // termina de cargar, y colapsar en ese momento sería el mismo bug de nuevo.
-// Fuera de Operación (ej. viendo Empresas) siempre da null, así el acordeón
+// Fuera de Operación (ej. viendo Clientes) siempre da null, así el acordeón
 // no queda "abierto" mostrando contenido de otra pantalla.
 const expandedSlug = computed(() =>
   route.name === 'admin-operacion' && isExpandable(props.selectedServiceSlug) ? props.selectedServiceSlug : null,
 )
 
-function handleOrgChange(event: Event) {
-  emit('update:selectedOrgId', (event.target as HTMLSelectElement).value)
-}
-
-function handleServiceClick(service: ContractedService) {
+function handleServiceClick(service: ServiceOption) {
   emit('update:selectedServiceSlug', service.slug)
 }
 
@@ -68,23 +60,9 @@ function handleTabClick(tab: TabDef) {
         {{ t('dashboard.adminShell.operacionSection') }}
       </p>
 
-      <div class="px-2 py-1.5">
-        <label for="admin-org-select" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">
-          {{ t('dashboard.adminShell.orgSelectorLabel') }}
-        </label>
-        <select
-          id="admin-org-select"
-          :value="props.selectedOrgId"
-          class="w-full rounded-sm border border-line-strong bg-white px-2.5 py-2 text-sm text-navy-900"
-          @change="handleOrgChange"
-        >
-          <option v-for="org in props.organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
-        </select>
-      </div>
-
       <ul class="mt-1 flex flex-col gap-1">
         <li v-if="props.services.length === 0" class="px-2 py-1.5 text-xs text-navy-700/50">
-          {{ t('dashboard.adminShell.noContractedServices') }}
+          {{ t('dashboard.adminShell.noActiveServices') }}
         </li>
         <li v-for="service in props.services" :key="service.slug">
           <button
@@ -131,32 +109,18 @@ function handleTabClick(tab: TabDef) {
       </p>
 
       <ul class="flex flex-col gap-1">
-        <li v-if="auth.hasPermission('platform.organizations.manage')">
+        <li v-if="auth.hasPermission('platform.organizations.manage') || auth.hasPermission('platform.users.approve')">
           <router-link
-            :to="`/${locale}/dashboard/admin/empresas`"
+            :to="`/${locale}/dashboard/admin/clientes`"
             class="flex items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors"
             :class="
-              $route.name === 'admin-empresas'
+              $route.name === 'admin-clientes'
                 ? 'border-sky-400 bg-sky-100 text-navy-900'
                 : 'border-transparent text-navy-700 hover:bg-sky-400/10'
             "
           >
-            <Building2 class="h-4 w-4 shrink-0" aria-hidden="true" />
-            {{ t('dashboard.adminShell.empresasLink') }}
-          </router-link>
-        </li>
-        <li v-if="auth.hasPermission('platform.users.approve')">
-          <router-link
-            :to="`/${locale}/dashboard/admin/cuentas`"
-            class="flex items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors"
-            :class="
-              $route.name === 'admin-gestion-cuentas'
-                ? 'border-sky-400 bg-sky-100 text-navy-900'
-                : 'border-transparent text-navy-700 hover:bg-sky-400/10'
-            "
-          >
-            <KeyRound class="h-4 w-4 shrink-0" aria-hidden="true" />
-            {{ t('dashboard.adminShell.cuentasLink') }}
+            <Users class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {{ t('dashboard.adminShell.clientesLink') }}
           </router-link>
         </li>
         <li v-if="auth.hasPermission('platform.services.manage')">

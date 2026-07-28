@@ -492,7 +492,23 @@
       "workPoint": "Work point",
       "areaPlant": "Area / Plant",
       "heatmapPlaceholder": "Spatial heat map — available once plant coordinates are defined for work points.",
-      "trendPrefix": "Trend — "
+      "trendPrefix": "Trend — ",
+      "editLabel": "Correct reading",
+      "correctedTag": "edited",
+      "correctModal": {
+        "title": "Correct reading",
+        "close": "Close",
+        "workPointLabel": "Work point",
+        "variableLabel": "Variable",
+        "currentValueLabel": "Current value",
+        "newValueLabel": "New value",
+        "reasonLabel": "Reason for the correction",
+        "reasonPlaceholder": "E.g. data entry error in the original upload",
+        "reasonError": "Enter a reason with at least 10 characters.",
+        "cancel": "Cancel",
+        "confirm": "Save change",
+        "genericError": "The correction could not be saved."
+      }
     },
     "comparativo": {
       "subtitle": "Audit view: every variable across all categories, in a single table."
@@ -582,17 +598,6 @@
       }
     },
     "accountManagement": {
-      "pageTitle": "Account management — RoMa+",
-      "loading": "Loading accounts...",
-      "loadError": "Error loading accounts.",
-      "actionError": "Could not complete the action.",
-      "emptyActive": "No active accounts.",
-      "emptySuspended": "No suspended accounts.",
-      "tabs": {
-        "active": "Active",
-        "suspended": "Suspended",
-        "pending": "Pending activation"
-      },
       "documentType": {
         "CC": "National ID",
         "NIT": "Tax ID"
@@ -611,7 +616,6 @@
         "cancel": "Cancel",
         "confirm": "Confirm suspension"
       },
-      "emptyPending": "No accounts pending activation.",
       "resendInvitation": "Resend invitation",
       "invitationResent": "Invitation resent"
     },
@@ -646,14 +650,14 @@
       }
     },
     "adminShell": {
+      "operationalHeading": "Operations panel — Industrial Hygiene — {empresa}",
       "navAriaLabel": "Admin navigation",
       "operacionSection": "Operations",
       "administracionSection": "Administration",
       "orgSelectorLabel": "Organization",
-      "noContractedServices": "This organization has no contracted services.",
-      "empresasLink": "Organizations",
-      "cuentasLink": "Accounts",
-      "serviciosLink": "Services"
+      "serviciosLink": "Services",
+      "clientesLink": "Clients",
+      "noActiveServices": "No active services in the catalog."
     },
     "operacion": {
       "placeholder": "This panel is under construction — the service this organization contracted doesn't have a dashboard implemented yet."
@@ -732,6 +736,21 @@
       "cargoRequired": "Enter your position",
       "telefonoRequired": "Enter a valid phone number",
       "telefonoInvalid": "Numbers, spaces and +()- only"
+    }
+  },
+  "clients": {
+    "pageTitle": "Clients",
+    "newClient": "+ New organization",
+    "loading": "Loading clients...",
+    "loadError": "Error loading clients.",
+    "actionError": "The action could not be completed.",
+    "emptyActive": "No active clients.",
+    "emptySuspended": "No suspended clients.",
+    "emptyPending": "No clients pending activation.",
+    "tabs": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "pending": "Pending activation"
     }
   }
 }

@@ -63,7 +63,8 @@ export class VariablesError extends Error {
       | 'SERVICE_NOT_CONTRACTED'
       | 'INVALID_FILE'
       | 'UNKNOWN_VARIABLES'
-      | 'UPLOAD_NOT_FOUND',
+      | 'UPLOAD_NOT_FOUND'
+      | 'READING_NOT_FOUND',
     message: string,
   ) {
     super(message)
@@ -366,6 +367,55 @@ export function createVariablesService(prisma: PrismaClient) {
         })),
       }
     },
+
+    /** Corrige el valor de una lectura ya procesada. Recalcula el semáforo
+     * con el mismo util que usa la carga original — nunca se recibe el
+     * semáforo del frontend. organizationId viene siempre de la ruta
+     * (validado por el permiso), nunca del cliente: se cruza contra el
+     * organizationId real de la carga para evitar que un admin corrija una
+     * lectura de una organización distinta a la que tiene abierta. */
+    async correctReading(input: {
+      readingId: string
+      organizationId: string
+      valor: number
+      reason: string
+      correctedByUserId: string
+    }) {
+      const reading = await repository.findReadingById(input.readingId)
+      if (!reading || reading.upload.organizationId !== input.organizationId) {
+        throw new VariablesError('READING_NOT_FOUND', 'Lectura no encontrada')
+      }
+
+      const semaforo = calculateSemaphore(input.valor, {
+        comparisonType: reading.definition.comparisonType,
+        limiteMin: reading.definition.limiteMin,
+        limiteMax: reading.definition.limiteMax,
+        toleranciaAlerta: reading.definition.toleranciaAlerta,
+      })
+
+      const updated = await repository.correctReading(input.readingId, {
+        valor: input.valor,
+        semaforo,
+        correctedById: input.correctedByUserId,
+        correctionReason: input.reason,
+      })
+
+      await repository.createAuditLog({
+        userId: input.correctedByUserId,
+        organizationId: input.organizationId,
+        action: 'VARIABLE_READING_CORRECTED',
+        metadata: {
+          readingId: input.readingId,
+          definitionId: reading.definitionId,
+          workPointId: reading.workPointId,
+          oldValue: reading.valor,
+          newValue: input.valor,
+          reason: input.reason,
+        },
+      })
+
+      return updated
+    },
   }
 }
 
@@ -382,8 +432,11 @@ function buildVariableSummary(
     toleranciaAlerta: number
   },
   readings: {
+    id: string
     valor: number
     semaforo: 'VERDE' | 'AMARILLO' | 'ROJO'
+    isCorrected: boolean
+    correctionReason: string | null
     workPoint: { codigo: string; nombre: string; areaPlanta: string }
   }[],
 ) {
@@ -417,11 +470,14 @@ function buildVariableSummary(
     // punto evaluado individualmente, no solo el promedio de la organización.
     readings: readings
       .map((r) => ({
+        id: r.id,
         workPointCodigo: r.workPoint.codigo,
         workPointNombre: r.workPoint.nombre,
         areaPlanta: r.workPoint.areaPlanta,
         valor: r.valor,
         semaforo: r.semaforo,
+        isCorrected: r.isCorrected,
+        correctionReason: r.correctionReason,
       }))
       .sort((a, b) => a.workPointCodigo.localeCompare(b.workPointCodigo)),
   }

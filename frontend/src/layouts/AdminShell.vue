@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import AdminNavSidebar from '@/components/dashboard/admin/AdminNavSidebar.vue'
 import { listOrganizationsFull } from '@/services/organizations.service'
-import { listOrgServices, type ContractedService } from '@/services/dashboard.service'
-import type { OrganizationListItem } from '@/types/organization'
+import { listActiveServices } from '@/services/serviceCatalog.service'
+import type { OrganizationListItem, ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
 
 const route = useRoute()
@@ -15,8 +15,17 @@ const lastSync = ref<string | null>(null)
 provide('adminLastSync', lastSync)
 
 const organizations = ref<OrganizationListItem[]>([])
-const operacionServices = ref<ContractedService[]>([])
+// Catálogo activo de servicios (no los contratados por la empresa activa):
+// el admin hace CRUD de todo, así que "Operación" siempre lista los 5
+// servicios del catálogo — es el cliente quien queda acotado a lo que tiene
+// contratado, no el admin.
+const operacionServices = ref<ServiceOption[]>([])
 provide('operacionServices', operacionServices)
+
+// El selector de empresa ya no vive en el sidebar (ver HigieneIndustrialPanel.vue)
+// — se provee hacia abajo junto con la función para cambiarla, mismo patrón
+// que operacionServices/operacionActiveTab.
+provide('operacionOrganizations', organizations)
 
 // Estado del acordeón de Higiene Industrial (única con sub-vistas reales
 // hoy) — lo posee AdminShell (ancestro común de AdminNavSidebar y del
@@ -30,15 +39,16 @@ provide('operacionActiveTab', operacionActiveTab)
 provide('operacionServiceTabs', operacionServiceTabs)
 
 // Estado propio del sidebar (empresa/servicio seleccionados) — independiente
-// de la ruta activa, para que el selector siga siendo útil aunque el admin
-// esté viendo Empresas/Cuentas/Servicios, no solo Operación.
+// de la ruta activa, para que la selección siga siendo válida aunque el
+// admin esté viendo Clientes/Servicios, no solo Operación.
 const selectedOrgId = ref((route.params.orgId as string) || '')
 const selectedServiceSlug = ref((route.params.serviceSlug as string) || '')
 
-// true solo cuando el cambio vino de una interacción explícita del admin en
-// el sidebar (elegir empresa/servicio) — eso SIEMPRE navega a Operación. La
-// resolución automática del default al montar (o al cambiar de empresa) NO
-// debe sacar al admin de Empresas/Cuentas/Servicios si es ahí donde está.
+// true solo cuando el cambio vino de una interacción explícita del admin
+// (elegir empresa desde HigieneIndustrialPanel.vue, o servicio desde el
+// sidebar) — eso SIEMPRE navega a Operación. La resolución automática del
+// default al montar NO debe sacar al admin de Clientes/Servicios si es ahí
+// donde está.
 const pendingForceNavigate = ref(false)
 
 /** Único punto que efectivamente navega — se llama después de que
@@ -67,27 +77,21 @@ function navigateOrCanonicalize() {
 }
 
 onMounted(async () => {
-  organizations.value = await listOrganizationsFull()
+  const [orgs, services] = await Promise.all([listOrganizationsFull(), listActiveServices()])
+  organizations.value = orgs
+  operacionServices.value = services
   if (!selectedOrgId.value && organizations.value.length > 0) {
     selectedOrgId.value = organizations.value[0]!.id
   }
+  if (!selectedServiceSlug.value && operacionServices.value.length > 0) {
+    selectedServiceSlug.value = operacionServices.value[0]!.slug
+  }
+  navigateOrCanonicalize()
 })
 
-watch(
-  selectedOrgId,
-  async (id) => {
-    if (!id) {
-      operacionServices.value = []
-      return
-    }
-    operacionServices.value = await listOrgServices(id)
-    if (!operacionServices.value.some((s) => s.slug === selectedServiceSlug.value)) {
-      selectedServiceSlug.value = operacionServices.value[0]?.slug ?? ''
-    }
-    navigateOrCanonicalize()
-  },
-  { immediate: true },
-)
+// El catálogo no depende de la empresa activa — cambiar de empresa solo
+// necesita re-navegar/canonicalizar la URL, no volver a pedir servicios.
+watch(selectedOrgId, navigateOrCanonicalize)
 
 watch(selectedServiceSlug, navigateOrCanonicalize)
 
@@ -106,13 +110,18 @@ watch(
 function selectOrg(id: string) {
   pendingForceNavigate.value = true
   selectedOrgId.value = id
+  // Ver nota en selectService: si id es igual al ya seleccionado, el watcher
+  // no se dispara (Vue no reacciona a una asignación sin cambio real).
+  navigateOrCanonicalize()
 }
+
+provide('operacionSelectOrg', selectOrg)
 
 function selectService(slug: string) {
   pendingForceNavigate.value = true
   selectedServiceSlug.value = slug
   // Si slug es igual al ya seleccionado (ej. el admin reabre Higiene
-  // Industrial tras ver Empresas sin haber cambiado de servicio), el watcher
+  // Industrial tras ver Clientes sin haber cambiado de servicio), el watcher
   // de selectedServiceSlug NO se dispara (Vue no reacciona a una asignación
   // sin cambio real) — sin esto, el clic no navegaría a Operación.
   navigateOrCanonicalize()
@@ -123,13 +132,10 @@ function selectService(slug: string) {
   <DashboardLayout :last-sync="lastSync">
     <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
       <AdminNavSidebar
-        :selected-org-id="selectedOrgId"
         :selected-service-slug="selectedServiceSlug"
-        :organizations="organizations"
         :services="operacionServices"
         v-model:active-tab="operacionActiveTab"
         :service-tabs="operacionServiceTabs"
-        @update:selected-org-id="selectOrg"
         @update:selected-service-slug="selectService"
       />
       <div class="min-w-0 flex-1">

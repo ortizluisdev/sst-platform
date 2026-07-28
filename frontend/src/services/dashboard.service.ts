@@ -51,21 +51,6 @@ export async function listOrganizations(serviceSlug: string): Promise<Organizati
   }
 }
 
-export interface ContractedService {
-  slug: string
-  nombre: string
-}
-
-/** Servicios contratados de una organización — alimenta los sub-tabs de
- * "Operación" (Fase C). */
-export async function listOrgServices(organizationId: string): Promise<ContractedService[]> {
-  try {
-    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/services`)
-    return data.services
-  } catch (err) {
-    rethrow(err)
-  }
-}
 
 /** Cliente: historial de cargas de su propia organización. */
 export async function getClientUploadHistory(serviceSlug: string): Promise<UploadHistoryEntry[]> {
@@ -134,6 +119,25 @@ export async function uploadVariablesFile(input: {
       { headers: { 'Content-Type': 'multipart/form-data' } },
     )
     return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: corrige el valor de una lectura ya procesada. El backend
+ * recalcula el semáforo — nunca se envía desde el frontend. */
+export async function correctReading(
+  organizationId: string,
+  serviceSlug: string,
+  readingId: string,
+  valor: number,
+  reason: string,
+): Promise<void> {
+  try {
+    await apiClient.patch(
+      `/admin/organizations/${organizationId}/services/${serviceSlug}/readings/${readingId}`,
+      { valor, reason },
+    )
   } catch (err) {
     rethrow(err)
   }

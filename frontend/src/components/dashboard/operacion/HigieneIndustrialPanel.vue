@@ -7,11 +7,13 @@ import {
   getAdminDashboard,
   getAdminUploadHistory,
   getAdminUploadDetail,
+  correctReading as correctReadingApi,
   DashboardRequestError,
 } from '@/services/dashboard.service'
 import type { DashboardData } from '@/types/dashboard'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { Locale } from '@/i18n'
+import type { OrganizationListItem } from '@/types/organization'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
 
 const SERVICE_SLUG = 'higiene-industrial'
@@ -21,6 +23,20 @@ const props = defineProps<{ organizationId: string }>()
 const { t, locale } = useI18n()
 
 const lastSync = inject<Ref<string | null> | null>('adminLastSync', null)
+
+// El selector de empresa vive acá (no en el sidebar) — es parte del panel
+// operativo, no de la navegación. AdminShell posee la lista y la función
+// para cambiarla (mismo patrón de provide/inject que el acordeón).
+const organizations = inject<Ref<OrganizationListItem[]>>('operacionOrganizations', ref([]))
+const selectOrg = inject<(id: string) => void>('operacionSelectOrg', () => {})
+
+function handleOrgChange(event: Event) {
+  selectOrg((event.target as HTMLSelectElement).value)
+}
+
+const activeOrgNombre = computed(
+  () => organizations.value.find((org) => org.id === props.organizationId)?.nombre ?? '',
+)
 
 // Acordeón del sidebar admin (Fase C): AdminShell posee estas refs porque es
 // el ancestro común de AdminNavSidebar y de este panel (varios niveles abajo
@@ -70,10 +86,35 @@ function fetchHistory() {
 function fetchUploadDetail(uploadId: string) {
   return getAdminUploadDetail(props.organizationId, SERVICE_SLUG, uploadId)
 }
+
+async function correctReading(readingId: string, valor: number, reason: string) {
+  await correctReadingApi(props.organizationId, SERVICE_SLUG, readingId, valor, reason)
+  await loadDashboard()
+}
 </script>
 
 <template>
   <div class="grid gap-6">
+    <div class="rounded-lg bg-navy-900 px-4 py-3 print:hidden sm:px-5">
+      <p class="text-sm font-semibold text-sky-100">
+        {{ t('dashboard.adminShell.operationalHeading', { empresa: activeOrgNombre }) }}
+      </p>
+    </div>
+
+    <section class="overflow-hidden rounded-lg border border-line-strong bg-white p-4 print:hidden sm:p-5">
+      <label for="operacion-org-select" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+        {{ t('dashboard.adminShell.orgSelectorLabel') }}
+      </label>
+      <select
+        id="operacion-org-select"
+        :value="props.organizationId"
+        class="w-full max-w-sm rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+        @change="handleOrgChange"
+      >
+        <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
+      </select>
+    </section>
+
     <section class="overflow-hidden rounded-lg border border-line-strong bg-white print:hidden">
       <div class="p-4 sm:p-5">
         <VariableUploadForm
@@ -97,6 +138,8 @@ function fetchUploadDetail(uploadId: string) {
       hide-sidebar
       :tabs="tabs"
       v-model:active-tab="sharedActiveTab"
+      editable-readings
+      :correct-reading="correctReading"
     />
   </div>
 </template>

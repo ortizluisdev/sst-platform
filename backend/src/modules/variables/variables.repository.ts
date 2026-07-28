@@ -112,7 +112,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
     createAuditLog(input: {
       userId: string
       organizationId: string
-      action: 'VARIABLES_UPLOADED'
+      action: 'VARIABLES_UPLOADED' | 'VARIABLE_READING_CORRECTED'
       metadata: Prisma.InputJsonObject
       ipAddress?: string
     }) {
@@ -138,6 +138,41 @@ export function createVariablesRepository(prisma: PrismaClient) {
       return prisma.variableReading.findMany({
         where: { uploadId },
         include: { definition: true, workPoint: true },
+      })
+    },
+
+    /** Trae la lectura con su definición (para recalcular el semáforo) y el
+     * organizationId real de su carga (para la verificación anti-IDOR en el
+     * servicio — nunca confiar en el organizationId de la ruta sin cruzarlo). */
+    findReadingById(readingId: string) {
+      return prisma.variableReading.findUnique({
+        where: { id: readingId },
+        include: {
+          definition: true,
+          upload: { select: { organizationId: true } },
+        },
+      })
+    },
+
+    correctReading(
+      readingId: string,
+      data: {
+        valor: number
+        semaforo: 'VERDE' | 'AMARILLO' | 'ROJO'
+        correctedById: string
+        correctionReason: string
+      },
+    ) {
+      return prisma.variableReading.update({
+        where: { id: readingId },
+        data: {
+          valor: data.valor,
+          semaforo: data.semaforo,
+          isCorrected: true,
+          correctedAt: new Date(),
+          correctedById: data.correctedById,
+          correctionReason: data.correctionReason,
+        },
       })
     },
 

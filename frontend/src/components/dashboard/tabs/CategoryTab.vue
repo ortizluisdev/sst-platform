@@ -1,13 +1,45 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Pencil } from 'lucide-vue-next'
 import type { CategorySummary, TrendPoint, WorkPointReading } from '@/types/dashboard'
 import SummaryCard from '../SummaryCard.vue'
 import TrendChart from '../TrendChart.vue'
+import CorrectReadingModal from '../CorrectReadingModal.vue'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
 
-const props = defineProps<{ category: CategorySummary; trend: TrendPoint[] }>()
+const props = defineProps<{
+  category: CategorySummary
+  trend: TrendPoint[]
+  /** Solo el admin lo pasa (vía DashboardShell) — el cliente nunca lo ve. */
+  editable?: boolean
+  correctReading?: (readingId: string, valor: number, reason: string) => Promise<void>
+}>()
 const { t } = useI18n()
+
+interface EditTarget {
+  reading: WorkPointReading
+  variableNombre: string
+  unidadMedida: string
+}
+
+const editTarget = ref<EditTarget | null>(null)
+const errorMessage = ref('')
+
+function openEdit(reading: WorkPointReading, variableNombre: string, unidadMedida: string) {
+  errorMessage.value = ''
+  editTarget.value = { reading, variableNombre, unidadMedida }
+}
+
+async function handleCorrect(valor: number, reason: string) {
+  if (!editTarget.value || !props.correctReading) return
+  try {
+    await props.correctReading(editTarget.value.reading.id, valor, reason)
+    editTarget.value = null
+  } catch {
+    errorMessage.value = t('dashboard.category.correctModal.genericError')
+  }
+}
 
 interface WorkPointRow {
   codigo: string
@@ -77,6 +109,18 @@ const workPointRows = computed<WorkPointRow[]>(() => {
                 <span v-if="row.valores[v.definitionId]" class="inline-flex items-center gap-1.5 font-mono text-navy-900">
                   <span :class="SEMAPHORE_STYLES[row.valores[v.definitionId]!.semaforo].dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
                   {{ row.valores[v.definitionId]!.valor }} {{ v.unidadMedida }}
+                  <span v-if="row.valores[v.definitionId]!.isCorrected" :title="row.valores[v.definitionId]!.correctionReason ?? ''" class="text-[10px] font-sans italic text-navy-700/60">
+                    ({{ t('dashboard.category.correctedTag') }})
+                  </span>
+                  <button
+                    v-if="props.editable"
+                    type="button"
+                    class="text-navy-700/40 hover:text-navy-900"
+                    :aria-label="t('dashboard.category.editLabel')"
+                    @click="openEdit(row.valores[v.definitionId]!, v.nombre, v.unidadMedida)"
+                  >
+                    <Pencil class="h-3.5 w-3.5" />
+                  </button>
                 </span>
                 <span v-else class="text-navy-700 opacity-40">—</span>
               </td>
@@ -100,5 +144,19 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         :trend="trend"
       />
     </div>
+
+    <p v-if="errorMessage" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ errorMessage }}
+    </p>
+
+    <CorrectReadingModal
+      v-if="editTarget"
+      :work-point-nombre="editTarget.reading.workPointNombre"
+      :variable-nombre="editTarget.variableNombre"
+      :current-value="editTarget.reading.valor"
+      :unidad-medida="editTarget.unidadMedida"
+      @submit="handleCorrect"
+      @cancel="editTarget = null"
+    />
   </div>
 </template>

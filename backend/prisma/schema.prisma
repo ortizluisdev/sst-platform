@@ -117,6 +117,7 @@ model User {
   variableUploads       VariableUpload[]
   announcements         Announcement[]
   auditLogs             AuditLog[]
+  correctedReadings      VariableReading[]      @relation("VariableReadingCorrectedBy")
 
   @@index([documentNumber])
   @@index([roleId])
@@ -461,21 +462,27 @@ enum SemaphoreStatus {
   ROJO
 }
 
-/// Lectura individual de una variable en un puesto de trabajo, dentro de
-/// una carga, con el resultado del semáforo ya calculado contra
-/// VariableDefinition (comparisonType + tolerancia).
+/// Corrección manual de una lectura ya procesada (Fase de paridad admin):
+/// el admin puede corregir un valor puntual antes/después de que el
+/// cliente lo vea (no hay estado de borrador/publicado — ver spec). El
+/// valor anterior queda en AuditLog.metadata, no se duplica acá.
 model VariableReading {
-  id           String          @id @default(cuid())
-  uploadId     String          @map("upload_id")
-  workPointId  String          @map("work_point_id")
-  definitionId String          @map("definition_id")
-  valor        Float
-  semaforo     SemaphoreStatus
-  createdAt    DateTime        @default(now()) @map("created_at")
+  id               String          @id @default(cuid())
+  uploadId         String          @map("upload_id")
+  workPointId      String          @map("work_point_id")
+  definitionId     String          @map("definition_id")
+  valor            Float
+  semaforo         SemaphoreStatus
+  isCorrected      Boolean         @default(false) @map("is_corrected")
+  correctedAt      DateTime?       @map("corrected_at")
+  correctedById    String?         @map("corrected_by_id")
+  correctionReason String?         @map("correction_reason") @db.Text
+  createdAt        DateTime        @default(now()) @map("created_at")
 
-  upload     VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
-  workPoint  WorkPoint          @relation(fields: [workPointId], references: [id], onDelete: Cascade)
-  definition VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  upload      VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  workPoint   WorkPoint          @relation(fields: [workPointId], references: [id], onDelete: Cascade)
+  definition  VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  correctedBy User?              @relation("VariableReadingCorrectedBy", fields: [correctedById], references: [id], onDelete: SetNull)
 
   @@unique([uploadId, workPointId, definitionId])
   @@index([workPointId])
@@ -526,6 +533,7 @@ enum AuditAction {
   ORGANIZATION_UPDATED
   SERVICE_CREATED
   SERVICE_UPDATED
+  VARIABLE_READING_CORRECTED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

@@ -29,6 +29,20 @@ export const adminUploadDetailParamsSchema = z.object({
   uploadId: z.string().min(1),
 })
 
+export const correctReadingParamsSchema = z.object({
+  organizationId: z.string().min(1),
+  serviceSlug: z.string().min(1),
+  readingId: z.string().min(1),
+})
+
+export const correctReadingBodySchema = z.object({
+  valor: z.number({ invalid_type_error: 'El valor debe ser un número' }),
+  reason: z
+    .string()
+    .trim()
+    .min(10, 'El motivo de la corrección debe tener al menos 10 caracteres'),
+})
+
 export function formatFieldErrors(error: z.ZodError): Record<string, string> {
   const fieldErrors = error.flatten().fieldErrors
   const errors: Record<string, string> = {}

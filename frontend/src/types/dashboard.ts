@@ -1,11 +1,14 @@
 export type SemaphoreStatus = 'VERDE' | 'AMARILLO' | 'ROJO'
 
 export interface WorkPointReading {
+  id: string
   workPointCodigo: string
   workPointNombre: string
   areaPlanta: string
   valor: number
   semaforo: SemaphoreStatus
+  isCorrected: boolean
+  correctionReason: string | null
 }
 
 export interface VariableSummary {

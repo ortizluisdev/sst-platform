@@ -42,6 +42,7 @@ export interface OrganizationResponsable {
   documentNumber: string
   email: string
   accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSPENDED'
+  suspendReason: string | null
 }
 
 export interface OrganizationContractedService {

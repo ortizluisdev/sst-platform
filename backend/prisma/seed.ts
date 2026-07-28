@@ -78,6 +78,10 @@ const PERMISSIONS = [
     description: 'Cargar el archivo de variables de CUALQUIER organización. Solo super-admin/adminsystem.',
   },
   {
+    key: 'platform.variables.correct',
+    description: 'Corregir el valor de una lectura ya procesada de CUALQUIER organización. Solo super-admin/adminsystem.',
+  },
+  {
     key: 'platform.dashboards.view',
     description: 'Ver el dashboard de CUALQUIER organización (para verificar cargas). Solo super-admin/adminsystem.',
   },

@@ -492,7 +492,23 @@
       "workPoint": "Punto de trabajo",
       "areaPlant": "Área / Planta",
       "heatmapPlaceholder": "Mapa de calor espacial — disponible cuando se definan coordenadas de planta para los puntos de trabajo.",
-      "trendPrefix": "Tendencia — "
+      "trendPrefix": "Tendencia — ",
+      "editLabel": "Corregir lectura",
+      "correctedTag": "editado",
+      "correctModal": {
+        "title": "Corregir lectura",
+        "close": "Cerrar",
+        "workPointLabel": "Punto de trabajo",
+        "variableLabel": "Variable",
+        "currentValueLabel": "Valor actual",
+        "newValueLabel": "Nuevo valor",
+        "reasonLabel": "Motivo de la corrección",
+        "reasonPlaceholder": "Ej: error de digitación en la carga original",
+        "reasonError": "Escribe un motivo de al menos 10 caracteres.",
+        "cancel": "Cancelar",
+        "confirm": "Guardar cambio",
+        "genericError": "No se pudo guardar la corrección."
+      }
     },
     "comparativo": {
       "subtitle": "Vista de auditoría: todas las variables de todas las categorías, en una sola tabla."
@@ -582,17 +598,6 @@
       }
     },
     "accountManagement": {
-      "pageTitle": "Gestión de cuentas — RoMa+",
-      "loading": "Cargando cuentas...",
-      "loadError": "Error al cargar las cuentas.",
-      "actionError": "No se pudo completar la acción.",
-      "emptyActive": "No hay cuentas activas.",
-      "emptySuspended": "No hay cuentas suspendidas.",
-      "tabs": {
-        "active": "Activas",
-        "suspended": "Suspendidas",
-        "pending": "Pendientes de activación"
-      },
       "documentType": {
         "CC": "Cédula",
         "NIT": "NIT"
@@ -611,7 +616,6 @@
         "cancel": "Cancelar",
         "confirm": "Confirmar suspensión"
       },
-      "emptyPending": "No hay cuentas pendientes de activación.",
       "resendInvitation": "Reenviar invitación",
       "invitationResent": "Invitación reenviada"
     },
@@ -646,14 +650,14 @@
       }
     },
     "adminShell": {
+      "operationalHeading": "Panel operativo — Higiene Industrial — {empresa}",
       "navAriaLabel": "Navegación de administración",
       "operacionSection": "Operación",
       "administracionSection": "Administración",
       "orgSelectorLabel": "Empresa",
-      "noContractedServices": "Esta empresa no tiene servicios contratados.",
-      "empresasLink": "Empresas",
-      "cuentasLink": "Cuentas",
-      "serviciosLink": "Servicios"
+      "serviciosLink": "Servicios",
+      "clientesLink": "Clientes",
+      "noActiveServices": "No hay servicios activos en el catálogo."
     },
     "operacion": {
       "placeholder": "Este panel está en construcción — el servicio contratado por esta empresa todavía no tiene un dashboard implementado."
@@ -732,6 +736,21 @@
       "cargoRequired": "Ingresa tu cargo",
       "telefonoRequired": "Ingresa un teléfono válido",
       "telefonoInvalid": "Solo números, espacios y +()-"
+    }
+  },
+  "clients": {
+    "pageTitle": "Clientes",
+    "newClient": "+ Nueva empresa",
+    "loading": "Cargando clientes...",
+    "loadError": "Error al cargar los clientes.",
+    "actionError": "No se pudo completar la acción.",
+    "emptyActive": "No hay clientes activos.",
+    "emptySuspended": "No hay clientes suspendidos.",
+    "emptyPending": "No hay clientes pendientes de activación.",
+    "tabs": {
+      "active": "Activas",
+      "suspended": "Suspendidas",
+      "pending": "Pendientes de activación"
     }
   }
 }

@@ -24,6 +24,11 @@ const props = defineProps<{
   /** Listado de pestañas ya calculado por el padre — si se omite, se calcula
    * internamente igual que siempre (uso standalone). */
   tabs?: TabDef[]
+  /** Habilita el ícono de corrección por celda en CategoryTab — solo el
+   * admin lo pasa (HigieneIndustrialPanel.vue). El cliente nunca lo pasa,
+   * así que ClientDashboardView.vue no cambia en nada. */
+  editableReadings?: boolean
+  correctReading?: (readingId: string, valor: number, reason: string) => Promise<void>
 }>()
 
 const { t, locale } = useI18n()
@@ -40,7 +45,13 @@ const activeCategory = computed(() => props.dashboard.categories.find((c) => `ca
 
     <div>
       <ResumenTab v-if="activeTab === 'resumen'" :dashboard="dashboard" />
-      <CategoryTab v-else-if="activeCategory" :category="activeCategory" :trend="dashboard.trend" />
+      <CategoryTab
+        v-else-if="activeCategory"
+        :category="activeCategory"
+        :trend="dashboard.trend"
+        :editable="props.editableReadings ?? false"
+        :correct-reading="props.correctReading"
+      />
       <ComparativoTab v-else-if="activeTab === 'comparativo'" :categories="dashboard.categories" />
       <HistorialTab
         v-else-if="activeTab === 'historial'"

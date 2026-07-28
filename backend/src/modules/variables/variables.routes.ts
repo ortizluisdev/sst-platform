@@ -10,6 +10,7 @@ import {
   adminHistoryHandler,
   clientUploadDetailHandler,
   adminUploadDetailHandler,
+  correctReadingHandler,
 } from './variables.controller.js'
 
 export async function variablesRoutes(app: FastifyInstance) {
@@ -32,6 +33,18 @@ export async function variablesRoutes(app: FastifyInstance) {
       preHandler: [requireAuth, requirePermission('platform.variables.upload')],
     },
     uploadVariablesHandler,
+  )
+
+  app.patch<{
+    Params: { organizationId: string; serviceSlug: string; readingId: string }
+    Body: { valor: number; reason: string }
+  }>(
+    '/api/admin/organizations/:organizationId/services/:serviceSlug/readings/:readingId',
+    {
+      config: { rateLimit: { max: 20, timeWindow: '15 minutes' } },
+      preHandler: [requireAuth, requirePermission('platform.variables.correct')],
+    },
+    correctReadingHandler,
   )
 
   app.get<{ Params: { serviceSlug: string } }>(

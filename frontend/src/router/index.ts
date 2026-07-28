@@ -87,20 +87,18 @@ const router = createRouter({
           meta: { permission: 'platform.variables.upload' },
         },
         {
-          path: 'empresas',
-          name: 'admin-empresas',
-          component: () => import('@/modules/organizations/views/OrganizationsListView.vue'),
+          path: 'clientes',
+          name: 'admin-clientes',
+          component: () => import('@/modules/clients/views/ClientsListView.vue'),
           meta: { permission: 'platform.organizations.manage' },
         },
-        // El formulario de "Crear empresa" ahora vive en un modal dentro del
-        // listado — este puente evita romper enlaces/marcadores viejos.
-        { path: 'empresas/crear', redirect: { name: 'admin-empresas' } },
-        {
-          path: 'cuentas',
-          name: 'admin-gestion-cuentas',
-          component: () => import('@/modules/notifications/views/AccountManagementView.vue'),
-          meta: { permission: 'platform.users.approve' },
-        },
+        // "Empresas" y "Cuentas" se fusionaron en una sola pestaña "Clientes"
+        // — estos puentes evitan romper enlaces/marcadores de antes de ese
+        // ajuste. El formulario de "Crear empresa" también vive en un modal
+        // dentro de este mismo listado, no en una ruta aparte.
+        { path: 'empresas', redirect: { name: 'admin-clientes' } },
+        { path: 'empresas/crear', redirect: { name: 'admin-clientes' } },
+        { path: 'cuentas', redirect: { name: 'admin-clientes' } },
         {
           path: 'servicios',
           name: 'admin-servicios',

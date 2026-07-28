@@ -41,6 +41,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
                   documentNumber: true,
                   email: true,
                   accountStatus: true,
+                  suspendReason: true,
                 },
               },
             },
