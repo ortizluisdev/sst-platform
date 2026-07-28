@@ -7,6 +7,7 @@ import SummaryCard from '../SummaryCard.vue'
 import TrendChart from '../TrendChart.vue'
 import CorrectReadingModal from '../CorrectReadingModal.vue'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
+import { formatSummaryValue } from '@/utils/formatSummaryValue'
 
 const props = defineProps<{
   category: CategorySummary
@@ -76,7 +77,7 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         v-for="v in category.variables"
         :key="v.definitionId"
         :titulo="v.nombre"
-        :valor="`${v.promedio} ${v.unidadMedida}`"
+        :valor="formatSummaryValue(v)"
         :cumplimiento-pct="v.cumplimientoPct"
         :estado="v.estado"
       />

@@ -8,6 +8,7 @@ import ComplianceRing from '../ComplianceRing.vue'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { formatDate } from '@/utils/formatDate'
+import { formatSummaryValue } from '@/utils/formatSummaryValue'
 
 const props = defineProps<{ dashboard: DashboardData }>()
 const { t, locale } = useI18n()
@@ -47,7 +48,7 @@ const lastUpdatedLabel = computed(() =>
           v-for="h in headlineByCategory"
           :key="h.categoria"
           :titulo="categoryLabel(h.categoria, locale as Locale)"
-          :valor="`${h.v.promedio} ${h.v.unidadMedida}`"
+          :valor="formatSummaryValue(h.v)"
           :cumplimiento-pct="h.v.cumplimientoPct"
           :estado="h.v.estado"
           :icon="iconForCategory(h.categoria)"

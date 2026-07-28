@@ -12,6 +12,10 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 const props = defineProps<{ compliance: GlobalCompliance }>()
 const { t } = useI18n()
 
+/** Sin ninguna lectura cargada todavía, un donut al 0% se lee como "todo
+ * falló" en vez de "no hay datos" — mostramos un estado neutro en su lugar. */
+const hasData = computed(() => props.compliance.total > 0)
+
 const chartData = computed(() => ({
   labels: [t('dashboard.semaphore.cumple'), t('dashboard.semaphore.alerta'), t('dashboard.semaphore.critico')],
   datasets: [
@@ -45,13 +49,15 @@ const chartOptions = {
       {{ t('dashboard.complianceRing.title') }}
     </p>
     <div class="relative mx-auto h-[140px] w-[140px] sm:h-[160px] sm:w-[160px]">
-      <Doughnut :data="chartData" :options="chartOptions" />
+      <Doughnut v-if="hasData" :data="chartData" :options="chartOptions" />
+      <div v-else class="h-full w-full rounded-full border-[10px] border-line-strong" />
       <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span class="font-serif text-3xl font-semibold text-navy-900">{{ compliance.pct }}%</span>
-        <span class="text-[11px] font-medium text-navy-700">{{ t('dashboard.complianceRing.centerLabel') }}</span>
+        <span v-if="hasData" class="font-serif text-3xl font-semibold text-navy-900">{{ compliance.pct }}%</span>
+        <span v-else class="font-serif text-lg font-semibold text-navy-700 opacity-70">{{ t('dashboard.complianceRing.noData') }}</span>
+        <span v-if="hasData" class="text-[11px] font-medium text-navy-700">{{ t('dashboard.complianceRing.centerLabel') }}</span>
       </div>
     </div>
-    <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+    <div v-if="hasData" class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
       <div>
         <p class="font-semibold text-emerald-600">{{ compliance.verde }}</p>
         <p class="text-navy-700 opacity-70">{{ t('dashboard.semaphore.cumple') }}</p>

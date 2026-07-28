@@ -257,11 +257,23 @@ export function createVariablesService(prisma: PrismaClient) {
       const totalWorkPoints = await repository.countActiveWorkPoints(organizationId)
 
       if (!latestUpload) {
+        // Sin cargas todavía: en vez de un dashboard vacío, mostramos las
+        // categorías del catálogo contratado en estado SIN_DATOS — la
+        // organización ya sabe qué se le va a medir aunque aún no haya
+        // resultados (ver ajuste post-lanzamiento, 2026-07-28).
+        const definitions = await repository.findDefinitionsByService(service.id)
+        const categoriesMap = new Map<string, ReturnType<typeof buildEmptyVariableSummary>[]>()
+        for (const definition of definitions) {
+          const list = categoriesMap.get(definition.categoria) ?? []
+          list.push(buildEmptyVariableSummary(definition))
+          categoriesMap.set(definition.categoria, list)
+        }
+
         return {
           service: { slug: service.slug, nombre: service.nombre, updateFrequency: service.updateFrequency },
           lastUpdated: null,
           totalWorkPoints,
-          categories: [],
+          categories: [...categoriesMap.entries()].map(([categoria, variables]) => ({ categoria, variables })),
           globalCompliance: { pct: 0, verde: 0, amarillo: 0, rojo: 0, total: 0 },
           trend: [],
         }
@@ -480,6 +492,34 @@ function buildVariableSummary(
         correctionReason: r.correctionReason,
       }))
       .sort((a, b) => a.workPointCodigo.localeCompare(b.workPointCodigo)),
+  }
+}
+
+/** Tarjeta placeholder para una variable del catálogo que aún no tiene
+ * ninguna lectura cargada — mismo shape que buildVariableSummary, pero con
+ * estado SIN_DATOS en vez de un semáforo calculado (no hay valor que
+ * comparar contra la norma todavía). */
+function buildEmptyVariableSummary(definition: {
+  id: string
+  codigo: string
+  nombre: string
+  unidadMedida: string
+  limiteMin: number | null
+  limiteMax: number | null
+  normativaRef: string | null
+}) {
+  return {
+    definitionId: definition.id,
+    codigo: definition.codigo,
+    nombre: definition.nombre,
+    unidadMedida: definition.unidadMedida,
+    limiteMin: definition.limiteMin,
+    limiteMax: definition.limiteMax,
+    normativaRef: definition.normativaRef,
+    promedio: 0,
+    cumplimientoPct: 0,
+    estado: 'SIN_DATOS' as const,
+    readings: [] as ReturnType<typeof buildVariableSummary>['readings'],
   }
 }
 

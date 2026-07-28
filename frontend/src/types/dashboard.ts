@@ -1,5 +1,11 @@
 export type SemaphoreStatus = 'VERDE' | 'AMARILLO' | 'ROJO'
 
+/** Estado de una tarjeta-resumen por variable: los 3 semáforos reales, más
+ * SIN_DATOS para cuando la organización aún no ha cargado ninguna
+ * evaluación (el catálogo contratado ya existe, pero no hay valor que
+ * comparar contra la norma todavía). */
+export type CategoryCardStatus = SemaphoreStatus | 'SIN_DATOS'
+
 export interface WorkPointReading {
   id: string
   workPointCodigo: string
@@ -21,7 +27,7 @@ export interface VariableSummary {
   normativaRef: string | null
   promedio: number
   cumplimientoPct: number
-  estado: SemaphoreStatus
+  estado: CategoryCardStatus
   readings: WorkPointReading[]
 }
 

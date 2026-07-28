@@ -457,11 +457,13 @@
     "semaphore": {
       "cumple": "Cumple",
       "alerta": "Alerta",
-      "critico": "Crítico"
+      "critico": "Crítico",
+      "sinDatos": "Sin datos"
     },
     "complianceRing": {
       "title": "Cumplimiento normativo global",
-      "centerLabel": "Cumplimiento"
+      "centerLabel": "Cumplimiento",
+      "noData": "Sin datos aún"
     },
     "comparisonTable": {
       "variable": "Variable",

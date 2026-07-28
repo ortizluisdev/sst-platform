@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { SemaphoreStatus } from '@/types/dashboard'
+import type { CategoryCardStatus } from '@/types/dashboard'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 
 const props = defineProps<{
   titulo: string
   valor: string
   cumplimientoPct: number
-  estado: SemaphoreStatus
+  estado: CategoryCardStatus
   icon?: Component
 }>()
 
