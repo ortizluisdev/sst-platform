@@ -169,36 +169,66 @@ export function createVariablesService(prisma: PrismaClient) {
           areaPlanta: row.areaPlanta,
           procesoActividad: row.procesoActividad,
           jornada: normalizeShift(row.jornada),
+          codigoVariable: row.codigoVariable,
           definitionId: definition.id,
           valor: row.valor,
           semaforo,
         }
       })
 
-      const upload = await repository.createUploadTransaction({
-        organizationId: input.organizationId,
-        serviceId: service.id,
-        uploadedById: input.uploadedById,
-        originalFile: input.filename,
-        fechaEvaluacion: input.fechaEvaluacion,
-        rows: preparedRows,
-      })
+      const existingUpload = await repository.findUploadByDate(input.organizationId, service.id, input.fechaEvaluacion)
+
+      const puestosAfectados = new Set(rows.map((r) => r.codigoPuesto)).size
+      let uploadId: string
+      let filasNuevas: number
+      let filasActualizadas: number
+      let filasOmitidas: { workPointCodigo: string; codigoVariable: string }[]
+      let modo: 'nueva' | 'actualizacion'
+
+      if (!existingUpload) {
+        const upload = await repository.createUploadTransaction({
+          organizationId: input.organizationId,
+          serviceId: service.id,
+          uploadedById: input.uploadedById,
+          originalFile: input.filename,
+          fechaEvaluacion: input.fechaEvaluacion,
+          rows: preparedRows,
+        })
+        uploadId = upload.id
+        filasNuevas = preparedRows.length
+        filasActualizadas = 0
+        filasOmitidas = []
+        modo = 'nueva'
+      } else {
+        const result = await repository.updateUploadTransaction({
+          uploadId: existingUpload.id,
+          organizationId: input.organizationId,
+          rows: preparedRows,
+        })
+        uploadId = existingUpload.id
+        filasNuevas = result.filasNuevas
+        filasActualizadas = result.filasActualizadas
+        filasOmitidas = result.filasOmitidas
+        modo = 'actualizacion'
+      }
 
       await repository.createAuditLog({
         userId: input.uploadedById,
         organizationId: input.organizationId,
         action: 'VARIABLES_UPLOADED',
-        metadata: { serviceSlug: input.serviceSlug, uploadId: upload.id, filas: preparedRows.length },
+        metadata: { serviceSlug: input.serviceSlug, uploadId, filas: preparedRows.length, modo },
         ipAddress: input.ipAddress,
       })
 
+      const omitidasSuffix =
+        filasOmitidas.length > 0 ? ` (${filasOmitidas.length} fila(s) omitida(s): ya corregidas manualmente)` : ''
       await notifications.notify({
         type: 'CARGA_PROCESADA',
         recipientIds: [input.uploadedById],
-        message: `Tu carga de ${preparedRows.length} lectura(s) para "${service.nombre}" fue procesada correctamente.`,
-        link: `/dashboard/historial/${upload.id}`,
+        message: `Tu carga de ${preparedRows.length} lectura(s) para "${service.nombre}" fue procesada correctamente${omitidasSuffix}.`,
+        link: `/dashboard/historial/${uploadId}`,
         entityType: 'VARIABLE_UPLOAD',
-        entityId: upload.id,
+        entityId: uploadId,
       })
 
       // Agrupado por CARGA (no por fila individual): una sola notificación
@@ -213,10 +243,10 @@ export function createVariablesService(prisma: PrismaClient) {
           message: `${criticalReadings.length} resultado(s) crítico(s) en "${service.nombre}" para "${organization.nombre}": ${criticalReadings
             .map((r) => `${r.variable} en "${r.puesto}" (${r.valor} ${r.unidadMedida})`)
             .join('; ')}`,
-          metadata: { uploadId: upload.id, serviceSlug: input.serviceSlug, criticalReadings },
-          link: `/dashboard/historial/${upload.id}`,
+          metadata: { uploadId, serviceSlug: input.serviceSlug, criticalReadings },
+          link: `/dashboard/historial/${uploadId}`,
           entityType: 'VARIABLE_UPLOAD',
-          entityId: upload.id,
+          entityId: uploadId,
           emailSubject: `Alerta crítica — ${criticalReadings.length} resultado(s) fuera de norma en ${service.nombre}`,
           emailTitle: `Resultados críticos detectados en tu evaluación de ${service.nombre}`,
           emailBodyHtml: buildCriticalEmailBody(criticalReadings, service.nombre),
@@ -224,7 +254,14 @@ export function createVariablesService(prisma: PrismaClient) {
         })
       }
 
-      return { uploadId: upload.id, filasProcesadas: preparedRows.length, puestosAfectados: new Set(rows.map((r) => r.codigoPuesto)).size }
+      return {
+        uploadId,
+        filasProcesadas: preparedRows.length,
+        puestosAfectados,
+        filasNuevas,
+        filasActualizadas,
+        filasOmitidas,
+      }
     },
 
     /** Organizaciones con el servicio contratado — para el selector del super-admin. */

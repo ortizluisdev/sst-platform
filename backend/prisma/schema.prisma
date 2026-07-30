@@ -470,7 +470,7 @@ model VariableUpload {
   uploadedBy   User              @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   readings     VariableReading[]
 
-  @@index([organizationId, serviceId, fechaEvaluacion])
+  @@unique([organizationId, serviceId, fechaEvaluacion])
   @@map("variable_uploads")
 }
 
