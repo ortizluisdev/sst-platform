@@ -554,6 +554,50 @@
         "Estado"
       ]
     },
+    "clientTabs": {
+      "hoja1": "Hoja 1 · Dashboard",
+      "hoja2": "Hoja 2 · Detalle técnico",
+      "hoja3": "Hoja 3 · Análisis"
+    },
+    "clientDashboardTab": {
+      "exportCsv": "Exportar CSV",
+      "exportPdf": "Exportar PDF",
+      "indicadoresGlobales": "Indicadores globales",
+      "valorCabecera": "Valor de cabecera por agente",
+      "totalMediciones": "Total de mediciones",
+      "cumplenNorma": "Mediciones que cumplen norma",
+      "noCumplenNorma": "Mediciones que no cumplen norma",
+      "cumplimientoGlobal": "Cumplimiento global",
+      "riesgoGlobal": "Riesgo global promedio",
+      "alertasActivas": "Alertas activas",
+      "pendiente": "Pendiente"
+    },
+    "clientAnalisisTab": {
+      "indicesGlobales": "Índices de análisis de riesgo",
+      "cumplimientoGlobal": "Cumplimiento global",
+      "variablesIncumplimiento": "Variables en incumplimiento",
+      "medicionesRealizadas": "Mediciones realizadas",
+      "tendenciaGlobal": "Tendencia global",
+      "probabilidadIncumplimiento": "Probabilidad de incumplimiento (30 días)",
+      "riesgoSalud": "Riesgo asociado a efectos en salud",
+      "puntajeIntervencion": "Puntaje de intervención",
+      "nivelPrioridad": "Nivel de prioridad de intervención",
+      "matrizPosicion": "Posición en matriz riesgo × cumplimiento",
+      "evolucionIgho": "Evolución del IGHO",
+      "tendenciaHistorica": "Tendencia histórica por variable",
+      "pendiente": "Pendiente — metodología no definida"
+    },
+    "detalleTecnico": {
+      "parametro": "Parámetro",
+      "resultado": "Resultado",
+      "tipo": "Tipo",
+      "incertidumbre": "Incertidumbre",
+      "norma": "Norma/Ref",
+      "pendiente": "Pendiente",
+      "instrumentoPrefix": "Instrumento: ",
+      "exportCsv": "Exportar CSV",
+      "exportPdf": "Exportar PDF"
+    },
     "clientView": {
       "pageTitle": "Dashboard Higiene Industrial — RoMa+",
       "loading": "Cargando dashboard...",

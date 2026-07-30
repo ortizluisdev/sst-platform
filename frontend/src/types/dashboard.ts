@@ -1,3 +1,5 @@
+import type { MeasurementType } from './variableCatalog'
+
 export type SemaphoreStatus = 'VERDE' | 'AMARILLO' | 'ROJO'
 
 /** Estado de una tarjeta-resumen por variable: los 3 semáforos reales, más
@@ -25,6 +27,9 @@ export interface VariableSummary {
   limiteMin: number | null
   limiteMax: number | null
   normativaRef: string | null
+  tipo: MeasurementType | null
+  instrumento: string | null
+  incertidumbre: string | null
   promedio: number
   cumplimientoPct: number
   estado: CategoryCardStatus

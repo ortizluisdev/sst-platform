@@ -10,8 +10,10 @@ import type { Locale } from '@/i18n'
  */
 const CATEGORY_LABELS: Record<string, Partial<Record<Locale, string>>> = {
   Iluminación: { en: 'Lighting' },
-  Ruido: { en: 'Noise' },
-  'Confort Térmico': { en: 'Thermal Comfort' },
+  Sonido: { en: 'Sound' },
+  'Estrés Térmico': { en: 'Thermal Stress' },
+  'Radiación UV': { en: 'UV Radiation' },
+  Vibración: { en: 'Vibration' },
 }
 
 export function categoryLabel(categoria: string, locale: Locale): string {

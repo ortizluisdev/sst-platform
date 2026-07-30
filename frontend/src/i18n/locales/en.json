@@ -554,6 +554,50 @@
         "Status"
       ]
     },
+    "clientTabs": {
+      "hoja1": "Sheet 1 · Dashboard",
+      "hoja2": "Sheet 2 · Technical detail",
+      "hoja3": "Sheet 3 · Analysis"
+    },
+    "clientDashboardTab": {
+      "exportCsv": "Export CSV",
+      "exportPdf": "Export PDF",
+      "indicadoresGlobales": "Global indicators",
+      "valorCabecera": "Headline value per agent",
+      "totalMediciones": "Total measurements",
+      "cumplenNorma": "Measurements that comply",
+      "noCumplenNorma": "Measurements that do not comply",
+      "cumplimientoGlobal": "Global compliance",
+      "riesgoGlobal": "Average global risk",
+      "alertasActivas": "Active alerts",
+      "pendiente": "Pending"
+    },
+    "clientAnalisisTab": {
+      "indicesGlobales": "Risk analysis indices",
+      "cumplimientoGlobal": "Global compliance",
+      "variablesIncumplimiento": "Non-compliant variables",
+      "medicionesRealizadas": "Measurements taken",
+      "tendenciaGlobal": "Global trend",
+      "probabilidadIncumplimiento": "Non-compliance probability (30 days)",
+      "riesgoSalud": "Risk to health effects",
+      "puntajeIntervencion": "Intervention score",
+      "nivelPrioridad": "Intervention priority level",
+      "matrizPosicion": "Risk × compliance matrix position",
+      "evolucionIgho": "IGHO evolution",
+      "tendenciaHistorica": "Historical trend per variable",
+      "pendiente": "Pending — methodology not defined"
+    },
+    "detalleTecnico": {
+      "parametro": "Parameter",
+      "resultado": "Result",
+      "tipo": "Type",
+      "incertidumbre": "Uncertainty",
+      "norma": "Standard/Ref",
+      "pendiente": "Pending",
+      "instrumentoPrefix": "Instrument: ",
+      "exportCsv": "Export CSV",
+      "exportPdf": "Export PDF"
+    },
     "clientView": {
       "pageTitle": "Industrial Hygiene Dashboard — RoMa+",
       "loading": "Loading dashboard...",
