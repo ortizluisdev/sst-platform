@@ -405,8 +405,8 @@ model VariableDefinition {
   id               String                 @id @default(cuid())
   serviceId        String                 @map("service_id")
   /// Libre, no enum: cada servicio define sus propias categorías (para
-  /// Higiene Industrial: Iluminación/Ruido/Confort Térmico; otro servicio
-  /// tendría categorías completamente distintas).
+  /// Higiene Industrial: Iluminación/Sonido/Estrés Térmico/Radiación UV/
+  /// Vibración; otro servicio tendría categorías completamente distintas).
   categoria        String                 @db.VarChar(100)
   codigo           String                 @db.VarChar(50)
   nombre           String                 @db.VarChar(255)
@@ -419,6 +419,11 @@ model VariableDefinition {
   /// 3 estados, no un corte binario. Validar el % real contra cada norma.
   toleranciaAlerta Float                  @default(0.1) @map("tolerancia_alerta")
   normativaRef     String?                @map("normativa_ref") @db.VarChar(255)
+  /// Pendientes hasta que el cliente final confirme el dato técnico real —
+  /// nunca se infieren/inventan (ver spec 2026-07-29-variable-catalog-restructure-design.md).
+  tipo             VariableMeasurementType?
+  instrumento      String?                @map("instrumento") @db.VarChar(255)
+  incertidumbre    String?                @map("incertidumbre") @db.VarChar(100)
   isActive         Boolean                @default(true) @map("is_active")
   createdAt        DateTime               @default(now()) @map("created_at")
   updatedAt        DateTime               @updatedAt @map("updated_at")
@@ -429,6 +434,12 @@ model VariableDefinition {
   @@unique([serviceId, codigo])
   @@index([serviceId])
   @@map("variable_definitions")
+}
+
+enum VariableMeasurementType {
+  MEDICION
+  CALCULO
+  INSPECCION
 }
 
 enum UploadStatus {
@@ -544,6 +555,9 @@ enum AuditAction {
   /// Cliente guarda logo/colores por primera vez en la activación (branding
   /// por organización, 2026-07-28).
   ORGANIZATION_BRANDING_SET
+  /// Admin completa Tipo/Instrumento/Incertidumbre de una variable del
+  /// catálogo (2026-07-29).
+  VARIABLE_DEFINITION_UPDATED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

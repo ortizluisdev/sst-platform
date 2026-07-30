@@ -105,6 +105,12 @@ const router = createRouter({
           component: () => import('@/modules/services/views/ServicesListView.vue'),
           meta: { permission: 'platform.services.manage' },
         },
+        {
+          path: 'servicios/:serviceSlug/variables',
+          name: 'admin-variable-catalog',
+          component: () => import('@/modules/services/views/VariableCatalogView.vue'),
+          meta: { permission: 'platform.variables.manage' },
+        },
       ],
     },
     // Puente de compatibilidad: la vista de administración de Higiene

@@ -632,6 +632,7 @@
       "active": "Activo",
       "inactive": "Inactivo",
       "edit": "Editar",
+      "viewCatalog": "Ver catálogo",
       "activate": "Activar",
       "deactivate": "Desactivar",
       "table": {
@@ -664,6 +665,28 @@
     },
     "operacion": {
       "placeholder": "Este panel está en construcción — el servicio contratado por esta empresa todavía no tiene un dashboard implementado."
+    }
+  },
+  "variableCatalog": {
+    "pageTitle": "Catálogo de variables",
+    "pageSubtitle": "Completa el tipo de medición, instrumento e incertidumbre de cada variable — quedan pendientes hasta que se confirmen.",
+    "loading": "Cargando catálogo...",
+    "loadError": "Error al cargar el catálogo.",
+    "actionError": "No se pudo guardar el cambio.",
+    "pending": "Pendiente",
+    "save": "Guardar",
+    "tipo": {
+      "MEDICION": "Medición",
+      "CALCULO": "Cálculo",
+      "INSPECCION": "Inspección"
+    },
+    "table": {
+      "codigo": "Código",
+      "nombre": "Nombre",
+      "tipo": "Tipo",
+      "instrumento": "Instrumento",
+      "incertidumbre": "Incertidumbre",
+      "acciones": "Acciones"
     }
   },
   "organizations": {

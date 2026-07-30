@@ -632,6 +632,7 @@
       "active": "Active",
       "inactive": "Inactive",
       "edit": "Edit",
+      "viewCatalog": "View catalog",
       "activate": "Activate",
       "deactivate": "Deactivate",
       "table": {
@@ -664,6 +665,28 @@
     },
     "operacion": {
       "placeholder": "This panel is under construction — the service this organization contracted doesn't have a dashboard implemented yet."
+    }
+  },
+  "variableCatalog": {
+    "pageTitle": "Variable catalog",
+    "pageSubtitle": "Complete each variable's measurement type, instrument, and uncertainty — they stay pending until confirmed.",
+    "loading": "Loading catalog...",
+    "loadError": "Failed to load the catalog.",
+    "actionError": "Could not save the change.",
+    "pending": "Pending",
+    "save": "Save",
+    "tipo": {
+      "MEDICION": "Measurement",
+      "CALCULO": "Calculation",
+      "INSPECCION": "Inspection"
+    },
+    "table": {
+      "codigo": "Code",
+      "nombre": "Name",
+      "tipo": "Type",
+      "instrumento": "Instrument",
+      "incertidumbre": "Uncertainty",
+      "acciones": "Actions"
     }
   },
   "organizations": {

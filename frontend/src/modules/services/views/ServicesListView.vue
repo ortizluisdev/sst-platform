@@ -131,6 +131,13 @@ async function handleToggleActive(service: CatalogService) {
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex gap-2">
+                    <router-link
+                      v-if="service.slug === 'higiene-industrial'"
+                      :to="{ name: 'admin-variable-catalog', params: { serviceSlug: service.slug } }"
+                      class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
+                    >
+                      {{ t('dashboard.servicesManagement.viewCatalog') }}
+                    </router-link>
                     <button
                       type="button"
                       class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"

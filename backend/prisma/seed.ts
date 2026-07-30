@@ -95,6 +95,10 @@ const PERMISSIONS = [
     key: 'platform.services.manage',
     description: 'CRUD del catálogo de servicios (Fase C). Solo super-admin/adminsystem.',
   },
+  {
+    key: 'platform.variables.manage',
+    description: 'Editar Tipo/Instrumento/Incertidumbre del catálogo de variables. Solo super-admin/adminsystem.',
+  },
 ] as const
 
 /**
@@ -243,10 +247,10 @@ const HIGIENE_VARIABLES = [
     limiteMax: 50,
     normativaRef: 'ISO 8995-1 / RETILAP',
   },
-  // --- Ruido (ISO 9612:2009) ---
+  // --- Sonido (ISO 9612:2009) ---
   {
     codigo: 'RUI-01',
-    categoria: 'Ruido',
+    categoria: 'Sonido',
     nombre: 'Nivel sonoro promedio (LAeq,8h)',
     unidadMedida: 'dB(A)',
     comparisonType: 'MAX_LIMIT',
@@ -256,7 +260,7 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'RUI-02',
-    categoria: 'Ruido',
+    categoria: 'Sonido',
     nombre: 'Nivel pico (LCpeak)',
     unidadMedida: 'dB(C)',
     comparisonType: 'MAX_LIMIT',
@@ -266,7 +270,7 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'RUI-03',
-    categoria: 'Ruido',
+    categoria: 'Sonido',
     nombre: 'Tiempo de exposición',
     unidadMedida: 'h',
     comparisonType: 'MAX_LIMIT',
@@ -276,7 +280,7 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'RUI-04',
-    categoria: 'Ruido',
+    categoria: 'Sonido',
     nombre: 'Dosis de ruido',
     unidadMedida: '%',
     comparisonType: 'MAX_LIMIT',
@@ -284,10 +288,10 @@ const HIGIENE_VARIABLES = [
     limiteMax: 100,
     normativaRef: 'ISO 9612:2009',
   },
-  // --- Confort térmico (ISO 7243 / ISO 7730) ---
+  // --- Estrés térmico (ISO 7243 / ISO 7730) ---
   {
     codigo: 'TER-01',
-    categoria: 'Confort Térmico',
+    categoria: 'Estrés Térmico',
     nombre: 'Temperatura del aire',
     unidadMedida: '°C',
     comparisonType: 'RANGE',
@@ -297,7 +301,7 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'TER-02',
-    categoria: 'Confort Térmico',
+    categoria: 'Estrés Térmico',
     nombre: 'Humedad relativa',
     unidadMedida: '%',
     comparisonType: 'RANGE',
@@ -307,7 +311,7 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'TER-03',
-    categoria: 'Confort Térmico',
+    categoria: 'Estrés Térmico',
     nombre: 'WBGT (carga metabólica moderada)',
     unidadMedida: '°C',
     comparisonType: 'MAX_LIMIT',
@@ -317,13 +321,95 @@ const HIGIENE_VARIABLES = [
   },
   {
     codigo: 'TER-04',
-    categoria: 'Confort Térmico',
+    categoria: 'Estrés Térmico',
     nombre: 'Índice PMV',
     unidadMedida: 'PMV',
     comparisonType: 'RANGE',
     limiteMin: -0.5,
     limiteMax: 0.5,
     normativaRef: 'ISO 7730',
+  },
+  // --- Radiación UV (ICNIRP) — límites normativos pendientes de confirmar ---
+  {
+    codigo: 'RUV-01',
+    categoria: 'Radiación UV',
+    nombre: 'Índice UV',
+    unidadMedida: 'UV Index',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'RUV-02',
+    categoria: 'Radiación UV',
+    nombre: 'Irradiancia efectiva',
+    unidadMedida: 'W/m²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'RUV-03',
+    categoria: 'Radiación UV',
+    nombre: 'Exposición radiante',
+    unidadMedida: 'J/m²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'RUV-04',
+    categoria: 'Radiación UV',
+    nombre: 'Tiempo máx. de exposición',
+    unidadMedida: 'h',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  // --- Vibración (ISO 5349 / ISO 2631) — límites normativos pendientes de confirmar ---
+  {
+    codigo: 'VIB-01',
+    categoria: 'Vibración',
+    nombre: 'Mano-brazo (A(8))',
+    unidadMedida: 'm/s²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'VIB-02',
+    categoria: 'Vibración',
+    nombre: 'Cuerpo entero (A(8))',
+    unidadMedida: 'm/s²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'VIB-03',
+    categoria: 'Vibración',
+    nombre: 'Frecuencia dominante',
+    unidadMedida: 'Hz',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+  },
+  {
+    codigo: 'VIB-04',
+    categoria: 'Vibración',
+    nombre: 'Tiempo de exposición',
+    unidadMedida: 'h',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
   },
 ] as const
 
