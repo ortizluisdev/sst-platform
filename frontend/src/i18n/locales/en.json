@@ -477,7 +477,13 @@
       "missingFields": "Select a file and an evaluation date.",
       "processError": "Error processing the file.",
       "heading": "Upload variables (CSV or Excel)",
-      "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor.",
+      "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. Also accepts the full Excel report (Reporte Hoja 2).",
+      "omittedHeading": "Skipped rows (not loaded):",
+      "omittedReason": {
+        "sin_variable_equivalente": "no matching catalog variable",
+        "valor_no_numerico": "non-numeric value",
+        "ya_corregida": "already manually corrected"
+      },
       "processing": "Processing...",
       "submit": "Upload",
       "successPrefix": "Upload successful: ",

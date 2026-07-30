@@ -442,6 +442,11 @@ enum VariableMeasurementType {
   INSPECCION
 }
 
+enum VariableUploadOrigen {
+  CSV
+  REPORTE_EXCEL
+}
+
 enum UploadStatus {
   PENDIENTE
   PROCESADO
@@ -462,6 +467,10 @@ model VariableUpload {
   /// (cuándo se subió el archivo). Es la fecha que se grafica en tendencia.
   fechaEvaluacion DateTime     @map("fecha_evaluacion")
   status          UploadStatus @default(PENDIENTE)
+  /// De dónde vino la carga: CSV (formato plano de siempre) o
+  /// REPORTE_EXCEL (el workbook completo de 6 hojas, Reporte Hoja 2) —
+  /// para que Historial pueda distinguir el mecanismo de origen.
+  origen          VariableUploadOrigen @default(CSV)
   errorMessage    String?      @map("error_message") @db.Text
   createdAt       DateTime     @default(now()) @map("created_at")
 

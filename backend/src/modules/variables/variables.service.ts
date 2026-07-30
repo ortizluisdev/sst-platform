@@ -1,6 +1,8 @@
 import type { PrismaClient, VariableMeasurementType, WorkShift } from '@prisma/client'
+import ExcelJS from 'exceljs'
 import { createVariablesRepository } from './variables.repository.js'
 import { parseVariableFile, VariableFileParseError } from '../../utils/variableFileParser.js'
+import { parseVariableReportWorkbook } from '../../utils/variableReportWorkbookParser.js'
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
 
@@ -109,9 +111,44 @@ export function createVariablesService(prisma: PrismaClient) {
         throw new VariablesError('SERVICE_NOT_CONTRACTED', 'Esta organización no tiene contratado este servicio')
       }
 
-      let rows
+      const esXlsx = !input.filename.toLowerCase().endsWith('.csv')
+      let rows: { codigoPuesto: string; nombrePuesto: string; areaPlanta: string; procesoActividad: string; jornada: string; codigoVariable: string; valor: number }[]
+      let origen: 'CSV' | 'REPORTE_EXCEL' = 'CSV'
+      let fechaEvaluacionFinal = input.fechaEvaluacion
+      let filasOmitidasFormato: { nombre: string; motivo: 'sin_variable_equivalente' | 'valor_no_numerico' }[] = []
+
       try {
-        rows = await parseVariableFile(input.fileBuffer, input.filename)
+        let esReporteExcel = false
+        let workbookCargado: ExcelJS.Workbook | null = null
+        if (esXlsx) {
+          workbookCargado = new ExcelJS.Workbook()
+          await workbookCargado.xlsx.load(input.fileBuffer as any)
+          esReporteExcel = workbookCargado.worksheets.some((ws) => ws.name === 'Reporte Hoja 2')
+        }
+
+        if (esReporteExcel && workbookCargado) {
+          const parsed = parseVariableReportWorkbook(workbookCargado)
+          const nombrePuesto = parsed.empresa ? `Evaluación general — ${parsed.empresa}` : 'Evaluación general'
+          rows = parsed.rows.map((r) => ({
+            codigoPuesto: 'EVAL-GENERAL',
+            nombrePuesto,
+            areaPlanta: 'General',
+            procesoActividad: 'Evaluación higiénica general',
+            jornada: 'DIURNA',
+            codigoVariable: r.codigoVariable,
+            valor: r.valor,
+          }))
+          origen = 'REPORTE_EXCEL'
+          // Trunca a medianoche (solo la fecha, no la hora exacta) — así,
+          // si se sube este mismo formato dos veces el mismo día, la
+          // restricción única (organización+servicio+fecha) hace que la
+          // segunda carga actualice la primera en vez de duplicarla,
+          // igual que ya pasa con el formato CSV plano.
+          fechaEvaluacionFinal = new Date(new Date().toISOString().slice(0, 10))
+          filasOmitidasFormato = parsed.omitidas
+        } else {
+          rows = await parseVariableFile(input.fileBuffer, input.filename)
+        }
       } catch (err) {
         if (err instanceof VariableFileParseError) {
           await notifications.notify({
@@ -176,7 +213,7 @@ export function createVariablesService(prisma: PrismaClient) {
         }
       })
 
-      const existingUpload = await repository.findUploadByDate(input.organizationId, service.id, input.fechaEvaluacion)
+      const existingUpload = await repository.findUploadByDate(input.organizationId, service.id, fechaEvaluacionFinal)
 
       const puestosAfectados = new Set(rows.map((r) => r.codigoPuesto)).size
       let uploadId: string
@@ -191,7 +228,8 @@ export function createVariablesService(prisma: PrismaClient) {
           serviceId: service.id,
           uploadedById: input.uploadedById,
           originalFile: input.filename,
-          fechaEvaluacion: input.fechaEvaluacion,
+          fechaEvaluacion: fechaEvaluacionFinal,
+          origen,
           rows: preparedRows,
         })
         uploadId = upload.id
@@ -260,7 +298,7 @@ export function createVariablesService(prisma: PrismaClient) {
         puestosAfectados,
         filasNuevas,
         filasActualizadas,
-        filasOmitidas,
+        filasOmitidas: [...filasOmitidas, ...filasOmitidasFormato],
       }
     },
 

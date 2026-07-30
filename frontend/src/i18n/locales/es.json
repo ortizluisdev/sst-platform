@@ -477,7 +477,13 @@
       "missingFields": "Selecciona un archivo y una fecha de evaluación.",
       "processError": "Error al procesar el archivo.",
       "heading": "Cargar variables (CSV o Excel)",
-      "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor.",
+      "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. También acepta el reporte completo de Excel (Reporte Hoja 2).",
+      "omittedHeading": "Filas omitidas (no se cargaron):",
+      "omittedReason": {
+        "sin_variable_equivalente": "sin variable equivalente en el catálogo",
+        "valor_no_numerico": "valor no numérico",
+        "ya_corregida": "ya estaba corregida manualmente"
+      },
       "processing": "Procesando...",
       "submit": "Subir",
       "successPrefix": "Carga exitosa: ",

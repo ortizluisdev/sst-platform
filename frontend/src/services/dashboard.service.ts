@@ -100,6 +100,10 @@ export interface UploadResult {
   uploadId: string
   filasProcesadas: number
   puestosAfectados: number
+  filasOmitidas?: (
+    | { workPointCodigo: string; codigoVariable: string }
+    | { nombre: string; motivo: 'sin_variable_equivalente' | 'valor_no_numerico' }
+  )[]
 }
 
 export async function uploadVariablesFile(input: {

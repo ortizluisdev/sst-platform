@@ -48,6 +48,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
       uploadedById: string
       originalFile: string
       fechaEvaluacion: Date
+      origen: 'CSV' | 'REPORTE_EXCEL'
       rows: {
         codigoPuesto: string
         nombrePuesto: string
@@ -67,6 +68,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
             uploadedById: input.uploadedById,
             originalFile: input.originalFile,
             fechaEvaluacion: input.fechaEvaluacion,
+            origen: input.origen,
             status: 'PROCESADO',
           },
         })

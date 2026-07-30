@@ -74,5 +74,18 @@ async function submit() {
     <p v-if="lastResult" class="mt-3 rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
       {{ t('dashboard.uploadForm.successPrefix') }}{{ lastResult.filasProcesadas }}{{ t('dashboard.uploadForm.successRows') }}{{ lastResult.puestosAfectados }}{{ t('dashboard.uploadForm.successSuffix') }}
     </p>
+    <div v-if="lastResult?.filasOmitidas?.length" class="mt-3 rounded-sm border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+      <p class="font-semibold">{{ t('dashboard.uploadForm.omittedHeading') }}</p>
+      <ul class="mt-1 list-disc pl-5">
+        <li v-for="(omitida, i) in lastResult.filasOmitidas" :key="i">
+          <template v-if="'nombre' in omitida">
+            {{ omitida.nombre }} — {{ t(`dashboard.uploadForm.omittedReason.${omitida.motivo}`) }}
+          </template>
+          <template v-else>
+            {{ omitida.workPointCodigo }} / {{ omitida.codigoVariable }} — {{ t('dashboard.uploadForm.omittedReason.ya_corregida') }}
+          </template>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
