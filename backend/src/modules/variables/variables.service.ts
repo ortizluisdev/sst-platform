@@ -1,4 +1,4 @@
-import type { PrismaClient, WorkShift } from '@prisma/client'
+import type { PrismaClient, VariableMeasurementType, WorkShift } from '@prisma/client'
 import { createVariablesRepository } from './variables.repository.js'
 import { parseVariableFile, VariableFileParseError } from '../../utils/variableFileParser.js'
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
@@ -479,6 +479,7 @@ function buildVariableSummary(
     normativaRef: string | null
     comparisonType: SemaphoreThresholds['comparisonType']
     toleranciaAlerta: number
+    tipo: VariableMeasurementType | null
   },
   readings: {
     id: string
@@ -511,6 +512,7 @@ function buildVariableSummary(
     limiteMin: definition.limiteMin,
     limiteMax: definition.limiteMax,
     normativaRef: definition.normativaRef,
+    tipo: definition.tipo,
     promedio,
     cumplimientoPct,
     estado,
@@ -544,6 +546,7 @@ function buildEmptyVariableSummary(definition: {
   limiteMin: number | null
   limiteMax: number | null
   normativaRef: string | null
+  tipo: VariableMeasurementType | null
 }) {
   return {
     definitionId: definition.id,
@@ -553,6 +556,7 @@ function buildEmptyVariableSummary(definition: {
     limiteMin: definition.limiteMin,
     limiteMax: definition.limiteMax,
     normativaRef: definition.normativaRef,
+    tipo: definition.tipo,
     promedio: 0,
     cumplimientoPct: 0,
     estado: 'SIN_DATOS' as const,
