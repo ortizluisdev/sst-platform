@@ -205,38 +205,59 @@ function buildClientUsers(): ClientOrgSeed[] {
 // deben validarse antes de usarse en producción real.
 // ============================================================
 
+/**
+ * Catálogo real de Higiene Industrial — fuente de verdad: `variablesdash1.xlsx`,
+ * Hoja 2 · Detalle técnico (2026-07-29). Reestructuración aprobada:
+ * - ILU-04, RUI-01, VIB-01, VIB-02 quedan `isActive: false` (deprecadas, NO
+ *   se borran): sus definiciones se dividieron en variables más específicas
+ *   que el Excel sí distingue. Las lecturas históricas que ya apuntan a
+ *   estos 4 códigos NO se remapean — siguen existiendo, sin fusionarse con
+ *   las nuevas definiciones. Cargas nuevas usan exclusivamente el catálogo
+ *   activo (los códigos deprecados quedan fuera de la validación de carga
+ *   y del catálogo admin, vía el mismo `isActive` que ya filtraba ambos).
+ * - `tipo` (M/C/I) y límites vienen del Excel; donde el Excel no da un
+ *   límite o instrumento específico, quedan `null` (no se inventan normas).
+ */
 const HIGIENE_VARIABLES = [
   // --- Iluminación (ISO 8995-1 / RETILAP) ---
   {
     codigo: 'ILU-01',
     categoria: 'Iluminación',
-    nombre: 'Iluminancia promedio',
+    nombre: 'Iluminancia horizontal media',
     unidadMedida: 'lux',
-    comparisonType: 'RANGE',
-    limiteMin: 300,
-    limiteMax: 500,
-    normativaRef: 'ISO 8995-1 / RETILAP',
+    comparisonType: 'MIN_LIMIT',
+    limiteMin: 500,
+    limiteMax: null,
+    normativaRef: 'ISO 8995-1',
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'ILU-02',
     categoria: 'Iluminación',
-    nombre: 'Uniformidad (Emin/Eprom)',
-    unidadMedida: 'ratio',
+    nombre: 'Uniformidad',
+    unidadMedida: 'adimensional',
     comparisonType: 'MIN_LIMIT',
     limiteMin: 0.6,
     limiteMax: null,
-    normativaRef: 'ISO 8995-1 / RETILAP',
+    normativaRef: 'ISO 8995-1',
+    tipo: 'CALCULO',
+    isActive: true,
   },
   {
     codigo: 'ILU-03',
     categoria: 'Iluminación',
-    nombre: 'Deslumbramiento (UGR)',
-    unidadMedida: 'UGR',
+    nombre: 'Deslumbramiento unificado (UGR)',
+    unidadMedida: 'adimensional',
     comparisonType: 'MAX_LIMIT',
     limiteMin: null,
-    limiteMax: 19,
-    normativaRef: 'ISO 8995-1 / RETILAP',
+    limiteMax: 22,
+    normativaRef: 'ISO 8995-1',
+    tipo: 'CALCULO',
+    isActive: true,
   },
+  // Deprecada: dividida en ILU-08/09/10 (reflectancia por superficie, en
+  // decimal 0–1) — el Excel las trata como 3 variables, no 1 sola en %.
   {
     codigo: 'ILU-04',
     categoria: 'Iluminación',
@@ -246,8 +267,123 @@ const HIGIENE_VARIABLES = [
     limiteMin: 20,
     limiteMax: 50,
     normativaRef: 'ISO 8995-1 / RETILAP',
+    tipo: null,
+    isActive: false,
+  },
+  {
+    codigo: 'ILU-05',
+    categoria: 'Iluminación',
+    nombre: 'Iluminancia horizontal (por punto)',
+    unidadMedida: 'lux',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-06',
+    categoria: 'Iluminación',
+    nombre: 'Iluminancia vertical (por altura)',
+    unidadMedida: 'lux',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-07',
+    categoria: 'Iluminación',
+    nombre: 'Iluminancia cilíndrica',
+    unidadMedida: 'lux',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-08',
+    categoria: 'Iluminación',
+    nombre: 'Reflectancia piso',
+    unidadMedida: 'adimensional (0–1)',
+    comparisonType: 'RANGE',
+    limiteMin: 0.2,
+    limiteMax: 0.4,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-09',
+    categoria: 'Iluminación',
+    nombre: 'Reflectancia pared',
+    unidadMedida: 'adimensional (0–1)',
+    comparisonType: 'RANGE',
+    limiteMin: 0.5,
+    limiteMax: 0.8,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-10',
+    categoria: 'Iluminación',
+    nombre: 'Reflectancia techo',
+    unidadMedida: 'adimensional (0–1)',
+    comparisonType: 'RANGE',
+    limiteMin: 0.7,
+    limiteMax: 0.9,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-11',
+    categoria: 'Iluminación',
+    nombre: 'Luminancia',
+    unidadMedida: 'cd/m²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    // Excel marca esta variable como "Medición/Cálculo" (ambiguo) — se
+    // clasifica como Cálculo porque el índice del local se deriva de las
+    // dimensiones del espacio, no de una lectura directa de instrumento.
+    codigo: 'ILU-12',
+    categoria: 'Iluminación',
+    nombre: 'Índice del local',
+    unidadMedida: 'adimensional',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'ILU-13',
+    categoria: 'Iluminación',
+    nombre: 'Factor de luz día',
+    unidadMedida: '%',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
   },
   // --- Sonido (ISO 9612:2009) ---
+  // Deprecada: dividida en RUI-05 (LAeq, medición cruda) y RUI-06 (LEX,8h,
+  // exposición diaria calculada) — el Excel ya las trata como 2 variables.
   {
     codigo: 'RUI-01',
     categoria: 'Sonido',
@@ -257,16 +393,20 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: 85,
     normativaRef: 'ISO 9612:2009',
+    tipo: null,
+    isActive: false,
   },
   {
     codigo: 'RUI-02',
     categoria: 'Sonido',
-    nombre: 'Nivel pico (LCpeak)',
+    nombre: 'Nivel pico (LC,pico)',
     unidadMedida: 'dB(C)',
     comparisonType: 'MAX_LIMIT',
     limiteMin: null,
     limiteMax: 140,
     normativaRef: 'ISO 9612:2009',
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'RUI-03',
@@ -277,6 +417,8 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: 8,
     normativaRef: 'ISO 9612:2009',
+    tipo: 'INSPECCION',
+    isActive: true,
   },
   {
     codigo: 'RUI-04',
@@ -287,17 +429,93 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: 100,
     normativaRef: 'ISO 9612:2009',
+    tipo: 'CALCULO',
+    isActive: true,
   },
-  // --- Estrés térmico (ISO 7243 / ISO 7730) ---
+  {
+    codigo: 'RUI-05',
+    categoria: 'Sonido',
+    nombre: 'Nivel continuo equivalente (A)',
+    unidadMedida: 'dB(A)',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 85,
+    normativaRef: 'ISO 9612:2009',
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'RUI-06',
+    categoria: 'Sonido',
+    nombre: 'Nivel de exposición diaria',
+    unidadMedida: 'dB(A)',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 85,
+    normativaRef: 'ISO 9612:2009',
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'RUI-07',
+    categoria: 'Sonido',
+    nombre: 'Nivel de presión sonora',
+    unidadMedida: 'dB',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'RUI-08',
+    categoria: 'Sonido',
+    nombre: 'Percentiles estadísticos (L10/L50/L90)',
+    unidadMedida: 'dB(A)',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'RUI-09',
+    categoria: 'Sonido',
+    nombre: 'Análisis en bandas de octava',
+    unidadMedida: 'dB (por banda)',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: '31.5 Hz – 8 kHz',
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'RUI-10',
+    categoria: 'Sonido',
+    nombre: 'Atenuación de protector auditivo',
+    unidadMedida: 'dB',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: 'ISO 4869',
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  // --- Estrés térmico (ISO 7243 / ISO 7730 / ISO 8996 / ISO 9920) ---
   {
     codigo: 'TER-01',
     categoria: 'Estrés Térmico',
-    nombre: 'Temperatura del aire',
+    nombre: 'Temperatura del aire (bulbo seco)',
     unidadMedida: '°C',
     comparisonType: 'RANGE',
-    limiteMin: 18,
-    limiteMax: 28,
-    normativaRef: 'ISO 7730',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'TER-02',
@@ -308,37 +526,141 @@ const HIGIENE_VARIABLES = [
     limiteMin: 30,
     limiteMax: 70,
     normativaRef: 'ISO 7730',
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'TER-03',
     categoria: 'Estrés Térmico',
-    nombre: 'WBGT (carga metabólica moderada)',
+    nombre: 'Índice WBGT',
     unidadMedida: '°C',
     comparisonType: 'MAX_LIMIT',
     limiteMin: null,
-    limiteMax: 30,
+    limiteMax: 28,
     normativaRef: 'ISO 7243',
+    tipo: 'CALCULO',
+    isActive: true,
   },
   {
     codigo: 'TER-04',
     categoria: 'Estrés Térmico',
-    nombre: 'Índice PMV',
-    unidadMedida: 'PMV',
+    nombre: 'Voto medio previsto (PMV)',
+    unidadMedida: 'adimensional',
     comparisonType: 'RANGE',
     limiteMin: -0.5,
     limiteMax: 0.5,
     normativaRef: 'ISO 7730',
+    tipo: 'CALCULO',
+    isActive: true,
   },
-  // --- Radiación UV (ICNIRP) — límites normativos pendientes de confirmar ---
+  {
+    codigo: 'TER-05',
+    categoria: 'Estrés Térmico',
+    nombre: 'Temperatura de globo',
+    unidadMedida: '°C',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-06',
+    categoria: 'Estrés Térmico',
+    nombre: 'Temperatura de bulbo húmedo natural',
+    unidadMedida: '°C',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-07',
+    categoria: 'Estrés Térmico',
+    nombre: 'Temperatura radiante media',
+    unidadMedida: '°C',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-08',
+    categoria: 'Estrés Térmico',
+    nombre: 'Velocidad del aire',
+    unidadMedida: 'm/s',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-09',
+    categoria: 'Estrés Térmico',
+    nombre: 'Porcentaje previsto de insatisfechos (PPD)',
+    unidadMedida: '%',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 10,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-10',
+    categoria: 'Estrés Térmico',
+    nombre: 'Tasa metabólica',
+    unidadMedida: 'W/m²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: 'ISO 8996',
+    tipo: 'INSPECCION',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-11',
+    categoria: 'Estrés Térmico',
+    nombre: 'Aislamiento de vestimenta',
+    unidadMedida: 'clo',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: 'ISO 9920',
+    tipo: 'INSPECCION',
+    isActive: true,
+  },
+  {
+    codigo: 'TER-12',
+    categoria: 'Estrés Térmico',
+    nombre: 'Régimen trabajo/descanso',
+    unidadMedida: 'min/min',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: 'ISO 7243',
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  // --- Radiación UV (ICNIRP / ACGIH) ---
   {
     codigo: 'RUV-01',
     categoria: 'Radiación UV',
     nombre: 'Índice UV',
     unidadMedida: 'UV Index',
-    comparisonType: 'RANGE',
+    comparisonType: 'MAX_LIMIT',
     limiteMin: null,
-    limiteMax: null,
+    limiteMax: 3.0,
     normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'RUV-02',
@@ -349,28 +671,48 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
   },
   {
     codigo: 'RUV-03',
     categoria: 'Radiación UV',
-    nombre: 'Exposición radiante',
+    nombre: 'Exposición radiante efectiva',
     unidadMedida: 'J/m²',
-    comparisonType: 'RANGE',
+    comparisonType: 'MAX_LIMIT',
     limiteMin: null,
-    limiteMax: null,
-    normativaRef: null,
+    limiteMax: 30,
+    normativaRef: 'ICNIRP',
+    tipo: 'CALCULO',
+    isActive: true,
   },
   {
     codigo: 'RUV-04',
     categoria: 'Radiación UV',
-    nombre: 'Tiempo máx. de exposición',
+    nombre: 'Tiempo máximo de exposición',
     unidadMedida: 'h',
     comparisonType: 'RANGE',
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
   },
-  // --- Vibración (ISO 5349 / ISO 2631) — límites normativos pendientes de confirmar ---
+  {
+    codigo: 'RUV-05',
+    categoria: 'Radiación UV',
+    nombre: 'Irradiancia por banda (UV-A/B/C)',
+    unidadMedida: 'W/m²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  // --- Vibración (ISO 5349 / ISO 2631) ---
+  // Deprecada: dividida en VIB-05 (ahv, medición cruda) y VIB-06 (A(8) HAV,
+  // exposición diaria calculada, ≤5 m/s² — el límite real que hoy faltaba).
   {
     codigo: 'VIB-01',
     categoria: 'Vibración',
@@ -380,7 +722,11 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: null,
+    isActive: false,
   },
+  // Deprecada: dividida en VIB-07 (aw, medición cruda) y VIB-08 (A(8) WBV,
+  // exposición diaria calculada, ≤1.15 m/s² — el límite real que hoy faltaba).
   {
     codigo: 'VIB-02',
     categoria: 'Vibración',
@@ -390,6 +736,8 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: null,
+    isActive: false,
   },
   {
     codigo: 'VIB-03',
@@ -400,6 +748,8 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
   },
   {
     codigo: 'VIB-04',
@@ -410,6 +760,68 @@ const HIGIENE_VARIABLES = [
     limiteMin: null,
     limiteMax: null,
     normativaRef: null,
+    tipo: 'INSPECCION',
+    isActive: true,
+  },
+  {
+    codigo: 'VIB-05',
+    categoria: 'Vibración',
+    nombre: 'Aceleración ponderada mano-brazo',
+    unidadMedida: 'm/s²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'VIB-06',
+    categoria: 'Vibración',
+    nombre: 'Exposición diaria mano-brazo (A(8))',
+    unidadMedida: 'm/s²',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 5,
+    normativaRef: 'ISO 5349',
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'VIB-07',
+    categoria: 'Vibración',
+    nombre: 'Aceleración ponderada cuerpo entero',
+    unidadMedida: 'm/s²',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
+  {
+    codigo: 'VIB-08',
+    categoria: 'Vibración',
+    nombre: 'Exposición diaria cuerpo entero (A(8))',
+    unidadMedida: 'm/s²',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 1.15,
+    normativaRef: 'ISO 2631',
+    tipo: 'CALCULO',
+    isActive: true,
+  },
+  {
+    codigo: 'VIB-09',
+    categoria: 'Vibración',
+    nombre: 'Valor de dosis de vibración (VDV)',
+    unidadMedida: 'm/s^1.75',
+    comparisonType: 'MAX_LIMIT',
+    limiteMin: null,
+    limiteMax: 21,
+    normativaRef: null,
+    tipo: 'CALCULO',
+    isActive: true,
   },
 ] as const
 
@@ -436,8 +848,14 @@ function generateReadingValue(def: (typeof HIGIENE_VARIABLES)[number], profile: 
   const roll = Math.random()
   const { verde, amarillo } = PROFILE_ROLLS[profile]
   if (def.comparisonType === 'RANGE') {
-    const min = def.limiteMin as number
-    const max = def.limiteMax as number
+    if (def.limiteMin == null || def.limiteMax == null) {
+      // Variable informativa, sin límite normativo (el semáforo ya devuelve
+      // AMARILLO en este caso) — un valor 0–100 evita que randomInRange(0,0)
+      // devuelva siempre 0 en el dato de demo, sin inventar ninguna norma.
+      return randomInRange(0, 100)
+    }
+    const min = def.limiteMin
+    const max = def.limiteMax
     if (roll < verde) return randomInRange(min, max)
     if (roll < amarillo) return randomInRange(max, max * 1.15)
     return randomInRange(max * 1.15, max * 1.4)
@@ -483,6 +901,8 @@ async function seedHigieneIndustrialData(
         limiteMin: v.limiteMin,
         limiteMax: v.limiteMax,
         normativaRef: v.normativaRef,
+        tipo: v.tipo,
+        isActive: v.isActive,
       },
       create: {
         serviceId: service.id,
@@ -494,6 +914,8 @@ async function seedHigieneIndustrialData(
         limiteMin: v.limiteMin,
         limiteMax: v.limiteMax,
         normativaRef: v.normativaRef,
+        tipo: v.tipo,
+        isActive: v.isActive,
       },
     })
     definitionByCode.set(v.codigo, row)
@@ -539,7 +961,10 @@ async function seedHigieneIndustrialData(
     })
 
     const readings = workPoints.flatMap((wp) =>
-      HIGIENE_VARIABLES.map((v) => {
+      // Las definiciones deprecadas (isActive: false) no reciben lecturas
+      // nuevas — el catálogo nuevo es el único destino de cargas a partir
+      // de este deploy (ver comentario sobre HIGIENE_VARIABLES arriba).
+      HIGIENE_VARIABLES.filter((v) => v.isActive).map((v) => {
         const definition = definitionByCode.get(v.codigo)!
         const valor = generateReadingValue(v, complianceProfile)
         const semaforo = calculateSemaphore(valor, {
@@ -555,8 +980,9 @@ async function seedHigieneIndustrialData(
     await prisma.variableReading.createMany({ data: readings })
   }
 
+  const activeVariableCount = HIGIENE_VARIABLES.filter((v) => v.isActive).length
   console.log(
-    `Higiene Industrial (perfil ${complianceProfile}): ${HIGIENE_VARIABLES.length} variables, ${workPoints.length} puestos de trabajo, ${EVALUATION_DATES.length} cargas históricas.`,
+    `Higiene Industrial (perfil ${complianceProfile}): ${activeVariableCount} variables activas (+${HIGIENE_VARIABLES.length - activeVariableCount} deprecadas), ${workPoints.length} puestos de trabajo, ${EVALUATION_DATES.length} cargas históricas.`,
   )
 }
 
