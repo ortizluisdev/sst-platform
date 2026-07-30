@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
-import type { DashboardData, OrganizationOption, UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
+import type { DashboardData, DashboardFilters, OrganizationOption, UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
 
 export class DashboardRequestError extends Error {
   status: number
@@ -22,10 +22,12 @@ function rethrow(err: unknown): never {
   throw err
 }
 
-/** Cliente: siempre su propia organización (derivada de la sesión en el backend). */
-export async function getClientDashboard(serviceSlug: string): Promise<DashboardData> {
+/** Cliente: siempre su propia organización (derivada de la sesión en el backend).
+ * `filters` es opcional y aditivo (ver getDashboard en el backend): sin
+ * filtros, el comportamiento es idéntico al de siempre (última carga). */
+export async function getClientDashboard(serviceSlug: string, filters?: DashboardFilters): Promise<DashboardData> {
   try {
-    const { data } = await apiClient.get(`/dashboard/${serviceSlug}`)
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}`, { params: filters })
     return data
   } catch (err) {
     rethrow(err)
@@ -33,9 +35,13 @@ export async function getClientDashboard(serviceSlug: string): Promise<Dashboard
 }
 
 /** Super-admin: cualquier organización, explícita en la ruta. */
-export async function getAdminDashboard(organizationId: string, serviceSlug: string): Promise<DashboardData> {
+export async function getAdminDashboard(
+  organizationId: string,
+  serviceSlug: string,
+  filters?: DashboardFilters,
+): Promise<DashboardData> {
   try {
-    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}`)
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}`, { params: filters })
     return data
   } catch (err) {
     rethrow(err)

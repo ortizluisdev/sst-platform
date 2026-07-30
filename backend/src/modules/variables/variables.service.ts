@@ -318,8 +318,16 @@ export function createVariablesService(prisma: PrismaClient) {
       return rows.map((r) => r.service)
     },
 
-    /** Datos agregados para el dashboard de un servicio de una organización. */
-    async getDashboard(organizationId: string, serviceSlug: string) {
+    /** Datos agregados para el dashboard de un servicio de una organización.
+     * `filters` es siempre opcional y aditivo: si el llamador (admin) nunca
+     * los envía, el comportamiento es idéntico al de antes — el filtrado
+     * real (área de planta / proceso-actividad / carga puntual) solo se
+     * activa cuando el frontend cliente lo pide explícitamente. */
+    async getDashboard(
+      organizationId: string,
+      serviceSlug: string,
+      filters: { uploadId?: string; areaPlanta?: string; procesoActividad?: string } = {},
+    ) {
       const service = await repository.findServiceBySlug(serviceSlug)
       if (!service) throw new VariablesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
 
@@ -328,10 +336,27 @@ export function createVariablesService(prisma: PrismaClient) {
         throw new VariablesError('SERVICE_NOT_CONTRACTED', 'Esta organización no tiene contratado este servicio')
       }
 
-      const latestUpload = await repository.findLatestUpload(organizationId, service.id)
       const totalWorkPoints = await repository.countActiveWorkPoints(organizationId)
 
-      if (!latestUpload) {
+      let selectedUploadId: string | null
+      let selectedFecha: Date | null
+      if (filters.uploadId) {
+        // Anti-IDOR: la carga debe pertenecer a esta organización Y a este
+        // servicio — nunca confiar en que el uploadId de la query pertenece
+        // a quien lo pide (mismo patrón que getUploadDetail).
+        const upload = await repository.findUploadDetail(filters.uploadId, organizationId)
+        if (!upload || upload.serviceId !== service.id) {
+          throw new VariablesError('UPLOAD_NOT_FOUND', 'Carga no encontrada')
+        }
+        selectedUploadId = upload.id
+        selectedFecha = upload.fechaEvaluacion
+      } else {
+        const latestUpload = await repository.findLatestUpload(organizationId, service.id)
+        selectedUploadId = latestUpload?.id ?? null
+        selectedFecha = latestUpload?.fechaEvaluacion ?? null
+      }
+
+      if (!selectedUploadId) {
         // Sin cargas todavía: en vez de un dashboard vacío, mostramos las
         // categorías del catálogo contratado en estado SIN_DATOS — la
         // organización ya sabe qué se le va a medir aunque aún no haya
@@ -351,12 +376,27 @@ export function createVariablesService(prisma: PrismaClient) {
           categories: [...categoriesMap.entries()].map(([categoria, variables]) => ({ categoria, variables })),
           globalCompliance: { pct: 0, verde: 0, amarillo: 0, rojo: 0, total: 0 },
           trend: [],
+          filtrosDisponibles: { areasPlanta: [], procesosActividad: [] },
         }
       }
 
-      const latestReadings = await repository.findReadingsByUpload(latestUpload.id)
+      const allReadings = await repository.findReadingsByUpload(selectedUploadId)
 
-      // Agrupa las lecturas más recientes por variable, para la tabla
+      // Opciones reales disponibles para los selectores de filtro — del total
+      // de la carga, antes de aplicar el filtro (para que el desplegable no
+      // se vacíe a medida que el usuario filtra).
+      const filtrosDisponibles = {
+        areasPlanta: [...new Set(allReadings.map((r) => r.workPoint.areaPlanta))].sort(),
+        procesosActividad: [...new Set(allReadings.map((r) => r.workPoint.procesoActividad))].sort(),
+      }
+
+      const latestReadings = allReadings.filter(
+        (r) =>
+          (!filters.areaPlanta || r.workPoint.areaPlanta === filters.areaPlanta) &&
+          (!filters.procesoActividad || r.workPoint.procesoActividad === filters.procesoActividad),
+      )
+
+      // Agrupa las lecturas (ya filtradas) por variable, para la tabla
       // comparativa y las 3 tarjetas resumen por categoría.
       const byDefinition = new Map<string, typeof latestReadings>()
       for (const reading of latestReadings) {
@@ -404,11 +444,12 @@ export function createVariablesService(prisma: PrismaClient) {
 
       return {
         service: { slug: service.slug, nombre: service.nombre, updateFrequency: service.updateFrequency },
-        lastUpdated: latestUpload.fechaEvaluacion,
+        lastUpdated: selectedFecha,
         totalWorkPoints,
         categories,
         globalCompliance: { pct: globalPct, ...globalCompliance },
         trend,
+        filtrosDisponibles,
       }
     },
 
@@ -527,7 +568,7 @@ function buildVariableSummary(
     semaforo: 'VERDE' | 'AMARILLO' | 'ROJO'
     isCorrected: boolean
     correctionReason: string | null
-    workPoint: { codigo: string; nombre: string; areaPlanta: string }
+    workPoint: { codigo: string; nombre: string; areaPlanta: string; procesoActividad: string }
   }[],
 ) {
   const promedio = round2(readings.reduce((sum, r) => sum + r.valor, 0) / readings.length)
@@ -567,6 +608,7 @@ function buildVariableSummary(
         workPointCodigo: r.workPoint.codigo,
         workPointNombre: r.workPoint.nombre,
         areaPlanta: r.workPoint.areaPlanta,
+        procesoActividad: r.workPoint.procesoActividad,
         valor: r.valor,
         semaforo: r.semaforo,
         isCorrected: r.isCorrected,

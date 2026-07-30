@@ -596,7 +596,16 @@
       "pendiente": "Pendiente",
       "instrumentoPrefix": "Instrumento: ",
       "exportCsv": "Exportar CSV",
-      "exportPdf": "Exportar PDF"
+      "exportPdf": "Exportar PDF",
+      "filtroFecha": "Fecha",
+      "filtroUltima": "Última carga",
+      "filtroArea": "Área de planta",
+      "filtroTodas": "Todas las áreas",
+      "filtroProceso": "Proceso/actividad",
+      "filtroTodos": "Todos los procesos",
+      "limpiarFiltros": "Limpiar filtros",
+      "filtrando": "Aplicando filtros...",
+      "sinResultados": "No hay resultados para los filtros seleccionados."
     },
     "clientView": {
       "pageTitle": "Dashboard Higiene Industrial — RoMa+",

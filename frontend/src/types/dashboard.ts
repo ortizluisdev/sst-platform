@@ -13,6 +13,7 @@ export interface WorkPointReading {
   workPointCodigo: string
   workPointNombre: string
   areaPlanta: string
+  procesoActividad: string
   valor: number
   semaforo: SemaphoreStatus
   isCorrected: boolean
@@ -54,6 +55,17 @@ export interface TrendPoint {
   promedios: Record<string, number>
 }
 
+export interface DashboardFiltersAvailable {
+  areasPlanta: string[]
+  procesosActividad: string[]
+}
+
+export interface DashboardFilters {
+  uploadId?: string
+  areaPlanta?: string
+  procesoActividad?: string
+}
+
 export interface DashboardData {
   service: { slug: string; nombre: string; updateFrequency: 'WEEKLY' | 'BIWEEKLY' }
   lastUpdated: string | null
@@ -61,6 +73,7 @@ export interface DashboardData {
   categories: CategorySummary[]
   globalCompliance: GlobalCompliance
   trend: TrendPoint[]
+  filtrosDisponibles: DashboardFiltersAvailable
 }
 
 export interface OrganizationOption {

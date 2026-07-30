@@ -13,6 +13,15 @@ import {
   correctReadingHandler,
 } from './variables.controller.js'
 
+/** Filtros opcionales del dashboard — aditivos: si el llamador no los envía,
+ * getDashboard se comporta exactamente igual que antes (última carga, sin
+ * filtrar por área/proceso). */
+interface DashboardFiltersQuery {
+  uploadId?: string
+  areaPlanta?: string
+  procesoActividad?: string
+}
+
 export async function variablesRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { serviceSlug?: string } }>(
     '/api/admin/organizations',
@@ -47,13 +56,13 @@ export async function variablesRoutes(app: FastifyInstance) {
     correctReadingHandler,
   )
 
-  app.get<{ Params: { serviceSlug: string } }>(
+  app.get<{ Params: { serviceSlug: string }; Querystring: DashboardFiltersQuery }>(
     '/api/dashboard/:serviceSlug',
     { preHandler: [requireAuth] },
     clientDashboardHandler,
   )
 
-  app.get<{ Params: { organizationId: string; serviceSlug: string } }>(
+  app.get<{ Params: { organizationId: string; serviceSlug: string }; Querystring: DashboardFiltersQuery }>(
     '/api/admin/organizations/:organizationId/dashboard/:serviceSlug',
     { preHandler: [requireAuth, requirePermission('platform.dashboards.view')] },
     adminDashboardHandler,

@@ -102,7 +102,10 @@ export async function uploadVariablesHandler(
  * parámetro externo. Requiere permiso dashboard.{slug}.view Y que la
  * organización tenga el servicio contratado (verificado en el servicio). */
 export async function clientDashboardHandler(
-  request: FastifyRequest<{ Params: { serviceSlug: string } }>,
+  request: FastifyRequest<{
+    Params: { serviceSlug: string }
+    Querystring: { uploadId?: string; areaPlanta?: string; procesoActividad?: string }
+  }>,
   reply: FastifyReply,
 ) {
   const parsed = dashboardParamsSchema.safeParse(request.params)
@@ -124,7 +127,7 @@ export async function clientDashboardHandler(
 
   const service = createVariablesService(request.server.prisma)
   try {
-    const dashboard = await service.getDashboard(membership.organizationId, parsed.data.serviceSlug)
+    const dashboard = await service.getDashboard(membership.organizationId, parsed.data.serviceSlug, request.query)
     return reply.code(200).send(dashboard)
   } catch (err) {
     return sendVariablesError(reply, err)
@@ -135,7 +138,10 @@ export async function clientDashboardHandler(
  * permitido para cualquier organización, siempre que tenga el permiso de
  * plataforma (nunca confía en el rol reportado por el frontend). */
 export async function adminDashboardHandler(
-  request: FastifyRequest<{ Params: { organizationId: string; serviceSlug: string } }>,
+  request: FastifyRequest<{
+    Params: { organizationId: string; serviceSlug: string }
+    Querystring: { uploadId?: string; areaPlanta?: string; procesoActividad?: string }
+  }>,
   reply: FastifyReply,
 ) {
   const parsed = adminDashboardParamsSchema.safeParse(request.params)
@@ -143,7 +149,7 @@ export async function adminDashboardHandler(
 
   const service = createVariablesService(request.server.prisma)
   try {
-    const dashboard = await service.getDashboard(parsed.data.organizationId, parsed.data.serviceSlug)
+    const dashboard = await service.getDashboard(parsed.data.organizationId, parsed.data.serviceSlug, request.query)
     return reply.code(200).send(dashboard)
   } catch (err) {
     return sendVariablesError(reply, err)

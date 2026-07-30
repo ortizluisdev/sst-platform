@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { DashboardData } from '@/types/dashboard'
+import type { DashboardData, DashboardFilters, UploadHistoryEntry } from '@/types/dashboard'
 import ClientDashboardTab from './ClientDashboardTab.vue'
 import ClientDetalleTecnicoTab from './ClientDetalleTecnicoTab.vue'
 import ClientAnalisisTab from './ClientAnalisisTab.vue'
 
-defineProps<{ dashboard: DashboardData }>()
+defineProps<{
+  dashboard: DashboardData
+  fetchHistory: () => Promise<UploadHistoryEntry[]>
+  fetchFilteredDashboard: (filters: DashboardFilters) => Promise<DashboardData>
+}>()
 
 const { t } = useI18n()
 const activeHoja = ref<'hoja1' | 'hoja2' | 'hoja3'>('hoja1')
@@ -34,7 +38,12 @@ const HOJAS = [
     </div>
 
     <ClientDashboardTab v-if="activeHoja === 'hoja1'" :dashboard="dashboard" />
-    <ClientDetalleTecnicoTab v-else-if="activeHoja === 'hoja2'" :dashboard="dashboard" />
+    <ClientDetalleTecnicoTab
+      v-else-if="activeHoja === 'hoja2'"
+      :dashboard="dashboard"
+      :fetch-history="fetchHistory"
+      :fetch-filtered-dashboard="fetchFilteredDashboard"
+    />
     <ClientAnalisisTab v-else-if="activeHoja === 'hoja3'" :dashboard="dashboard" />
   </div>
 </template>

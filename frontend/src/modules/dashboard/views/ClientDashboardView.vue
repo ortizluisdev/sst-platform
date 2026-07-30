@@ -7,7 +7,7 @@ import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
 import ClientDashboardHojas from '@/components/dashboard/client/ClientDashboardHojas.vue'
 import { getClientDashboard, getClientUploadHistory, getClientUploadDetail, DashboardRequestError } from '@/services/dashboard.service'
-import type { DashboardData } from '@/types/dashboard'
+import type { DashboardData, DashboardFilters } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
 
@@ -41,6 +41,10 @@ function fetchHistory() {
 function fetchUploadDetail(uploadId: string) {
   return getClientUploadDetail(SERVICE_SLUG, uploadId)
 }
+
+function fetchFilteredDashboard(filters: DashboardFilters) {
+  return getClientDashboard(SERVICE_SLUG, filters)
+}
 </script>
 
 <template>
@@ -52,7 +56,12 @@ function fetchUploadDetail(uploadId: string) {
     <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-start">
       <DashboardSidebar v-model="activeTab" :tabs="tabs" />
       <div>
-        <ClientDashboardHojas v-if="activeTab === 'resumen'" :dashboard="dashboard" />
+        <ClientDashboardHojas
+          v-if="activeTab === 'resumen'"
+          :dashboard="dashboard"
+          :fetch-history="fetchHistory"
+          :fetch-filtered-dashboard="fetchFilteredDashboard"
+        />
         <DashboardShell
           v-else
           :dashboard="dashboard"
