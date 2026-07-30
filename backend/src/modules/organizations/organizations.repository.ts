@@ -28,6 +28,8 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
           nit: true,
           contactEmail: true,
           isActive: true,
+          primaryColor: true,
+          secondaryColor: true,
           services: {
             select: { isActive: true, service: { select: { slug: true, nombre: true } } },
           },
@@ -53,7 +55,17 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       })
     },
 
-    update(id: string, data: { nombre?: string; nit?: string; contactEmail?: string }) {
+    update(
+      id: string,
+      data: {
+        nombre?: string
+        nit?: string
+        contactEmail?: string
+        logoBase64?: string
+        primaryColor?: string
+        secondaryColor?: string
+      },
+    ) {
       return prisma.organization.update({ where: { id }, data })
     },
 
@@ -72,6 +84,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
         nombre: string
         email: string
         cargo: string
+        telefono: string
       }
     }) {
       const clienteRole = await prisma.role.findUnique({ where: { name: 'cliente' } })
@@ -93,6 +106,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
             email: input.responsable.email,
             nombre: input.responsable.nombre,
             cargo: input.responsable.cargo,
+            telefono: input.responsable.telefono,
             accountStatus: 'PENDING_ACTIVATION' as AccountStatus,
           },
         })

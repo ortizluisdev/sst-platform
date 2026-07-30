@@ -53,7 +53,8 @@ export function createActivationService(prisma: PrismaClient) {
       }
 
       const passwordHash = await argon2.hash(newPassword)
-      const activated = await repository.activateUser(user.id, passwordHash)
+      const hasBranding = await repository.organizationAlreadyHasBranding(user.id)
+      const activated = await repository.activateUser(user.id, passwordHash, !hasBranding)
       await repository.markTokenUsed(stored.id)
       await repository.createAuditLog({ userId: user.id, action: 'ACCOUNT_ACTIVATED', ipAddress })
 

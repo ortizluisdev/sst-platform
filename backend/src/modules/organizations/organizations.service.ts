@@ -63,6 +63,8 @@ export function createOrganizationsService(prisma: PrismaClient) {
         nit: org.nit,
         contactEmail: org.contactEmail,
         isActive: org.isActive,
+        primaryColor: org.primaryColor,
+        secondaryColor: org.secondaryColor,
         services: org.services.map((s) => ({ slug: s.service.slug, nombre: s.service.nombre, isActive: s.isActive })),
         responsable: org.users[0]?.user ?? null,
       }))
@@ -86,11 +88,14 @@ export function createOrganizationsService(prisma: PrismaClient) {
 
       const updated = await repository.update(organizationId, input)
 
+      // No volcamos logoBase64 (hasta ~680KB de texto) al audit log — solo
+      // dejamos constancia de qué cambió, no el contenido pesado.
+      const { logoBase64, ...loggableChanges } = input
       await repository.createAuditLog({
         userId: updatedByUserId,
         organizationId,
         action: 'ORGANIZATION_UPDATED',
-        metadata: { changes: input },
+        metadata: { changes: { ...loggableChanges, logoChanged: logoBase64 !== undefined } },
         ipAddress,
       })
 

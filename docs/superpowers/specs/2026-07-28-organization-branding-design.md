@@ -102,11 +102,12 @@ branding: { primaryColor: string; secondaryColor: string } | null
 
 `null` si la organización no ha guardado branding todavía, o si el usuario no pertenece a ninguna organización (caso admin). **El logo NO viaja en esta respuesta** — ver el endpoint dedicado abajo, pensado para no repetir hasta 500KB en cada carga de sesión.
 
-### 5. Nuevo `GET /api/dashboard/organization/logo`
+### 5. Nuevo `GET /api/organizations/:organizationId/logo` (público, sin autenticación)
 
-- Guard: `requireAuth` — mismo patrón que el resto de la API (el navegador manda la cookie de sesión automáticamente al cargar la imagen vía `<img src>`, sin JS adicional).
-- Si la organización del usuario autenticado tiene `logoBase64`: decodifica el data URI y responde con el binario de la imagen, `Content-Type` correcto (`image/png` o `image/svg+xml`) y headers de caché (`Cache-Control: private, max-age=86400`, `ETag` derivado del contenido) — así el navegador cachea la imagen y no vuelve a pedirla en cargas siguientes de la misma sesión, más allá de la revalidación barata por ETag.
-- Si la organización no tiene logo guardado: `404`. El frontend lo interpreta como "usa el logo de RoMa por defecto" (ver Frontend).
+- **Corrección de diseño (detectada en la fase de planificación):** un `<img src>` autenticado por cookie de sesión (`requireAuth`) funciona en local porque `localhost:5173`→`localhost:3000` cuentan como mismo sitio para las reglas de cookies, pero el proyecto ya está preparado para que frontend y backend vivan en dominios distintos en producción (ver `cors.ts`, lista blanca de orígenes + `credentials: true`). Entre dominios distintos, una cookie `SameSite=Lax` (la que usa este proyecto) **no se adjunta** a una petición de `<img>` entre sitios — el logo se vería roto en producción sin que el problema apareciera nunca en pruebas locales.
+- Por eso este endpoint es **público, sin `requireAuth`**, identificado por `organizationId` en la URL (no derivado de la sesión) — un logo de empresa no es un dato sensible o confidencial, es material de marca pensado para ser visible, así que exponerlo sin autenticación no reduce la seguridad real del sistema, y de paso habilita caché HTTP genuina del navegador (sin cookies de por medio, sin problema de cross-site).
+- Si la organización tiene `logoBase64`: decodifica el data URI y responde con el binario de la imagen, `Content-Type` correcto (`image/png` o `image/svg+xml`) y headers de caché (`Cache-Control: public, max-age=86400`, `ETag` derivado del contenido).
+- Si la organización no existe o no tiene logo guardado: `404`. El frontend lo interpreta como "usa el logo de RoMa por defecto" (ver Frontend).
 
 ### 6. Activación (`activation.repository.ts`, existente, ajustado)
 
@@ -134,7 +135,7 @@ Al enviar, llama al nuevo `PATCH /api/dashboard/organization/branding`; en éxit
 - `stores/auth.ts` gana un campo `branding: { primaryColor, secondaryColor } | null` en el state, poblado desde `GET /api/auth/me` (sin el logo — ver debajo).
 - Nuevo getter `brandingCssVars`: devuelve `{ '--org-primary': ..., '--org-secondary': ... }` **solo si** el usuario tiene organización Y `branding` no es `null` — en cualquier otro caso (admin, o cliente sin branding aún) devuelve un objeto vacío `{}`.
 - `DashboardLayout.vue` (compartido por cliente y admin) fija `:style="auth.brandingCssVars"` en su `<div>` raíz.
-- El logo del header: cuando el usuario tiene organización, el `<img>` apunta directo a `GET /api/dashboard/organization/logo` (el navegador maneja la petición, la caché HTTP y las cookies de sesión sin código adicional). Un manejador `@error` cambia la fuente al logo de RoMa de siempre si la respuesta es 404 (organización sin logo guardado) — sin necesitar ningún flag booleano extra desde el backend.
+- El logo del header: cuando `auth.organizationId` existe, el `<img>` apunta directo a `GET /api/organizations/${auth.organizationId}/logo` (endpoint público — el navegador maneja la petición y la caché HTTP sin código adicional, sin depender de cookies cross-site). Un manejador `@error` cambia la fuente al logo de RoMa de siempre si la respuesta es 404 (organización sin logo guardado) — sin necesitar ningún flag booleano extra desde el backend.
 - Clases Tailwind que pasan a usar valor arbitrario con fallback nativo:
   - Fondo del header en `DashboardLayout.vue`: `bg-white` → `bg-[var(--org-primary,#ffffff)]` (ajustando el color de texto/iconos del header a un contraste seguro cuando hay color de marca — ver detalle de implementación en el plan).
   - Fondo/acento del sidebar del cliente (`DashboardSidebar.vue`): color de fondo o borde activo → referencia a `--org-primary`/`--org-secondary` con el mismo patrón de fallback.

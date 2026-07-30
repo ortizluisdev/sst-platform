@@ -13,6 +13,7 @@ import { usersRoutes } from './modules/users/users.routes.js'
 import { variablesRoutes } from './modules/variables/variables.routes.js'
 import { notificationsRoutes } from './modules/notifications/notifications.routes.js'
 import { organizationsRoutes } from './modules/organizations/organizations.routes.js'
+import { organizationBrandingRoutes } from './modules/organizationBranding/organizationBranding.routes.js'
 import { activationRoutes } from './modules/activation/activation.routes.js'
 import { servicesRoutes } from './modules/services/services.routes.js'
 import { env } from './config/env.js'
@@ -46,6 +47,7 @@ export async function buildApp() {
   await app.register(variablesRoutes)
   await app.register(notificationsRoutes)
   await app.register(organizationsRoutes)
+  await app.register(organizationBrandingRoutes)
   await app.register(activationRoutes)
   await app.register(servicesRoutes)
 

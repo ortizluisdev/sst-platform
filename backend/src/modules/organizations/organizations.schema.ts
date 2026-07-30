@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { noNewlines } from '../../utils/zodHelpers.js'
+import { hexColorSchema, logoBase64Schema } from '../../utils/brandingSchema.js'
 
 // Solo dígitos, sin puntos ni guiones — mismo formato que documentNumber de
 // login (ver auth.schema.ts). El NIT colombiano real incluye un dígito de
@@ -7,6 +8,11 @@ import { noNewlines } from '../../utils/zodHelpers.js'
 // antes de enviar (ver frontend).
 const nitSchema = z.string().regex(/^\d{5,20}$/, 'Ingresa un NIT válido (solo números)')
 const documentNumberSchema = z.string().regex(/^\d{5,20}$/, 'Ingresa un número de documento válido')
+// Mismo patrón que auth.schema.ts's updateProfileSchema.telefono.
+const telefonoSchema = z
+  .string()
+  .min(7, 'Ingresa un teléfono válido')
+  .regex(/^[+()\d\s-]+$/, 'Solo números, espacios y +()-')
 
 export const createOrganizationSchema = z.object({
   nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')),
@@ -21,6 +27,7 @@ export const createOrganizationSchema = z.object({
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre del responsable')),
     email: z.string().email('Ingresa un correo válido'),
     cargo: noNewlines(z.string().min(2, 'Ingresa el cargo del responsable')),
+    telefono: telefonoSchema,
   }),
 })
 
@@ -31,6 +38,9 @@ export const updateOrganizationSchema = z
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')).optional(),
     nit: nitSchema.optional(),
     contactEmail: z.string().email('Ingresa un correo de contacto válido').optional(),
+    logoBase64: logoBase64Schema.optional(),
+    primaryColor: hexColorSchema.optional(),
+    secondaryColor: hexColorSchema.optional(),
   })
   .refine((data) => Object.keys(data).length > 0, { message: 'No hay cambios para aplicar' })
 

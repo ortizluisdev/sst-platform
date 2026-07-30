@@ -33,6 +33,8 @@ const {
   responsableEmailAttrs,
   responsableCargo,
   responsableCargoAttrs,
+  responsableTelefono,
+  responsableTelefonoAttrs,
   submit,
 } = useCreateOrganizationForm()
 
@@ -159,6 +161,15 @@ watch(status, (value) => {
         :label="t('organizations.form.responsableCargo')"
         :placeholder="t('organizations.form.responsableCargoPlaceholder')"
         :error="errors['responsable.cargo']"
+      />
+      <FormField
+        id="responsable-telefono"
+        v-model="responsableTelefono"
+        v-bind="responsableTelefonoAttrs"
+        type="text"
+        :label="t('organizations.form.responsableTelefono')"
+        :placeholder="t('organizations.form.responsableTelefonoPlaceholder')"
+        :error="errors['responsable.telefono']"
       />
     </fieldset>
 

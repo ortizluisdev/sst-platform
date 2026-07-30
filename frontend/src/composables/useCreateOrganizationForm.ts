@@ -38,6 +38,8 @@ export function useCreateOrganizationForm() {
         responsableNombreRequired: t('organizations.validation.responsableNombreRequired'),
         responsableEmailInvalid: t('organizations.validation.responsableEmailInvalid'),
         responsableCargoRequired: t('organizations.validation.responsableCargoRequired'),
+        responsableTelefonoRequired: t('organizations.validation.responsableTelefonoRequired'),
+        responsableTelefonoInvalid: t('organizations.validation.responsableTelefonoInvalid'),
       }),
     ),
   )
@@ -49,7 +51,7 @@ export function useCreateOrganizationForm() {
       nit: '',
       contactEmail: '',
       serviceSlug: '',
-      responsable: { documentType: 'CC', documentNumber: '', nombre: '', email: '', cargo: '' },
+      responsable: { documentType: 'CC', documentNumber: '', nombre: '', email: '', cargo: '', telefono: '' },
     },
   })
 
@@ -62,6 +64,7 @@ export function useCreateOrganizationForm() {
   const [responsableNombre, responsableNombreAttrs] = defineField('responsable.nombre')
   const [responsableEmail, responsableEmailAttrs] = defineField('responsable.email')
   const [responsableCargo, responsableCargoAttrs] = defineField('responsable.cargo')
+  const [responsableTelefono, responsableTelefonoAttrs] = defineField('responsable.telefono')
 
   const submit = handleSubmit(async (values) => {
     status.value = 'loading'
@@ -106,6 +109,8 @@ export function useCreateOrganizationForm() {
     responsableEmailAttrs,
     responsableCargo,
     responsableCargoAttrs,
+    responsableTelefono,
+    responsableTelefonoAttrs,
     submit,
   }
 }

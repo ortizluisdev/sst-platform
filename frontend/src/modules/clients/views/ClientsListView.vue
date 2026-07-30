@@ -63,7 +63,14 @@ async function handleCreated() {
   await load()
 }
 
-async function handleEditSubmit(values: { nombre: string; nit: string; contactEmail: string }) {
+async function handleEditSubmit(values: {
+  nombre: string
+  nit: string
+  contactEmail: string
+  logoBase64?: string
+  primaryColor: string
+  secondaryColor: string
+}) {
   if (!editingOrganization.value) return
   try {
     await updateOrganization(editingOrganization.value.id, values)

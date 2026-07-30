@@ -6,7 +6,6 @@ import {
   passwordResetRequestHandler,
   passwordResetConfirmHandler,
   meHandler,
-  updateProfileHandler,
 } from './auth.controller.js'
 import { requireAuth } from '../../plugins/auth-guard.js'
 
@@ -54,10 +53,4 @@ export async function authRoutes(app: FastifyInstance) {
   )
 
   app.get('/api/auth/me', { preHandler: [requireAuth] }, meHandler)
-
-  app.patch(
-    '/api/auth/profile',
-    { preHandler: [requireAuth, assertJsonContentType] },
-    updateProfileHandler,
-  )
 }

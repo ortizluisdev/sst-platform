@@ -35,11 +35,21 @@ export function createActivationRepository(prisma: PrismaClient) {
       return prisma.user.findUnique({ where: { id } })
     },
 
-    activateUser(userId: string, passwordHash: string) {
+    activateUser(userId: string, passwordHash: string, mustUpdateProfile: boolean) {
       return prisma.user.update({
         where: { id: userId },
-        data: { passwordHash, accountStatus: 'ACTIVE', mustUpdateProfile: true },
+        data: { passwordHash, accountStatus: 'ACTIVE', mustUpdateProfile },
       })
+    },
+
+    /** true si la organización de este usuario ya tiene branding guardado —
+     * decide si debe pasar por el formulario de logo/colores o no. */
+    async organizationAlreadyHasBranding(userId: string) {
+      const membership = await prisma.userOrganization.findFirst({
+        where: { userId },
+        select: { organization: { select: { primaryColor: true } } },
+      })
+      return membership?.organization.primaryColor != null
     },
 
     createAuditLog(input: { userId: string; action: 'ACCOUNT_ACTIVATED'; ipAddress?: string | null }) {

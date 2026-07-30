@@ -438,7 +438,8 @@
       "logout": "Log out",
       "noDataYet": "No data yet",
       "lastSync": "Last data sync: ",
-      "copyright": "RoMa Applied Science S.A.S."
+      "copyright": "RoMa Applied Science S.A.S.",
+      "clientLogoAlt": "Your company's logo"
     },
     "sidebar": {
       "navAriaLabel": "Dashboard navigation",
@@ -687,6 +688,8 @@
       "responsableEmailPlaceholder": "responsible{'@'}company.com",
       "responsableCargo": "Position",
       "responsableCargoPlaceholder": "E.g. HSE Manager",
+      "responsableTelefono": "Phone",
+      "responsableTelefonoPlaceholder": "E.g. +1 300 000 0000",
       "submit": "Create company and send invitation",
       "successBody": "Company created. An activation email was sent to the responsible contact.",
       "genericError": "An error occurred. Please try again."
@@ -699,7 +702,9 @@
       "responsableDocumentInvalid": "Enter a valid document number",
       "responsableNombreRequired": "Enter the responsible contact's name",
       "responsableEmailInvalid": "Enter a valid email",
-      "responsableCargoRequired": "Enter the responsible contact's position"
+      "responsableCargoRequired": "Enter the responsible person's position",
+      "responsableTelefonoRequired": "Enter a valid phone number",
+      "responsableTelefonoInvalid": "Numbers, spaces, and +()- only"
     },
     "list": {
       "pageTitle": "Organizations",
@@ -722,22 +727,31 @@
       }
     },
     "editModal": {
-      "title": "Edit organization",
-      "responsableNotice": "The responsible person's details are edited from their own profile, not from here."
+      "title": "Edit company",
+      "responsableNotice": "The responsible person's position and phone were set when the account was created and can't be edited here.",
+      "brandingSectionTitle": "Logo and corporate colors"
     }
   },
   "profile": {
-    "pageTitle": "Complete your profile",
-    "pageSubtitle": "We need these details before you continue — we only ask once.",
-    "cargo": "Position",
-    "cargoPlaceholder": "E.g. HSE Manager",
-    "telefono": "Phone",
-    "telefonoPlaceholder": "E.g. +1 300 000 0000",
-    "submit": "Save and continue",
-    "validation": {
-      "cargoRequired": "Enter your position",
-      "telefonoRequired": "Enter a valid phone number",
-      "telefonoInvalid": "Numbers, spaces and +()- only"
+    "pageTitle": "Personalize your dashboard",
+    "pageSubtitle": "Upload your company's logo and colors — they'll show up in your dashboard next time you sign in. Only asked once.",
+    "submit": "Save and continue"
+  },
+  "branding": {
+    "fields": {
+      "logoLabel": "Your company's logo",
+      "logoHint": "PNG or SVG, up to 500KB.",
+      "logoTypeError": "The file must be PNG or SVG.",
+      "logoSizeError": "The logo can't exceed 500KB.",
+      "logoPreviewAlt": "Logo preview",
+      "primaryColorLabel": "Primary color",
+      "secondaryColorLabel": "Secondary color",
+      "previewLabel": "Preview",
+      "previewText": "This is how your navbar would look"
+    },
+    "activation": {
+      "logoRequired": "Upload a logo to continue.",
+      "genericError": "Something went wrong. Please try again."
     }
   },
   "clients": {

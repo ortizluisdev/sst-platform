@@ -9,6 +9,8 @@ export interface OrganizationFormMessages {
   responsableNombreRequired: string
   responsableEmailInvalid: string
   responsableCargoRequired: string
+  responsableTelefonoRequired: string
+  responsableTelefonoInvalid: string
 }
 
 /** Reglas espejo de backend/src/modules/organizations/organizations.schema.ts. */
@@ -24,6 +26,10 @@ export function createOrganizationSchema(messages: OrganizationFormMessages) {
       nombre: z.string().min(2, messages.responsableNombreRequired),
       email: z.string().email(messages.responsableEmailInvalid),
       cargo: z.string().min(2, messages.responsableCargoRequired),
+      telefono: z
+        .string()
+        .min(7, messages.responsableTelefonoRequired)
+        .regex(/^[+()\d\s-]+$/, messages.responsableTelefonoInvalid),
     }),
   })
 }
@@ -57,6 +63,8 @@ export interface OrganizationListItem {
   nit: string | null
   contactEmail: string | null
   isActive: boolean
+  primaryColor: string | null
+  secondaryColor: string | null
   services: OrganizationContractedService[]
   responsable: OrganizationResponsable | null
 }
@@ -65,4 +73,7 @@ export interface UpdateOrganizationFormValues {
   nombre?: string
   nit?: string
   contactEmail?: string
+  logoBase64?: string
+  primaryColor?: string
+  secondaryColor?: string
 }

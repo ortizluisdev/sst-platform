@@ -70,16 +70,6 @@ export function createAuthRepository(prisma: PrismaClient) {
       return prisma.user.update({ where: { id: userId }, data: { passwordHash } })
     },
 
-    /** Completa el perfil obligatorio (Fase B.5) y limpia `mustUpdateProfile`
-     * — el guard de rutas del frontend deja de forzar esta pantalla apenas
-     * el backend confirma el guardado. */
-    updateProfile(userId: string, input: { cargo: string; telefono: string }) {
-      return prisma.user.update({
-        where: { id: userId },
-        data: { cargo: input.cargo, telefono: input.telefono, mustUpdateProfile: false },
-      })
-    },
-
     createAuditLog(input: {
       userId?: string | null
       organizationId?: string | null

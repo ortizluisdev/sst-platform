@@ -438,7 +438,8 @@
       "logout": "Cerrar sesión",
       "noDataYet": "Sin datos aún",
       "lastSync": "Última sincronización de datos: ",
-      "copyright": "RoMa Applied Science S.A.S."
+      "copyright": "RoMa Applied Science S.A.S.",
+      "clientLogoAlt": "Logo de tu empresa"
     },
     "sidebar": {
       "navAriaLabel": "Navegación del dashboard",
@@ -687,6 +688,8 @@
       "responsableEmailPlaceholder": "responsable{'@'}empresa.com",
       "responsableCargo": "Cargo",
       "responsableCargoPlaceholder": "Ej. Gerente de SST",
+      "responsableTelefono": "Teléfono",
+      "responsableTelefonoPlaceholder": "Ej. +57 300 000 0000",
       "submit": "Crear empresa y enviar invitación",
       "successBody": "Empresa creada. Se envió un correo de activación al responsable.",
       "genericError": "Ocurrió un error. Por favor intenta de nuevo."
@@ -699,7 +702,9 @@
       "responsableDocumentInvalid": "Ingresa un número de documento válido",
       "responsableNombreRequired": "Ingresa el nombre del responsable",
       "responsableEmailInvalid": "Ingresa un correo válido",
-      "responsableCargoRequired": "Ingresa el cargo del responsable"
+      "responsableCargoRequired": "Ingresa el cargo del responsable",
+      "responsableTelefonoRequired": "Ingresa un teléfono válido",
+      "responsableTelefonoInvalid": "Solo números, espacios y +()-"
     },
     "list": {
       "pageTitle": "Empresas",
@@ -723,21 +728,30 @@
     },
     "editModal": {
       "title": "Editar empresa",
-      "responsableNotice": "Los datos del responsable se editan desde su propio perfil, no desde aquí."
+      "responsableNotice": "El cargo y el teléfono del responsable se definieron al crear la cuenta y no se pueden editar aquí.",
+      "brandingSectionTitle": "Logo y colores corporativos"
     }
   },
   "profile": {
-    "pageTitle": "Completa tu perfil",
-    "pageSubtitle": "Necesitamos estos datos antes de que continúes — solo te lo pedimos una vez.",
-    "cargo": "Cargo",
-    "cargoPlaceholder": "Ej. Gerente de SST",
-    "telefono": "Teléfono",
-    "telefonoPlaceholder": "Ej. +57 300 000 0000",
-    "submit": "Guardar y continuar",
-    "validation": {
-      "cargoRequired": "Ingresa tu cargo",
-      "telefonoRequired": "Ingresa un teléfono válido",
-      "telefonoInvalid": "Solo números, espacios y +()-"
+    "pageTitle": "Personaliza tu panel",
+    "pageSubtitle": "Sube el logo y los colores de tu empresa — se verán en tu panel la próxima vez que ingreses. Solo se pide una vez.",
+    "submit": "Guardar y continuar"
+  },
+  "branding": {
+    "fields": {
+      "logoLabel": "Logo de tu empresa",
+      "logoHint": "PNG o SVG, hasta 500KB.",
+      "logoTypeError": "El archivo debe ser PNG o SVG.",
+      "logoSizeError": "El logo no puede superar 500KB.",
+      "logoPreviewAlt": "Vista previa del logo",
+      "primaryColorLabel": "Color primario",
+      "secondaryColorLabel": "Color secundario",
+      "previewLabel": "Vista previa",
+      "previewText": "Así se vería tu navbar"
+    },
+    "activation": {
+      "logoRequired": "Sube un logo para continuar.",
+      "genericError": "Ocurrió un error. Por favor intenta de nuevo."
     }
   },
   "clients": {

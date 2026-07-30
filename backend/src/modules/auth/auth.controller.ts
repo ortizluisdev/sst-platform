@@ -3,7 +3,6 @@ import {
   loginSchema,
   passwordResetRequestSchema,
   passwordResetConfirmSchema,
-  updateProfileSchema,
   formatFieldErrors,
 } from './auth.schema.js'
 import { createAuthService, AuthError } from './auth.service.js'
@@ -113,29 +112,23 @@ export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
   })
 
   const permissions = await resolveUserPermissions(request.server.prisma, user.id, membership?.organizationId)
+
+  let branding: { primaryColor: string; secondaryColor: string } | null = null
+  if (membership?.organizationId) {
+    const organization = await request.server.prisma.organization.findUnique({
+      where: { id: membership.organizationId },
+      select: { primaryColor: true, secondaryColor: true },
+    })
+    if (organization?.primaryColor && organization?.secondaryColor) {
+      branding = { primaryColor: organization.primaryColor, secondaryColor: organization.secondaryColor }
+    }
+  }
+
   return reply.code(200).send({
     user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre },
     organizationId: membership?.organizationId ?? null,
     mustUpdateProfile: user.mustUpdateProfile,
     permissions: [...permissions],
-  })
-}
-
-/** Fase B.5 — el usuario completa cargo/teléfono en su primer login. */
-export async function updateProfileHandler(request: FastifyRequest, reply: FastifyReply) {
-  const parsed = updateProfileSchema.safeParse(request.body)
-  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
-
-  const service = createAuthService(request.server.prisma, request.server)
-  const updated = await service.updateProfile(request.user.sub, parsed.data, request.ip)
-  return reply.code(200).send({
-    user: {
-      id: updated.id,
-      documentNumber: updated.documentNumber,
-      nombre: updated.nombre,
-      cargo: updated.cargo,
-      telefono: updated.telefono,
-    },
-    mustUpdateProfile: updated.mustUpdateProfile,
+    branding,
   })
 }

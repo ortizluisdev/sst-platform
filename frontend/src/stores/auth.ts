@@ -7,15 +7,22 @@ export interface CurrentUser {
   nombre: string
 }
 
+export interface OrganizationBranding {
+  primaryColor: string
+  secondaryColor: string
+}
+
 interface AuthState {
   user: CurrentUser | null
   organizationId: string | null
   permissions: string[]
   /** null = todavía no se consultó /api/auth/me; false/true = resultado conocido. */
   isAuthenticated: boolean | null
-  /** true tras login/fetchMe si la cuenta debe completar su perfil antes de
-   * usar el resto del dashboard (ver Fase B.5 — todavía sin guard aplicado). */
+  /** true tras login/fetchMe si la cuenta debe completar su perfil (branding)
+   * antes de usar el resto del dashboard — el guard de rutas del frontend lo
+   * fuerza (ver router/index.ts). */
   mustUpdateProfile: boolean
+  branding: OrganizationBranding | null
 }
 
 /**
@@ -30,18 +37,23 @@ export const useAuthStore = defineStore('auth', {
     permissions: [],
     isAuthenticated: null,
     mustUpdateProfile: false,
+    branding: null,
   }),
 
   getters: {
     hasPermission: (state) => (key: string) => state.permissions.includes('*') || state.permissions.includes(key),
-    /** Clave de i18n (no el texto ya traducido) para el badge del navbar —
-     * deriva del mismo permiso que ya distingue super-admin/cliente en el
-     * guard de rutas y el redirect post-login, en vez de duplicar la lógica.
-     * El componente que la consume decide cuándo traducirla con t(). */
     roleLabelKey: (state): string =>
       state.permissions.includes('*') || state.permissions.includes('platform.variables.upload')
         ? 'dashboard.roleLabel.superAdmin'
         : 'dashboard.roleLabel.cliente',
+    /** Variables CSS del branding del cliente — vacío para admin o para un
+     * cliente que aún no ha guardado logo/colores, así los estilos que las
+     * referencian caen a su valor de respaldo (--org-primary,#hex) sin
+     * ninguna lógica condicional adicional en cada componente. */
+    brandingCssVars: (state): Record<string, string> =>
+      state.branding
+        ? { '--org-primary': state.branding.primaryColor, '--org-secondary': state.branding.secondaryColor }
+        : {},
   },
 
   actions: {
@@ -52,6 +64,7 @@ export const useAuthStore = defineStore('auth', {
         this.organizationId = data.organizationId
         this.permissions = data.permissions
         this.mustUpdateProfile = data.mustUpdateProfile
+        this.branding = data.branding
         this.isAuthenticated = true
       } catch {
         this.$reset()

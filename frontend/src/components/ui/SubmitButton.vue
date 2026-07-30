@@ -6,7 +6,7 @@ withDefaults(defineProps<{ loading?: boolean; loadingLabel?: string }>(), { load
   <button
     type="submit"
     :disabled="loading"
-    class="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-navy-900 bg-navy-900 px-7 py-3.5 text-sm font-medium tracking-wide text-cream transition-all duration-[250ms] hover:bg-transparent hover:text-navy-900 disabled:cursor-not-allowed disabled:opacity-60"
+    class="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-[var(--org-primary,#0b1a33)] bg-[var(--org-primary,#0b1a33)] px-7 py-3.5 text-sm font-medium tracking-wide text-cream transition-all duration-[250ms] hover:bg-transparent hover:text-[var(--org-primary,#0b1a33)] disabled:cursor-not-allowed disabled:opacity-60"
   >
     <svg
       v-if="loading"

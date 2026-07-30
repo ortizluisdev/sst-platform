@@ -48,7 +48,7 @@ function selectTab(key: string) {
           class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2.5 text-left text-sm font-medium transition-colors"
           :class="
             tab.key === modelValue
-              ? 'border-sky-400 bg-sky-100 text-navy-900'
+              ? 'border-[var(--org-secondary,#5b8dc7)] bg-[var(--org-primary,#e3edf8)] text-navy-900'
               : 'border-transparent text-navy-700 hover:bg-sky-400/10'
           "
           @click="selectTab(tab.key)"

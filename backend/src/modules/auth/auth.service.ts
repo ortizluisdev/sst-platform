@@ -5,7 +5,7 @@ import { createAuthRepository } from './auth.repository.js'
 import { generateRefreshToken, hashToken } from '../../utils/tokens.js'
 import { sendPasswordResetEmail } from '../../utils/mailer.js'
 import { env } from '../../config/env.js'
-import type { LoginInput, UpdateProfileInput } from './auth.schema.js'
+import type { LoginInput } from './auth.schema.js'
 
 export class AuthError extends Error {
   constructor(
@@ -140,15 +140,6 @@ export function createAuthService(prisma: PrismaClient, app: FastifyInstance) {
       // Un cambio de contraseña invalida cualquier sesión abierta con la clave vieja.
       await repository.revokeAllRefreshTokensForUser(stored.userId)
       await repository.createAuditLog({ userId: stored.userId, action: 'PASSWORD_RESET_COMPLETED' })
-    },
-
-    /** Fase B.5 — completa cargo/teléfono obligatorios en el primer login.
-     * No valida `mustUpdateProfile` acá: si ya está en false, sobrescribir
-     * de nuevo es inofensivo (el usuario simplemente está editando su perfil). */
-    async updateProfile(userId: string, input: UpdateProfileInput, ipAddress: string) {
-      const updated = await repository.updateProfile(userId, input)
-      await repository.createAuditLog({ userId, action: 'PROFILE_UPDATED', ipAddress })
-      return updated
     },
   }
 }

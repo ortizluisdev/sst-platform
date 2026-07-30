@@ -136,6 +136,13 @@ model Organization {
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  /// Data URI completo (data:image/png;base64,... o data:image/svg+xml;base64,...)
+  /// — nunca solo el payload, así se sirve directo sin reconstruir el prefijo.
+  /// LongText (no Text, límite 64KB en MySQL) para caber un logo de hasta 500KB.
+  logoBase64     String? @map("logo_base64") @db.LongText
+  /// Hex #rrggbb — formato nativo de <input type="color">.
+  primaryColor   String? @map("primary_color") @db.VarChar(7)
+  secondaryColor String? @map("secondary_color") @db.VarChar(7)
 
   users           UserOrganization[]
   services        OrganizationService[]
@@ -534,6 +541,9 @@ enum AuditAction {
   SERVICE_CREATED
   SERVICE_UPDATED
   VARIABLE_READING_CORRECTED
+  /// Cliente guarda logo/colores por primera vez en la activación (branding
+  /// por organización, 2026-07-28).
+  ORGANIZATION_BRANDING_SET
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda
