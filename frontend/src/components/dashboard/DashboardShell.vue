@@ -41,7 +41,7 @@ const activeCategory = computed(() => props.dashboard.categories.find((c) => `ca
 
 <template>
   <div class="grid gap-6" :class="hideSidebar ? '' : 'lg:grid-cols-[220px_1fr] lg:items-start'">
-    <DashboardSidebar v-if="!hideSidebar" v-model="activeTab" :tabs="tabs" />
+    <DashboardSidebar v-if="!hideSidebar" v-model="activeTab" :tabs="tabs" :services="[]" selected-service-slug="" />
 
     <div>
       <ResumenTab v-if="activeTab === 'resumen'" :dashboard="dashboard" />
