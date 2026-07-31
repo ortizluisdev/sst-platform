@@ -6,6 +6,13 @@ import { parseVariableReportWorkbook } from '../../utils/variableReportWorkbookP
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
 import { calculateRiskRatio, classifyRiskRatio, averageRiskLevel, type RiskLevel } from '../../utils/riskLevel.js'
 import {
+  CATEGORIAS_RIESGO_SALUD,
+  CODIGO_TIEMPO_EXPOSICION_POR_CATEGORIA,
+  calculatePuntajeIntervencion,
+  classifyIntervencionPrioridad,
+  classifyMatrizPosicion,
+} from '../../utils/interventionAnalysis.js'
+import {
   computeUploadCompliancePct,
   computeTendenciaGlobal,
   computeEvolucionIgho,
@@ -441,6 +448,10 @@ export function createVariablesService(prisma: PrismaClient) {
           tendenciaGlobal: null,
           evolucionIgho: null,
           probabilidadIncumplimiento: null,
+          riesgoSalud: null,
+          puntajeIntervencion: null,
+          prioridadIntervencion: null,
+          matrizPosicion: null,
           trend: [],
           filtrosDisponibles: { areasPlanta: [], procesosActividad: [] },
         }
@@ -494,13 +505,45 @@ export function createVariablesService(prisma: PrismaClient) {
       // Mismo alcance (latestReadings, ya filtradas) que globalCompliance:
       // las mediciones "sin norma" (calculateRiskRatio devuelve null) se
       // excluyen del promedio en vez de contaminar con un valor inventado.
+      //
+      // Mismo recorrido reutilizado para el Grupo B de Hoja 3 (ver
+      // interventionAnalysis.ts, propuestas pendientes de validación
+      // formal): "riesgo en salud" es la misma clasificación acotada a
+      // categorías con impacto fisiológico, y "puntaje de intervención"
+      // combina el mismo ratio con la variable de exposición reportada de
+      // la misma categoría/puesto (cuando existe).
+      const exposicionPorPuestoYCategoria = new Map<string, number>()
+      for (const reading of latestReadings) {
+        const codigoExposicion = CODIGO_TIEMPO_EXPOSICION_POR_CATEGORIA[reading.definition.categoria]
+        if (codigoExposicion && reading.definition.codigo === codigoExposicion) {
+          exposicionPorPuestoYCategoria.set(`${reading.workPointId}:${reading.definition.categoria}`, reading.valor)
+        }
+      }
+
       const riskLevels: RiskLevel[] = []
+      const riesgoSaludLevels: RiskLevel[] = []
+      const puntajesIntervencion: number[] = []
       for (const reading of latestReadings) {
         const ratio = calculateRiskRatio(reading.valor, reading.definition)
         if (ratio == null) continue
-        riskLevels.push(classifyRiskRatio(ratio))
+
+        const nivel = classifyRiskRatio(ratio)
+        riskLevels.push(nivel)
+        if (CATEGORIAS_RIESGO_SALUD.includes(reading.definition.categoria)) {
+          riesgoSaludLevels.push(nivel)
+        }
+
+        const horasExposicion = exposicionPorPuestoYCategoria.get(`${reading.workPointId}:${reading.definition.categoria}`) ?? null
+        puntajesIntervencion.push(calculatePuntajeIntervencion(ratio, horasExposicion).puntaje)
       }
       const riesgoGlobal = averageRiskLevel(riskLevels)
+      const riesgoSalud = averageRiskLevel(riesgoSaludLevels)
+      const puntajeIntervencion =
+        puntajesIntervencion.length > 0
+          ? Math.round(puntajesIntervencion.reduce((a, b) => a + b, 0) / puntajesIntervencion.length)
+          : null
+      const prioridadIntervencion = puntajeIntervencion == null ? null : classifyIntervencionPrioridad(puntajeIntervencion)
+      const matrizPosicion = riesgoGlobal == null ? null : classifyMatrizPosicion(globalPct, riesgoGlobal.nivel)
 
       const alertasActivas = await nonConformities.countActive(
         organizationId,
@@ -551,6 +594,10 @@ export function createVariablesService(prisma: PrismaClient) {
         tendenciaGlobal,
         evolucionIgho,
         probabilidadIncumplimiento,
+        riesgoSalud,
+        puntajeIntervencion,
+        prioridadIntervencion,
+        matrizPosicion,
         trend,
         filtrosDisponibles,
       }
