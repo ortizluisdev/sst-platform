@@ -1,3 +1,4 @@
+import argon2 from 'argon2'
 import type { PrismaClient } from '@prisma/client'
 import { createUsersRepository } from './users.repository.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
@@ -5,7 +6,7 @@ import { createActivationService } from '../activation/activation.service.js'
 
 export class UsersError extends Error {
   constructor(
-    public code: 'NOT_FOUND' | 'ALREADY_ACTIVE' | 'ALREADY_SUSPENDED' | 'NOT_PENDING_ACTIVATION',
+    public code: 'NOT_FOUND' | 'ALREADY_ACTIVE' | 'ALREADY_SUSPENDED' | 'NOT_PENDING_ACTIVATION' | 'INVALID_CURRENT_PASSWORD',
     message: string,
   ) {
     super(message)
@@ -28,6 +29,36 @@ export function createUsersService(prisma: PrismaClient) {
 
     listPendingActivation() {
       return repository.findUsersByStatus('PENDING_ACTIVATION')
+    },
+
+    async getOwnProfile(userId: string) {
+      const user = await repository.findOwnProfile(userId)
+      if (!user) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
+      return user
+    },
+
+    async updateOwnProfile(userId: string, data: { nombre: string; email: string; cargo?: string; telefono?: string }) {
+      const user = await repository.findOwnProfile(userId)
+      if (!user) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
+      return repository.updateOwnProfile(userId, {
+        nombre: data.nombre,
+        email: data.email,
+        cargo: data.cargo || null,
+        telefono: data.telefono || null,
+      })
+    },
+
+    /** Nunca confía en la sesión para saltarse la verificación — igual que el
+     * login, exige la contraseña actual antes de aceptar la nueva. */
+    async changeOwnPassword(userId: string, currentPassword: string, newPassword: string) {
+      const user = await repository.findUserById(userId)
+      if (!user || !user.passwordHash) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
+
+      const validPassword = await argon2.verify(user.passwordHash, currentPassword)
+      if (!validPassword) throw new UsersError('INVALID_CURRENT_PASSWORD', 'La contraseña actual no es correcta')
+
+      const passwordHash = await argon2.hash(newPassword)
+      await repository.updatePassword(userId, passwordHash)
     },
 
     /** Reenvía la invitación de activación sin recrear el usuario — para el

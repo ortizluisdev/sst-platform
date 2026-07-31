@@ -5,14 +5,61 @@ import {
   suspendUserParamsSchema,
   suspendUserBodySchema,
   resendInvitationParamsSchema,
+  updateOwnProfileSchema,
+  changeOwnPasswordSchema,
+  formatFieldErrors,
 } from './users.schema.js'
 
 function sendUsersError(reply: FastifyReply, err: unknown) {
   if (err instanceof UsersError) {
-    const status = err.code === 'NOT_FOUND' ? 404 : 409
-    return reply.code(status).send({ message: err.message })
+    const statusByCode = {
+      NOT_FOUND: 404,
+      ALREADY_ACTIVE: 409,
+      ALREADY_SUSPENDED: 409,
+      NOT_PENDING_ACTIVATION: 409,
+      INVALID_CURRENT_PASSWORD: 401,
+    } as const
+    return reply.code(statusByCode[err.code]).send({ message: err.message })
   }
   throw err
+}
+
+/** GET — perfil PERSONAL del usuario autenticado (nunca datos de la
+ * organización, eso vive en /api/dashboard/organization/branding). */
+export async function getOwnProfileHandler(request: FastifyRequest, reply: FastifyReply) {
+  const service = createUsersService(request.server.prisma)
+  try {
+    const user = await service.getOwnProfile(request.user.sub)
+    return reply.code(200).send({ user })
+  } catch (err) {
+    return sendUsersError(reply, err)
+  }
+}
+
+export async function updateOwnProfileHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateOwnProfileSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createUsersService(request.server.prisma)
+  try {
+    const user = await service.updateOwnProfile(request.user.sub, parsed.data)
+    return reply.code(200).send({ user })
+  } catch (err) {
+    return sendUsersError(reply, err)
+  }
+}
+
+export async function changeOwnPasswordHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = changeOwnPasswordSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createUsersService(request.server.prisma)
+  try {
+    await service.changeOwnPassword(request.user.sub, parsed.data.currentPassword, parsed.data.newPassword)
+    return reply.code(200).send({ ok: true })
+  } catch (err) {
+    return sendUsersError(reply, err)
+  }
 }
 
 export async function listActiveHandler(request: FastifyRequest, reply: FastifyReply) {

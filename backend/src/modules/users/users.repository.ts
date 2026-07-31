@@ -31,6 +31,27 @@ export function createUsersRepository(prisma: PrismaClient) {
       return prisma.user.findUnique({ where: { id } })
     },
 
+    /** Selección acotada a los campos PERSONALES editables desde "Mi perfil"
+     * — nunca password_hash ni nada de la organización. */
+    findOwnProfile(id: string) {
+      return prisma.user.findUnique({
+        where: { id },
+        select: { id: true, nombre: true, email: true, cargo: true, telefono: true, documentNumber: true },
+      })
+    },
+
+    updateOwnProfile(id: string, data: { nombre: string; email: string; cargo: string | null; telefono: string | null }) {
+      return prisma.user.update({
+        where: { id },
+        data,
+        select: { id: true, nombre: true, email: true, cargo: true, telefono: true, documentNumber: true },
+      })
+    },
+
+    updatePassword(id: string, passwordHash: string) {
+      return prisma.user.update({ where: { id }, data: { passwordHash } })
+    },
+
     reactivateUser(id: string) {
       return prisma.user.update({
         where: { id },

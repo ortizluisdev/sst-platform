@@ -7,11 +7,21 @@ import {
   reactivateHandler,
   suspendHandler,
   resendInvitationHandler,
+  getOwnProfileHandler,
+  updateOwnProfileHandler,
+  changeOwnPasswordHandler,
 } from './users.controller.js'
 
 const PERMISSION = 'platform.users.approve'
 
 export async function usersRoutes(app: FastifyInstance) {
+  // "Mi perfil" — cualquier usuario autenticado sobre sus propios datos, sin
+  // permiso de plataforma (no es gestión de OTROS usuarios, como el resto
+  // de este archivo).
+  app.get('/api/users/me', { preHandler: [requireAuth] }, getOwnProfileHandler)
+  app.patch('/api/users/me', { preHandler: [requireAuth] }, updateOwnProfileHandler)
+  app.patch('/api/users/me/password', { preHandler: [requireAuth] }, changeOwnPasswordHandler)
+
   app.get(
     '/api/admin/users/active',
     { preHandler: [requireAuth, requirePermission(PERMISSION)] },

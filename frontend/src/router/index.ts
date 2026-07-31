@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteLocationNormalized } from 'vue-router'
 import { DEFAULT_LOCALE, isSupportedLocale, setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { getDashboardPath } from '@/utils/dashboardRedirect'
@@ -6,7 +7,11 @@ import { getDashboardPath } from '@/utils/dashboardRedirect'
 declare module 'vue-router' {
   interface RouteMeta {
     requiresAuth?: boolean
-    permission?: string
+    /** Función en vez de string fijo cuando el permiso depende de un
+     * parámetro de la ruta (ej. dashboard/:serviceSlug — el slug decide
+     * qué permiso "dashboard.<slug>.view" hace falta, no se puede fijar de
+     * antemano un único string para todos los servicios posibles). */
+    permission?: string | ((to: RouteLocationNormalized) => string)
     /** Rutas solo para visitantes sin sesión (login) — un usuario ya
      * autenticado que navega acá manualmente se redirige a su dashboard en
      * vez de ver el formulario de nuevo. */
@@ -59,11 +64,14 @@ const router = createRouter({
       component: () => import('@/modules/profile/views/UpdateProfileView.vue'),
       meta: { requiresAuth: true },
     },
+    // Ruta paramétrica: sirve cualquier servicio contratado, no solo Higiene
+    // Industrial — sigue funcionando para bookmarks/links viejos a
+    // /dashboard/higiene-industrial porque ese slug encaja igual acá.
     {
-      path: '/:locale(es|en)/dashboard/higiene-industrial',
-      name: 'dashboard-higiene-industrial',
+      path: '/:locale(es|en)/dashboard/:serviceSlug',
+      name: 'dashboard-service',
       component: () => import('@/modules/dashboard/views/ClientDashboardView.vue'),
-      meta: { requiresAuth: true, permission: 'dashboard.higiene-industrial.view' },
+      meta: { requiresAuth: true, permission: (to) => `dashboard.${to.params.serviceSlug}.view` },
     },
     {
       path: '/:locale(es|en)/dashboard/notificaciones',
@@ -111,6 +119,16 @@ const router = createRouter({
           component: () => import('@/modules/services/views/VariableCatalogView.vue'),
           meta: { permission: 'platform.variables.manage' },
         },
+        {
+          path: 'notificaciones',
+          name: 'admin-notificaciones',
+          component: () => import('@/modules/notifications/components/NotificationsPanel.vue'),
+        },
+        {
+          path: 'mi-perfil',
+          name: 'admin-mi-perfil',
+          component: () => import('@/modules/profile/components/MyProfilePanel.vue'),
+        },
       ],
     },
     // Puente de compatibilidad: la vista de administración de Higiene
@@ -153,7 +171,7 @@ router.beforeEach(async (to) => {
       return `/${locale}/dashboard/completar-perfil`
     }
 
-    const permission = to.meta.permission as string | undefined
+    const permission = typeof to.meta.permission === 'function' ? to.meta.permission(to) : to.meta.permission
     if (permission && !auth.hasPermission(permission)) return `/${locale}/`
   }
 

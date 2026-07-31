@@ -6,6 +6,7 @@ import {
   adminDashboardHandler,
   listOrganizationsHandler,
   listOrgServicesHandler,
+  clientContractedServicesHandler,
   clientHistoryHandler,
   adminHistoryHandler,
   clientUploadDetailHandler,
@@ -54,6 +55,12 @@ export async function variablesRoutes(app: FastifyInstance) {
       preHandler: [requireAuth, requirePermission('platform.variables.correct')],
     },
     correctReadingHandler,
+  )
+
+  app.get(
+    '/api/dashboard/services',
+    { preHandler: [requireAuth] },
+    clientContractedServicesHandler,
   )
 
   app.get<{ Params: { serviceSlug: string }; Querystring: DashboardFiltersQuery }>(

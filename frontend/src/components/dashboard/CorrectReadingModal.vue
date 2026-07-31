@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { X } from 'lucide-vue-next'
+import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 
 const props = defineProps<{
   workPointNombre: string
@@ -13,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{ submit: [valor: number, reason: string]; cancel: [] }>()
 
 const { t } = useI18n()
+const primaryTextClass = useOrgPrimaryTextClass()
 
 const newValue = ref(String(props.currentValue))
 const reason = ref('')
@@ -90,7 +92,8 @@ function handleSubmit() {
         </button>
         <button
           type="button"
-          class="rounded-sm bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-700"
+          class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
+          :class="primaryTextClass.text"
           @click="handleSubmit"
         >
           {{ t('dashboard.category.correctModal.confirm') }}

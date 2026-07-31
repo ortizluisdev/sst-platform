@@ -5,40 +5,51 @@ import { env, isZohoConfigured } from '../config/env.js'
 
 const TIMEOUT_MS = 10_000
 
-let transporter: Transporter | null = null
-
-if (isZohoConfigured) {
-  // dns.setDefaultResultOrder('ipv4first') (server.ts) no basta: Nodemailer
-  // resuelve tanto A como AAAA en lib/shared/index.js y elige una dirección AL
-  // AZAR entre ambas para conectar (no respeta el orden). En Render, sin salida
-  // IPv6, eso hace que ~50% de los intentos fallen con ENETUNREACH. Resolvemos
-  // nosotros la IPv4 y se la pasamos como host literal — `resolveHostname` la
-  // deja pasar tal cual cuando ya es una IP, sin tocar IPv6 en absoluto.
-  // `servername` va aparte para que la verificación TLS siga validando contra
-  // el hostname real, no contra la IP.
-  let smtpHost: string = env.ZOHO_SMTP_HOST!
+/**
+ * dns.setDefaultResultOrder('ipv4first') (server.ts) no basta: Nodemailer
+ * resuelve tanto A como AAAA en lib/shared/index.js y elige una dirección AL
+ * AZAR entre ambas para conectar (no respeta el orden). En Render, sin salida
+ * IPv6, eso hace que ~50% de los intentos fallen con ENETUNREACH. Resolvemos
+ * nosotros la IPv4 y se la pasamos como host literal — `resolveHostname` la
+ * deja pasar tal cual cuando ya es una IP, sin tocar IPv6 en absoluto.
+ */
+async function resolveSmtpHost(host: string): Promise<string> {
   try {
-    const addresses = await resolve4(env.ZOHO_SMTP_HOST!)
-    if (addresses[0]) smtpHost = addresses[0]
+    const addresses = await resolve4(host)
+    return addresses[0] ?? host
   } catch (err) {
-    console.warn(`[mailer] No se pudo resolver IPv4 de ${env.ZOHO_SMTP_HOST}, se usa el hostname tal cual:`, err)
+    console.warn(`[mailer] No se pudo resolver IPv4 de ${host}, se usa el hostname tal cual:`, err)
+    return host
   }
+}
 
+/**
+ * `servername` va aparte para que la verificación TLS siga validando contra
+ * el hostname real, no contra la IP.
+ */
+async function buildTransporter(user: string, pass: string): Promise<Transporter> {
+  const smtpHost = await resolveSmtpHost(env.ZOHO_SMTP_HOST!)
   const transportOptions: SMTPTransport.Options & { servername?: string } = {
     host: smtpHost,
     servername: env.ZOHO_SMTP_HOST,
     port: env.ZOHO_SMTP_PORT,
     secure: env.ZOHO_SMTP_PORT === 465,
-    auth: {
-      user: env.ZOHO_SMTP_USER,
-      pass: env.ZOHO_SMTP_PASSWORD,
-    },
+    auth: { user, pass },
     connectionTimeout: TIMEOUT_MS,
     greetingTimeout: TIMEOUT_MS,
     socketTimeout: TIMEOUT_MS,
   }
+  return nodemailer.createTransport(transportOptions)
+}
 
-  transporter = nodemailer.createTransport(transportOptions)
+// notificationsTransporter: todo lo transaccional (reset, activación, eventos)
+// contactTransporter: formulario de contacto humano (envío + auto-respuesta)
+let notificationsTransporter: Transporter | null = null
+let contactTransporter: Transporter | null = null
+
+if (isZohoConfigured) {
+  notificationsTransporter = await buildTransporter(env.ZOHO_NOTIFICATIONS_USER!, env.ZOHO_NOTIFICATIONS_PASSWORD!)
+  contactTransporter = await buildTransporter(env.ZOHO_CONTACT_USER!, env.ZOHO_CONTACT_PASSWORD!)
 } else {
   console.warn('[mailer] ZOHO_SMTP_* no está configurado — el envío de correo queda deshabilitado hasta que se agregue.')
 }
@@ -63,7 +74,6 @@ function emailLayout(bodyHtml: string): string {
   const whatsappLink = env.CONTACT_WHATSAPP_NUMBER
     ? ` · <a href="https://wa.me/${env.CONTACT_WHATSAPP_NUMBER}" style="color:#2454FF; text-decoration:none;">WhatsApp</a>`
     : ''
-
   return `
     <div style="font-family: Arial, sans-serif; color: #0B1A33; max-width: 560px; margin: 0 auto; padding: 24px 0;">
       <div style="text-align:center; margin-bottom: 28px;">
@@ -113,10 +123,10 @@ function autoReplyBody(payload: ContactMailPayload): string {
 
 /** Nunca lanza — quien la llama decide qué hacer con `email_sent`. */
 export async function sendContactNotification(payload: ContactMailPayload): Promise<boolean> {
-  if (!transporter) return false
+  if (!contactTransporter) return false
   try {
-    await transporter.sendMail({
-      from: `"RoMa — Formulario de contacto" <${env.ZOHO_SMTP_USER}>`,
+    await contactTransporter.sendMail({
+      from: `"RoMa — Formulario de contacto" <${env.ZOHO_CONTACT_USER}>`,
       to: env.CONTACT_NOTIFICATION_EMAIL,
       replyTo: payload.correo,
       subject: `Nuevo contacto: ${payload.nombre}`,
@@ -131,10 +141,10 @@ export async function sendContactNotification(payload: ContactMailPayload): Prom
 
 /** Best-effort — un fallo aquí no debe afectar el resultado de la request. */
 export async function sendAutoReply(payload: ContactMailPayload): Promise<boolean> {
-  if (!transporter) return false
+  if (!contactTransporter) return false
   try {
-    await transporter.sendMail({
-      from: `"RoMa" <${env.ZOHO_SMTP_USER}>`,
+    await contactTransporter.sendMail({
+      from: `"RoMa" <${env.ZOHO_CONTACT_USER}>`,
       to: payload.correo,
       subject: 'Recibimos tu mensaje — RoMa',
       html: emailLayout(autoReplyBody(payload)),
@@ -165,10 +175,10 @@ function passwordResetBody(nombre: string, resetUrl: string): string {
 
 /** Best-effort — un fallo aquí no debe revelar si el documento existe o no. */
 export async function sendPasswordResetEmail(email: string, nombre: string, resetUrl: string): Promise<boolean> {
-  if (!transporter) return false
+  if (!notificationsTransporter) return false
   try {
-    await transporter.sendMail({
-      from: `"RoMa" <${env.ZOHO_SMTP_USER}>`,
+    await notificationsTransporter.sendMail({
+      from: `"RoMa" <${env.ZOHO_NOTIFICATIONS_USER}>`,
       to: email,
       subject: 'Restablece tu contraseña — RoMa',
       html: emailLayout(passwordResetBody(nombre, resetUrl)),
@@ -210,7 +220,6 @@ function severityEmailBody(payload: {
         </a>
       </p>`
     : ''
-
   return `
     <div style="background:${style.bg}; border-left: 4px solid ${style.accent}; padding: 10px 16px; border-radius: 4px; margin-bottom: 20px;">
       <span style="color:${style.accent}; font-weight:700; font-size: 13px; letter-spacing: 0.02em;">${style.icon} ${style.label.toUpperCase()}</span>
@@ -222,9 +231,11 @@ function severityEmailBody(payload: {
   `
 }
 
-/** Nunca lanza — el email es un canal aditivo, un fallo no debe perder ni
+/**
+ * Nunca lanza — el email es un canal aditivo, un fallo no debe perder ni
  * afectar la notificación in-app ya creada. Quien la llama registra el
- * resultado (emailSentAt/emailError) por separado. */
+ * resultado (emailSentAt/emailError) por separado.
+ */
 export async function sendNotificationEmail(payload: {
   to: string
   nombre: string
@@ -235,10 +246,10 @@ export async function sendNotificationEmail(payload: {
   linkUrl?: string | null
   linkLabel?: string
 }): Promise<boolean> {
-  if (!transporter) return false
+  if (!notificationsTransporter) return false
   try {
-    await transporter.sendMail({
-      from: `"RoMa+" <${env.ZOHO_SMTP_USER}>`,
+    await notificationsTransporter.sendMail({
+      from: `"RoMa+" <${env.ZOHO_NOTIFICATIONS_USER}>`,
       to: payload.to,
       subject: payload.subject,
       html: emailLayout(severityEmailBody(payload)),
@@ -250,9 +261,11 @@ export async function sendNotificationEmail(payload: {
   }
 }
 
-/** Best-effort — un fallo al enviar no debe tumbar la creación de la
+/**
+ * Best-effort — un fallo al enviar no debe tumbar la creación de la
  * empresa/usuario ya hecha (ver activation.service.ts, que además guarda
- * `emailSentAt`/`emailError` del intento). */
+ * `emailSentAt`/`emailError` del intento).
+ */
 export async function sendActivationInviteEmail(payload: {
   to: string
   nombre: string
@@ -260,7 +273,7 @@ export async function sendActivationInviteEmail(payload: {
   activationUrl: string
   ttlHours: number
 }): Promise<boolean> {
-  if (!transporter) return false
+  if (!notificationsTransporter) return false
   try {
     const empresaLine = payload.organizationNombre
       ? `<p style="font-size: 14px; line-height: 1.6;">Te invitamos como responsable de <strong>${escapeHtml(payload.organizationNombre)}</strong> en RoMa+.</p>`
@@ -279,8 +292,8 @@ export async function sendActivationInviteEmail(payload: {
       linkUrl: payload.activationUrl,
       linkLabel: 'Crear contraseña',
     })
-    await transporter.sendMail({
-      from: `"RoMa+" <${env.ZOHO_SMTP_USER}>`,
+    await notificationsTransporter.sendMail({
+      from: `"RoMa+" <${env.ZOHO_NOTIFICATIONS_USER}>`,
       to: payload.to,
       subject: 'Activa tu cuenta en RoMa+',
       html: emailLayout(body),
@@ -294,7 +307,7 @@ export async function sendActivationInviteEmail(payload: {
 
 /** Best-effort — confirmación de que la cuenta ya puede iniciar sesión. */
 export async function sendAccountActiveEmail(payload: { to: string; nombre: string; documentNumber: string }): Promise<boolean> {
-  if (!transporter) return false
+  if (!notificationsTransporter) return false
   try {
     const body = severityEmailBody({
       nombre: payload.nombre,
@@ -309,8 +322,8 @@ export async function sendAccountActiveEmail(payload: { to: string; nombre: stri
       linkUrl: `${env.FRONTEND_URL}/ingresar`,
       linkLabel: 'Iniciar sesión',
     })
-    await transporter.sendMail({
-      from: `"RoMa+" <${env.ZOHO_SMTP_USER}>`,
+    await notificationsTransporter.sendMail({
+      from: `"RoMa+" <${env.ZOHO_NOTIFICATIONS_USER}>`,
       to: payload.to,
       subject: 'Tu cuenta en RoMa+ ya está activa',
       html: emailLayout(body),

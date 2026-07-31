@@ -435,6 +435,7 @@
   "dashboard": {
     "layout": {
       "openMenu": "Abrir menú de navegación",
+      "profileMenuLabel": "Menú de perfil",
       "logout": "Cerrar sesión",
       "noDataYet": "Sin datos aún",
       "lastSync": "Última sincronización de datos: ",
@@ -444,7 +445,11 @@
     "sidebar": {
       "navAriaLabel": "Navegación del dashboard",
       "navLabel": "Navegación",
-      "closeMenu": "Cerrar menú de navegación"
+      "tagline": "Ciencia Aplicada",
+      "servicesLabel": "Servicios",
+      "generalLabel": "General",
+      "closeMenu": "Cerrar menú de navegación",
+      "notificationsLink": "Notificaciones"
     },
     "tabs": {
       "dashboard": "Dashboard",
@@ -557,7 +562,10 @@
     "clientTabs": {
       "hoja1": "Hoja 1 · Dashboard",
       "hoja2": "Hoja 2 · Detalle técnico",
-      "hoja3": "Hoja 3 · Análisis"
+      "hoja3": "Hoja 3 · Análisis",
+      "hoja1Short": "Hoja 1",
+      "hoja2Short": "Hoja 2",
+      "hoja3Short": "Hoja 3"
     },
     "clientDashboardTab": {
       "exportCsv": "Exportar CSV",
@@ -718,8 +726,8 @@
       "operacionSection": "Operación",
       "administracionSection": "Administración",
       "orgSelectorLabel": "Empresa",
-      "serviciosLink": "Servicios",
       "clientesLink": "Clientes",
+      "notificacionesLink": "Notificaciones",
       "noActiveServices": "No hay servicios activos en el catálogo."
     },
     "operacion": {
@@ -818,6 +826,32 @@
     "pageTitle": "Personaliza tu panel",
     "pageSubtitle": "Sube el logo y los colores de tu empresa — se verán en tu panel la próxima vez que ingreses. Solo se pide una vez.",
     "submit": "Guardar y continuar"
+  },
+  "myProfile": {
+    "sidebarLink": "Mi perfil",
+    "loading": "Cargando tu perfil...",
+    "loadError": "No se pudo cargar tu perfil.",
+    "personalDataTitle": "Datos personales",
+    "personalDataSubtitle": "Tu información de contacto — no la de tu empresa.",
+    "fields": {
+      "nombre": "Nombre completo",
+      "email": "Correo electrónico",
+      "cargo": "Cargo",
+      "telefono": "Teléfono",
+      "documentNumber": "Número de documento"
+    },
+    "documentNumberHint": "No editable — es tu credencial de acceso.",
+    "saveProfile": "Guardar cambios",
+    "profileSaved": "Datos actualizados correctamente.",
+    "passwordTitle": "Cambiar contraseña",
+    "passwordSubtitle": "Necesitamos tu contraseña actual para confirmar el cambio.",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmNewPassword": "Confirmar nueva contraseña",
+    "passwordMismatch": "Las contraseñas nuevas no coinciden",
+    "changePassword": "Cambiar contraseña",
+    "passwordChanged": "Contraseña actualizada correctamente.",
+    "genericError": "Ocurrió un error, intenta de nuevo."
   },
   "branding": {
     "fields": {

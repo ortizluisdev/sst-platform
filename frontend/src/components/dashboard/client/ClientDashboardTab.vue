@@ -56,27 +56,17 @@ function exportCsv() {
 function printReport() {
   window.print()
 }
+
+// ClientDashboardHojas.vue renderiza estos botones en su cabecera (junto al
+// título de la hoja activa), no acá — los expone vía ref en vez de vía
+// Teleport porque el target de un Teleport debe existir FUERA del árbol de
+// componentes que se está montando; acá el target vive en el padre que se
+// monta en la misma pasada, así que Vue nunca lo encuentra a tiempo.
+defineExpose({ exportCsv, printReport })
 </script>
 
 <template>
   <div class="grid gap-6">
-    <div class="flex flex-wrap gap-3 print:hidden">
-      <button
-        type="button"
-        class="rounded-sm border border-navy-900 bg-navy-900 px-5 py-2.5 text-sm font-medium text-cream transition-colors hover:bg-transparent hover:text-navy-900"
-        @click="exportCsv"
-      >
-        {{ t('dashboard.clientDashboardTab.exportCsv') }}
-      </button>
-      <button
-        type="button"
-        class="rounded-sm border border-navy-900 px-5 py-2.5 text-sm font-medium text-navy-900 transition-colors hover:bg-navy-900 hover:text-cream"
-        @click="printReport"
-      >
-        {{ t('dashboard.clientDashboardTab.exportPdf') }}
-      </button>
-    </div>
-
     <div>
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.clientDashboardTab.indicadoresGlobales') }}

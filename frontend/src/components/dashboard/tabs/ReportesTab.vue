@@ -5,9 +5,11 @@ import type { Locale } from '@/i18n'
 import ComplianceRing from '../ComplianceRing.vue'
 import ComparisonTable from '../ComparisonTable.vue'
 import { formatDate } from '@/utils/formatDate'
+import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 
 const props = defineProps<{ dashboard: DashboardData }>()
 const { t, tm, locale } = useI18n()
+const primaryTextClass = useOrgPrimaryTextClass()
 
 function formatNorma(min: number | null, max: number | null): string {
   if (min != null && max != null) return `${min} - ${max}`
@@ -53,14 +55,16 @@ function printReport() {
     <div class="flex flex-wrap gap-3 print:hidden">
       <button
         type="button"
-        class="rounded-sm border border-navy-900 bg-navy-900 px-5 py-2.5 text-sm font-medium text-cream transition-colors hover:bg-transparent hover:text-navy-900"
+        class="rounded-sm border border-[var(--org-primary,#0b1a33)] bg-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium transition-colors hover:bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
+        :class="[primaryTextClass.text, 'hover:text-[var(--org-primary,#0b1a33)]']"
         @click="exportCsv"
       >
         {{ t('dashboard.reportes.exportCsv') }}
       </button>
       <button
         type="button"
-        class="rounded-sm border border-navy-900 px-5 py-2.5 text-sm font-medium text-navy-900 transition-colors hover:bg-navy-900 hover:text-cream"
+        class="rounded-sm border border-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium text-[var(--org-primary,#0b1a33)] transition-colors hover:bg-[var(--org-primary,#0b1a33)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
+        :class="primaryTextClass.hoverText"
         @click="printReport"
       >
         {{ t('dashboard.reportes.exportPdf') }}

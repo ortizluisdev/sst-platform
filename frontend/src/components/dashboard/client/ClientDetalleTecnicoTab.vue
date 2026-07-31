@@ -118,6 +118,12 @@ function exportCsv() {
 function printReport() {
   window.print()
 }
+
+// Ver nota equivalente en ClientDashboardTab.vue: ClientDashboardHojas.vue
+// invoca esto vía ref, no vía Teleport (el target vive en el padre que se
+// monta en la misma pasada que este componente, así que Teleport nunca lo
+// encuentra a tiempo).
+defineExpose({ exportCsv, printReport })
 </script>
 
 <template>
@@ -154,23 +160,6 @@ function printReport() {
       </button>
     </div>
 
-    <div class="flex flex-wrap gap-3 print:hidden">
-      <button
-        type="button"
-        class="rounded-sm border border-navy-900 bg-navy-900 px-5 py-2.5 text-sm font-medium text-cream transition-colors hover:bg-transparent hover:text-navy-900"
-        @click="exportCsv"
-      >
-        {{ t('dashboard.detalleTecnico.exportCsv') }}
-      </button>
-      <button
-        type="button"
-        class="rounded-sm border border-navy-900 px-5 py-2.5 text-sm font-medium text-navy-900 transition-colors hover:bg-navy-900 hover:text-cream"
-        @click="printReport"
-      >
-        {{ t('dashboard.detalleTecnico.exportPdf') }}
-      </button>
-    </div>
-
     <p v-if="filtering" class="text-sm text-navy-700 opacity-70">{{ t('dashboard.detalleTecnico.filtrando') }}</p>
     <p
       v-else-if="displayDashboard.categories.every((c) => c.variables.length === 0)"
@@ -179,7 +168,7 @@ function printReport() {
       {{ t('dashboard.detalleTecnico.sinResultados') }}
     </p>
 
-    <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+    <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <div
         v-for="(categoria, index) in displayDashboard.categories.filter((c) => c.variables.length > 0)"
         :key="categoria.categoria"

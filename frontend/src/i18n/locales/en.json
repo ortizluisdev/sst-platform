@@ -435,6 +435,7 @@
   "dashboard": {
     "layout": {
       "openMenu": "Open navigation menu",
+      "profileMenuLabel": "Profile menu",
       "logout": "Log out",
       "noDataYet": "No data yet",
       "lastSync": "Last data sync: ",
@@ -444,7 +445,11 @@
     "sidebar": {
       "navAriaLabel": "Dashboard navigation",
       "navLabel": "Navigation",
-      "closeMenu": "Close navigation menu"
+      "tagline": "Applied Science",
+      "servicesLabel": "Services",
+      "generalLabel": "General",
+      "closeMenu": "Close navigation menu",
+      "notificationsLink": "Notifications"
     },
     "tabs": {
       "dashboard": "Dashboard",
@@ -557,7 +562,10 @@
     "clientTabs": {
       "hoja1": "Sheet 1 · Dashboard",
       "hoja2": "Sheet 2 · Technical detail",
-      "hoja3": "Sheet 3 · Analysis"
+      "hoja3": "Sheet 3 · Analysis",
+      "hoja1Short": "Sheet 1",
+      "hoja2Short": "Sheet 2",
+      "hoja3Short": "Sheet 3"
     },
     "clientDashboardTab": {
       "exportCsv": "Export CSV",
@@ -718,8 +726,8 @@
       "operacionSection": "Operations",
       "administracionSection": "Administration",
       "orgSelectorLabel": "Organization",
-      "serviciosLink": "Services",
       "clientesLink": "Clients",
+      "notificacionesLink": "Notifications",
       "noActiveServices": "No active services in the catalog."
     },
     "operacion": {
@@ -818,6 +826,32 @@
     "pageTitle": "Personalize your dashboard",
     "pageSubtitle": "Upload your company's logo and colors — they'll show up in your dashboard next time you sign in. Only asked once.",
     "submit": "Save and continue"
+  },
+  "myProfile": {
+    "sidebarLink": "My profile",
+    "loading": "Loading your profile...",
+    "loadError": "Couldn't load your profile.",
+    "personalDataTitle": "Personal data",
+    "personalDataSubtitle": "Your contact info — not your company's.",
+    "fields": {
+      "nombre": "Full name",
+      "email": "Email",
+      "cargo": "Job title",
+      "telefono": "Phone",
+      "documentNumber": "Document number"
+    },
+    "documentNumberHint": "Not editable — it's your login credential.",
+    "saveProfile": "Save changes",
+    "profileSaved": "Your data was updated successfully.",
+    "passwordTitle": "Change password",
+    "passwordSubtitle": "We need your current password to confirm the change.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordMismatch": "New passwords don't match",
+    "changePassword": "Change password",
+    "passwordChanged": "Password updated successfully.",
+    "genericError": "Something went wrong, try again."
   },
   "branding": {
     "fields": {

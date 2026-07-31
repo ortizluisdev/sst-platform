@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Menu, UserCircle } from 'lucide-vue-next'
-import logoPng from '@/assets/logo/roma-logo.png'
-import logoWebp from '@/assets/logo/roma-logo.webp'
+import { ChevronDown, Menu, UserCircle } from 'lucide-vue-next'
+import romaIsotype from '@/assets/logo/roma-isotype.svg'
 import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { formatDate } from '@/utils/formatDate'
-import { isDarkColor } from '@/utils/colorContrast'
 import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
 import type { Locale } from '@/i18n'
 
@@ -19,19 +17,34 @@ const logoFailed = ref(false)
 const orgLogoUrl = computed(() =>
   auth.organizationId ? `${import.meta.env.VITE_API_BASE_URL}/organizations/${auth.organizationId}/logo` : null,
 )
-// Sin branding, el header es blanco y el texto navy ya tiene buen contraste
-// (comportamiento de siempre). Con branding, el color elegido por el cliente
-// puede ser oscuro o claro — el texto/iconos deben adaptarse para seguir
-// siendo legibles en cualquier caso, sin pedirle al cliente un tercer color.
-const navbarTextClass = computed(() =>
-  auth.branding && isDarkColor(auth.branding.primaryColor) ? 'text-white' : 'text-navy-700',
-)
 const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
 const drawer = provideSidebarDrawer()
 
+// El color de marca del cliente (--org-primary) queda reservado para
+// botones, pills activos y estados de éxito/error — nunca como fondo del
+// navbar, que se ve poco profesional con colores corporativos arbitrarios
+// (a veces claros, a veces oscuros, a veces feos). El navbar es siempre
+// blanco, sin importar el branding elegido.
+const profileMenuOpen = ref(false)
+const profileMenuEl = ref<HTMLElement | null>(null)
+
+function toggleProfileMenu() {
+  profileMenuOpen.value = !profileMenuOpen.value
+}
+
+function handleClickOutsideProfileMenu(event: MouseEvent) {
+  if (profileMenuEl.value && !profileMenuEl.value.contains(event.target as Node)) {
+    profileMenuOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutsideProfileMenu))
+onUnmounted(() => document.removeEventListener('click', handleClickOutsideProfileMenu))
+
 async function handleLogout() {
+  profileMenuOpen.value = false
   await auth.logout()
   router.push(`/${locale.value}/ingresar`)
 }
@@ -49,66 +62,79 @@ const switchTo = computed(() => ({
 
 <template>
   <div class="flex min-h-screen flex-col bg-cream" :style="auth.brandingCssVars">
-    <header class="border-b border-line-strong bg-[var(--org-primary,#ffffff)] px-4 py-3.5 shadow-sm print:hidden sm:px-6">
+    <header class="border-b border-line-strong bg-white px-4 py-3.5 shadow-sm print:hidden sm:px-6">
       <div class="mx-auto flex max-w-[1280px] items-center justify-between gap-3">
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
-            class="rounded-sm p-1.5 transition-colors hover:bg-white/10 lg:hidden"
-            :class="navbarTextClass"
+            class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100 lg:hidden"
             :aria-label="t('dashboard.layout.openMenu')"
             @click="drawer.toggle()"
           >
             <Menu class="h-5 w-5" />
           </button>
-          <router-link :to="`/${locale}/`" class="shrink-0">
-            <picture>
-              <source :srcset="logoWebp" type="image/webp" />
-              <img :src="logoPng" alt="RoMa — Ciencia Aplicada" class="block h-7 w-auto sm:h-8" width="572" height="166" />
-            </picture>
-          </router-link>
         </div>
 
         <div class="flex shrink-0 items-center gap-2 sm:gap-4">
           <NotificationBell v-if="auth.user" />
 
-          <div v-if="auth.user" class="flex items-center gap-2">
-            <!-- Logo propio del cliente — informativo, junto a su nombre. Nunca
-            reemplaza el de RoMa (izquierda): ambos identifican, uno la
-            plataforma, el otro la empresa dueña de esta sesión. -->
+          <!-- Logo propio del cliente; si no tiene organización (los dos roles
+          admin), el isotipo de RoMa ocupa el mismo lugar. Borde + fondo
+          tenues en el color de marca del cliente (--org-primary), no gris
+          neutro: es su propio elemento del navbar, no un accesorio — y un
+          logo en cualquier color (incluido negro puro) sigue siendo visible
+          sobre navbar blanco gracias al tinte, sin convertirse en una
+          tarjeta pesada. Rectangular con esquinas suaves, ~48px de alto. -->
+          <div
+            v-if="auth.user"
+            class="flex h-12 items-center justify-center rounded-lg border border-[var(--org-primary,#0f2a4a)]/25 bg-[var(--org-primary,#0f2a4a)]/5 px-3.5"
+          >
             <img
               v-if="orgLogoUrl && !logoFailed"
               :src="orgLogoUrl"
               :alt="t('dashboard.layout.clientLogoAlt')"
-              class="block h-6 w-auto shrink-0"
+              class="block h-8 w-auto max-w-[140px] object-contain"
               @error="logoFailed = true"
             />
-            <UserCircle class="h-5 w-5 shrink-0" :class="navbarTextClass" aria-hidden="true" />
-            <span class="hidden text-sm min-[400px]:inline" :class="navbarTextClass">{{ auth.user.nombre }}</span>
-            <span
-              class="hidden items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 min-[480px]:inline-flex"
-            >
-              {{ t(auth.roleLabelKey) }}
-            </span>
+            <img v-else :src="romaIsotype" alt="" class="block h-8 w-8" aria-hidden="true" />
           </div>
 
           <router-link
             :to="switchTo"
-            class="text-[13px] font-semibold tracking-wide no-underline transition-colors hover:opacity-70"
-            :class="navbarTextClass"
+            class="text-[13px] font-semibold tracking-wide text-navy-700 no-underline transition-colors hover:opacity-70"
             :aria-label="t('nav.switchTo')"
           >
             {{ otherLocale.toUpperCase() }}
           </router-link>
 
-          <button
-            type="button"
-            class="rounded-sm border border-current px-3 py-1.5 text-sm font-medium transition-colors hover:opacity-70 sm:px-3.5"
-            :class="navbarTextClass"
-            @click="handleLogout"
-          >
-            {{ t('dashboard.layout.logout') }}
-          </button>
+          <div v-if="auth.user" ref="profileMenuEl" class="relative">
+            <button
+              type="button"
+              class="flex items-center gap-1.5 rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100"
+              :aria-label="t('dashboard.layout.profileMenuLabel')"
+              :aria-expanded="profileMenuOpen"
+              @click="toggleProfileMenu"
+            >
+              <UserCircle class="h-6 w-6 shrink-0" aria-hidden="true" />
+              <span class="hidden text-sm min-[400px]:inline">{{ auth.user.nombre }}</span>
+              <ChevronDown class="h-4 w-4 shrink-0" aria-hidden="true" />
+            </button>
+
+            <div
+              v-if="profileMenuOpen"
+              class="absolute right-0 top-full z-30 mt-2 w-44 rounded-md border border-line-strong bg-white py-1 shadow-lg"
+              role="menu"
+            >
+              <button
+                type="button"
+                class="block w-full px-4 py-2 text-left text-sm text-navy-700 transition-colors hover:bg-sky-100"
+                role="menuitem"
+                @click="handleLogout"
+              >
+                {{ t('dashboard.layout.logout') }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>

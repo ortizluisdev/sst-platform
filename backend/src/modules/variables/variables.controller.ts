@@ -170,6 +170,21 @@ async function resolveClientOrganizationId(request: FastifyRequest, reply: Fasti
   return membership.organizationId
 }
 
+/** GET — cliente: servicios contratados de su propia organización, para
+ * saber cuáles mostrar en el selector del sidebar (si tiene más de uno). */
+export async function clientContractedServicesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const organizationId = await resolveClientOrganizationId(request, reply)
+  if (!organizationId) return
+
+  const service = createVariablesService(request.server.prisma)
+  try {
+    const services = await service.listContractedServices(organizationId)
+    return reply.code(200).send({ services })
+  } catch (err) {
+    return sendVariablesError(reply, err)
+  }
+}
+
 /** GET — cliente: historial de cargas de su propia organización. */
 export async function clientHistoryHandler(
   request: FastifyRequest<{ Params: { serviceSlug: string } }>,

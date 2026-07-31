@@ -129,7 +129,7 @@ async function handleSave(variableId: string) {
                 <td class="px-4 py-3">
                   <button
                     type="button"
-                    class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900 disabled:opacity-50"
+                    class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-[var(--org-primary,#0b1a33)] disabled:opacity-50"
                     :disabled="savingId === v.id"
                     @click="handleSave(v.id)"
                   >

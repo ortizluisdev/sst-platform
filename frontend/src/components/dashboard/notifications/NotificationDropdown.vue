@@ -25,11 +25,18 @@ async function load() {
   }
 }
 
+// `immediate: true` es obligatorio acá: NotificationBell.vue monta este
+// componente vía `v-if="open"`, así que `open` ya vale `true` en el instante
+// del montaje — un watch sin `immediate` nunca ve ese primer valor, solo
+// dispara ante cambios posteriores (que nunca llegan, porque el padre
+// destruye/vuelve a crear el componente en cada toggle). Sin esto, la lista
+// se quedaba vacía ("No tienes notificaciones") hasta navegar a "Ver todas".
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) load()
   },
+  { immediate: true },
 )
 
 async function handleMarkRead(id: string) {

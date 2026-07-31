@@ -42,6 +42,10 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     hasPermission: (state) => (key: string) => state.permissions.includes('*') || state.permissions.includes(key),
+    // Único rol con permiso '*' (super-admin/adminsystem, ver prisma/seed.ts
+    // ROLES) — cliente siempre tiene permisos acotados a "dashboard.*", nunca
+    // el comodín. Chequeo limpio para renderizado condicional por rol.
+    isAdmin: (state): boolean => state.permissions.includes('*'),
     roleLabelKey: (state): string =>
       state.permissions.includes('*') || state.permissions.includes('platform.variables.upload')
         ? 'dashboard.roleLabel.superAdmin'

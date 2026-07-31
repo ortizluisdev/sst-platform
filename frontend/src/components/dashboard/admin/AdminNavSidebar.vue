@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { ChevronDown, ChevronRight, LayoutGrid, Users, Wrench } from 'lucide-vue-next'
+import { Bell, ChevronDown, ChevronRight, LayoutGrid, User, Users } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
+import logoPng from '@/assets/logo/roma-logo.png'
+import logoWebp from '@/assets/logo/roma-logo.webp'
 
 const props = defineProps<{
   services: ServiceOption[]
@@ -52,9 +54,25 @@ function handleTabClick(tab: TabDef) {
 
 <template>
   <nav
-    class="w-full shrink-0 rounded-lg border border-line-strong bg-white p-3 print:hidden lg:sticky lg:top-6 lg:w-64"
+    class="flex w-full shrink-0 flex-col rounded-lg border border-line-strong bg-white p-3 print:hidden lg:sticky lg:top-6 lg:w-64"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
+    <div class="mb-3 border-b border-line px-1 pb-3">
+      <picture>
+        <source :srcset="logoWebp" type="image/webp" />
+        <img :src="logoPng" alt="RoMa" class="block h-8 w-auto" width="572" height="166" />
+      </picture>
+      <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60">
+        {{ t('dashboard.sidebar.tagline') }}
+      </p>
+    </div>
+
+    <p
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700"
+    >
+      {{ t(auth.roleLabelKey) }}
+    </p>
+
     <div>
       <p class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60">
         {{ t('dashboard.adminShell.operacionSection') }}
@@ -67,30 +85,37 @@ function handleTabClick(tab: TabDef) {
         <li v-for="service in props.services" :key="service.slug">
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
             :class="
               service.slug === props.selectedServiceSlug
-                ? 'border-sky-400 bg-sky-100 text-navy-900'
-                : 'border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
             "
             :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
             @click="handleServiceClick(service)"
           >
             <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span class="min-w-0 flex-1 truncate">{{ service.nombre }}</span>
-            <ChevronDown v-if="isExpandable(service.slug) && expandedSlug === service.slug" class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <ChevronDown
+              v-if="isExpandable(service.slug) && expandedSlug === service.slug"
+              class="h-4 w-4 shrink-0"
+              aria-hidden="true"
+            />
             <ChevronRight v-else-if="isExpandable(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
           </button>
 
-          <ul v-if="expandedSlug === service.slug && props.serviceTabs.length > 0" class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2">
+          <ul
+            v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
+            class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+          >
             <li v-for="tab in props.serviceTabs" :key="tab.key">
               <button
                 type="button"
-                class="flex w-full items-center gap-2 whitespace-nowrap rounded-sm px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
+                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                 :class="
                   tab.key === activeTab
-                    ? 'bg-sky-100 text-navy-900'
-                    : 'text-navy-700/80 hover:bg-sky-400/10'
+                    ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                    : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
                 "
                 @click="handleTabClick(tab)"
               >
@@ -112,29 +137,43 @@ function handleTabClick(tab: TabDef) {
         <li v-if="auth.hasPermission('platform.organizations.manage') || auth.hasPermission('platform.users.approve')">
           <router-link
             :to="`/${locale}/dashboard/admin/clientes`"
-            class="flex items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
             :class="
               $route.name === 'admin-clientes'
-                ? 'border-sky-400 bg-sky-100 text-navy-900'
-                : 'border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
             "
           >
             <Users class="h-4 w-4 shrink-0" aria-hidden="true" />
             {{ t('dashboard.adminShell.clientesLink') }}
           </router-link>
         </li>
-        <li v-if="auth.hasPermission('platform.services.manage')">
+        <li>
           <router-link
-            :to="`/${locale}/dashboard/admin/servicios`"
-            class="flex items-center gap-2.5 whitespace-nowrap rounded-sm border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors"
+            :to="`/${locale}/dashboard/admin/notificaciones`"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
             :class="
-              $route.name === 'admin-servicios'
-                ? 'border-sky-400 bg-sky-100 text-navy-900'
-                : 'border-transparent text-navy-700 hover:bg-sky-400/10'
+              $route.name === 'admin-notificaciones'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
             "
           >
-            <Wrench class="h-4 w-4 shrink-0" aria-hidden="true" />
-            {{ t('dashboard.adminShell.serviciosLink') }}
+            <Bell class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {{ t('dashboard.adminShell.notificacionesLink') }}
+          </router-link>
+        </li>
+        <li>
+          <router-link
+            :to="`/${locale}/dashboard/admin/mi-perfil`"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              $route.name === 'admin-mi-perfil'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+          >
+            <User class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {{ t('myProfile.sidebarLink') }}
           </router-link>
         </li>
       </ul>

@@ -130,7 +130,7 @@ function selectService(slug: string) {
 
 <template>
   <DashboardLayout :last-sync="lastSync">
-    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+    <div class="flex flex-col gap-6 lg:flex-row">
       <AdminNavSidebar
         :selected-service-slug="selectedServiceSlug"
         :services="operacionServices"

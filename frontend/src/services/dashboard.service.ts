@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
 import type { DashboardData, DashboardFilters, OrganizationOption, UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
+import type { ServiceOption } from '@/types/organization'
 
 export class DashboardRequestError extends Error {
   status: number
@@ -20,6 +21,17 @@ function rethrow(err: unknown): never {
     throw new DashboardRequestError(status, data.message ?? 'Ocurrió un error', data.errors)
   }
   throw err
+}
+
+/** Cliente: servicios contratados de su propia organización — para el
+ * selector del sidebar cuando tiene más de uno. */
+export async function listMyContractedServices(): Promise<ServiceOption[]> {
+  try {
+    const { data } = await apiClient.get('/dashboard/services')
+    return data.services
+  } catch (err) {
+    rethrow(err)
+  }
 }
 
 /** Cliente: siempre su propia organización (derivada de la sesión en el backend).

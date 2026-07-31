@@ -21,10 +21,14 @@ const envSchema = z.object({
   // Zoho es opcional a propósito: el correo todavía no está configurado en producción.
   // Ver src/utils/mailer.ts — si faltan estas variables, el envío se omite de forma
   // controlada (log + email_sent=false) en lugar de tumbar el proceso.
+  // Dos cuentas separadas: NOTIFICATIONS para todo lo transaccional (reset,
+  // activación, eventos) y CONTACT para el formulario de contacto humano.
   ZOHO_SMTP_HOST: z.string().optional(),
   ZOHO_SMTP_PORT: z.coerce.number().int().positive().optional(),
-  ZOHO_SMTP_USER: z.string().optional(),
-  ZOHO_SMTP_PASSWORD: z.string().optional(),
+  ZOHO_NOTIFICATIONS_USER: z.string().optional(),
+  ZOHO_NOTIFICATIONS_PASSWORD: z.string().optional(),
+  ZOHO_CONTACT_USER: z.string().optional(),
+  ZOHO_CONTACT_PASSWORD: z.string().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -38,5 +42,10 @@ if (!parsed.success) {
 export const env = parsed.data
 
 export const isZohoConfigured = Boolean(
-  env.ZOHO_SMTP_HOST && env.ZOHO_SMTP_PORT && env.ZOHO_SMTP_USER && env.ZOHO_SMTP_PASSWORD,
+  env.ZOHO_SMTP_HOST &&
+    env.ZOHO_SMTP_PORT &&
+    env.ZOHO_NOTIFICATIONS_USER &&
+    env.ZOHO_NOTIFICATIONS_PASSWORD &&
+    env.ZOHO_CONTACT_USER &&
+    env.ZOHO_CONTACT_PASSWORD,
 )

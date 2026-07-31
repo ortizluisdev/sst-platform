@@ -1,17 +1,32 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
+import { Bell, LayoutGrid, User, X } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { TabDef } from '@/types/dashboardTabs'
+import type { ServiceOption } from '@/types/organization'
 import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
+import { useAuthStore } from '@/stores/auth'
+import logoPng from '@/assets/logo/roma-logo.png'
+import logoWebp from '@/assets/logo/roma-logo.webp'
 
-defineProps<{ tabs: TabDef[]; modelValue: string }>()
-const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+defineProps<{
+  tabs: TabDef[]
+  modelValue: string
+  services: ServiceOption[]
+  selectedServiceSlug: string
+}>()
+const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:selectedServiceSlug': [value: string] }>()
 
 const { t } = useI18n()
 const drawer = useSidebarDrawer()
+const auth = useAuthStore()
 
 function selectTab(key: string) {
   emit('update:modelValue', key)
+  drawer.close()
+}
+
+function selectService(slug: string) {
+  emit('update:selectedServiceSlug', slug)
   drawer.close()
 }
 </script>
@@ -25,15 +40,23 @@ function selectTab(key: string) {
   />
 
   <nav
-    class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] -translate-x-full overflow-y-auto border-r border-line-strong bg-white p-2 transition-transform duration-300 ease-in-out print:hidden lg:sticky lg:top-6 lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-lg lg:border"
+    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-line-strong bg-white p-3 transition-transform duration-300 ease-in-out print:hidden lg:sticky lg:top-6 lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-lg lg:border"
     :class="{ 'translate-x-0': drawer.isOpen.value }"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >
-    <div class="mb-1 flex items-center justify-between px-1 py-1 lg:hidden">
-      <span class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{ t('dashboard.sidebar.navLabel') }}</span>
+    <div class="mb-3 flex items-start justify-between gap-2 border-b border-line px-1 pb-3">
+      <div>
+        <picture>
+          <source :srcset="logoWebp" type="image/webp" />
+          <img :src="logoPng" alt="RoMa" class="block h-8 w-auto" width="572" height="166" />
+        </picture>
+        <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60">
+          {{ t('dashboard.sidebar.tagline') }}
+        </p>
+      </div>
       <button
         type="button"
-        class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-400/10"
+        class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-400/10 lg:hidden"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -41,6 +64,44 @@ function selectTab(key: string) {
       </button>
     </div>
 
+    <p
+      v-if="auth.user"
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700"
+    >
+      {{ t(auth.roleLabelKey) }}
+    </p>
+
+    <!-- Un cliente puede tener más de un servicio contratado — este listado
+    dice siempre cuál se está viendo (aunque solo tenga uno) en vez de
+    dejarlo implícito. Las pestañas de abajo (Dashboard, categorías...)
+    siempre corresponden al servicio seleccionado acá, así que no hace
+    falta anidarlas dentro de cada ítem como en el acordeón de admin. -->
+    <div v-if="services.length > 0" class="mb-3">
+      <p class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60">
+        {{ t('dashboard.sidebar.servicesLabel') }}
+      </p>
+      <ul class="flex flex-col gap-1">
+        <li v-for="service in services" :key="service.slug">
+          <button
+            type="button"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
+            :class="
+              service.slug === selectedServiceSlug
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+            @click="selectService(service.slug)"
+          >
+            <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span class="min-w-0 flex-1 truncate">{{ service.nombre }}</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Pestañas del servicio seleccionado arriba — nunca mezcladas con
+    Notificaciones/Mi perfil (esas son generales de la cuenta, no de un
+    servicio, así que viven en su propia sección más abajo). -->
     <ul class="flex flex-col gap-1">
       <li v-for="tab in tabs" :key="tab.key">
         <button
@@ -48,8 +109,8 @@ function selectTab(key: string) {
           class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
           :class="
             tab.key === modelValue
-              ? 'bg-[var(--org-primary,#0f2a4a)] text-cream shadow-sm'
-              : 'text-navy-700 hover:bg-sky-400/10'
+              ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+              : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
           "
           @click="selectTab(tab.key)"
         >
@@ -58,5 +119,53 @@ function selectTab(key: string) {
         </button>
       </li>
     </ul>
+
+    <!-- General de la cuenta — fuera de cualquier servicio, por eso vive
+    separada por una línea en vez de mezclada con las pestañas de arriba. -->
+    <div class="mt-3 border-t border-line pt-3">
+      <p class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60">
+        {{ t('dashboard.sidebar.generalLabel') }}
+      </p>
+      <ul class="flex flex-col gap-1">
+        <li>
+          <!-- No es un TabDef del dashboard cargado (esos vienen de `tabs`) —
+          es una clave reservada de `modelValue` ('notificaciones') que
+          ClientDashboardView.vue interpreta para mostrar el panel de
+          notificaciones dentro del mismo layout, igual que cualquier otra
+          pestaña (antes navegaba a una ruta aparte y sacaba al usuario del
+          sidebar/panel). -->
+          <button
+            type="button"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              modelValue === 'notificaciones'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+            @click="selectTab('notificaciones')"
+          >
+            <Bell class="h-5 w-5 shrink-0" aria-hidden="true" />
+            {{ t('dashboard.sidebar.notificationsLink') }}
+          </button>
+        </li>
+        <li>
+          <!-- Mismo mecanismo que Notificaciones: clave reservada de
+          `modelValue` ('perfil'), no un TabDef del dashboard. -->
+          <button
+            type="button"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              modelValue === 'perfil'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+            @click="selectTab('perfil')"
+          >
+            <User class="h-5 w-5 shrink-0" aria-hidden="true" />
+            {{ t('myProfile.sidebarLink') }}
+          </button>
+        </li>
+      </ul>
+    </div>
   </nav>
 </template>

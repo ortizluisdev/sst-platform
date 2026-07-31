@@ -1,4 +1,20 @@
 import { z } from 'zod'
+import { passwordSchema } from '../auth/auth.schema.js'
+
+// Datos PERSONALES del usuario — nunca de la organización/empresa (eso vive
+// en organizationBranding). documentNumber queda fuera a propósito: es la
+// credencial de login, cambiarla es un flujo aparte que no existe todavía.
+export const updateOwnProfileSchema = z.object({
+  nombre: z.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres').max(255),
+  email: z.string().trim().email('Ingresa un correo válido').max(255),
+  cargo: z.string().trim().max(150).optional().or(z.literal('')),
+  telefono: z.string().trim().max(50).optional().or(z.literal('')),
+})
+
+export const changeOwnPasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Ingresa tu contraseña actual'),
+  newPassword: passwordSchema,
+})
 
 export const reactivateUserParamsSchema = z.object({
   userId: z.string().min(1),
@@ -18,3 +34,12 @@ export const suspendUserBodySchema = z.object({
 export const resendInvitationParamsSchema = z.object({
   userId: z.string().min(1),
 })
+
+export function formatFieldErrors(error: z.ZodError): Record<string, string> {
+  const fieldErrors = error.flatten().fieldErrors
+  const errors: Record<string, string> = {}
+  for (const [field, messages] of Object.entries(fieldErrors)) {
+    if (messages?.[0]) errors[field] = messages[0]
+  }
+  return errors
+}
