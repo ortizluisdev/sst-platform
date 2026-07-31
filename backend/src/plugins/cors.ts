@@ -4,13 +4,29 @@ import { env } from '../config/env.js'
 
 const LOCAL_DEV_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']
 
+/** nginx sirve el mismo sitio en el dominio "pelado" y en "www." (ver
+ * sites-available/romascience.com — un `server_name` con ambos), así que un
+ * visitante puede llegar por cualquiera de los dos. FRONTEND_URL solo
+ * configura uno; acá se deriva el otro automáticamente para no tener que
+ * mantener las dos variantes a mano ni hardcodear el dominio. */
+function withWwwVariant(url: string): string[] {
+  try {
+    const parsed = new URL(url)
+    const port = parsed.port ? `:${parsed.port}` : ''
+    const bareHost = parsed.hostname.replace(/^www\./, '')
+    return [`${parsed.protocol}//${bareHost}${port}`, `${parsed.protocol}//www.${bareHost}${port}`]
+  } catch {
+    return [url]
+  }
+}
+
 /**
- * Nunca se usa "*": solo el origen de producción (FRONTEND_URL) y los orígenes
- * de desarrollo local. Un formulario que guarda datos personales y envía correo
- * no debe aceptar requests desde cualquier origen.
+ * Nunca se usa "*": solo el origen de producción (FRONTEND_URL, con y sin
+ * "www.") y los orígenes de desarrollo local. Un formulario que guarda datos
+ * personales y envía correo no debe aceptar requests desde cualquier origen.
  */
 export async function registerCors(app: FastifyInstance) {
-  const allowedOrigins = new Set([env.FRONTEND_URL, ...LOCAL_DEV_ORIGINS])
+  const allowedOrigins = new Set([...withWwwVariant(env.FRONTEND_URL), ...LOCAL_DEV_ORIGINS])
 
   await app.register(fastifyCors, {
     origin(origin, callback) {
