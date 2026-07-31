@@ -62,7 +62,22 @@ const tendenciaGlobalValor = computed(() => {
   return `${signo}${tendencia.deltaPct}%`
 })
 
-const PENDIENTES_GRUPO_B = ['riesgoSalud', 'puntajeIntervencion', 'nivelPrioridad', 'matrizPosicion'] as const
+// Grupo B (interventionAnalysis.ts, backend) — metodologías propuestas y
+// aprobadas para calcular, pero pendientes de validación formal con el
+// responsable SST (ver grupoBDisclaimer más abajo, siempre visible junto a
+// estas 4 tarjetas). `null` en cualquiera de los 4 significa que ninguna
+// lectura del periodo tenía norma aplicable (mismo caso que riesgoGlobal).
+const riesgoSaludValor = computed(() =>
+  props.dashboard.riesgoSalud ? t(`dashboard.clientDashboardTab.riskLevel.${props.dashboard.riesgoSalud.nivel}`) : null,
+)
+const prioridadValor = computed(() =>
+  props.dashboard.prioridadIntervencion
+    ? t(`dashboard.clientAnalisisTab.prioridad.${props.dashboard.prioridadIntervencion}`)
+    : null,
+)
+const matrizValor = computed(() =>
+  props.dashboard.matrizPosicion ? t(`dashboard.clientAnalisisTab.matriz.${props.dashboard.matrizPosicion}`) : null,
+)
 </script>
 
 <template>
@@ -106,14 +121,36 @@ const PENDIENTES_GRUPO_B = ['riesgoSalud', 'puntajeIntervencion', 'nivelPriorida
           :pendiente="!dashboard.probabilidadIncumplimiento"
         />
 
+        <!-- Grupo B: metodologías propuestas y aprobadas para calcular,
+         pendientes de validación formal con el responsable SST — ver
+         grupoBDisclaimer debajo de esta grilla. -->
         <ClientStatCard
-          v-for="key in PENDIENTES_GRUPO_B"
-          :key="key"
-          :titulo="t(`dashboard.clientAnalisisTab.${key}`)"
-          :valor="t('dashboard.clientAnalisisTab.pendiente')"
-          pendiente
+          :titulo="t('dashboard.clientAnalisisTab.riesgoSalud')"
+          :valor="riesgoSaludValor ?? t('dashboard.clientDashboardTab.sinNormaAplicable')"
+          :pendiente="!riesgoSaludValor"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientAnalisisTab.puntajeIntervencion')"
+          :valor="
+            dashboard.puntajeIntervencion != null
+              ? String(dashboard.puntajeIntervencion)
+              : t('dashboard.clientDashboardTab.sinNormaAplicable')
+          "
+          :pendiente="dashboard.puntajeIntervencion == null"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientAnalisisTab.nivelPrioridad')"
+          :valor="prioridadValor ?? t('dashboard.clientDashboardTab.sinNormaAplicable')"
+          :pendiente="!prioridadValor"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientAnalisisTab.matrizPosicion')"
+          :valor="matrizValor ?? t('dashboard.clientDashboardTab.sinNormaAplicable')"
+          :pendiente="!matrizValor"
         />
       </div>
+
+      <p class="mt-3 text-xs italic text-navy-700/50">{{ t('dashboard.clientAnalisisTab.grupoBDisclaimer') }}</p>
     </div>
 
     <div>

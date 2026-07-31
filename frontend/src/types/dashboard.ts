@@ -132,6 +132,9 @@ export interface ProbabilidadIncumplimiento {
   fechaProyeccion: string
 }
 
+export type IntervencionPrioridad = 'ALTA' | 'MEDIA' | 'BAJA'
+export type MatrizCuadrante = 'CRITICO' | 'VIGILAR' | 'PRIORITARIO' | 'ACEPTABLE'
+
 export interface DashboardData {
   service: { slug: string; nombre: string; updateFrequency: 'WEEKLY' | 'BIWEEKLY' }
   lastUpdated: string | null
@@ -140,12 +143,19 @@ export interface DashboardData {
   globalCompliance: GlobalCompliance
   riesgoGlobal: GlobalRisk | null
   alertasActivas: number
-  /** `null` = datos insuficientes (menos de 2 periodos con historial) — no
-   * "sin metodología definida" (eso es el estado de las 4 tarjetas del
-   * Grupo B, todavía sin implementar en ClientAnalisisTab.vue). */
+  /** `null` = datos insuficientes (menos de 2-3 periodos con historial,
+   * según el mínimo de cada cálculo — ver trendAnalysis.ts). */
   tendenciaGlobal: TendenciaGlobal | null
   evolucionIgho: EvolucionIghoPoint[] | null
   probabilidadIncumplimiento: ProbabilidadIncumplimiento | null
+  /** Grupo B (interventionAnalysis.ts) — metodologías propuestas, aprobadas
+   * para calcular pero pendientes de validación formal con el cliente/
+   * responsable SST. `null` cuando ninguna lectura del periodo tiene norma
+   * aplicable (mismo caso que riesgoGlobal=null). */
+  riesgoSalud: GlobalRisk | null
+  puntajeIntervencion: number | null
+  prioridadIntervencion: IntervencionPrioridad | null
+  matrizPosicion: MatrizCuadrante | null
   trend: TrendPoint[]
   filtrosDisponibles: DashboardFiltersAvailable
 }

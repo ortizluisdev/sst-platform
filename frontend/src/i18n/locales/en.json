@@ -643,7 +643,19 @@
       "pendiente": "Pending — methodology not defined",
       "datosInsuficientes": "Insufficient data — fills in with more measurement periods",
       "periodoAnteriorPrefix": "vs. previous period: ",
-      "proyeccionPrefix": "Projected for "
+      "proyeccionPrefix": "Projected for ",
+      "grupoBDisclaimer": "Values in this section use a system-proposed methodology, pending formal validation with the responsible OHS professional.",
+      "prioridad": {
+        "ALTA": "High",
+        "MEDIA": "Medium",
+        "BAJA": "Low"
+      },
+      "matriz": {
+        "CRITICO": "Critical",
+        "VIGILAR": "Watch",
+        "PRIORITARIO": "Priority",
+        "ACEPTABLE": "Acceptable"
+      }
     },
     "detalleTecnico": {
       "parametro": "Parameter",

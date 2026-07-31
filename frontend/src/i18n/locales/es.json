@@ -643,7 +643,19 @@
       "pendiente": "Pendiente — metodología no definida",
       "datosInsuficientes": "Datos insuficientes — se completa con más periodos de medición",
       "periodoAnteriorPrefix": "vs. periodo anterior: ",
-      "proyeccionPrefix": "Proyección al "
+      "proyeccionPrefix": "Proyección al ",
+      "grupoBDisclaimer": "Los valores de esta sección usan una metodología propuesta por el sistema, pendiente de validación formal con el responsable SST.",
+      "prioridad": {
+        "ALTA": "Alta",
+        "MEDIA": "Media",
+        "BAJA": "Baja"
+      },
+      "matriz": {
+        "CRITICO": "Crítico",
+        "VIGILAR": "Vigilar",
+        "PRIORITARIO": "Prioritario",
+        "ACEPTABLE": "Aceptable"
+      }
     },
     "detalleTecnico": {
       "parametro": "Parámetro",
