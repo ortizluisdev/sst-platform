@@ -114,6 +114,24 @@ export interface DashboardFilters {
   procesoActividad?: string
 }
 
+/** "Periodo" = una carga (VariableUpload), no un corte de calendario — ver
+ * backend/src/utils/trendAnalysis.ts. */
+export interface TendenciaGlobal {
+  deltaPct: number
+  actualPct: number
+  anteriorPct: number
+}
+
+export interface EvolucionIghoPoint {
+  fecha: string
+  pct: number
+}
+
+export interface ProbabilidadIncumplimiento {
+  probabilidadPct: number
+  fechaProyeccion: string
+}
+
 export interface DashboardData {
   service: { slug: string; nombre: string; updateFrequency: 'WEEKLY' | 'BIWEEKLY' }
   lastUpdated: string | null
@@ -122,6 +140,12 @@ export interface DashboardData {
   globalCompliance: GlobalCompliance
   riesgoGlobal: GlobalRisk | null
   alertasActivas: number
+  /** `null` = datos insuficientes (menos de 2 periodos con historial) — no
+   * "sin metodología definida" (eso es el estado de las 4 tarjetas del
+   * Grupo B, todavía sin implementar en ClientAnalisisTab.vue). */
+  tendenciaGlobal: TendenciaGlobal | null
+  evolucionIgho: EvolucionIghoPoint[] | null
+  probabilidadIncumplimiento: ProbabilidadIncumplimiento | null
   trend: TrendPoint[]
   filtrosDisponibles: DashboardFiltersAvailable
 }

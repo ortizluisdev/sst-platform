@@ -458,13 +458,15 @@
       "reportes": "Reportes"
     },
     "summaryCard": {
-      "complianceLabel": "Cumplimiento normativo: "
+      "complianceLabel": "Cumplimiento normativo: ",
+      "normaPendiente": "Norma pendiente de definir"
     },
     "semaphore": {
       "cumple": "Cumple",
       "alerta": "Alerta",
       "critico": "Crítico",
-      "sinDatos": "Sin datos"
+      "sinDatos": "Sin datos",
+      "sinNorma": "Sin norma"
     },
     "complianceRing": {
       "title": "Cumplimiento normativo global",
@@ -477,6 +479,41 @@
       "norma": "Norma",
       "pctCumplimiento": "% Cumplimiento",
       "estado": "Estado"
+    },
+    "riskSections": {
+      "heatmapTitle": "Tendencia de riesgo — mapas de calor",
+      "heatmapEmpty": "Aún no se ha subido un mapa de calor para este servicio.",
+      "heatmapUploadLabel": "Subir imagen",
+      "heatmapUploading": "Subiendo…",
+      "heatmapReplaceLabel": "Reemplazar imagen",
+      "comparativoTitle": "Comparativo vs. norma",
+      "incertidumbre": "Incertidumbre (U)",
+      "recomendacionesTitle": "Recomendaciones / No conformidades",
+      "recomendacionesEmpty": "No hay recomendaciones ni no conformidades registradas.",
+      "addButton": "Agregar recomendación",
+      "prioridad": "Prioridad",
+      "descripcion": "Descripción",
+      "zona": "Zona / Punto",
+      "fecha": "Fecha",
+      "priority": {
+        "ALTA": "Alta",
+        "MEDIA": "Media",
+        "BAJA": "Baja"
+      },
+      "status": {
+        "ABIERTA": "Abierta",
+        "EN_SEGUIMIENTO": "En seguimiento",
+        "CERRADA": "Cerrada"
+      },
+      "form": {
+        "variable": "Variable",
+        "descripcion": "Descripción",
+        "prioridad": "Prioridad",
+        "zona": "Zona / Punto (opcional)",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saving": "Guardando…"
+      }
     },
     "uploadForm": {
       "missingFields": "Selecciona un archivo y una fecha de evaluación.",
@@ -542,7 +579,11 @@
       "valor": "Valor",
       "statusProcesado": "Procesado",
       "statusError": "Error",
-      "statusPendiente": "Pendiente"
+      "statusPendiente": "Pendiente",
+      "hasObservations": "Con observaciones",
+      "omittedHeading": "Filas omitidas en esta carga:",
+      "correctedBadge": "Corregido",
+      "correctedReasonPrefix": "Motivo: "
     },
     "reportes": {
       "exportCsv": "Exportar a Excel (CSV)",
@@ -578,7 +619,13 @@
       "cumplimientoGlobal": "Cumplimiento global",
       "riesgoGlobal": "Riesgo global promedio",
       "alertasActivas": "Alertas activas",
-      "pendiente": "Pendiente"
+      "pendiente": "Pendiente",
+      "sinNormaAplicable": "Sin norma aplicable",
+      "riskLevel": {
+        "BAJO": "Bajo",
+        "MEDIO": "Medio",
+        "ALTO": "Alto"
+      }
     },
     "clientAnalisisTab": {
       "indicesGlobales": "Índices de análisis de riesgo",
@@ -593,7 +640,10 @@
       "matrizPosicion": "Posición en matriz riesgo × cumplimiento",
       "evolucionIgho": "Evolución del IGHO",
       "tendenciaHistorica": "Tendencia histórica por variable",
-      "pendiente": "Pendiente — metodología no definida"
+      "pendiente": "Pendiente — metodología no definida",
+      "datosInsuficientes": "Datos insuficientes — se completa con más periodos de medición",
+      "periodoAnteriorPrefix": "vs. periodo anterior: ",
+      "proyeccionPrefix": "Proyección al "
     },
     "detalleTecnico": {
       "parametro": "Parámetro",
@@ -652,7 +702,8 @@
         "registroPendiente": "Registro pendiente",
         "contactoRecibido": "Contacto recibido",
         "cuentaSuspendida": "Cuenta suspendida",
-        "cuentaReactivada": "Cuenta reactivada"
+        "cuentaReactivada": "Cuenta reactivada",
+        "lecturaCorregida": "Lectura corregida"
       },
       "filters": {
         "allStatus": "Todas",
@@ -721,7 +772,6 @@
       }
     },
     "adminShell": {
-      "operationalHeading": "Panel operativo — Higiene Industrial — {empresa}",
       "navAriaLabel": "Navegación de administración",
       "operacionSection": "Operación",
       "administracionSection": "Administración",
@@ -819,12 +869,14 @@
     "editModal": {
       "title": "Editar empresa",
       "responsableNotice": "El cargo y el teléfono del responsable se definieron al crear la cuenta y no se pueden editar aquí.",
-      "brandingSectionTitle": "Logo y colores corporativos"
+      "brandingNotice": "El logo y los colores los define el propio cliente al activar su cuenta — no se editan aquí."
     }
   },
   "profile": {
     "pageTitle": "Personaliza tu panel",
-    "pageSubtitle": "Sube el logo y los colores de tu empresa — se verán en tu panel la próxima vez que ingreses. Solo se pide una vez.",
+    "pageSubtitle": "Confirma tus datos y sube el logo y los colores de tu empresa — se verán en tu panel la próxima vez que ingreses. Solo se pide una vez.",
+    "personalDataTitle": "Tus datos",
+    "brandingSectionTitle": "Logo y colores de tu empresa",
     "submit": "Guardar y continuar"
   },
   "myProfile": {
@@ -845,25 +897,38 @@
     "profileSaved": "Datos actualizados correctamente.",
     "passwordTitle": "Cambiar contraseña",
     "passwordSubtitle": "Necesitamos tu contraseña actual para confirmar el cambio.",
+    "changePasswordButton": "Cambiar contraseña",
     "currentPassword": "Contraseña actual",
     "newPassword": "Nueva contraseña",
     "confirmNewPassword": "Confirmar nueva contraseña",
     "passwordMismatch": "Las contraseñas nuevas no coinciden",
     "changePassword": "Cambiar contraseña",
     "passwordChanged": "Contraseña actualizada correctamente.",
-    "genericError": "Ocurrió un error, intenta de nuevo."
+    "closeModal": "Cerrar",
+    "genericError": "Ocurrió un error, intenta de nuevo.",
+    "avatar": {
+      "changeLabel": "Cambiar foto",
+      "hint": "PNG o JPEG, hasta 500KB.",
+      "typeError": "La foto debe ser PNG o JPEG.",
+      "sizeError": "La foto no puede superar 500KB.",
+      "uploadError": "No se pudo actualizar la foto.",
+      "alt": "Foto de perfil"
+    }
   },
   "branding": {
     "fields": {
       "logoLabel": "Logo de tu empresa",
-      "logoHint": "PNG o SVG, hasta 500KB.",
-      "logoTypeError": "El archivo debe ser PNG o SVG.",
+      "logoHint": "Solo SVG, hasta 500KB — se adapta sin pixelarse al navbar.",
+      "logoTypeError": "El archivo debe ser SVG.",
       "logoSizeError": "El logo no puede superar 500KB.",
       "logoPreviewAlt": "Vista previa del logo",
-      "primaryColorLabel": "Color primario",
-      "secondaryColorLabel": "Color secundario",
-      "previewLabel": "Vista previa",
-      "previewText": "Así se vería tu navbar"
+      "primaryColorLabel": "Color primario (botones)",
+      "secondaryColorLabel": "Color secundario (modales)",
+      "secondaryColorHint": "Se usa como franja superior en las ventanas emergentes.",
+      "previewLabel": "Vista previa — navbar",
+      "previewText": "Así se vería tu navbar",
+      "previewModalLabel": "Vista previa — modal",
+      "previewModalText": "Así se vería un modal"
     },
     "activation": {
       "logoRequired": "Sube un logo para continuar.",

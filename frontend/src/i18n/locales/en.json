@@ -458,13 +458,15 @@
       "reportes": "Reports"
     },
     "summaryCard": {
-      "complianceLabel": "Regulatory compliance: "
+      "complianceLabel": "Regulatory compliance: ",
+      "normaPendiente": "Standard not defined yet"
     },
     "semaphore": {
       "cumple": "Compliant",
       "alerta": "Warning",
       "critico": "Critical",
-      "sinDatos": "No data"
+      "sinDatos": "No data",
+      "sinNorma": "No standard"
     },
     "complianceRing": {
       "title": "Global regulatory compliance",
@@ -477,6 +479,41 @@
       "norma": "Standard",
       "pctCumplimiento": "% Compliance",
       "estado": "Status"
+    },
+    "riskSections": {
+      "heatmapTitle": "Risk trend — heat maps",
+      "heatmapEmpty": "No heat map has been uploaded for this service yet.",
+      "heatmapUploadLabel": "Upload image",
+      "heatmapUploading": "Uploading…",
+      "heatmapReplaceLabel": "Replace image",
+      "comparativoTitle": "Comparison vs. standard",
+      "incertidumbre": "Uncertainty (U)",
+      "recomendacionesTitle": "Recommendations / Non-conformities",
+      "recomendacionesEmpty": "No recommendations or non-conformities recorded.",
+      "addButton": "Add recommendation",
+      "prioridad": "Priority",
+      "descripcion": "Description",
+      "zona": "Zone / Point",
+      "fecha": "Date",
+      "priority": {
+        "ALTA": "High",
+        "MEDIA": "Medium",
+        "BAJA": "Low"
+      },
+      "status": {
+        "ABIERTA": "Open",
+        "EN_SEGUIMIENTO": "In progress",
+        "CERRADA": "Closed"
+      },
+      "form": {
+        "variable": "Variable",
+        "descripcion": "Description",
+        "prioridad": "Priority",
+        "zona": "Zone / Point (optional)",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…"
+      }
     },
     "uploadForm": {
       "missingFields": "Select a file and an evaluation date.",
@@ -542,7 +579,11 @@
       "valor": "Value",
       "statusProcesado": "Processed",
       "statusError": "Error",
-      "statusPendiente": "Pending"
+      "statusPendiente": "Pending",
+      "hasObservations": "Has observations",
+      "omittedHeading": "Rows omitted from this upload:",
+      "correctedBadge": "Corrected",
+      "correctedReasonPrefix": "Reason: "
     },
     "reportes": {
       "exportCsv": "Export to Excel (CSV)",
@@ -578,7 +619,13 @@
       "cumplimientoGlobal": "Global compliance",
       "riesgoGlobal": "Average global risk",
       "alertasActivas": "Active alerts",
-      "pendiente": "Pending"
+      "pendiente": "Pending",
+      "sinNormaAplicable": "No applicable standard",
+      "riskLevel": {
+        "BAJO": "Low",
+        "MEDIO": "Medium",
+        "ALTO": "High"
+      }
     },
     "clientAnalisisTab": {
       "indicesGlobales": "Risk analysis indices",
@@ -593,7 +640,10 @@
       "matrizPosicion": "Risk × compliance matrix position",
       "evolucionIgho": "IGHO evolution",
       "tendenciaHistorica": "Historical trend per variable",
-      "pendiente": "Pending — methodology not defined"
+      "pendiente": "Pending — methodology not defined",
+      "datosInsuficientes": "Insufficient data — fills in with more measurement periods",
+      "periodoAnteriorPrefix": "vs. previous period: ",
+      "proyeccionPrefix": "Projected for "
     },
     "detalleTecnico": {
       "parametro": "Parameter",
@@ -652,7 +702,8 @@
         "registroPendiente": "Pending registration",
         "contactoRecibido": "Contact received",
         "cuentaSuspendida": "Account suspended",
-        "cuentaReactivada": "Account reactivated"
+        "cuentaReactivada": "Account reactivated",
+        "lecturaCorregida": "Reading corrected"
       },
       "filters": {
         "allStatus": "All",
@@ -721,7 +772,6 @@
       }
     },
     "adminShell": {
-      "operationalHeading": "Operations panel — Industrial Hygiene — {empresa}",
       "navAriaLabel": "Admin navigation",
       "operacionSection": "Operations",
       "administracionSection": "Administration",
@@ -819,12 +869,14 @@
     "editModal": {
       "title": "Edit company",
       "responsableNotice": "The responsible person's position and phone were set when the account was created and can't be edited here.",
-      "brandingSectionTitle": "Logo and corporate colors"
+      "brandingNotice": "The logo and colors are set by the client themselves when activating their account — they can't be edited here."
     }
   },
   "profile": {
     "pageTitle": "Personalize your dashboard",
-    "pageSubtitle": "Upload your company's logo and colors — they'll show up in your dashboard next time you sign in. Only asked once.",
+    "pageSubtitle": "Confirm your details and upload your company's logo and colors — they'll show up in your dashboard next time you sign in. Only asked once.",
+    "personalDataTitle": "Your details",
+    "brandingSectionTitle": "Your company's logo and colors",
     "submit": "Save and continue"
   },
   "myProfile": {
@@ -845,25 +897,38 @@
     "profileSaved": "Your data was updated successfully.",
     "passwordTitle": "Change password",
     "passwordSubtitle": "We need your current password to confirm the change.",
+    "changePasswordButton": "Change password",
     "currentPassword": "Current password",
     "newPassword": "New password",
     "confirmNewPassword": "Confirm new password",
     "passwordMismatch": "New passwords don't match",
     "changePassword": "Change password",
     "passwordChanged": "Password updated successfully.",
-    "genericError": "Something went wrong, try again."
+    "closeModal": "Close",
+    "genericError": "Something went wrong, try again.",
+    "avatar": {
+      "changeLabel": "Change photo",
+      "hint": "PNG or JPEG, up to 500KB.",
+      "typeError": "The photo must be PNG or JPEG.",
+      "sizeError": "The photo can't exceed 500KB.",
+      "uploadError": "Couldn't update the photo.",
+      "alt": "Profile photo"
+    }
   },
   "branding": {
     "fields": {
       "logoLabel": "Your company's logo",
-      "logoHint": "PNG or SVG, up to 500KB.",
-      "logoTypeError": "The file must be PNG or SVG.",
+      "logoHint": "SVG only, up to 500KB — scales without pixelating in the navbar.",
+      "logoTypeError": "The file must be SVG.",
       "logoSizeError": "The logo can't exceed 500KB.",
       "logoPreviewAlt": "Logo preview",
-      "primaryColorLabel": "Primary color",
-      "secondaryColorLabel": "Secondary color",
-      "previewLabel": "Preview",
-      "previewText": "This is how your navbar would look"
+      "primaryColorLabel": "Primary color (buttons)",
+      "secondaryColorLabel": "Secondary color (modals)",
+      "secondaryColorHint": "Used as the top accent strip on pop-up windows.",
+      "previewLabel": "Preview — navbar",
+      "previewText": "This is how your navbar would look",
+      "previewModalLabel": "Preview — modal",
+      "previewModalText": "This is how a modal would look"
     },
     "activation": {
       "logoRequired": "Upload a logo to continue.",
