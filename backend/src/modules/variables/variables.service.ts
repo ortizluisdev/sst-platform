@@ -5,6 +5,13 @@ import { parseVariableFile, VariableFileParseError } from '../../utils/variableF
 import { parseVariableReportWorkbook } from '../../utils/variableReportWorkbookParser.js'
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
 import { calculateRiskRatio, classifyRiskRatio, averageRiskLevel, type RiskLevel } from '../../utils/riskLevel.js'
+import {
+  computeUploadCompliancePct,
+  computeTendenciaGlobal,
+  computeEvolucionIgho,
+  computeProbabilidadIncumplimiento,
+  type PeriodPoint,
+} from '../../utils/trendAnalysis.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
 import { createNonConformitiesService } from '../nonConformities/nonConformities.service.js'
 
@@ -431,6 +438,9 @@ export function createVariablesService(prisma: PrismaClient) {
           globalCompliance: { pct: 0, verde: 0, amarillo: 0, rojo: 0, total: 0 },
           riesgoGlobal: null,
           alertasActivas: 0,
+          tendenciaGlobal: null,
+          evolucionIgho: null,
+          probabilidadIncumplimiento: null,
           trend: [],
           filtrosDisponibles: { areasPlanta: [], procesosActividad: [] },
         }
@@ -517,6 +527,19 @@ export function createVariablesService(prisma: PrismaClient) {
         return { fecha: upload.fechaEvaluacion.toISOString().slice(0, 10), promedios }
       })
 
+      // Hoja 3 · Análisis — series temporales (Grupo A, ver trendAnalysis.ts).
+      // Mismos `allUploads` que arriba: un "periodo" es una carga, no un
+      // corte de calendario. `null` cuando no hay suficiente histórico —
+      // el frontend distingue esto de "Pendiente" (Grupo B, sin
+      // metodología definida todavía) con un mensaje distinto.
+      const compliancePeriods: PeriodPoint[] = allUploads.map((upload) => ({
+        fecha: upload.fechaEvaluacion.toISOString().slice(0, 10),
+        pct: computeUploadCompliancePct(upload.readings),
+      }))
+      const tendenciaGlobal = computeTendenciaGlobal(compliancePeriods)
+      const evolucionIgho = computeEvolucionIgho(compliancePeriods)
+      const probabilidadIncumplimiento = computeProbabilidadIncumplimiento(compliancePeriods)
+
       return {
         service: { slug: service.slug, nombre: service.nombre, updateFrequency: service.updateFrequency },
         lastUpdated: selectedFecha,
@@ -525,6 +548,9 @@ export function createVariablesService(prisma: PrismaClient) {
         globalCompliance: { pct: globalPct, ...globalCompliance },
         riesgoGlobal,
         alertasActivas,
+        tendenciaGlobal,
+        evolucionIgho,
+        probabilidadIncumplimiento,
         trend,
         filtrosDisponibles,
       }
