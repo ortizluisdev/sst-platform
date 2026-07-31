@@ -5,8 +5,14 @@ export type SemaphoreStatus = 'VERDE' | 'AMARILLO' | 'ROJO'
 /** Estado de una tarjeta-resumen por variable: los 3 semáforos reales, más
  * SIN_DATOS para cuando la organización aún no ha cargado ninguna
  * evaluación (el catálogo contratado ya existe, pero no hay valor que
- * comparar contra la norma todavía). */
-export type CategoryCardStatus = SemaphoreStatus | 'SIN_DATOS'
+ * comparar contra la norma todavía), y SIN_NORMA — puramente de
+ * presentación, nunca lo devuelve el backend — para cuando SÍ hay una
+ * lectura pero el catálogo todavía no tiene limiteMin/limiteMax definidos.
+ * calculateSemaphore() (backend) marca ese caso como AMARILLO por
+ * seguridad, pero mostrarlo igual que una alerta real confunde: parece
+ * "fuera de norma" cuando en realidad es "no hay con qué comparar todavía".
+ * Ver resolveDisplayStatus.ts, que separa ambos casos solo para pintar. */
+export type CategoryCardStatus = SemaphoreStatus | 'SIN_DATOS' | 'SIN_NORMA'
 
 export interface WorkPointReading {
   id: string
@@ -42,12 +48,54 @@ export interface CategorySummary {
   variables: VariableSummary[]
 }
 
+export type NonConformityPriority = 'ALTA' | 'MEDIA' | 'BAJA'
+export type NonConformityStatus = 'ABIERTA' | 'EN_SEGUIMIENTO' | 'CERRADA'
+export type NonConformityOrigin = 'AUTO' | 'MANUAL'
+
+/** Fila de "Recomendaciones / No conformidades" — híbrida: el sistema genera
+ * una por cada lectura fuera de norma (origen AUTO) y el admin puede además
+ * redactar las suyas (origen MANUAL) y editar el estado de cualquiera. */
+export interface NonConformity {
+  id: string
+  origen: NonConformityOrigin
+  prioridad: NonConformityPriority
+  descripcion: string
+  variableNombre: string
+  zona: string | null
+  fecha: string
+  estado: NonConformityStatus
+}
+
+export interface NonConformityInput {
+  descripcion: string
+  prioridad: NonConformityPriority
+  variableNombre: string
+  zona?: string
+  estado: NonConformityStatus
+}
+
+export interface NonConformityUpdateInput {
+  descripcion?: string
+  prioridad?: NonConformityPriority
+  estado?: NonConformityStatus
+}
+
 export interface GlobalCompliance {
   pct: number
   verde: number
   amarillo: number
   rojo: number
   total: number
+}
+
+export type RiskLevel = 'BAJO' | 'MEDIO' | 'ALTO'
+
+/** "Riesgo global promedio" — metodología propuesta (backend/src/utils/riskLevel.ts),
+ * pendiente de validación formal con el cliente final. `null` cuando ninguna
+ * medición del periodo filtrado tiene norma aplicable (todas "sin norma"). */
+export interface GlobalRisk {
+  nivel: RiskLevel
+  promedio: number
 }
 
 export interface TrendPoint {
@@ -72,6 +120,8 @@ export interface DashboardData {
   totalWorkPoints: number
   categories: CategorySummary[]
   globalCompliance: GlobalCompliance
+  riesgoGlobal: GlobalRisk | null
+  alertasActivas: number
   trend: TrendPoint[]
   filtrosDisponibles: DashboardFiltersAvailable
 }
@@ -90,6 +140,12 @@ export interface UploadHistoryEntry {
   uploadedByNombre: string
   totalLecturas: number
   totalPuestos: number
+  hasOmittedRows: boolean
+}
+
+export interface UploadOmittedRow {
+  nombre: string
+  motivo: 'sin_variable_equivalente' | 'valor_no_numerico' | 'ya_corregida'
 }
 
 export interface UploadDetailReading {
@@ -101,6 +157,9 @@ export interface UploadDetailReading {
   unidadMedida: string
   valor: number
   semaforo: SemaphoreStatus
+  isCorrected: boolean
+  correctedAt: string | null
+  correctionReason: string | null
 }
 
 export interface UploadDetail {
@@ -110,5 +169,6 @@ export interface UploadDetail {
   originalFile: string
   status: 'PENDIENTE' | 'PROCESADO' | 'ERROR'
   uploadedByNombre: string
+  omittedRows: UploadOmittedRow[]
   readings: UploadDetailReading[]
 }

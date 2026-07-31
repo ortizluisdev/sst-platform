@@ -4,7 +4,9 @@ import { createVariablesRepository } from './variables.repository.js'
 import { parseVariableFile, VariableFileParseError } from '../../utils/variableFileParser.js'
 import { parseVariableReportWorkbook } from '../../utils/variableReportWorkbookParser.js'
 import { calculateSemaphore, type SemaphoreThresholds } from '../../utils/semaphore.js'
+import { calculateRiskRatio, classifyRiskRatio, averageRiskLevel, type RiskLevel } from '../../utils/riskLevel.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
+import { createNonConformitiesService } from '../nonConformities/nonConformities.service.js'
 
 interface CriticalReading {
   variable: string
@@ -82,6 +84,7 @@ function normalizeShift(value: string): WorkShift {
 export function createVariablesService(prisma: PrismaClient) {
   const repository = createVariablesRepository(prisma)
   const notifications = createNotificationService(prisma)
+  const nonConformities = createNonConformitiesService(prisma)
 
   return {
     /**
@@ -147,7 +150,9 @@ export function createVariablesService(prisma: PrismaClient) {
           fechaEvaluacionFinal = new Date(new Date().toISOString().slice(0, 10))
           filasOmitidasFormato = parsed.omitidas
         } else {
-          rows = await parseVariableFile(input.fileBuffer, input.filename)
+          const parsed = await parseVariableFile(input.fileBuffer, input.filename)
+          rows = parsed.rows
+          filasOmitidasFormato = parsed.omitidas
         }
       } catch (err) {
         if (err instanceof VariableFileParseError) {
@@ -166,15 +171,30 @@ export function createVariablesService(prisma: PrismaClient) {
       const definitions = await repository.findDefinitionsByService(service.id)
       const definitionByCode = new Map(definitions.map((d) => [d.codigo, d]))
 
-      const unknownCodes = [...new Set(rows.map((r) => r.codigoVariable))].filter((c) => !definitionByCode.has(c))
-      if (unknownCodes.length > 0) {
-        const message = `El archivo contiene variables que no existen en el catálogo de "${service.nombre}": ${unknownCodes.join(', ')}`
+      // Una variable sin código equivalente en el catálogo YA NO rechaza el
+      // archivo entero (comportamiento viejo, distinto — e inconsistente —
+      // del importador de "Reporte Hoja 2", que siempre omitió y siguió):
+      // se deja fuera esa fila puntual, se reporta en `filasOmitidasFormato`
+      // con el mismo motivo 'sin_variable_equivalente', y se sigue con el
+      // resto. Solo se rechaza si NINGUNA fila del archivo es utilizable.
+      const rowsConCatalogo = rows.filter((r) => definitionByCode.has(r.codigoVariable))
+      const rowsSinCatalogo = rows.filter((r) => !definitionByCode.has(r.codigoVariable))
+      for (const row of rowsSinCatalogo) {
+        filasOmitidasFormato.push({
+          nombre: `${row.nombrePuesto || row.codigoPuesto} — ${row.codigoVariable}`,
+          motivo: 'sin_variable_equivalente',
+        })
+      }
+      rows = rowsConCatalogo
+
+      if (rows.length === 0) {
+        const message = `Ninguna fila del archivo coincide con el catálogo de variables de "${service.nombre}".`
         await notifications.notify({
           type: 'CARGA_CON_ERROR',
           recipientIds: [input.uploadedById],
           toAdmins: true,
           message: `La carga de "${input.filename}" para "${organization.nombre}" falló: ${message}`,
-          metadata: { filename: input.filename, serviceSlug: input.serviceSlug, unknownCodes },
+          metadata: { filename: input.filename, serviceSlug: input.serviceSlug, omitidas: filasOmitidasFormato },
         })
         throw new VariablesError('UNKNOWN_VARIABLES', message)
       }
@@ -231,6 +251,9 @@ export function createVariablesService(prisma: PrismaClient) {
           fechaEvaluacion: fechaEvaluacionFinal,
           origen,
           rows: preparedRows,
+          // Se persiste abajo (una vez conocidas TODAS las omitidas, incluidas
+          // las "ya corregidas" del path de actualización) — acá siempre vacío.
+          omittedRows: filasOmitidasFormato.length > 0 ? filasOmitidasFormato : null,
         })
         uploadId = upload.id
         filasNuevas = preparedRows.length
@@ -248,6 +271,16 @@ export function createVariablesService(prisma: PrismaClient) {
         filasActualizadas = result.filasActualizadas
         filasOmitidas = result.filasOmitidas
         modo = 'actualizacion'
+
+        // Reemplaza (no acumula) el registro de omitidas de esta carga: cada
+        // subida recalcula todo desde cero, así que lo persistido siempre
+        // refleja el estado de la ÚLTIMA subida para esta fecha, no un
+        // historial acumulado de intentos anteriores.
+        const omitidasParaGuardar = [
+          ...filasOmitidasFormato,
+          ...filasOmitidas.map((f) => ({ nombre: `${f.workPointCodigo} — ${f.codigoVariable}`, motivo: 'ya_corregida' as const })),
+        ]
+        await repository.setUploadOmittedRows(uploadId, omitidasParaGuardar.length > 0 ? omitidasParaGuardar : null)
       }
 
       await repository.createAuditLog({
@@ -258,8 +291,29 @@ export function createVariablesService(prisma: PrismaClient) {
         ipAddress: input.ipAddress,
       })
 
-      const omitidasSuffix =
-        filasOmitidas.length > 0 ? ` (${filasOmitidas.length} fila(s) omitida(s): ya corregidas manualmente)` : ''
+      // Efecto secundario posterior a la transacción (mismo patrón que las
+      // notificaciones de abajo): una fila de "no conformidad" automática
+      // por cada lectura fuera de norma, para alimentar la tabla
+      // Recomendaciones/No conformidades del dashboard sin que el admin
+      // tenga que redactarlas todas a mano.
+      const readingsForSync = await repository.findReadingsForUpload(uploadId)
+      for (const reading of readingsForSync) {
+        await nonConformities.syncForReading({
+          readingId: reading.id,
+          organizationId: input.organizationId,
+          serviceId: service.id,
+          workPointId: reading.workPointId,
+          valor: reading.valor,
+          semaforo: reading.semaforo,
+          unidadMedida: reading.definition.unidadMedida,
+          variableNombre: reading.definition.nombre,
+          workPointNombre: reading.workPoint.nombre,
+          zona: reading.workPoint.areaPlanta,
+        })
+      }
+
+      const totalOmitidas = filasOmitidas.length + filasOmitidasFormato.length
+      const omitidasSuffix = totalOmitidas > 0 ? ` (${totalOmitidas} fila(s) con observaciones — revisa el detalle de la carga)` : ''
       await notifications.notify({
         type: 'CARGA_PROCESADA',
         recipientIds: [input.uploadedById],
@@ -375,6 +429,8 @@ export function createVariablesService(prisma: PrismaClient) {
           totalWorkPoints,
           categories: [...categoriesMap.entries()].map(([categoria, variables]) => ({ categoria, variables })),
           globalCompliance: { pct: 0, verde: 0, amarillo: 0, rojo: 0, total: 0 },
+          riesgoGlobal: null,
+          alertasActivas: 0,
           trend: [],
           filtrosDisponibles: { areasPlanta: [], procesosActividad: [] },
         }
@@ -424,6 +480,25 @@ export function createVariablesService(prisma: PrismaClient) {
       }
       const globalPct = globalCompliance.total > 0 ? Math.round((globalCompliance.verde / globalCompliance.total) * 100) : 0
 
+      // "Riesgo global promedio" — metodología propuesta, ver riskLevel.ts.
+      // Mismo alcance (latestReadings, ya filtradas) que globalCompliance:
+      // las mediciones "sin norma" (calculateRiskRatio devuelve null) se
+      // excluyen del promedio en vez de contaminar con un valor inventado.
+      const riskLevels: RiskLevel[] = []
+      for (const reading of latestReadings) {
+        const ratio = calculateRiskRatio(reading.valor, reading.definition)
+        if (ratio == null) continue
+        riskLevels.push(classifyRiskRatio(ratio))
+      }
+      const riesgoGlobal = averageRiskLevel(riskLevels)
+
+      const alertasActivas = await nonConformities.countActive(
+        organizationId,
+        service.id,
+        selectedUploadId,
+        selectedFecha!,
+      )
+
       // Por VARIABLE, no por categoría: promediar lux con UGR con % no tiene
       // sentido físico (unidades distintas). El frontend arma el gráfico de
       // tendencia eligiendo una variable representativa por categoría.
@@ -448,6 +523,8 @@ export function createVariablesService(prisma: PrismaClient) {
         totalWorkPoints,
         categories,
         globalCompliance: { pct: globalPct, ...globalCompliance },
+        riesgoGlobal,
+        alertasActivas,
         trend,
         filtrosDisponibles,
       }
@@ -468,6 +545,7 @@ export function createVariablesService(prisma: PrismaClient) {
         uploadedByNombre: upload.uploadedBy.nombre,
         totalLecturas: upload.readings.length,
         totalPuestos: new Set(upload.readings.map((r) => r.workPointId)).size,
+        hasOmittedRows: Array.isArray(upload.omittedRows) && upload.omittedRows.length > 0,
       }))
     },
 
@@ -483,6 +561,7 @@ export function createVariablesService(prisma: PrismaClient) {
         originalFile: upload.originalFile,
         status: upload.status,
         uploadedByNombre: upload.uploadedBy.nombre,
+        omittedRows: (upload.omittedRows as { nombre: string; motivo: string }[] | null) ?? [],
         readings: upload.readings.map((r) => ({
           workPointCodigo: r.workPoint.codigo,
           workPointNombre: r.workPoint.nombre,
@@ -492,6 +571,9 @@ export function createVariablesService(prisma: PrismaClient) {
           unidadMedida: r.definition.unidadMedida,
           valor: r.valor,
           semaforo: r.semaforo,
+          isCorrected: r.isCorrected,
+          correctedAt: r.correctedAt,
+          correctionReason: r.correctionReason,
         })),
       }
     },
@@ -540,6 +622,32 @@ export function createVariablesService(prisma: PrismaClient) {
           newValue: input.valor,
           reason: input.reason,
         },
+      })
+
+      // Antes esto solo quedaba en AuditLog (invisible para el cliente) — el
+      // cliente ahora se entera de que un admin corrigió manualmente uno de
+      // sus resultados, con el motivo, en vez de ver el dato cambiar sin
+      // explicación en su próxima visita al dashboard.
+      await notifications.notify({
+        type: 'LECTURA_CORREGIDA',
+        organizationId: input.organizationId,
+        message: `Se corrigió manualmente "${reading.definition.nombre}" en "${reading.workPoint.nombre}": ${reading.valor} → ${input.valor} ${reading.definition.unidadMedida}. Motivo: ${input.reason}`,
+        link: '/dashboard/historial',
+        entityType: 'VARIABLE_READING',
+        entityId: input.readingId,
+      })
+
+      await nonConformities.syncForReading({
+        readingId: input.readingId,
+        organizationId: input.organizationId,
+        serviceId: reading.definition.serviceId,
+        workPointId: reading.workPointId,
+        valor: input.valor,
+        semaforo,
+        unidadMedida: reading.definition.unidadMedida,
+        variableNombre: reading.definition.nombre,
+        workPointNombre: reading.workPoint.nombre,
+        zona: reading.workPoint.areaPlanta,
       })
 
       return updated

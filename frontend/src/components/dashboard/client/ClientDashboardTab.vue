@@ -6,15 +6,23 @@ import type { DashboardData } from '@/types/dashboard'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { formatSummaryValue } from '@/utils/formatSummaryValue'
+import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import type { Locale } from '@/i18n'
 import SummaryCard from '../SummaryCard.vue'
 import ClientStatCard from './ClientStatCard.vue'
+import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { HEADLINE_CODE_POR_CATEGORIA } from './headlineVariables'
 
 const props = defineProps<{ dashboard: DashboardData }>()
 const { t, locale } = useI18n()
 
 const noCumplen = computed(() => props.dashboard.globalCompliance.amarillo + props.dashboard.globalCompliance.rojo)
+
+const riesgoGlobalLabel = computed(() =>
+  props.dashboard.riesgoGlobal
+    ? t(`dashboard.clientDashboardTab.riskLevel.${props.dashboard.riesgoGlobal.nivel}`)
+    : t('dashboard.clientDashboardTab.sinNormaAplicable'),
+)
 
 const headlineCards = computed(() =>
   Object.entries(HEADLINE_CODE_POR_CATEGORIA)
@@ -37,8 +45,8 @@ function exportCsv() {
   rows.push(['Mediciones que cumplen norma', props.dashboard.globalCompliance.verde].map(escapeCsv).join(','))
   rows.push(['Mediciones que no cumplen norma', noCumplen.value].map(escapeCsv).join(','))
   rows.push(['Cumplimiento global (%)', props.dashboard.globalCompliance.pct].map(escapeCsv).join(','))
-  rows.push(['Riesgo global promedio', t('dashboard.clientDashboardTab.pendiente')].map(escapeCsv).join(','))
-  rows.push(['Alertas activas', t('dashboard.clientDashboardTab.pendiente')].map(escapeCsv).join(','))
+  rows.push(['Riesgo global promedio', riesgoGlobalLabel.value].map(escapeCsv).join(','))
+  rows.push(['Alertas activas', props.dashboard.alertasActivas].map(escapeCsv).join(','))
   for (const { categoria, variable } of headlineCards.value) {
     if (!variable) continue
     rows.push([categoria, formatSummaryValue(variable)].map(escapeCsv).join(','))
@@ -72,12 +80,37 @@ defineExpose({ exportCsv, printReport })
         {{ t('dashboard.clientDashboardTab.indicadoresGlobales') }}
       </p>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.totalMediciones')" :valor="String(dashboard.globalCompliance.total)" :icon="ListChecks" />
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.cumplenNorma')" :valor="String(dashboard.globalCompliance.verde)" :icon="CheckCircle2" />
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.noCumplenNorma')" :valor="String(noCumplen)" :icon="XCircle" />
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.cumplimientoGlobal')" :valor="`${dashboard.globalCompliance.pct}%`" :icon="Percent" />
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.riesgoGlobal')" :valor="t('dashboard.clientDashboardTab.pendiente')" pendiente :icon="Gauge" />
-        <ClientStatCard :titulo="t('dashboard.clientDashboardTab.alertasActivas')" :valor="t('dashboard.clientDashboardTab.pendiente')" pendiente :icon="Bell" />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.totalMediciones')"
+          :valor="String(dashboard.globalCompliance.total)"
+          :icon="ListChecks"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.cumplenNorma')"
+          :valor="String(dashboard.globalCompliance.verde)"
+          :icon="CheckCircle2"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.noCumplenNorma')"
+          :valor="String(noCumplen)"
+          :icon="XCircle"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.cumplimientoGlobal')"
+          :valor="`${dashboard.globalCompliance.pct}%`"
+          :icon="Percent"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.riesgoGlobal')"
+          :valor="riesgoGlobalLabel"
+          :pendiente="!dashboard.riesgoGlobal"
+          :icon="Gauge"
+        />
+        <ClientStatCard
+          :titulo="t('dashboard.clientDashboardTab.alertasActivas')"
+          :valor="String(dashboard.alertasActivas)"
+          :icon="Bell"
+        />
       </div>
     </div>
 
@@ -92,10 +125,12 @@ defineExpose({ exportCsv, printReport })
           :titulo="categoryLabel(categoria, locale as Locale)"
           :valor="formatSummaryValue(variable!)"
           :cumplimiento-pct="variable!.cumplimientoPct"
-          :estado="variable!.estado"
+          :estado="resolveDisplayStatus(variable!)"
           :icon="iconForCategory(categoria)"
         />
       </div>
     </div>
+
+    <DashboardRiskSections :service-slug="dashboard.service.slug" :headline-cards="headlineCards" />
   </div>
 </template>
