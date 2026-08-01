@@ -18,11 +18,11 @@ export function createReportsRepository(prisma: PrismaClient) {
     },
 
     /** Usuario que genera el reporte desde su sesión (el cliente) — su
-     * firma (si la tiene cargada) va en el bloque "Firma cliente". */
+     * firma y foto (si las tiene cargadas) van en el bloque "Firma cliente". */
     findFirmante(userId: string) {
       return prisma.user.findUnique({
         where: { id: userId },
-        select: { nombre: true, cargo: true, firmaBase64: true },
+        select: { nombre: true, cargo: true, firmaBase64: true, fotoBase64: true },
       })
     },
 

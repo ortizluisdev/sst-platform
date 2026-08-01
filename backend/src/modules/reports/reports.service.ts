@@ -66,6 +66,7 @@ export function createReportsService(prisma: PrismaClient) {
       clienteNombre: cliente?.nombre ?? '—',
       clienteCargo: cliente?.cargo ?? null,
       clienteFirmaBase64: cliente?.firmaBase64 ?? null,
+      clienteFotoBase64: cliente?.fotoBase64 ?? null,
     }
   }
 
@@ -140,6 +141,11 @@ export function createReportsService(prisma: PrismaClient) {
         periodoEvaluacion: meta.periodoEvaluacion,
         numeroInforme: meta.numeroInforme,
         elaboradoPor: meta.elaboradoPor,
+        firmaBase64: meta.firmaBase64,
+        clienteNombre: meta.clienteNombre,
+        clienteCargo: meta.clienteCargo,
+        clienteFirmaBase64: meta.clienteFirmaBase64,
+        clienteFotoBase64: meta.clienteFotoBase64,
         fechaEmision,
         categories: dashboard.categories,
       })

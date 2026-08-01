@@ -1,4 +1,14 @@
-import { MARGIN, PAGE_WIDTH, newDocument, drawTitle, drawSectionHeader, drawLabelValueRow, drawTable, drawFootnote } from './reports.pdfStyles.js'
+import {
+  MARGIN,
+  PAGE_WIDTH,
+  newDocument,
+  drawTitle,
+  drawSectionHeader,
+  drawLabelValueRow,
+  drawTable,
+  drawFootnote,
+  drawSignatureBlock,
+} from './reports.pdfStyles.js'
 import { resolveReportEstado, formatReferenciaNorma } from '../../utils/reportFormatting.js'
 
 interface ReporteHoja2Variable {
@@ -23,6 +33,11 @@ export interface ReporteHoja2Data {
   periodoEvaluacion: string
   numeroInforme: string
   elaboradoPor: string
+  firmaBase64: string | null
+  clienteNombre: string
+  clienteCargo: string | null
+  clienteFirmaBase64: string | null
+  clienteFotoBase64: string | null
   fechaEmision: string
   categories: ReporteHoja2Categoria[]
 }
@@ -71,7 +86,7 @@ export function renderReporteHoja2Pdf(data: ReporteHoja2Data): Promise<Buffer> {
     { header: 'Unidad', width: 50, align: 'center' as const },
     { header: 'Referencia/norma', width: 100, align: 'center' as const },
     { header: 'Tipo', width: 35, align: 'center' as const },
-    { header: 'Estado', width: PAGE_WIDTH - 125 - 55 - 65 - 50 - 100 - 35, align: 'center' as const },
+    { header: 'Estado', width: PAGE_WIDTH - 125 - 55 - 65 - 50 - 100 - 35, align: 'center' as const, chip: true },
   ]
 
   for (const categoria of data.categories) {
@@ -98,6 +113,29 @@ export function renderReporteHoja2Pdf(data: ReporteHoja2Data): Promise<Buffer> {
     )
     y += 4
   }
+
+  // Mismo bloque de doble firma que Hoja 1 (RoMa + cliente) — el anexo
+  // técnico también queda firmado, no solo el resumen ejecutivo.
+  if (y + 60 > doc.page.height - MARGIN) {
+    doc.addPage()
+    y = MARGIN
+  }
+  y += 4
+  y = drawSectionHeader(doc, 'Responsable', y)
+  const colWidth = (PAGE_WIDTH - 20) / 2
+  const yLeft = drawSignatureBlock(doc, MARGIN, y, colWidth, 'RoMa Applied Science — Firma y sello', data.elaboradoPor, null, data.firmaBase64, null)
+  const yRight = drawSignatureBlock(
+    doc,
+    MARGIN + colWidth + 20,
+    y,
+    colWidth,
+    'Firma cliente',
+    data.clienteNombre,
+    data.clienteCargo,
+    data.clienteFirmaBase64,
+    data.clienteFotoBase64,
+  )
+  y = Math.max(yLeft, yRight) + 4
 
   drawFootnote(
     doc,

@@ -1,4 +1,17 @@
-import { COLORS, MARGIN, PAGE_WIDTH, newDocument, drawTitle, drawSectionHeader, drawLabelValueRow, drawTable, drawFootnote } from './reports.pdfStyles.js'
+import {
+  COLORS,
+  MARGIN,
+  PAGE_WIDTH,
+  newDocument,
+  drawTitle,
+  drawSectionHeader,
+  drawLabelValueRow,
+  drawTable,
+  drawFootnote,
+  drawKpiCard,
+  drawComplianceRing,
+  drawSignatureBlock,
+} from './reports.pdfStyles.js'
 import { impactoFromPrioridad } from '../../utils/reportFormatting.js'
 
 export interface ReporteHoja1FilaAgente {
@@ -38,6 +51,7 @@ export interface ReporteHoja1Data {
   clienteNombre: string
   clienteCargo: string | null
   clienteFirmaBase64: string | null
+  clienteFotoBase64: string | null
   fechaEvaluacion: string
   fechaEmision: string
   igho: number
@@ -96,18 +110,39 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
 
   y += 3
   y = drawSectionHeader(doc, 'Resumen ejecutivo', y)
-  y = drawLabelValueRow(doc, [
-    ['Índice global de higiene (IGHO)', `${data.igho} /100`],
-    ['Cumplimiento', `${data.cumplimientoPct}%`],
-  ], y)
-  y = drawLabelValueRow(doc, [
-    ['Nivel de riesgo global', data.nivelRiesgo],
-    ['No conf.', String(data.noConformidades)],
-  ], y)
-  y = drawLabelValueRow(doc, [
-    ['Total de mediciones', String(data.totalMediciones)],
-    ['Puestos', String(data.puestosEvaluados)],
-  ], y)
+  {
+    // Anillo de cumplimiento a la izquierda (mismo lenguaje visual que
+    // ComplianceRing.vue del dashboard) + 4 tarjetas KPI a la derecha —
+    // reemplaza las filas de texto plano por algo escaneable de un vistazo,
+    // igual que en el dashboard web.
+    const ringRadius = 32
+    const ringCenterX = MARGIN + ringRadius + 4
+    const ringCenterY = y + ringRadius + 6
+    const ringColor = data.cumplimientoPct >= 80 ? '#1E7B4D' : data.cumplimientoPct >= 50 ? '#B45309' : '#B91C1C'
+    drawComplianceRing(doc, ringCenterX, ringCenterY, ringRadius, data.cumplimientoPct, ringColor)
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(7)
+      .fillColor(COLORS.subtitulo)
+      .text('CUMPLIMIENTO', MARGIN, ringCenterY + ringRadius + 8, { width: ringRadius * 2 + 8, align: 'center' })
+
+    const cardsX = MARGIN + ringRadius * 2 + 20
+    const cardsWidth = PAGE_WIDTH - (ringRadius * 2 + 20)
+    const cardGap = 6
+    const cardWidth = (cardsWidth - cardGap) / 2
+    let cardY = y
+    cardY = Math.max(
+      drawKpiCard(doc, cardsX, cardY, cardWidth, 'Índice global de higiene', `${data.igho} /100`, '#1F3A5F'),
+      cardY,
+    )
+    drawKpiCard(doc, cardsX + cardWidth + cardGap, y, cardWidth, 'Nivel de riesgo global', data.nivelRiesgo, '#B45309')
+    cardY += cardGap
+    drawKpiCard(doc, cardsX, cardY, cardWidth, 'No conformidades', String(data.noConformidades), '#B91C1C')
+    cardY = drawKpiCard(doc, cardsX + cardWidth + cardGap, cardY, cardWidth, 'Total de mediciones', String(data.totalMediciones), '#4A6785')
+
+    y = Math.max(ringCenterY + ringRadius + 22, cardY) + 4
+    y = drawLabelValueRow(doc, [['Puestos evaluados', String(data.puestosEvaluados)]], y)
+  }
 
   y += 3
   y = drawSectionHeader(doc, 'Resultados por agente vs. norma', y)
@@ -119,7 +154,7 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
       { header: 'Resultado', width: 70, align: 'right' },
       { header: 'Límite', width: 60, align: 'right' },
       { header: 'Sentido', width: 55, align: 'center' },
-      { header: 'Estado', width: PAGE_WIDTH - 90 - 160 - 70 - 60 - 55, align: 'center' },
+      { header: 'Estado', width: PAGE_WIDTH - 90 - 160 - 70 - 60 - 55, align: 'center', chip: true },
     ],
     data.filasAgente.map((f) => [
       f.agente,
@@ -144,7 +179,7 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
         { header: 'Prioridad', width: 70 },
         { header: 'Descripción', width: PAGE_WIDTH - 70 - 120 - 100 },
         { header: 'Variable', width: 120 },
-        { header: 'Estado', width: 100, align: 'center' },
+        { header: 'Estado', width: 100, align: 'center', chip: true },
       ],
       data.hallazgos.map((h) => [PRIORIDAD_LABEL[h.prioridad], h.descripcion, h.variable, ESTADO_LABEL[h.estado] ?? h.estado]),
       y,
@@ -182,8 +217,18 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
   // cliente (quien lo genera desde su propio dashboard) — ver spec de
   // doble firma aprobada.
   const colWidth = (PAGE_WIDTH - 20) / 2
-  const yLeft = drawSignatureBlock(doc, MARGIN, y, colWidth, 'RoMa Applied Science — Firma y sello', data.elaboradoPor, null, data.firmaBase64)
-  const yRight = drawSignatureBlock(doc, MARGIN + colWidth + 20, y, colWidth, 'Firma cliente', data.clienteNombre, data.clienteCargo, data.clienteFirmaBase64)
+  const yLeft = drawSignatureBlock(doc, MARGIN, y, colWidth, 'RoMa Applied Science — Firma y sello', data.elaboradoPor, null, data.firmaBase64, null)
+  const yRight = drawSignatureBlock(
+    doc,
+    MARGIN + colWidth + 20,
+    y,
+    colWidth,
+    'Firma cliente',
+    data.clienteNombre,
+    data.clienteCargo,
+    data.clienteFirmaBase64,
+    data.clienteFotoBase64,
+  )
   y = Math.max(yLeft, yRight) + 4
 
   drawFootnote(
@@ -198,36 +243,3 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
 
 const PRIORIDAD_LABEL: Record<'ALTA' | 'MEDIA' | 'BAJA', string> = { ALTA: 'Alta', MEDIA: 'Media', BAJA: 'Baja' }
 const ESTADO_LABEL: Record<string, string> = { ABIERTA: 'Abierta', EN_SEGUIMIENTO: 'En seguimiento', CERRADA: 'Cerrada' }
-
-/** Dibuja una firma (imagen si existe, si no línea en blanco) + nombre +
- * cargo opcional + etiqueta, dentro de una columna de ancho fijo. Devuelve
- * el `y` final para que el llamador tome el máximo entre columnas. */
-function drawSignatureBlock(
-  doc: PDFKit.PDFDocument,
-  x: number,
-  yTop: number,
-  width: number,
-  label: string,
-  nombre: string,
-  cargo: string | null,
-  firmaBase64: string | null,
-): number {
-  let y = yTop
-  if (firmaBase64) {
-    try {
-      const base64Payload = firmaBase64.split(',')[1] ?? ''
-      doc.image(Buffer.from(base64Payload, 'base64'), x, y, { fit: [110, 26] })
-      y += 28
-    } catch {
-      // Imagen inválida — no bloquea el resto del reporte, se cae al
-      // patrón de línea en blanco de abajo.
-      y += 5
-    }
-  }
-
-  doc.moveTo(x, y).lineTo(x + Math.min(width, 220), y).strokeColor(COLORS.texto).lineWidth(0.75).stroke()
-  doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.texto).text(nombre, x, y + 4, { width })
-  if (cargo) doc.font('Helvetica').fontSize(8).fillColor(COLORS.subtitulo).text(cargo, x, doc.y, { width })
-  doc.font('Helvetica').fontSize(8).fillColor(COLORS.subtitulo).text(label, x, doc.y, { width })
-  return doc.y
-}
