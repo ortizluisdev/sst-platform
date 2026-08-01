@@ -11,6 +11,7 @@ import ComparativoTab from './tabs/ComparativoTab.vue'
 import HistorialTab from './tabs/HistorialTab.vue'
 import ReportesTab from './tabs/ReportesTab.vue'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
+import SectionTitleBanner from './SectionTitleBanner.vue'
 
 const props = defineProps<{
   dashboard: DashboardData
@@ -29,6 +30,17 @@ const props = defineProps<{
    * así que ClientDashboardView.vue no cambia en nada. */
   editableReadings?: boolean
   correctReading?: (readingId: string, valor: number, reason: string) => Promise<void>
+  /** Nombre de la empresa activa — solo el admin lo pasa (HigieneIndustrialPanel.vue,
+   * que gestiona varias empresas). Se inserta en el banner para no depender de un
+   * segundo banner ("Panel operativo — ...") que quedaba duplicado y desalineaba el
+   * layout al cambiar de pestaña. El cliente nunca lo pasa: ya sabe cuál es su empresa. */
+  orgLabel?: string
+  /** Solo el admin lo pasa (HigieneIndustrialPanel.vue) — ResumenTab.vue lo
+   * necesita para cargar/editar el mapa de calor y las no conformidades de
+   * la empresa activa (ver DashboardRiskSections.vue). El cliente nunca lo
+   * pasa: ClientDashboardView.vue nunca llega a ResumenTab (bypassa por
+   * ClientDashboardHojas.vue cuando activeTab==='resumen'). */
+  organizationId?: string
 }>()
 
 const { t, locale } = useI18n()
@@ -37,14 +49,31 @@ const activeTab = defineModel<string>('activeTab', { default: 'resumen' })
 
 const tabs = computed<TabDef[]>(() => props.tabs ?? buildDashboardTabs(props.dashboard, t, locale.value as Locale))
 const activeCategory = computed(() => props.dashboard.categories.find((c) => `cat:${c.categoria}` === activeTab.value))
+
+// Sin esto la pestaña se veía "pelada" (directo a las tarjetas, sin
+// contexto de qué servicio/pestaña se está viendo) — mismo problema que ya
+// se había resuelto para el admin (HigieneIndustrialPanel.vue) pero nunca
+// para el cliente, porque ninguno de los dos lo tenía acá, en el shell
+// compartido. `tabs` ya trae la etiqueta traducida de cada pestaña — no
+// hace falta un mapa aparte.
+const currentTabLabel = computed(() => tabs.value.find((tab) => tab.key === activeTab.value)?.label ?? '')
+
+const bannerTitle = computed(() => {
+  const parts = [props.dashboard.service.nombre, props.orgLabel, currentTabLabel.value].filter(Boolean)
+  return parts.join(' — ')
+})
 </script>
 
 <template>
   <div class="grid gap-6" :class="hideSidebar ? '' : 'lg:grid-cols-[220px_1fr] lg:items-start'">
     <DashboardSidebar v-if="!hideSidebar" v-model="activeTab" :tabs="tabs" :services="[]" selected-service-slug="" />
 
-    <div>
-      <ResumenTab v-if="activeTab === 'resumen'" :dashboard="dashboard" />
+    <div class="grid gap-6">
+      <SectionTitleBanner :title="bannerTitle" />
+
+      <slot name="after-banner" />
+
+      <ResumenTab v-if="activeTab === 'resumen'" :dashboard="dashboard" :organization-id="organizationId" />
       <CategoryTab
         v-else-if="activeCategory"
         :category="activeCategory"

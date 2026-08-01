@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bell, LayoutGrid, User, X } from 'lucide-vue-next'
+import { Bell, ChevronDown, LayoutGrid, User, X } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
@@ -16,9 +16,20 @@ defineProps<{
 }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:selectedServiceSlug': [value: string] }>()
 
+const activeHoja = defineModel<'hoja1' | 'hoja2' | 'hoja3'>('activeHoja', { default: 'hoja1' })
+
 const { t } = useI18n()
 const drawer = useSidebarDrawer()
 const auth = useAuthStore()
+
+// "Hoja" ≠ "pestaña", pero SÍ es navegación de la pestaña "Dashboard" —
+// vive anidada acá, un nivel más adentro, la misma idea que el acordeón de
+// admin (servicio → pestañas) pero un nivel más profundo (pestaña → hoja).
+const HOJAS = [
+  { key: 'hoja1', label: 'dashboard.clientTabs.hoja1Short' },
+  { key: 'hoja2', label: 'dashboard.clientTabs.hoja2Short' },
+  { key: 'hoja3', label: 'dashboard.clientTabs.hoja3Short' },
+] as const
 
 function selectTab(key: string) {
   emit('update:modelValue', key)
@@ -27,6 +38,11 @@ function selectTab(key: string) {
 
 function selectService(slug: string) {
   emit('update:selectedServiceSlug', slug)
+  drawer.close()
+}
+
+function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
+  activeHoja.value = key
   drawer.close()
 }
 </script>
@@ -71,16 +87,15 @@ function selectService(slug: string) {
       {{ t(auth.roleLabelKey) }}
     </p>
 
-    <!-- Un cliente puede tener más de un servicio contratado — este listado
-    dice siempre cuál se está viendo (aunque solo tenga uno) en vez de
-    dejarlo implícito. Las pestañas de abajo (Dashboard, categorías...)
-    siempre corresponden al servicio seleccionado acá, así que no hace
-    falta anidarlas dentro de cada ítem como en el acordeón de admin. -->
+    <!-- Acordeón servicio → pestañas → hoja, igual que AdminNavSidebar.vue:
+    las pestañas del servicio activo van ANIDADAS bajo su servicio (no en una
+    lista aparte al mismo nivel) — así queda claro que "Dashboard" es hijo de
+    "Higiene Industrial", no una segunda selección independiente. -->
     <div v-if="services.length > 0" class="mb-3">
       <p class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60">
         {{ t('dashboard.sidebar.servicesLabel') }}
       </p>
-      <ul class="flex flex-col gap-1">
+      <ul class="mt-1 flex flex-col gap-1">
         <li v-for="service in services" :key="service.slug">
           <button
             type="button"
@@ -90,35 +105,58 @@ function selectService(slug: string) {
                 ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
                 : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
             "
+            :aria-expanded="service.slug === selectedServiceSlug"
             @click="selectService(service.slug)"
           >
             <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span class="min-w-0 flex-1 truncate">{{ service.nombre }}</span>
+            <ChevronDown v-if="service.slug === selectedServiceSlug" class="h-4 w-4 shrink-0" aria-hidden="true" />
           </button>
+
+          <ul
+            v-if="service.slug === selectedServiceSlug && tabs.length > 0"
+            class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+          >
+            <li v-for="tab in tabs" :key="tab.key">
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
+                :class="
+                  tab.key === modelValue
+                    ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                    : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
+                "
+                @click="selectTab(tab.key)"
+              >
+                <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span class="min-w-0 flex-1 truncate">{{ tab.label }}</span>
+                <ChevronDown v-if="tab.key === 'resumen' && tab.key === modelValue" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              </button>
+
+              <!-- Hoja 1/2/3: navegación interna de "Dashboard", un nivel más
+              adentro — nunca ítems sueltos al mismo nivel que las demás
+              pestañas (esa era la mezcla confusa de antes). -->
+              <ul v-if="tab.key === 'resumen' && tab.key === modelValue" class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2">
+                <li v-for="hoja in HOJAS" :key="hoja.key">
+                  <button
+                    type="button"
+                    class="flex w-full items-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
+                    :class="
+                      activeHoja === hoja.key
+                        ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                        : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
+                    "
+                    @click="selectHoja(hoja.key)"
+                  >
+                    {{ t(hoja.label) }}
+                  </button>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
-
-    <!-- Pestañas del servicio seleccionado arriba — nunca mezcladas con
-    Notificaciones/Mi perfil (esas son generales de la cuenta, no de un
-    servicio, así que viven en su propia sección más abajo). -->
-    <ul class="flex flex-col gap-1">
-      <li v-for="tab in tabs" :key="tab.key">
-        <button
-          type="button"
-          class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
-          :class="
-            tab.key === modelValue
-              ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-              : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
-          "
-          @click="selectTab(tab.key)"
-        >
-          <component :is="tab.icon" class="h-5 w-5 shrink-0" aria-hidden="true" />
-          {{ tab.label }}
-        </button>
-      </li>
-    </ul>
 
     <!-- General de la cuenta — fuera de cualquier servicio, por eso vive
     separada por una línea en vez de mezclada con las pestañas de arriba. -->

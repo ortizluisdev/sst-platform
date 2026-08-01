@@ -27,24 +27,39 @@ const styles = SEMAPHORE_STYLES[props.estado]
      instrumento, no como cifra de marketing (serif). -->
     <p class="mt-2 font-mono text-2xl font-semibold tabular-nums text-navy-900">{{ valor }}</p>
 
-    <div class="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-navy-50" role="presentation">
-      <div
-        class="h-full rounded-full transition-[width]"
-        :class="styles.dot"
-        :style="{ width: `${Math.min(100, Math.max(0, cumplimientoPct))}%` }"
-      />
-    </div>
-
-    <div class="mt-2 flex items-center justify-between gap-2">
-      <span class="text-[11px] text-navy-700 opacity-70">
-        {{ t('dashboard.summaryCard.complianceLabel') }}{{ cumplimientoPct }}%
-      </span>
-      <!-- Punto + texto, nunca solo color: el estado debe leerse aunque el
-       usuario no distinga el color (daltonismo, escala de grises, impresión). -->
-      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase" :class="styles.text">
+    <!-- Sin norma definida: no hay nada con qué medir "cumplimiento", así
+     que no tiene sentido mostrar una barra en 0% (se leía como "reprobado"
+     cuando en realidad es "catálogo incompleto todavía"). -->
+    <template v-if="estado === 'SIN_NORMA'">
+      <p class="mt-3 text-[11px] text-slate-500">{{ t('dashboard.summaryCard.normaPendiente') }}</p>
+      <span class="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase" :class="styles.text">
         <span :class="styles.dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
         {{ t(SEMAPHORE_LABEL_KEY[estado]) }}
       </span>
-    </div>
+    </template>
+    <template v-else>
+      <!-- El track usa el tono pastel del propio estado (no un gris neutro):
+       así una tarjeta en 0% de cumplimiento sigue mostrando su color de
+       estado en vez de una barra en blanco indistinguible de "sin datos". -->
+      <div class="mt-2.5 h-1.5 w-full overflow-hidden rounded-full" :class="styles.bg" role="presentation">
+        <div
+          class="h-full rounded-full transition-[width]"
+          :class="styles.dot"
+          :style="{ width: `${Math.min(100, Math.max(0, cumplimientoPct))}%` }"
+        />
+      </div>
+
+      <div class="mt-2 flex items-center justify-between gap-2">
+        <span class="text-[11px] text-navy-700 opacity-70">
+          {{ t('dashboard.summaryCard.complianceLabel') }}{{ cumplimientoPct }}%
+        </span>
+        <!-- Punto + texto, nunca solo color: el estado debe leerse aunque el
+         usuario no distinga el color (daltonismo, escala de grises, impresión). -->
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase" :class="styles.text">
+          <span :class="styles.dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
+          {{ t(SEMAPHORE_LABEL_KEY[estado]) }}
+        </span>
+      </div>
+    </template>
   </div>
 </template>

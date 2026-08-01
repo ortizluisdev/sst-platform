@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { CategorySummary } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
+import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { formatRange } from '@/utils/formatRange'
 
@@ -34,7 +35,7 @@ const { t, locale } = useI18n()
             <tr v-for="v in category.variables" :key="v.definitionId" class="border-t border-line">
               <!-- Borde izquierdo por fila (mismo lenguaje que SummaryCard.vue):
                detecta el estado de reojo sin depender del badge de la última columna. -->
-              <td class="border-l-4 px-4 py-3 text-navy-900" :class="SEMAPHORE_STYLES[v.estado].accent">
+              <td class="border-l-4 px-4 py-3 text-navy-900" :class="SEMAPHORE_STYLES[resolveDisplayStatus(v)].accent">
                 {{ v.nombre }}
                 <span class="block text-xs text-navy-700 opacity-60">{{ v.normativaRef }}</span>
               </td>
@@ -42,17 +43,23 @@ const { t, locale } = useI18n()
               <td class="px-4 py-3 font-mono tabular-nums text-navy-700">
                 {{ formatRange(v.limiteMin, v.limiteMax) }}
               </td>
-              <td class="px-4 py-3 font-mono tabular-nums text-navy-900">{{ v.cumplimientoPct }}%</td>
+              <td class="px-4 py-3 font-mono tabular-nums text-navy-900">
+                <span v-if="resolveDisplayStatus(v) === 'SIN_NORMA'" class="text-navy-700/50">—</span>
+                <span v-else>{{ v.cumplimientoPct }}%</span>
+              </td>
               <td class="px-4 py-3">
                 <!-- Punto + texto discreto, no un pill grande — mismo motivo
                  que SummaryCard.vue: menos ruido con muchas filas repetidas,
                  y el estado nunca depende solo del color. -->
                 <span
                   class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase"
-                  :class="SEMAPHORE_STYLES[v.estado].text"
+                  :class="SEMAPHORE_STYLES[resolveDisplayStatus(v)].text"
                 >
-                  <span :class="SEMAPHORE_STYLES[v.estado].dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
-                  {{ t(SEMAPHORE_LABEL_KEY[v.estado]) }}
+                  <span
+                    :class="SEMAPHORE_STYLES[resolveDisplayStatus(v)].dot"
+                    class="h-1.5 w-1.5 shrink-0 rounded-full"
+                  />
+                  {{ t(SEMAPHORE_LABEL_KEY[resolveDisplayStatus(v)]) }}
                 </span>
               </td>
             </tr>

@@ -1,6 +1,15 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
-import type { DashboardData, DashboardFilters, OrganizationOption, UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
+import type {
+  DashboardData,
+  DashboardFilters,
+  OrganizationOption,
+  UploadHistoryEntry,
+  UploadDetail,
+  NonConformity,
+  NonConformityInput,
+  NonConformityUpdateInput,
+} from '@/types/dashboard'
 import type { ServiceOption } from '@/types/organization'
 
 export class DashboardRequestError extends Error {
@@ -17,7 +26,10 @@ export class DashboardRequestError extends Error {
 
 function rethrow(err: unknown): never {
   if (isAxiosError(err) && err.response) {
-    const { status, data } = err.response as { status: number; data: { message?: string; errors?: Record<string, string> } }
+    const { status, data } = err.response as {
+      status: number
+      data: { message?: string; errors?: Record<string, string> }
+    }
     throw new DashboardRequestError(status, data.message ?? 'Ocurrió un error', data.errors)
   }
   throw err
@@ -53,7 +65,9 @@ export async function getAdminDashboard(
   filters?: DashboardFilters,
 ): Promise<DashboardData> {
   try {
-    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}`, { params: filters })
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}`, {
+      params: filters,
+    })
     return data
   } catch (err) {
     rethrow(err)
@@ -69,7 +83,6 @@ export async function listOrganizations(serviceSlug: string): Promise<Organizati
   }
 }
 
-
 /** Cliente: historial de cargas de su propia organización. */
 export async function getClientUploadHistory(serviceSlug: string): Promise<UploadHistoryEntry[]> {
   try {
@@ -81,7 +94,10 @@ export async function getClientUploadHistory(serviceSlug: string): Promise<Uploa
 }
 
 /** Super-admin: historial de cargas de cualquier organización. */
-export async function getAdminUploadHistory(organizationId: string, serviceSlug: string): Promise<UploadHistoryEntry[]> {
+export async function getAdminUploadHistory(
+  organizationId: string,
+  serviceSlug: string,
+): Promise<UploadHistoryEntry[]> {
   try {
     const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/uploads`)
     return data.uploads
@@ -156,9 +172,100 @@ export async function correctReading(
   reason: string,
 ): Promise<void> {
   try {
+    await apiClient.patch(`/admin/organizations/${organizationId}/services/${serviceSlug}/readings/${readingId}`, {
+      valor,
+      reason,
+    })
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export interface HeatmapImageResponse {
+  imageBase64: string | null
+  updatedAt: string | null
+}
+
+/** Cliente: mapa de calor de riesgo vigente para su propia empresa. Es una
+ * imagen subida por el admin (no calculada) — ver decisión en la spec de
+ * "tendencia de riesgo". */
+export async function getClientHeatmap(serviceSlug: string): Promise<HeatmapImageResponse> {
+  try {
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}/heatmap`)
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function getAdminHeatmap(organizationId: string, serviceSlug: string): Promise<HeatmapImageResponse> {
+  try {
+    const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/heatmap`)
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: sube/reemplaza la imagen de mapa de calor de una empresa+servicio. */
+export async function saveHeatmap(organizationId: string, serviceSlug: string, imageBase64: string): Promise<void> {
+  try {
+    await apiClient.patch(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/heatmap`, { imageBase64 })
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function getClientNonConformities(serviceSlug: string): Promise<NonConformity[]> {
+  try {
+    const { data } = await apiClient.get(`/dashboard/${serviceSlug}/non-conformities`)
+    return data.items
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function getAdminNonConformities(organizationId: string, serviceSlug: string): Promise<NonConformity[]> {
+  try {
+    const { data } = await apiClient.get(
+      `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities`,
+    )
+    return data.items
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: redacta una no conformidad manual (además de las que el
+ * sistema genera automáticamente por lecturas fuera de norma). */
+export async function createNonConformity(
+  organizationId: string,
+  serviceSlug: string,
+  input: NonConformityInput,
+): Promise<NonConformity> {
+  try {
+    const { data } = await apiClient.post(
+      `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities`,
+      input,
+    )
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: edita descripción/prioridad/estado de cualquier no conformidad
+ * (automática o manual). */
+export async function updateNonConformity(
+  organizationId: string,
+  serviceSlug: string,
+  id: string,
+  input: NonConformityUpdateInput,
+): Promise<void> {
+  try {
     await apiClient.patch(
-      `/admin/organizations/${organizationId}/services/${serviceSlug}/readings/${readingId}`,
-      { valor, reason },
+      `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities/${id}`,
+      input,
     )
   } catch (err) {
     rethrow(err)

@@ -8,6 +8,7 @@ import TrendChart from '../TrendChart.vue'
 import CorrectReadingModal from '../CorrectReadingModal.vue'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
 import { formatSummaryValue } from '@/utils/formatSummaryValue'
+import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 
 const props = defineProps<{
   category: CategorySummary
@@ -79,12 +80,14 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         :titulo="v.nombre"
         :valor="formatSummaryValue(v)"
         :cumplimiento-pct="v.cumplimientoPct"
-        :estado="v.estado"
+        :estado="resolveDisplayStatus(v)"
       />
     </div>
 
     <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
-      <p class="border-b border-line-strong px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+      <p
+        class="border-b border-line-strong px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70"
+      >
         {{ t('dashboard.category.detailHeading') }}
       </p>
       <div class="overflow-x-auto">
@@ -107,10 +110,28 @@ const workPointRows = computed<WorkPointRow[]>(() => {
               </td>
               <td class="px-4 py-3 text-navy-700">{{ row.areaPlanta }}</td>
               <td v-for="v in category.variables" :key="v.definitionId" class="px-4 py-3">
-                <span v-if="row.valores[v.definitionId]" class="inline-flex items-center gap-1.5 font-mono text-navy-900">
-                  <span :class="SEMAPHORE_STYLES[row.valores[v.definitionId]!.semaforo].dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
+                <span
+                  v-if="row.valores[v.definitionId]"
+                  class="inline-flex items-center gap-1.5 font-mono text-navy-900"
+                >
+                  <span
+                    :class="
+                      SEMAPHORE_STYLES[
+                        resolveDisplayStatus({
+                          estado: row.valores[v.definitionId]!.semaforo,
+                          limiteMin: v.limiteMin,
+                          limiteMax: v.limiteMax,
+                        })
+                      ].dot
+                    "
+                    class="h-1.5 w-1.5 shrink-0 rounded-full"
+                  />
                   {{ row.valores[v.definitionId]!.valor }} {{ v.unidadMedida }}
-                  <span v-if="row.valores[v.definitionId]!.isCorrected" :title="row.valores[v.definitionId]!.correctionReason ?? ''" class="text-[10px] font-sans italic text-navy-700/60">
+                  <span
+                    v-if="row.valores[v.definitionId]!.isCorrected"
+                    :title="row.valores[v.definitionId]!.correctionReason ?? ''"
+                    class="text-[10px] font-sans italic text-navy-700/60"
+                  >
                     ({{ t('dashboard.category.correctedTag') }})
                   </span>
                   <button
@@ -131,7 +152,9 @@ const workPointRows = computed<WorkPointRow[]>(() => {
       </div>
     </div>
 
-    <div class="rounded-lg border border-dashed border-line-strong bg-white p-8 text-center text-sm text-navy-700 opacity-70">
+    <div
+      class="rounded-lg border border-dashed border-line-strong bg-white p-8 text-center text-sm text-navy-700 opacity-70"
+    >
       {{ t('dashboard.category.heatmapPlaceholder') }}
     </div>
 

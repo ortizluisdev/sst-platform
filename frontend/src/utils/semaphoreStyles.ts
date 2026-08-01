@@ -40,6 +40,15 @@ export const SEMAPHORE_STYLES: Record<
     border: 'border-line-strong',
     accent: 'border-navy-700/20',
   },
+  // Gris neutro, deliberadamente distinto del amarillo de alerta — es
+  // información ("todavía no hay norma cargada"), no una advertencia.
+  SIN_NORMA: {
+    dot: 'bg-slate-400',
+    text: 'text-slate-600',
+    bg: 'bg-slate-100',
+    border: 'border-slate-300',
+    accent: 'border-slate-300',
+  },
 }
 
 /** Claves de i18n (no el texto ya traducido) — cada sitio de uso llama
@@ -49,6 +58,7 @@ export const SEMAPHORE_LABEL_KEY: Record<CategoryCardStatus, string> = {
   AMARILLO: 'dashboard.semaphore.alerta',
   ROJO: 'dashboard.semaphore.critico',
   SIN_DATOS: 'dashboard.semaphore.sinDatos',
+  SIN_NORMA: 'dashboard.semaphore.sinNorma',
 }
 
 export const SEMAPHORE_HEX: Record<SemaphoreStatus, string> = {

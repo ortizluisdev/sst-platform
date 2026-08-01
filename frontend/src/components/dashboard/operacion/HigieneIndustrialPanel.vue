@@ -34,9 +34,7 @@ function handleOrgChange(event: Event) {
   selectOrg((event.target as HTMLSelectElement).value)
 }
 
-const activeOrgNombre = computed(
-  () => organizations.value.find((org) => org.id === props.organizationId)?.nombre ?? '',
-)
+const activeOrgNombre = computed(() => organizations.value.find((org) => org.id === props.organizationId)?.nombre ?? '')
 
 // Acordeón del sidebar admin (Fase C): AdminShell posee estas refs porque es
 // el ancestro común de AdminNavSidebar y de este panel (varios niveles abajo
@@ -95,36 +93,6 @@ async function correctReading(readingId: string, valor: number, reason: string) 
 
 <template>
   <div class="grid gap-6">
-    <div class="rounded-lg bg-navy-900 px-4 py-3 print:hidden sm:px-5">
-      <p class="text-sm font-semibold text-sky-100">
-        {{ t('dashboard.adminShell.operationalHeading', { empresa: activeOrgNombre }) }}
-      </p>
-    </div>
-
-    <section class="overflow-hidden rounded-lg border border-line-strong bg-white p-4 print:hidden sm:p-5">
-      <label for="operacion-org-select" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
-        {{ t('dashboard.adminShell.orgSelectorLabel') }}
-      </label>
-      <select
-        id="operacion-org-select"
-        :value="props.organizationId"
-        class="w-full max-w-sm rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        @change="handleOrgChange"
-      >
-        <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
-      </select>
-    </section>
-
-    <section class="overflow-hidden rounded-lg border border-line-strong bg-white print:hidden">
-      <div class="p-4 sm:p-5">
-        <VariableUploadForm
-          :organization-id="props.organizationId"
-          :service-slug="SERVICE_SLUG"
-          @uploaded="loadDashboard"
-        />
-      </div>
-    </section>
-
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.clientView.loading') }}</p>
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
@@ -132,14 +100,47 @@ async function correctReading(readingId: string, valor: number, reason: string) 
     <DashboardShell
       v-else-if="dashboard"
       :key="props.organizationId"
+      v-model:active-tab="sharedActiveTab"
       :dashboard="dashboard"
       :fetch-history="fetchHistory"
       :fetch-upload-detail="fetchUploadDetail"
       hide-sidebar
       :tabs="tabs"
-      v-model:active-tab="sharedActiveTab"
       editable-readings
       :correct-reading="correctReading"
-    />
+      :org-label="activeOrgNombre"
+      :organization-id="props.organizationId"
+    >
+      <template v-if="sharedActiveTab === 'resumen'" #after-banner>
+        <section class="overflow-hidden rounded-lg border border-line-strong bg-white print:hidden">
+          <div class="grid gap-3 p-3 sm:grid-cols-[minmax(0,240px)_1fr] sm:items-start sm:p-4">
+            <div>
+              <label
+                for="operacion-org-select"
+                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700"
+              >
+                {{ t('dashboard.adminShell.orgSelectorLabel') }}
+              </label>
+              <select
+                id="operacion-org-select"
+                :value="props.organizationId"
+                class="w-full rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+                @change="handleOrgChange"
+              >
+                <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="border-t border-line-strong pt-3 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0">
+              <VariableUploadForm
+                :organization-id="props.organizationId"
+                :service-slug="SERVICE_SLUG"
+                @uploaded="loadDashboard"
+              />
+            </div>
+          </div>
+        </section>
+      </template>
+    </DashboardShell>
   </div>
 </template>

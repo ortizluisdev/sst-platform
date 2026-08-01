@@ -94,6 +94,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
     <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[220px_1fr]">
       <DashboardSidebar
         v-model="activeTab"
+        v-model:active-hoja="activeHoja"
         :tabs="tabs"
         :services="services"
         :selected-service-slug="serviceSlug"

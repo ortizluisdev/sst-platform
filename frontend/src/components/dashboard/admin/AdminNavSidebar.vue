@@ -32,6 +32,13 @@ function isExpandable(slug: string): boolean {
   return slug === 'higiene-industrial'
 }
 
+// Los demás servicios del catálogo (Mantenimiento Basado en Riesgo, Modelado
+// Científico, Riesgo Mecánico y Locativo, Seguridad Vial) no tienen catálogo
+// de variables ni panel real detrás todavía — listarlos en el sidebar como
+// si fueran navegables sería mostrar algo roto. Se ocultan hasta que tengan
+// contenido real, no solo un placeholder "en construcción".
+const visibleServices = computed(() => props.services.filter((s) => isExpandable(s.slug)))
+
 // Derivado puro (no un ref propio): expandido si y solo si estamos viendo
 // ese servicio en Operación. Atado a la ruta (no a si props.serviceTabs ya
 // cargó) para que no compita con el estado de carga normal — serviceTabs
@@ -79,10 +86,10 @@ function handleTabClick(tab: TabDef) {
       </p>
 
       <ul class="mt-1 flex flex-col gap-1">
-        <li v-if="props.services.length === 0" class="px-2 py-1.5 text-xs text-navy-700/50">
+        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-navy-700/50">
           {{ t('dashboard.adminShell.noActiveServices') }}
         </li>
-        <li v-for="service in props.services" :key="service.slug">
+        <li v-for="service in visibleServices" :key="service.slug">
           <button
             type="button"
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
