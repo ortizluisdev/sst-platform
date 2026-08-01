@@ -34,6 +34,9 @@ export function createOrganizationsService(prisma: PrismaClient) {
         nit: input.nit,
         contactEmail: input.contactEmail,
         serviceId: service.id,
+        logoBase64: input.logoBase64,
+        primaryColor: input.primaryColor,
+        secondaryColor: input.secondaryColor,
         responsable: input.responsable,
       })
 

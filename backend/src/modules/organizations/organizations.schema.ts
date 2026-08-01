@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { noNewlines } from '../../utils/zodHelpers.js'
+import { hexColorSchema, logoBase64Schema } from '../../utils/brandingSchema.js'
 
 // Solo dígitos, sin puntos ni guiones — mismo formato que documentNumber de
 // login (ver auth.schema.ts). El NIT colombiano real incluye un dígito de
@@ -13,18 +14,30 @@ const telefonoSchema = z
   .min(7, 'Ingresa un teléfono válido')
   .regex(/^[+()\d\s-]+$/, 'Solo números, espacios y +()-')
 
+// Un solo correo por empresa — el de la organización (contactEmail) — que
+// también queda como email del usuario responsable. Antes se pedían dos
+// correos por separado (empresa + responsable), redundante para el caso de
+// una sola cuenta por organización que ya asume el resto del código (ver
+// "toda organización se crea con exactamente uno" en listFull()).
 export const createOrganizationSchema = z.object({
   nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')),
   nit: nitSchema,
   contactEmail: z.string().email('Ingresa un correo de contacto válido'),
   serviceSlug: z.string().min(1, 'Selecciona un servicio'),
+  // Obligatorio: "crear la empresa completa" incluye su identidad visual
+  // desde el alta — el admin ya no deja el logo/colores pendientes para que
+  // el cliente los complete después (ver activation.service.ts,
+  // organizationAlreadyHasBranding, que sigue existiendo como red de
+  // seguridad para organizaciones creadas antes de este cambio).
+  logoBase64: logoBase64Schema,
+  primaryColor: hexColorSchema,
+  secondaryColor: hexColorSchema,
   responsable: z.object({
     documentType: z.enum(['CC', 'NIT']),
     documentNumber: documentNumberSchema,
     // Llega hasta el correo de invitación (ver utils/mailer.ts) — misma
     // protección que el resto del proyecto contra inyección de headers vía \r\n.
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre del responsable')),
-    email: z.string().email('Ingresa un correo válido'),
     cargo: noNewlines(z.string().min(2, 'Ingresa el cargo del responsable')),
     telefono: telefonoSchema,
   }),
@@ -32,9 +45,11 @@ export const createOrganizationSchema = z.object({
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>
 
-// Logo/colores quedan fuera a propósito: son personalización exclusiva del
-// cliente (ver organizationBranding.service.ts, saveBrandingIfUnset), nunca
-// editable por el admin — evita que dos personas se pisen el mismo dato.
+// Logo/colores quedan fuera de la EDICIÓN a propósito (distinto de la
+// creación, ver createOrganizationSchema arriba): una vez la empresa existe,
+// es personalización exclusiva del cliente (ver organizationBranding.service.ts,
+// saveBrandingIfUnset), nunca editable por el admin — evita que dos personas
+// se pisen el mismo dato.
 export const updateOrganizationSchema = z
   .object({
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')).optional(),

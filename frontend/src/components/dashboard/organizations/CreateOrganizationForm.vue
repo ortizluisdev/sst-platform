@@ -3,11 +3,14 @@ import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
+import BrandingFields from './BrandingFields.vue'
 import { useCreateOrganizationForm } from '@/composables/useCreateOrganizationForm'
+import { serviceLabel } from '@/utils/serviceLabel'
+import type { Locale } from '@/i18n'
 
 const emit = defineEmits<{ created: [] }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const {
   status,
@@ -23,14 +26,15 @@ const {
   contactEmailAttrs,
   serviceSlug,
   serviceSlugAttrs,
+  logoBase64,
+  primaryColor,
+  secondaryColor,
   responsableDocumentType,
   responsableDocumentTypeAttrs,
   responsableDocumentNumber,
   responsableDocumentNumberAttrs,
   responsableNombre,
   responsableNombreAttrs,
-  responsableEmail,
-  responsableEmailAttrs,
   responsableCargo,
   responsableCargoAttrs,
   responsableTelefono,
@@ -96,12 +100,23 @@ watch(status, (value) => {
         >
           <option value="" disabled>{{ t('organizations.form.servicePlaceholder') }}</option>
           <option v-for="service in services" :key="service.slug" :value="service.slug">
-            {{ service.nombre }}
+            {{ serviceLabel(service.slug, service.nombre, locale as Locale) }}
           </option>
         </select>
         <p v-if="errors.serviceSlug" class="mt-1.5 text-xs text-red-600">{{ errors.serviceSlug }}</p>
         <p v-if="servicesLoadError" class="mt-1.5 text-xs text-red-600">{{ servicesLoadError }}</p>
       </div>
+    </fieldset>
+
+    <fieldset class="grid gap-4 rounded-md border border-line-strong p-4">
+      <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-navy-700">
+        {{ t('organizations.form.brandingSection') }}
+      </legend>
+      <BrandingFields
+        v-model:logo-base64="logoBase64"
+        v-model:primary-color="primaryColor"
+        v-model:secondary-color="secondaryColor"
+      />
     </fieldset>
 
     <fieldset class="grid gap-4 rounded-md border border-line-strong p-4">
@@ -145,15 +160,7 @@ watch(status, (value) => {
         :placeholder="t('organizations.form.responsableNombrePlaceholder')"
         :error="errors['responsable.nombre']"
       />
-      <FormField
-        id="responsable-email"
-        v-model="responsableEmail"
-        v-bind="responsableEmailAttrs"
-        type="email"
-        :label="t('organizations.form.responsableEmail')"
-        :placeholder="t('organizations.form.responsableEmailPlaceholder')"
-        :error="errors['responsable.email']"
-      />
+      <p class="-mt-2 text-xs text-navy-700/60">{{ t('organizations.form.responsableEmailHint') }}</p>
       <FormField
         id="responsable-cargo"
         v-model="responsableCargo"

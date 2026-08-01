@@ -7,24 +7,32 @@ export interface OrganizationFormMessages {
   serviceRequired: string
   responsableDocumentInvalid: string
   responsableNombreRequired: string
-  responsableEmailInvalid: string
   responsableCargoRequired: string
   responsableTelefonoRequired: string
   responsableTelefonoInvalid: string
 }
 
-/** Reglas espejo de backend/src/modules/organizations/organizations.schema.ts. */
+/** Reglas espejo de backend/src/modules/organizations/organizations.schema.ts.
+ * Un solo correo por empresa (contactEmail) — ya no se pide un email aparte
+ * para el responsable, ver nota en el schema backend. logoBase64/colores son
+ * opcionales: el admin los puede dejar pendientes y el cliente los completa
+ * en su primer login. */
 export function createOrganizationSchema(messages: OrganizationFormMessages) {
   return z.object({
     nombre: z.string().min(2, messages.nombreRequired),
     nit: z.string().regex(/^\d{5,20}$/, messages.nitInvalid),
     contactEmail: z.string().email(messages.contactEmailInvalid),
     serviceSlug: z.string().min(1, messages.serviceRequired),
+    // Se validan a mano en el composable (logoRequired) — acá solo se
+    // tipan como string simple para que el v-model de BrandingFields.vue
+    // (required) compile sin castings.
+    logoBase64: z.string(),
+    primaryColor: z.string(),
+    secondaryColor: z.string(),
     responsable: z.object({
       documentType: z.enum(['CC', 'NIT']),
       documentNumber: z.string().regex(/^\d{5,20}$/, messages.responsableDocumentInvalid),
       nombre: z.string().min(2, messages.responsableNombreRequired),
-      email: z.string().email(messages.responsableEmailInvalid),
       cargo: z.string().min(2, messages.responsableCargoRequired),
       telefono: z
         .string()

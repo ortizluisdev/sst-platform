@@ -36,7 +36,6 @@ export function useCreateOrganizationForm() {
         serviceRequired: t('organizations.validation.serviceRequired'),
         responsableDocumentInvalid: t('organizations.validation.responsableDocumentInvalid'),
         responsableNombreRequired: t('organizations.validation.responsableNombreRequired'),
-        responsableEmailInvalid: t('organizations.validation.responsableEmailInvalid'),
         responsableCargoRequired: t('organizations.validation.responsableCargoRequired'),
         responsableTelefonoRequired: t('organizations.validation.responsableTelefonoRequired'),
         responsableTelefonoInvalid: t('organizations.validation.responsableTelefonoInvalid'),
@@ -51,7 +50,12 @@ export function useCreateOrganizationForm() {
       nit: '',
       contactEmail: '',
       serviceSlug: '',
-      responsable: { documentType: 'CC', documentNumber: '', nombre: '', email: '', cargo: '', telefono: '' },
+      logoBase64: '',
+      // Arranca en los colores de RoMa como punto de partida razonable — el
+      // admin los personaliza desde ahí (mismo criterio que UpdateProfileView.vue).
+      primaryColor: '#0b1a33',
+      secondaryColor: '#5b8dc7',
+      responsable: { documentType: 'CC', documentNumber: '', nombre: '', cargo: '', telefono: '' },
     },
   })
 
@@ -59,16 +63,26 @@ export function useCreateOrganizationForm() {
   const [nit, nitAttrs] = defineField('nit')
   const [contactEmail, contactEmailAttrs] = defineField('contactEmail')
   const [serviceSlug, serviceSlugAttrs] = defineField('serviceSlug')
+  const [logoBase64] = defineField('logoBase64')
+  const [primaryColor] = defineField('primaryColor')
+  const [secondaryColor] = defineField('secondaryColor')
   const [responsableDocumentType, responsableDocumentTypeAttrs] = defineField('responsable.documentType')
   const [responsableDocumentNumber, responsableDocumentNumberAttrs] = defineField('responsable.documentNumber')
   const [responsableNombre, responsableNombreAttrs] = defineField('responsable.nombre')
-  const [responsableEmail, responsableEmailAttrs] = defineField('responsable.email')
   const [responsableCargo, responsableCargoAttrs] = defineField('responsable.cargo')
   const [responsableTelefono, responsableTelefonoAttrs] = defineField('responsable.telefono')
 
   const submit = handleSubmit(async (values) => {
     status.value = 'loading'
     errorMessage.value = ''
+    // El logo es obligatorio para "crear la empresa completa" — se valida acá
+    // (no en el schema zod) porque es una regla de flujo (archivo subido), no
+    // de formato, mismo patrón que UpdateProfileView.vue.
+    if (!values.logoBase64) {
+      status.value = 'error'
+      errorMessage.value = t('organizations.form.logoRequired')
+      return
+    }
     try {
       await createOrganization(values)
       status.value = 'success'
@@ -99,14 +113,15 @@ export function useCreateOrganizationForm() {
     contactEmailAttrs,
     serviceSlug,
     serviceSlugAttrs,
+    logoBase64,
+    primaryColor,
+    secondaryColor,
     responsableDocumentType,
     responsableDocumentTypeAttrs,
     responsableDocumentNumber,
     responsableDocumentNumberAttrs,
     responsableNombre,
     responsableNombreAttrs,
-    responsableEmail,
-    responsableEmailAttrs,
     responsableCargo,
     responsableCargoAttrs,
     responsableTelefono,

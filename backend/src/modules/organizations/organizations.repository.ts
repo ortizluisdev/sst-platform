@@ -68,11 +68,13 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       nit: string
       contactEmail: string
       serviceId: string
+      logoBase64?: string
+      primaryColor?: string
+      secondaryColor?: string
       responsable: {
         documentType: DocumentType
         documentNumber: string
         nombre: string
-        email: string
         cargo: string
         telefono: string
       }
@@ -84,7 +86,14 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
 
       return prisma.$transaction(async (tx) => {
         const organization = await tx.organization.create({
-          data: { nombre: input.nombre, nit: input.nit, contactEmail: input.contactEmail },
+          data: {
+            nombre: input.nombre,
+            nit: input.nit,
+            contactEmail: input.contactEmail,
+            logoBase64: input.logoBase64,
+            primaryColor: input.primaryColor,
+            secondaryColor: input.secondaryColor,
+          },
         })
         await tx.organizationService.create({
           data: { organizationId: organization.id, serviceId: input.serviceId, isActive: true },
@@ -93,7 +102,9 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
           data: {
             documentType: input.responsable.documentType,
             documentNumber: input.responsable.documentNumber,
-            email: input.responsable.email,
+            // Un solo correo por empresa — el mismo contactEmail de la
+            // organización (ver nota en organizations.schema.ts).
+            email: input.contactEmail,
             nombre: input.responsable.nombre,
             cargo: input.responsable.cargo,
             telefono: input.responsable.telefono,
