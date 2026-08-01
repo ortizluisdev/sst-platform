@@ -10,7 +10,9 @@ const { t } = useI18n()
 
 const fileError = ref('')
 
-const ALLOWED_TYPES = ['image/png', 'image/svg+xml']
+// SVG-only (no PNG): escala sin pixelado a cualquier tamaño del navbar, sin
+// importar la resolución del logo original que suba el cliente.
+const ALLOWED_TYPES = ['image/svg+xml']
 const MAX_BYTES = 500 * 1024
 
 function handleFileChange(event: Event) {
@@ -47,7 +49,7 @@ function handleFileChange(event: Event) {
       <input
         id="branding-logo"
         type="file"
-        accept="image/png,image/svg+xml"
+        accept="image/svg+xml"
         class="w-full rounded-sm border border-line-strong bg-white px-4 py-3 text-sm text-navy-900"
         @change="handleFileChange"
       />
@@ -69,7 +71,10 @@ function handleFileChange(event: Event) {
         />
       </div>
       <div>
-        <label for="branding-secondary" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+        <label
+          for="branding-secondary"
+          class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700"
+        >
           {{ t('branding.fields.secondaryColorLabel') }}
         </label>
         <input
@@ -78,14 +83,31 @@ function handleFileChange(event: Event) {
           type="color"
           class="h-11 w-full rounded-sm border border-line-strong bg-white p-1"
         />
+        <p class="mt-1 text-xs text-navy-700/60">{{ t('branding.fields.secondaryColorHint') }}</p>
       </div>
     </div>
 
-    <div>
-      <p class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700">{{ t('branding.fields.previewLabel') }}</p>
-      <div class="flex items-center gap-3 rounded-md border border-line-strong px-4 py-3" :style="{ backgroundColor: primaryColor }">
-        <img v-if="logoBase64" :src="logoBase64" alt="" class="h-6 w-auto" />
-        <span class="text-sm font-semibold" :style="{ color: secondaryColor }">{{ t('branding.fields.previewText') }}</span>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div>
+        <p class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700">
+          {{ t('branding.fields.previewLabel') }}
+        </p>
+        <div
+          class="flex items-center gap-3 rounded-md border border-line-strong px-4 py-3"
+          :style="{ backgroundColor: primaryColor }"
+        >
+          <img v-if="logoBase64" :src="logoBase64" alt="" class="h-6 w-auto" />
+          <span class="text-sm font-semibold text-cream">{{ t('branding.fields.previewText') }}</span>
+        </div>
+      </div>
+      <div>
+        <p class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700">
+          {{ t('branding.fields.previewModalLabel') }}
+        </p>
+        <div class="overflow-hidden rounded-md border border-line-strong">
+          <div class="h-1.5" :style="{ backgroundColor: secondaryColor }" />
+          <div class="bg-white px-4 py-3 text-sm text-navy-700/60">{{ t('branding.fields.previewModalText') }}</div>
+        </div>
       </div>
     </div>
   </div>

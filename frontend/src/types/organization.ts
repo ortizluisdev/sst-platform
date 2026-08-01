@@ -69,11 +69,11 @@ export interface OrganizationListItem {
   responsable: OrganizationResponsable | null
 }
 
+/** Datos ADMINISTRATIVOS de empresa que el admin puede editar — logo/colores
+ * quedan fuera a propósito: son personalización exclusiva del cliente, se
+ * definen una sola vez al activar su cuenta (ver organizationBranding). */
 export interface UpdateOrganizationFormValues {
   nombre?: string
   nit?: string
   contactEmail?: string
-  logoBase64?: string
-  primaryColor?: string
-  secondaryColor?: string
 }

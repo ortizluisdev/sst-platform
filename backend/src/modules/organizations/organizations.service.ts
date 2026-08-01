@@ -88,14 +88,11 @@ export function createOrganizationsService(prisma: PrismaClient) {
 
       const updated = await repository.update(organizationId, input)
 
-      // No volcamos logoBase64 (hasta ~680KB de texto) al audit log — solo
-      // dejamos constancia de qué cambió, no el contenido pesado.
-      const { logoBase64, ...loggableChanges } = input
       await repository.createAuditLog({
         userId: updatedByUserId,
         organizationId,
         action: 'ORGANIZATION_UPDATED',
-        metadata: { changes: { ...loggableChanges, logoChanged: logoBase64 !== undefined } },
+        metadata: { changes: input },
         ipAddress,
       })
 

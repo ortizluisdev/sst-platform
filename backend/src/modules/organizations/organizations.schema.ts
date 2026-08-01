@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { noNewlines } from '../../utils/zodHelpers.js'
-import { hexColorSchema, logoBase64Schema } from '../../utils/brandingSchema.js'
 
 // Solo dígitos, sin puntos ni guiones — mismo formato que documentNumber de
 // login (ver auth.schema.ts). El NIT colombiano real incluye un dígito de
@@ -33,14 +32,14 @@ export const createOrganizationSchema = z.object({
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>
 
+// Logo/colores quedan fuera a propósito: son personalización exclusiva del
+// cliente (ver organizationBranding.service.ts, saveBrandingIfUnset), nunca
+// editable por el admin — evita que dos personas se pisen el mismo dato.
 export const updateOrganizationSchema = z
   .object({
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')).optional(),
     nit: nitSchema.optional(),
     contactEmail: z.string().email('Ingresa un correo de contacto válido').optional(),
-    logoBase64: logoBase64Schema.optional(),
-    primaryColor: hexColorSchema.optional(),
-    secondaryColor: hexColorSchema.optional(),
   })
   .refine((data) => Object.keys(data).length > 0, { message: 'No hay cambios para aplicar' })
 

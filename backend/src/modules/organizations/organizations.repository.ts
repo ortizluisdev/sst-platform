@@ -55,17 +55,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       })
     },
 
-    update(
-      id: string,
-      data: {
-        nombre?: string
-        nit?: string
-        contactEmail?: string
-        logoBase64?: string
-        primaryColor?: string
-        secondaryColor?: string
-      },
-    ) {
+    update(id: string, data: { nombre?: string; nit?: string; contactEmail?: string }) {
       return prisma.organization.update({ where: { id }, data })
     },
 
