@@ -80,44 +80,55 @@ enum DocumentType {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  documentType   DocumentType  @default(CC) @map("document_type")
+  id                String        @id @default(cuid())
+  documentType      DocumentType  @default(CC) @map("document_type")
   /// Credencial de login (reemplaza email). Único a nivel de plataforma.
-  documentNumber String        @unique @map("document_number") @db.VarChar(20)
+  documentNumber    String        @unique @map("document_number") @db.VarChar(20)
   /// Dato de contacto — ya no es la credencial de login, por eso no es único.
-  email          String        @db.VarChar(255)
+  email             String        @db.VarChar(255)
   /// Nullable: una cuenta PENDING_ACTIVATION todavía no tiene contraseña —
   /// la define el propio usuario al activar (ver ActivationToken).
-  passwordHash   String?       @map("password_hash") @db.VarChar(255)
-  nombre         String        @db.VarChar(255)
-  cargo          String?       @db.VarChar(150)
-  telefono       String?       @db.VarChar(50)
-  fotoUrl        String?       @map("foto_url") @db.VarChar(500)
+  passwordHash      String?       @map("password_hash") @db.VarChar(255)
+  nombre            String        @db.VarChar(255)
+  cargo             String?       @db.VarChar(150)
+  telefono          String?       @db.VarChar(50)
+  /// Data URI completo (mismo patrón que Organization.logoBase64) — foto de
+  /// perfil del representante, no la foto/logo de la empresa. Campo antes
+  /// llamado fotoUrl (VARCHAR, pensado para una URL externa) y sin ningún
+  /// código que lo usara — renombrado y ampliado a LongText al conectarlo.
+  fotoBase64        String?       @map("foto_base64") @db.LongText
+  /// Data URI completo (mismo patrón que fotoBase64) — imagen de firma
+  /// escaneada/dibujada para la sección "Firma y sello" de los reportes
+  /// PDF. Firma VISUAL, no criptográfica — mismo alcance legal que firmar
+  /// a mano un documento impreso y escanearlo (ver spec de reportes).
+  firmaBase64       String?       @map("firma_base64") @db.LongText
   /// Rol a nivel PLATAFORMA (ej. super-admin). null para un cliente normal:
   /// sus permisos vienen exclusivamente de su(s) UserOrganization.role.
-  roleId         String?       @map("role_id")
-  accountStatus  AccountStatus @default(PENDING_ACTIVATION) @map("account_status")
+  roleId            String?       @map("role_id")
+  accountStatus     AccountStatus @default(PENDING_ACTIVATION) @map("account_status")
   /// Motivo que el admin escribió al suspender — se limpia al reactivar,
   /// para que un motivo viejo no quede colgado tras la reactivación.
-  suspendReason  String?       @map("suspend_reason") @db.Text
+  suspendReason     String?       @map("suspend_reason") @db.Text
   /// true tras activar la cuenta por primera vez — el guard de rutas del
   /// frontend fuerza la vista de actualización de datos antes de dejar
   /// pasar a cualquier otra ruta protegida, hasta que se complete.
-  mustUpdateProfile Boolean    @default(false) @map("must_update_profile")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  mustUpdateProfile Boolean       @default(false) @map("must_update_profile")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
 
-  role                  Role?                @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  organizations         UserOrganization[]
-  refreshTokens         RefreshToken[]
-  passwordResetTokens   PasswordResetToken[]
-  activationTokens      ActivationToken[]
-  notificationsReceived Notification[]       @relation("NotificationRecipient")
-  notificationsSent     Notification[]       @relation("NotificationSender")
-  variableUploads       VariableUpload[]
-  announcements         Announcement[]
-  auditLogs             AuditLog[]
-  correctedReadings      VariableReading[]      @relation("VariableReadingCorrectedBy")
+  role                   Role?                 @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  organizations          UserOrganization[]
+  refreshTokens          RefreshToken[]
+  passwordResetTokens    PasswordResetToken[]
+  activationTokens       ActivationToken[]
+  notificationsReceived  Notification[]        @relation("NotificationRecipient")
+  notificationsSent      Notification[]        @relation("NotificationSender")
+  variableUploads        VariableUpload[]
+  announcements          Announcement[]
+  auditLogs              AuditLog[]
+  correctedReadings      VariableReading[]     @relation("VariableReadingCorrectedBy")
+  uploadedHeatmapImages  ServiceHeatmapImage[]
+  createdNonConformities NonConformity[]       @relation("NonConformityCreatedBy")
 
   @@index([documentNumber])
   @@index([roleId])
@@ -126,23 +137,23 @@ model User {
 }
 
 model Organization {
-  id     String @id @default(cuid())
-  nombre String @db.VarChar(255)
+  id             String   @id @default(cuid())
+  nombre         String   @db.VarChar(255)
   /// Nullable: organizaciones creadas antes del rediseño de auth no
   /// necesariamente lo tienen todavía. El flujo de creación de empresa por
   /// el admin (Fase B.3) lo exige a partir de ahora.
-  nit          String?  @unique @db.VarChar(20)
-  contactEmail String?  @map("contact_email") @db.VarChar(255)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  nit            String?  @unique @db.VarChar(20)
+  contactEmail   String?  @map("contact_email") @db.VarChar(255)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   /// Data URI completo (data:image/png;base64,... o data:image/svg+xml;base64,...)
   /// — nunca solo el payload, así se sirve directo sin reconstruir el prefijo.
   /// LongText (no Text, límite 64KB en MySQL) para caber un logo de hasta 500KB.
-  logoBase64     String? @map("logo_base64") @db.LongText
+  logoBase64     String?  @map("logo_base64") @db.LongText
   /// Hex #rrggbb — formato nativo de <input type="color">.
-  primaryColor   String? @map("primary_color") @db.VarChar(7)
-  secondaryColor String? @map("secondary_color") @db.VarChar(7)
+  primaryColor   String?  @map("primary_color") @db.VarChar(7)
+  secondaryColor String?  @map("secondary_color") @db.VarChar(7)
 
   users           UserOrganization[]
   services        OrganizationService[]
@@ -150,6 +161,8 @@ model Organization {
   variableUploads VariableUpload[]
   auditLogs       AuditLog[]
   notifications   Notification[]
+  heatmapImages   ServiceHeatmapImage[]
+  nonConformities NonConformity[]
 
   @@map("organizations")
 }
@@ -197,6 +210,8 @@ model Service {
   organizations       OrganizationService[]
   variableDefinitions VariableDefinition[]
   variableUploads     VariableUpload[]
+  heatmapImages       ServiceHeatmapImage[]
+  nonConformities     NonConformity[]
 
   @@map("services")
 }
@@ -298,6 +313,9 @@ enum NotificationType {
   CUENTA_REACTIVADA
   REGISTRO_PENDIENTE
   CONTACTO_RECIBIDO
+  /// Un admin corrigió manualmente una lectura ya procesada — el cliente no
+  /// se enteraba de esto antes (solo quedaba en AuditLog, invisible para él).
+  LECTURA_CORREGIDA
 }
 
 enum NotificationSeverity {
@@ -378,8 +396,9 @@ model WorkPoint {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  readings     VariableReading[]
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  readings        VariableReading[]
+  nonConformities NonConformity[]
 
   @@unique([organizationId, codigo])
   @@index([organizationId])
@@ -402,31 +421,35 @@ enum VariableComparisonType {
 /// ISO 8995-1/RETILAP, etc.) antes de producción — los del seed son de
 /// referencia técnica real pero no auditados formalmente.
 model VariableDefinition {
-  id               String                 @id @default(cuid())
-  serviceId        String                 @map("service_id")
+  id               String                   @id @default(cuid())
+  serviceId        String                   @map("service_id")
   /// Libre, no enum: cada servicio define sus propias categorías (para
   /// Higiene Industrial: Iluminación/Sonido/Estrés Térmico/Radiación UV/
   /// Vibración; otro servicio tendría categorías completamente distintas).
-  categoria        String                 @db.VarChar(100)
-  codigo           String                 @db.VarChar(50)
-  nombre           String                 @db.VarChar(255)
-  unidadMedida     String                 @map("unidad_medida") @db.VarChar(50)
-  comparisonType   VariableComparisonType @default(RANGE) @map("comparison_type")
-  limiteMin        Float?                 @map("limite_min")
-  limiteMax        Float?                 @map("limite_max")
+  categoria        String                   @db.VarChar(100)
+  codigo           String                   @db.VarChar(50)
+  nombre           String                   @db.VarChar(255)
+  unidadMedida     String                   @map("unidad_medida") @db.VarChar(50)
+  comparisonType   VariableComparisonType   @default(RANGE) @map("comparison_type")
+  limiteMin        Float?                   @map("limite_min")
+  limiteMax        Float?                   @map("limite_max")
   /// Margen (ej. 0.1 = 10%) más allá de limiteMin/limiteMax que se marca
   /// AMARILLO en vez de ROJO — el semáforo de la imagen de referencia tiene
   /// 3 estados, no un corte binario. Validar el % real contra cada norma.
-  toleranciaAlerta Float                  @default(0.1) @map("tolerancia_alerta")
-  normativaRef     String?                @map("normativa_ref") @db.VarChar(255)
+  toleranciaAlerta Float                    @default(0.1) @map("tolerancia_alerta")
+  normativaRef     String?                  @map("normativa_ref") @db.VarChar(255)
   /// Pendientes hasta que el cliente final confirme el dato técnico real —
   /// nunca se infieren/inventan (ver spec 2026-07-29-variable-catalog-restructure-design.md).
   tipo             VariableMeasurementType?
-  instrumento      String?                @map("instrumento") @db.VarChar(255)
-  incertidumbre    String?                @map("incertidumbre") @db.VarChar(100)
-  isActive         Boolean                @default(true) @map("is_active")
-  createdAt        DateTime               @default(now()) @map("created_at")
-  updatedAt        DateTime               @updatedAt @map("updated_at")
+  instrumento      String?                  @map("instrumento") @db.VarChar(255)
+  incertidumbre    String?                  @map("incertidumbre") @db.VarChar(100)
+  /// Símbolo científico corto (Ē, ρ, UGR, WBGT, PMV...) para Reporte Hoja 2
+  /// — mismo criterio "pendiente hasta confirmar" que tipo/instrumento/
+  /// incertidumbre arriba, editable desde la misma pantalla de catálogo.
+  simbolo          String?                  @map("simbolo") @db.VarChar(20)
+  isActive         Boolean                  @default(true) @map("is_active")
+  createdAt        DateTime                 @default(now()) @map("created_at")
+  updatedAt        DateTime                 @updatedAt @map("updated_at")
 
   service  Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   readings VariableReading[]
@@ -458,21 +481,26 @@ enum UploadStatus {
 /// organizationId y serviceId son los campos que toda query debe usar para
 /// aislar datos por cliente — nunca un parámetro que venga del frontend.
 model VariableUpload {
-  id              String       @id @default(cuid())
-  organizationId  String       @map("organization_id")
-  serviceId       String       @map("service_id")
-  uploadedById    String       @map("uploaded_by_id")
-  originalFile    String       @map("original_file") @db.VarChar(500)
+  id              String               @id @default(cuid())
+  organizationId  String               @map("organization_id")
+  serviceId       String               @map("service_id")
+  uploadedById    String               @map("uploaded_by_id")
+  originalFile    String               @map("original_file") @db.VarChar(500)
   /// Fecha real de la evaluación en campo — puede diferir de createdAt
   /// (cuándo se subió el archivo). Es la fecha que se grafica en tendencia.
-  fechaEvaluacion DateTime     @map("fecha_evaluacion")
-  status          UploadStatus @default(PENDIENTE)
+  fechaEvaluacion DateTime             @map("fecha_evaluacion")
+  status          UploadStatus         @default(PENDIENTE)
   /// De dónde vino la carga: CSV (formato plano de siempre) o
   /// REPORTE_EXCEL (el workbook completo de 6 hojas, Reporte Hoja 2) —
   /// para que Historial pueda distinguir el mecanismo de origen.
   origen          VariableUploadOrigen @default(CSV)
-  errorMessage    String?      @map("error_message") @db.Text
-  createdAt       DateTime     @default(now()) @map("created_at")
+  errorMessage    String?              @map("error_message") @db.Text
+  /// Filas del archivo subido que NO se cargaron (variable sin código
+  /// equivalente en el catálogo, o valor no numérico) — persistido para que
+  /// el admin pueda revisarlas después, no solo en el toast de la carga
+  /// (`{ nombre: string, motivo: 'sin_variable_equivalente' | 'valor_no_numerico' }[]`).
+  omittedRows     Json?                @map("omitted_rows")
+  createdAt       DateTime             @default(now()) @map("created_at")
 
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   service      Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
@@ -506,15 +534,101 @@ model VariableReading {
   correctionReason String?         @map("correction_reason") @db.Text
   createdAt        DateTime        @default(now()) @map("created_at")
 
-  upload      VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
-  workPoint   WorkPoint          @relation(fields: [workPointId], references: [id], onDelete: Cascade)
-  definition  VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
-  correctedBy User?              @relation("VariableReadingCorrectedBy", fields: [correctedById], references: [id], onDelete: SetNull)
+  upload        VariableUpload     @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  workPoint     WorkPoint          @relation(fields: [workPointId], references: [id], onDelete: Cascade)
+  definition    VariableDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  correctedBy   User?              @relation("VariableReadingCorrectedBy", fields: [correctedById], references: [id], onDelete: SetNull)
+  nonConformity NonConformity?
 
   @@unique([uploadId, workPointId, definitionId])
   @@index([workPointId])
   @@index([definitionId])
   @@map("variable_readings")
+}
+
+// ============================================================
+// TENDENCIA DE RIESGO (MAPA DE CALOR) Y NO CONFORMIDADES
+// ============================================================
+
+/// Imagen estática de mapa de calor (zonas × puntos de medición) que el
+/// admin sube manualmente por empresa+servicio — no se calcula, se muestra
+/// tal cual (decisión explícita: construir el heatmap real desde datos
+/// requeriría agregar el concepto de "zona" al modelo, fuera de alcance por
+/// ahora). Mismo patrón de almacenamiento que Organization.logoBase64: data
+/// URI completo en LongText, sin archivo en disco/S3.
+model ServiceHeatmapImage {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  serviceId      String   @map("service_id")
+  imageBase64    String   @map("image_base64") @db.LongText
+  uploadedById   String   @map("uploaded_by_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service      Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, serviceId])
+  @@map("service_heatmap_images")
+}
+
+enum NonConformityOrigin {
+  /// Generada por el sistema cuando una lectura queda AMARILLO/ROJO —
+  /// vinculada 1:1 a esa lectura vía readingId (se cierra sola si una
+  /// corrección posterior la vuelve VERDE).
+  AUTO
+  /// Redactada a mano por el admin — no depende de ninguna lectura.
+  MANUAL
+}
+
+enum NonConformityPriority {
+  ALTA
+  MEDIA
+  BAJA
+}
+
+enum NonConformityStatus {
+  ABIERTA
+  EN_SEGUIMIENTO
+  CERRADA
+}
+
+/// Fila de la tabla "Recomendaciones / No conformidades" del dashboard.
+/// Híbrida por decisión explícita: el sistema genera una fila automática
+/// por cada lectura fuera de norma (origen=AUTO), y el admin puede además
+/// redactar las suyas (origen=MANUAL) y editar el estado de cualquiera.
+model NonConformity {
+  id             String                @id @default(cuid())
+  organizationId String                @map("organization_id")
+  serviceId      String                @map("service_id")
+  workPointId    String?               @map("work_point_id")
+  /// Único: una lectura fuera de norma tiene como máximo una no conformidad
+  /// automática — evita duplicados si el upload se reprocesa.
+  readingId      String?               @unique @map("reading_id")
+  origen         NonConformityOrigin   @default(MANUAL)
+  prioridad      NonConformityPriority @default(MEDIA)
+  descripcion    String                @db.Text
+  /// Snapshot del nombre de la variable al momento de crearse — no se
+  /// recalcula si el catálogo cambia después (mismo patrón que
+  /// Notification.metadata).
+  variableNombre String                @map("variable_nombre") @db.VarChar(255)
+  zona           String?               @db.VarChar(255)
+  fecha          DateTime              @default(now())
+  estado         NonConformityStatus   @default(ABIERTA)
+  createdById    String?               @map("created_by_id")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service      Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  workPoint    WorkPoint?       @relation(fields: [workPointId], references: [id], onDelete: SetNull)
+  reading      VariableReading? @relation(fields: [readingId], references: [id], onDelete: Cascade)
+  createdBy    User?            @relation("NonConformityCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, serviceId])
+  @@index([estado])
+  @@map("non_conformities")
 }
 
 // ============================================================
