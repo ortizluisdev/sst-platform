@@ -48,6 +48,20 @@ export function createUsersService(prisma: PrismaClient) {
       })
     },
 
+    async updateOwnAvatar(userId: string, fotoBase64: string) {
+      const user = await repository.findOwnProfile(userId)
+      if (!user) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
+      return repository.updateOwnAvatar(userId, fotoBase64)
+    },
+
+    /** Firma visual (imagen escaneada/dibujada) para la sección "Firma y
+     * sello" de los reportes PDF — no es una firma criptográfica. */
+    async updateOwnFirma(userId: string, firmaBase64: string) {
+      const user = await repository.findOwnProfile(userId)
+      if (!user) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
+      return repository.updateOwnFirma(userId, firmaBase64)
+    },
+
     /** Nunca confía en la sesión para saltarse la verificación — igual que el
      * login, exige la contraseña actual antes de aceptar la nueva. */
     async changeOwnPassword(userId: string, currentPassword: string, newPassword: string) {

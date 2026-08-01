@@ -10,6 +10,8 @@ export interface MyProfile {
   cargo: string | null
   telefono: string | null
   documentNumber: string
+  fotoBase64: string | null
+  firmaBase64: string | null
 }
 
 export interface MyProfileFormValues {
@@ -46,7 +48,10 @@ export class MyProfileRequestError extends Error {
 
 function rethrow(err: unknown): never {
   if (isAxiosError(err) && err.response) {
-    const { status, data } = err.response as { status: number; data: { message?: string; errors?: Record<string, string> } }
+    const { status, data } = err.response as {
+      status: number
+      data: { message?: string; errors?: Record<string, string> }
+    }
     if (status === 422 && data.errors) throw new MyProfileValidationError(data.errors)
     throw new MyProfileRequestError(status, data.message ?? 'Ocurrió un error')
   }
@@ -74,6 +79,28 @@ export async function updateMyProfile(values: MyProfileFormValues): Promise<MyPr
 export async function changeMyPassword(values: ChangePasswordFormValues): Promise<void> {
   try {
     await apiClient.patch('/users/me/password', values)
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Foto de perfil del representante — distinta del logo de empresa (ver
+ * organizationBranding.service.ts). `fotoBase64` es un data URI completo. */
+export async function updateMyAvatar(fotoBase64: string): Promise<MyProfile> {
+  try {
+    const { data } = await apiClient.patch('/users/me/photo', { fotoBase64 })
+    return data.user
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Firma visual (imagen escaneada/dibujada, no criptográfica) para la
+ * sección "Firma y sello" de los reportes PDF. */
+export async function updateMyFirma(firmaBase64: string): Promise<MyProfile> {
+  try {
+    const { data } = await apiClient.patch('/users/me/signature', { firmaBase64 })
+    return data.user
   } catch (err) {
     rethrow(err)
   }

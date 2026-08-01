@@ -6,6 +6,8 @@ import {
   suspendUserBodySchema,
   resendInvitationParamsSchema,
   updateOwnProfileSchema,
+  updateOwnAvatarSchema,
+  updateOwnFirmaSchema,
   changeOwnPasswordSchema,
   formatFieldErrors,
 } from './users.schema.js'
@@ -43,6 +45,32 @@ export async function updateOwnProfileHandler(request: FastifyRequest, reply: Fa
   const service = createUsersService(request.server.prisma)
   try {
     const user = await service.updateOwnProfile(request.user.sub, parsed.data)
+    return reply.code(200).send({ user })
+  } catch (err) {
+    return sendUsersError(reply, err)
+  }
+}
+
+export async function updateOwnAvatarHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateOwnAvatarSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createUsersService(request.server.prisma)
+  try {
+    const user = await service.updateOwnAvatar(request.user.sub, parsed.data.fotoBase64)
+    return reply.code(200).send({ user })
+  } catch (err) {
+    return sendUsersError(reply, err)
+  }
+}
+
+export async function updateOwnFirmaHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateOwnFirmaSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createUsersService(request.server.prisma)
+  try {
+    const user = await service.updateOwnFirma(request.user.sub, parsed.data.firmaBase64)
     return reply.code(200).send({ user })
   } catch (err) {
     return sendUsersError(reply, err)

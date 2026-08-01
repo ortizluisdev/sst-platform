@@ -9,6 +9,8 @@ import {
   resendInvitationHandler,
   getOwnProfileHandler,
   updateOwnProfileHandler,
+  updateOwnAvatarHandler,
+  updateOwnFirmaHandler,
   changeOwnPasswordHandler,
 } from './users.controller.js'
 
@@ -20,6 +22,8 @@ export async function usersRoutes(app: FastifyInstance) {
   // de este archivo).
   app.get('/api/users/me', { preHandler: [requireAuth] }, getOwnProfileHandler)
   app.patch('/api/users/me', { preHandler: [requireAuth] }, updateOwnProfileHandler)
+  app.patch('/api/users/me/photo', { preHandler: [requireAuth] }, updateOwnAvatarHandler)
+  app.patch('/api/users/me/signature', { preHandler: [requireAuth] }, updateOwnFirmaHandler)
   app.patch('/api/users/me/password', { preHandler: [requireAuth] }, changeOwnPasswordHandler)
 
   app.get(

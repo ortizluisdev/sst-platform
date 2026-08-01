@@ -36,7 +36,16 @@ export function createUsersRepository(prisma: PrismaClient) {
     findOwnProfile(id: string) {
       return prisma.user.findUnique({
         where: { id },
-        select: { id: true, nombre: true, email: true, cargo: true, telefono: true, documentNumber: true },
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          cargo: true,
+          telefono: true,
+          documentNumber: true,
+          fotoBase64: true,
+          firmaBase64: true,
+        },
       })
     },
 
@@ -44,7 +53,50 @@ export function createUsersRepository(prisma: PrismaClient) {
       return prisma.user.update({
         where: { id },
         data,
-        select: { id: true, nombre: true, email: true, cargo: true, telefono: true, documentNumber: true },
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          cargo: true,
+          telefono: true,
+          documentNumber: true,
+          fotoBase64: true,
+          firmaBase64: true,
+        },
+      })
+    },
+
+    updateOwnAvatar(id: string, fotoBase64: string) {
+      return prisma.user.update({
+        where: { id },
+        data: { fotoBase64 },
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          cargo: true,
+          telefono: true,
+          documentNumber: true,
+          fotoBase64: true,
+          firmaBase64: true,
+        },
+      })
+    },
+
+    updateOwnFirma(id: string, firmaBase64: string) {
+      return prisma.user.update({
+        where: { id },
+        data: { firmaBase64 },
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          cargo: true,
+          telefono: true,
+          documentNumber: true,
+          fotoBase64: true,
+          firmaBase64: true,
+        },
       })
     },
 
