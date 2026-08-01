@@ -8,6 +8,7 @@ export interface VariableCatalogItem {
   tipo: MeasurementType | null
   instrumento: string | null
   incertidumbre: string | null
+  simbolo: string | null
 }
 
 export interface VariableCatalogCategory {
@@ -19,4 +20,5 @@ export interface UpdateVariableCatalogValues {
   tipo?: MeasurementType
   instrumento?: string
   incertidumbre?: string
+  simbolo?: string
 }

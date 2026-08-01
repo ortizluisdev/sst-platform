@@ -19,7 +19,7 @@ export function createVariableCatalogRepository(prisma: PrismaClient) {
 
     update(
       id: string,
-      data: { tipo?: VariableMeasurementType; instrumento?: string; incertidumbre?: string },
+      data: { tipo?: VariableMeasurementType; instrumento?: string; incertidumbre?: string; simbolo?: string },
     ) {
       return prisma.variableDefinition.update({ where: { id }, data })
     },

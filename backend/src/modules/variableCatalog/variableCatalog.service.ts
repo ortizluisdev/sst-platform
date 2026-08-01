@@ -38,6 +38,7 @@ export function createVariableCatalogService(prisma: PrismaClient) {
           tipo: v.tipo,
           instrumento: v.instrumento,
           incertidumbre: v.incertidumbre,
+          simbolo: v.simbolo,
         })),
       }))
     },

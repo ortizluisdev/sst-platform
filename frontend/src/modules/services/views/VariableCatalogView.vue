@@ -20,7 +20,9 @@ const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
 const categories = ref<VariableCatalogCategory[]>([])
 const savingId = ref<string | null>(null)
-const drafts = ref<Record<string, { tipo: MeasurementType | ''; instrumento: string; incertidumbre: string }>>({})
+const drafts = ref<
+  Record<string, { tipo: MeasurementType | ''; instrumento: string; incertidumbre: string; simbolo: string }>
+>({})
 
 async function load() {
   status.value = 'loading'
@@ -32,6 +34,7 @@ async function load() {
           tipo: v.tipo ?? '',
           instrumento: v.instrumento ?? '',
           incertidumbre: v.incertidumbre ?? '',
+          simbolo: v.simbolo ?? '',
         }
       }
     }
@@ -54,6 +57,7 @@ async function handleSave(variableId: string) {
       tipo: draft.tipo || undefined,
       instrumento: draft.instrumento.trim() || undefined,
       incertidumbre: draft.incertidumbre.trim() || undefined,
+      simbolo: draft.simbolo.trim() || undefined,
     })
     await load()
   } catch (err) {
@@ -70,7 +74,10 @@ async function handleSave(variableId: string) {
     <p class="mt-1 text-sm text-navy-700/70">{{ t('variableCatalog.pageSubtitle') }}</p>
 
     <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('variableCatalog.loading') }}</p>
-    <p v-else-if="status === 'error'" class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p
+      v-else-if="status === 'error'"
+      class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
       {{ errorMessage }}
     </p>
 
@@ -79,8 +86,14 @@ async function handleSave(variableId: string) {
         {{ errorMessage }}
       </p>
 
-      <div v-for="cat in categories" :key="cat.categoria" class="mt-6 overflow-hidden rounded-lg border border-line-strong bg-white">
-        <p class="border-b border-line-strong bg-sky-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-700">
+      <div
+        v-for="cat in categories"
+        :key="cat.categoria"
+        class="mt-6 overflow-hidden rounded-lg border border-line-strong bg-white"
+      >
+        <p
+          class="border-b border-line-strong bg-sky-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-700"
+        >
           {{ cat.categoria }}
         </p>
         <div class="overflow-x-auto">
@@ -92,6 +105,7 @@ async function handleSave(variableId: string) {
                 <th class="px-4 py-2 font-semibold">{{ t('variableCatalog.table.tipo') }}</th>
                 <th class="px-4 py-2 font-semibold">{{ t('variableCatalog.table.instrumento') }}</th>
                 <th class="px-4 py-2 font-semibold">{{ t('variableCatalog.table.incertidumbre') }}</th>
+                <th class="px-4 py-2 font-semibold">{{ t('variableCatalog.table.simbolo') }}</th>
                 <th class="px-4 py-2 font-semibold">{{ t('variableCatalog.table.acciones') }}</th>
               </tr>
             </thead>
@@ -124,6 +138,14 @@ async function handleSave(variableId: string) {
                     type="text"
                     :placeholder="t('variableCatalog.pending')"
                     class="w-full rounded-sm border border-line-strong bg-white px-2 py-1.5 text-sm text-navy-900 placeholder:text-navy-700/40"
+                  />
+                </td>
+                <td class="px-4 py-3">
+                  <input
+                    v-model="drafts[v.id].simbolo"
+                    type="text"
+                    :placeholder="t('variableCatalog.pending')"
+                    class="w-20 rounded-sm border border-line-strong bg-white px-2 py-1.5 text-sm text-navy-900 placeholder:text-navy-700/40"
                   />
                 </td>
                 <td class="px-4 py-3">
