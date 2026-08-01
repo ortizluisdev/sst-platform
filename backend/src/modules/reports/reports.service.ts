@@ -42,11 +42,15 @@ export function createReportsService(prisma: PrismaClient) {
 
   async function resolveMetadataDefaults(
     organizationId: string,
-    elaboradoPorUserId: string,
+    firmanteUserId: string,
     metadata: ReportMetadata,
   ) {
     const responsable = await repository.findResponsable(organizationId)
-    const elaborador = await repository.findElaboradoPor(elaboradoPorUserId)
+    // "Elaborado por" siempre lo firma el Super-Admin (RoMa), sin importar
+    // quién genera el reporte; el cliente que lo genera firma aparte, en
+    // "Firma cliente" — ver spec de doble firma aprobada.
+    const superAdmin = await repository.findSuperAdminFirmante()
+    const cliente = await repository.findFirmante(firmanteUserId)
 
     return {
       direccion: metadata.direccion ?? '—',
@@ -57,8 +61,11 @@ export function createReportsService(prisma: PrismaClient) {
       numeroInforme: metadata.numeroInforme ?? '—',
       contacto: responsable?.user.nombre ?? '—',
       cargo: responsable?.user.cargo ?? '—',
-      elaboradoPor: metadata.elaboradoPor || elaborador?.nombre || '—',
-      firmaBase64: elaborador?.firmaBase64 ?? null,
+      elaboradoPor: metadata.elaboradoPor || superAdmin?.nombre || '—',
+      firmaBase64: superAdmin?.firmaBase64 ?? null,
+      clienteNombre: cliente?.nombre ?? '—',
+      clienteCargo: cliente?.cargo ?? null,
+      clienteFirmaBase64: cliente?.firmaBase64 ?? null,
     }
   }
 
@@ -66,11 +73,11 @@ export function createReportsService(prisma: PrismaClient) {
     async generatePdf(
       organizationId: string,
       serviceSlug: string,
-      elaboradoPorUserId: string,
+      firmanteUserId: string,
       input: { tipo: 'basico' | 'tecnico'; uploadId?: string; metadata: ReportMetadata },
     ): Promise<Buffer> {
       const { organization, dashboard, nonConformities } = await buildCommonData(organizationId, serviceSlug, input.uploadId)
-      const meta = await resolveMetadataDefaults(organizationId, elaboradoPorUserId, input.metadata)
+      const meta = await resolveMetadataDefaults(organizationId, firmanteUserId, input.metadata)
 
       const fechaEmision = new Date().toLocaleDateString('es-CO')
       const fechaEvaluacion = dashboard.lastUpdated

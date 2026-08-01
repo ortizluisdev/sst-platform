@@ -17,11 +17,22 @@ export function createReportsRepository(prisma: PrismaClient) {
       })
     },
 
-    /** Usuario que genera el reporte — su firma (si la tiene cargada) va en
-     * la sección "Firma y sello". */
-    findElaboradoPor(userId: string) {
+    /** Usuario que genera el reporte desde su sesión (el cliente) — su
+     * firma (si la tiene cargada) va en el bloque "Firma cliente". */
+    findFirmante(userId: string) {
       return prisma.user.findUnique({
         where: { id: userId },
+        select: { nombre: true, cargo: true, firmaBase64: true },
+      })
+    },
+
+    /** "Elaborado por" siempre lo firma el Super-Admin de la plataforma
+     * (responsable técnico de RoMa), sin importar quién genera el reporte
+     * — se busca por rol, no por documentNumber hardcodeado, para no
+     * quedar atado a una cuenta concreta si el rol cambia de titular. */
+    findSuperAdminFirmante() {
+      return prisma.user.findFirst({
+        where: { role: { name: 'super-admin' } },
         select: { nombre: true, cargo: true, firmaBase64: true },
       })
     },

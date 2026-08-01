@@ -35,6 +35,9 @@ export interface ReporteHoja1Data {
   cargo: string
   elaboradoPor: string
   firmaBase64: string | null
+  clienteNombre: string
+  clienteCargo: string | null
+  clienteFirmaBase64: string | null
   fechaEvaluacion: string
   fechaEmision: string
   igho: number
@@ -172,23 +175,16 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
   doc.font('Helvetica').text(data.elaboradoPor)
   doc.font('Helvetica-Bold').text('Fecha de emisión: ', MARGIN, doc.y + 4, { continued: true })
   doc.font('Helvetica').text(data.fechaEmision)
-  y = doc.y + 8
-
-  if (data.firmaBase64) {
-    try {
-      const base64Payload = data.firmaBase64.split(',')[1] ?? ''
-      doc.image(Buffer.from(base64Payload, 'base64'), MARGIN, y, { fit: [120, 32] })
-      y += 34
-    } catch {
-      // Imagen inválida — no bloquea el resto del reporte, se cae al patrón
-      // de línea en blanco de abajo.
-      y += 5
-    }
-  }
-
-  doc.moveTo(MARGIN, y).lineTo(MARGIN + 220, y).strokeColor(COLORS.texto).lineWidth(0.75).stroke()
-  doc.font('Helvetica').fontSize(9).fillColor(COLORS.subtitulo).text('Firma y sello', MARGIN, y + 4)
   y = doc.y + 6
+
+  // Dos firmas obligatorias, una junto a la otra para no consumir el doble
+  // de alto de página: RoMa (Super-Admin, quien elabora el informe) y el
+  // cliente (quien lo genera desde su propio dashboard) — ver spec de
+  // doble firma aprobada.
+  const colWidth = (PAGE_WIDTH - 20) / 2
+  const yLeft = drawSignatureBlock(doc, MARGIN, y, colWidth, 'RoMa Applied Science — Firma y sello', data.elaboradoPor, null, data.firmaBase64)
+  const yRight = drawSignatureBlock(doc, MARGIN + colWidth + 20, y, colWidth, 'Firma cliente', data.clienteNombre, data.clienteCargo, data.clienteFirmaBase64)
+  y = Math.max(yLeft, yRight) + 4
 
   drawFootnote(
     doc,
@@ -202,3 +198,36 @@ export function renderReporteHoja1Pdf(data: ReporteHoja1Data): Promise<Buffer> {
 
 const PRIORIDAD_LABEL: Record<'ALTA' | 'MEDIA' | 'BAJA', string> = { ALTA: 'Alta', MEDIA: 'Media', BAJA: 'Baja' }
 const ESTADO_LABEL: Record<string, string> = { ABIERTA: 'Abierta', EN_SEGUIMIENTO: 'En seguimiento', CERRADA: 'Cerrada' }
+
+/** Dibuja una firma (imagen si existe, si no línea en blanco) + nombre +
+ * cargo opcional + etiqueta, dentro de una columna de ancho fijo. Devuelve
+ * el `y` final para que el llamador tome el máximo entre columnas. */
+function drawSignatureBlock(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  yTop: number,
+  width: number,
+  label: string,
+  nombre: string,
+  cargo: string | null,
+  firmaBase64: string | null,
+): number {
+  let y = yTop
+  if (firmaBase64) {
+    try {
+      const base64Payload = firmaBase64.split(',')[1] ?? ''
+      doc.image(Buffer.from(base64Payload, 'base64'), x, y, { fit: [110, 26] })
+      y += 28
+    } catch {
+      // Imagen inválida — no bloquea el resto del reporte, se cae al
+      // patrón de línea en blanco de abajo.
+      y += 5
+    }
+  }
+
+  doc.moveTo(x, y).lineTo(x + Math.min(width, 220), y).strokeColor(COLORS.texto).lineWidth(0.75).stroke()
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.texto).text(nombre, x, y + 4, { width })
+  if (cargo) doc.font('Helvetica').fontSize(8).fillColor(COLORS.subtitulo).text(cargo, x, doc.y, { width })
+  doc.font('Helvetica').fontSize(8).fillColor(COLORS.subtitulo).text(label, x, doc.y, { width })
+  return doc.y
+}
