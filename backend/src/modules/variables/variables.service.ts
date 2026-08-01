@@ -247,55 +247,28 @@ export function createVariablesService(prisma: PrismaClient) {
         }
       })
 
-      const existingUpload = await repository.findUploadByDate(input.organizationId, service.id, fechaEvaluacionFinal)
-
+      // Cada carga es SIEMPRE un período nuevo en el historial, sin importar
+      // si la fecha de evaluación coincide con una carga anterior — antes se
+      // fusionaba con la carga existente de esa misma fecha (para no
+      // "perder" correcciones manuales), pero eso hacía que subidas de
+      // prueba repetidas con la misma fecha desaparecieran del Historial en
+      // vez de acumularse. Decisión explícita: nunca ocultar una carga.
       const puestosAfectados = new Set(rows.map((r) => r.codigoPuesto)).size
-      let uploadId: string
-      let filasNuevas: number
-      let filasActualizadas: number
-      let filasOmitidas: { workPointCodigo: string; codigoVariable: string }[]
-      let modo: 'nueva' | 'actualizacion'
-
-      if (!existingUpload) {
-        const upload = await repository.createUploadTransaction({
-          organizationId: input.organizationId,
-          serviceId: service.id,
-          uploadedById: input.uploadedById,
-          originalFile: input.filename,
-          fechaEvaluacion: fechaEvaluacionFinal,
-          origen,
-          rows: preparedRows,
-          // Se persiste abajo (una vez conocidas TODAS las omitidas, incluidas
-          // las "ya corregidas" del path de actualización) — acá siempre vacío.
-          omittedRows: filasOmitidasFormato.length > 0 ? filasOmitidasFormato : null,
-        })
-        uploadId = upload.id
-        filasNuevas = preparedRows.length
-        filasActualizadas = 0
-        filasOmitidas = []
-        modo = 'nueva'
-      } else {
-        const result = await repository.updateUploadTransaction({
-          uploadId: existingUpload.id,
-          organizationId: input.organizationId,
-          rows: preparedRows,
-        })
-        uploadId = existingUpload.id
-        filasNuevas = result.filasNuevas
-        filasActualizadas = result.filasActualizadas
-        filasOmitidas = result.filasOmitidas
-        modo = 'actualizacion'
-
-        // Reemplaza (no acumula) el registro de omitidas de esta carga: cada
-        // subida recalcula todo desde cero, así que lo persistido siempre
-        // refleja el estado de la ÚLTIMA subida para esta fecha, no un
-        // historial acumulado de intentos anteriores.
-        const omitidasParaGuardar = [
-          ...filasOmitidasFormato,
-          ...filasOmitidas.map((f) => ({ nombre: `${f.workPointCodigo} — ${f.codigoVariable}`, motivo: 'ya_corregida' as const })),
-        ]
-        await repository.setUploadOmittedRows(uploadId, omitidasParaGuardar.length > 0 ? omitidasParaGuardar : null)
-      }
+      const upload = await repository.createUploadTransaction({
+        organizationId: input.organizationId,
+        serviceId: service.id,
+        uploadedById: input.uploadedById,
+        originalFile: input.filename,
+        fechaEvaluacion: fechaEvaluacionFinal,
+        origen,
+        rows: preparedRows,
+        omittedRows: filasOmitidasFormato.length > 0 ? filasOmitidasFormato : null,
+      })
+      const uploadId = upload.id
+      const filasNuevas = preparedRows.length
+      const filasActualizadas = 0
+      const filasOmitidas: { workPointCodigo: string; codigoVariable: string }[] = []
+      const modo = 'nueva' as const
 
       await repository.createAuditLog({
         userId: input.uploadedById,

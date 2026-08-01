@@ -507,7 +507,11 @@ model VariableUpload {
   uploadedBy   User              @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   readings     VariableReading[]
 
-  @@unique([organizationId, serviceId, fechaEvaluacion])
+  // Antes @@unique — cada carga es siempre un período nuevo en el
+  // historial (ver nota en variables.service.ts), así que dos cargas para
+  // la misma fecha ya no chocan; queda como índice simple, sigue siendo
+  // útil para findLatestUpload()/tendencia.
+  @@index([organizationId, serviceId, fechaEvaluacion])
   @@map("variable_uploads")
 }
 

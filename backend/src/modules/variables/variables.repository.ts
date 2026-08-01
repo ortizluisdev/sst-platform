@@ -113,106 +113,6 @@ export function createVariablesRepository(prisma: PrismaClient) {
       })
     },
 
-    /** Actualiza una carga EXISTENTE (misma fecha) en vez de crear una
-     * nueva: respeta las lecturas ya corregidas manualmente (isCorrected),
-     * actualiza las demás, e inserta como nuevas las combinaciones
-     * puesto+variable que no existían en la carga original. Todo en una
-     * transacción — todo o nada, igual que createUploadTransaction. */
-    async updateUploadTransaction(input: {
-      uploadId: string
-      organizationId: string
-      rows: {
-        codigoPuesto: string
-        nombrePuesto: string
-        areaPlanta: string
-        procesoActividad: string
-        jornada: WorkShift
-        codigoVariable: string
-        definitionId: string
-        valor: number
-        semaforo: 'VERDE' | 'AMARILLO' | 'ROJO'
-      }[]
-    }) {
-      return prisma.$transaction(async (tx) => {
-        const workPointIdByCodigo = new Map<string, string>()
-        const uniqueCodes = [...new Set(input.rows.map((r) => r.codigoPuesto))]
-        for (const codigo of uniqueCodes) {
-          const row = input.rows.find((r) => r.codigoPuesto === codigo)!
-          const workPoint = await tx.workPoint.upsert({
-            where: { organizationId_codigo: { organizationId: input.organizationId, codigo } },
-            update: {
-              nombre: row.nombrePuesto,
-              areaPlanta: row.areaPlanta,
-              procesoActividad: row.procesoActividad,
-              jornada: row.jornada,
-            },
-            create: {
-              organizationId: input.organizationId,
-              codigo,
-              nombre: row.nombrePuesto,
-              areaPlanta: row.areaPlanta,
-              procesoActividad: row.procesoActividad,
-              jornada: row.jornada,
-            },
-          })
-          workPointIdByCodigo.set(codigo, workPoint.id)
-        }
-
-        let filasNuevas = 0
-        let filasActualizadas = 0
-        const filasOmitidas: { workPointCodigo: string; codigoVariable: string }[] = []
-
-        for (const row of input.rows) {
-          const workPointId = workPointIdByCodigo.get(row.codigoPuesto)!
-          const existing = await tx.variableReading.findUnique({
-            where: {
-              uploadId_workPointId_definitionId: {
-                uploadId: input.uploadId,
-                workPointId,
-                definitionId: row.definitionId,
-              },
-            },
-          })
-
-          if (existing?.isCorrected) {
-            filasOmitidas.push({ workPointCodigo: row.codigoPuesto, codigoVariable: row.codigoVariable })
-            continue
-          }
-
-          if (existing) {
-            await tx.variableReading.update({
-              where: { id: existing.id },
-              data: { valor: row.valor, semaforo: row.semaforo },
-            })
-            filasActualizadas++
-          } else {
-            await tx.variableReading.create({
-              data: {
-                uploadId: input.uploadId,
-                workPointId,
-                definitionId: row.definitionId,
-                valor: row.valor,
-                semaforo: row.semaforo,
-              },
-            })
-            filasNuevas++
-          }
-        }
-
-        return { filasNuevas, filasActualizadas, filasOmitidas }
-      })
-    },
-
-    /** Reemplaza (no acumula) el registro de filas omitidas de una carga ya
-     * existente — cada subida recalcula todo desde cero, ver nota en
-     * variables.service.ts. */
-    setUploadOmittedRows(uploadId: string, omittedRows: { nombre: string; motivo: string }[] | null) {
-      return prisma.variableUpload.update({
-        where: { id: uploadId },
-        data: { omittedRows: omittedRows ?? Prisma.JsonNull },
-      })
-    },
-
     createAuditLog(input: {
       userId: string
       organizationId: string
@@ -235,16 +135,6 @@ export function createVariablesRepository(prisma: PrismaClient) {
       return prisma.variableUpload.findFirst({
         where: { organizationId, serviceId, status: 'PROCESADO' },
         orderBy: { fechaEvaluacion: 'desc' },
-      })
-    },
-
-    /** Busca la carga exacta para esta fecha (org+servicio+fecha) — la
-     * clave única de Task 1 garantiza que hay a lo sumo una. Si existe,
-     * uploadVariables() actualiza sus lecturas en vez de crear una carga
-     * nueva. */
-    findUploadByDate(organizationId: string, serviceId: string, fechaEvaluacion: Date) {
-      return prisma.variableUpload.findUnique({
-        where: { organizationId_serviceId_fechaEvaluacion: { organizationId, serviceId, fechaEvaluacion } },
       })
     },
 
