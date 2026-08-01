@@ -66,4 +66,10 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationType
     audience: 'ADMIN',
     defaultEmailSubject: 'Nuevo mensaje de contacto recibido',
   },
+  LECTURA_CORREGIDA: {
+    severity: 'INFO',
+    emailByDefault: false,
+    audience: 'CLIENTE',
+    defaultEmailSubject: 'Se corrigió una lectura en tu dashboard',
+  },
 }

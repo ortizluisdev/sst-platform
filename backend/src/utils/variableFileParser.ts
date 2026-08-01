@@ -11,6 +11,16 @@ export interface VariableFileRow {
   valor: number
 }
 
+export interface VariableFileOmittedRow {
+  nombre: string
+  motivo: 'sin_variable_equivalente' | 'valor_no_numerico'
+}
+
+export interface VariableFileParseResult {
+  rows: VariableFileRow[]
+  omitidas: VariableFileOmittedRow[]
+}
+
 const EXPECTED_HEADERS = [
   'codigo_puesto',
   'nombre_puesto',
@@ -29,8 +39,14 @@ export class VariableFileParseError extends Error {}
  * Columnas esperadas (fila 1, en cualquier orden):
  * codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada,
  * codigo_variable, valor.
+ *
+ * Una fila con "valor" no numérico NO aborta el archivo entero — se omite y
+ * se reporta en `omitidas` (mismo criterio que
+ * variableReportWorkbookParser.ts: el archivo real del cliente siempre debe
+ * poder subirse, con las filas problemáticas señaladas para corregir después
+ * en vez de bloquear todo por una sola celda mal digitada).
  */
-export async function parseVariableFile(buffer: Buffer, filename: string): Promise<VariableFileRow[]> {
+export async function parseVariableFile(buffer: Buffer, filename: string): Promise<VariableFileParseResult> {
   const workbook = new ExcelJS.Workbook()
   const isCsv = filename.toLowerCase().endsWith('.csv')
 
@@ -61,6 +77,7 @@ export async function parseVariableFile(buffer: Buffer, filename: string): Promi
   }
 
   const rows: VariableFileRow[] = []
+  const omitidas: VariableFileOmittedRow[] = []
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return // header
 
@@ -68,10 +85,12 @@ export async function parseVariableFile(buffer: Buffer, filename: string): Promi
     const codigoPuesto = String(get('codigo_puesto') ?? '').trim()
     if (!codigoPuesto) return // fila vacía al final del archivo, se ignora
 
+    const codigoVariable = String(get('codigo_variable') ?? '').trim()
     const valorRaw = get('valor')
     const valor = typeof valorRaw === 'number' ? valorRaw : Number(String(valorRaw ?? '').trim())
     if (Number.isNaN(valor)) {
-      throw new VariableFileParseError(`Valor no numérico en la fila ${rowNumber} (columna "valor").`)
+      omitidas.push({ nombre: `Fila ${rowNumber} — ${codigoPuesto} / ${codigoVariable}`, motivo: 'valor_no_numerico' })
+      return
     }
 
     rows.push({
@@ -82,7 +101,7 @@ export async function parseVariableFile(buffer: Buffer, filename: string): Promi
       jornada: String(get('jornada') ?? 'DIURNA')
         .trim()
         .toUpperCase(),
-      codigoVariable: String(get('codigo_variable') ?? '').trim(),
+      codigoVariable,
       valor,
     })
   })
@@ -91,7 +110,7 @@ export async function parseVariableFile(buffer: Buffer, filename: string): Promi
     throw new VariableFileParseError('El archivo no contiene filas de datos válidas.')
   }
 
-  return rows
+  return { rows, omitidas }
 }
 
 function bufferToStream(buffer: Buffer) {

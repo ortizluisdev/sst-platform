@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient, WorkShift } from '@prisma/client'
+import { Prisma, type PrismaClient, type WorkShift } from '@prisma/client'
 
 export function createVariablesRepository(prisma: PrismaClient) {
   return {
@@ -49,6 +49,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
       originalFile: string
       fechaEvaluacion: Date
       origen: 'CSV' | 'REPORTE_EXCEL'
+      omittedRows: { nombre: string; motivo: string }[] | null
       rows: {
         codigoPuesto: string
         nombrePuesto: string
@@ -70,6 +71,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
             fechaEvaluacion: input.fechaEvaluacion,
             origen: input.origen,
             status: 'PROCESADO',
+            omittedRows: input.omittedRows ?? undefined,
           },
         })
 
@@ -201,6 +203,16 @@ export function createVariablesRepository(prisma: PrismaClient) {
       })
     },
 
+    /** Reemplaza (no acumula) el registro de filas omitidas de una carga ya
+     * existente — cada subida recalcula todo desde cero, ver nota en
+     * variables.service.ts. */
+    setUploadOmittedRows(uploadId: string, omittedRows: { nombre: string; motivo: string }[] | null) {
+      return prisma.variableUpload.update({
+        where: { id: uploadId },
+        data: { omittedRows: omittedRows ?? Prisma.JsonNull },
+      })
+    },
+
     createAuditLog(input: {
       userId: string
       organizationId: string
@@ -251,6 +263,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
         where: { id: readingId },
         include: {
           definition: true,
+          workPoint: { select: { nombre: true, codigo: true, areaPlanta: true } },
           upload: { select: { organizationId: true } },
         },
       })
@@ -275,6 +288,18 @@ export function createVariablesRepository(prisma: PrismaClient) {
           correctedById: data.correctedById,
           correctionReason: data.correctionReason,
         },
+      })
+    },
+
+    /** Lecturas de una carga con definición+puesto completos — usado tras
+     * procesar el archivo para sincronizar las no conformidades automáticas
+     * (ver nonConformities.service.ts). Separado de createUploadTransaction
+     * porque esta no necesita vivir dentro de la transacción: es un efecto
+     * secundario posterior, mismo patrón que las notificaciones. */
+    findReadingsForUpload(uploadId: string) {
+      return prisma.variableReading.findMany({
+        where: { uploadId },
+        include: { definition: true, workPoint: true },
       })
     },
 
