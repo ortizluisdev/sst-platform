@@ -32,4 +32,5 @@ export const NOTIFICATION_TYPE_LABEL_KEY: Record<string, string> = {
   CUENTA_REACTIVADA: 'dashboard.notifications.type.cuentaReactivada',
   REGISTRO_PENDIENTE: 'dashboard.notifications.type.registroPendiente',
   CONTACTO_RECIBIDO: 'dashboard.notifications.type.contactoRecibido',
+  LECTURA_CORREGIDA: 'dashboard.notifications.type.lecturaCorregida',
 }

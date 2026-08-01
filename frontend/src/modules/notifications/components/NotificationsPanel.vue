@@ -4,6 +4,7 @@ import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import NotificationItem from '@/components/dashboard/notifications/NotificationItem.vue'
+import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import { listNotifications, markNotificationRead, NotificationRequestError } from '@/services/notification.service'
 import { useNotificationsStore } from '@/stores/notifications'
 import { NOTIFICATION_TYPE_LABEL_KEY } from '@/utils/notificationSeverityStyles'
@@ -33,6 +34,7 @@ const NOTIFICATION_TYPES: NotificationType[] = [
   'CUENTA_REACTIVADA',
   'REGISTRO_PENDIENTE',
   'CONTACTO_RECIBIDO',
+  'LECTURA_CORREGIDA',
 ]
 
 async function load() {
@@ -81,8 +83,8 @@ async function handleMarkRead(id: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl">
-    <h1 class="text-xl font-bold text-navy-900">{{ t('dashboard.notifications.pageTitle') }}</h1>
+  <div class="max-w-3xl">
+    <SectionTitleBanner :title="t('dashboard.notifications.title')" />
 
     <div class="mt-4 flex flex-wrap gap-2">
       <select

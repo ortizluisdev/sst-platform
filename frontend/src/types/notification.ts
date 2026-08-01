@@ -6,6 +6,7 @@ export type NotificationType =
   | 'CUENTA_REACTIVADA'
   | 'REGISTRO_PENDIENTE'
   | 'CONTACTO_RECIBIDO'
+  | 'LECTURA_CORREGIDA'
 
 export type NotificationSeverity = 'CRITICAL' | 'WARNING' | 'INFO'
 

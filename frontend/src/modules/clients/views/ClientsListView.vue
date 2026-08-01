@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import CreateOrganizationModal from '@/components/dashboard/organizations/CreateOrganizationModal.vue'
 import EditOrganizationModal from '@/components/dashboard/organizations/EditOrganizationModal.vue'
 import SuspendUserModal from '@/components/dashboard/notifications/SuspendUserModal.vue'
+import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import { listOrganizationsFull, updateOrganization, OrganizationRequestError } from '@/services/organizations.service'
 import { suspendUser, reactivateUser, resendInvitation, AdminUsersRequestError } from '@/services/adminUsers.service'
 import type { OrganizationListItem } from '@/types/organization'
@@ -65,14 +66,7 @@ async function handleCreated() {
   await load()
 }
 
-async function handleEditSubmit(values: {
-  nombre: string
-  nit: string
-  contactEmail: string
-  logoBase64?: string
-  primaryColor: string
-  secondaryColor: string
-}) {
+async function handleEditSubmit(values: { nombre: string; nit: string; contactEmail: string }) {
   if (!editingOrganization.value) return
   try {
     await updateOrganization(editingOrganization.value.id, values)
@@ -134,9 +128,10 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
 
 <template>
   <div>
-    <div class="mx-auto max-w-5xl">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-xl font-bold text-navy-900">{{ t('clients.pageTitle') }}</h1>
+    <div class="grid gap-4 max-w-5xl">
+      <SectionTitleBanner :title="t('clients.pageTitle')" />
+
+      <div class="flex flex-wrap items-center justify-end gap-3">
         <button
           type="button"
           class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
@@ -147,11 +142,15 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
         </button>
       </div>
 
-      <div class="mt-4 flex gap-1 border-b border-line-strong">
+      <div class="flex gap-1 border-b border-line-strong">
         <button
           type="button"
           class="border-b-2 px-3 py-2 text-sm font-semibold transition-colors"
-          :class="tab === 'active' ? 'border-sky-400 text-navy-900' : 'border-transparent text-navy-700/60 hover:text-navy-900'"
+          :class="
+            tab === 'active'
+              ? 'border-sky-400 text-navy-900'
+              : 'border-transparent text-navy-700/60 hover:text-navy-900'
+          "
           @click="switchTab('active')"
         >
           {{ t('clients.tabs.active') }} ({{ active.length }})
@@ -159,7 +158,11 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
         <button
           type="button"
           class="border-b-2 px-3 py-2 text-sm font-semibold transition-colors"
-          :class="tab === 'suspended' ? 'border-sky-400 text-navy-900' : 'border-transparent text-navy-700/60 hover:text-navy-900'"
+          :class="
+            tab === 'suspended'
+              ? 'border-sky-400 text-navy-900'
+              : 'border-transparent text-navy-700/60 hover:text-navy-900'
+          "
           @click="switchTab('suspended')"
         >
           {{ t('clients.tabs.suspended') }} ({{ suspended.length }})
@@ -167,7 +170,11 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
         <button
           type="button"
           class="border-b-2 px-3 py-2 text-sm font-semibold transition-colors"
-          :class="tab === 'pending' ? 'border-sky-400 text-navy-900' : 'border-transparent text-navy-700/60 hover:text-navy-900'"
+          :class="
+            tab === 'pending'
+              ? 'border-sky-400 text-navy-900'
+              : 'border-transparent text-navy-700/60 hover:text-navy-900'
+          "
           @click="switchTab('pending')"
         >
           {{ t('clients.tabs.pending') }} ({{ pending.length }})
@@ -183,7 +190,11 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       </p>
       <p v-else-if="items.length === 0" class="mt-6 text-sm text-navy-700/60">
         {{
-          tab === 'active' ? t('clients.emptyActive') : tab === 'suspended' ? t('clients.emptySuspended') : t('clients.emptyPending')
+          tab === 'active'
+            ? t('clients.emptyActive')
+            : tab === 'suspended'
+              ? t('clients.emptySuspended')
+              : t('clients.emptyPending')
         }}
       </p>
 
@@ -213,7 +224,10 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                   <template v-if="org.responsable">
                     <p class="text-navy-900">{{ org.responsable.nombre }}</p>
                     <p class="text-xs text-navy-700/60">{{ org.responsable.email }}</p>
-                    <p v-if="org.responsable.suspendReason" class="mt-1 rounded-sm bg-red-50 px-2 py-1 text-xs text-red-700">
+                    <p
+                      v-if="org.responsable.suspendReason"
+                      class="mt-1 rounded-sm bg-red-50 px-2 py-1 text-xs text-red-700"
+                    >
                       {{ t('dashboard.accountManagement.suspendReasonLabel') }}: {{ org.responsable.suspendReason }}
                     </p>
                   </template>
