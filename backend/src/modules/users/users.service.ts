@@ -37,12 +37,11 @@ export function createUsersService(prisma: PrismaClient) {
       return user
     },
 
-    async updateOwnProfile(userId: string, data: { nombre: string; email: string; cargo?: string; telefono?: string }) {
+    async updateOwnProfile(userId: string, data: { nombre: string; cargo?: string; telefono?: string }) {
       const user = await repository.findOwnProfile(userId)
       if (!user) throw new UsersError('NOT_FOUND', 'Usuario no encontrado')
       return repository.updateOwnProfile(userId, {
         nombre: data.nombre,
-        email: data.email,
         cargo: data.cargo || null,
         telefono: data.telefono || null,
       })

@@ -5,9 +5,11 @@ import { avatarBase64Schema } from '../../utils/avatarSchema.js'
 // Datos PERSONALES del usuario — nunca de la organización/empresa (eso vive
 // en organizationBranding). documentNumber queda fuera a propósito: es la
 // credencial de login, cambiarla es un flujo aparte que no existe todavía.
+// email TAMPOCO se edita acá: hay un solo correo por empresa (el que el
+// admin ingresó al crearla, ver organizations.schema.ts), el cliente no lo
+// puede cambiar por su cuenta.
 export const updateOwnProfileSchema = z.object({
   nombre: z.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres').max(255),
-  email: z.string().trim().email('Ingresa un correo válido').max(255),
   cargo: z.string().trim().max(150).optional().or(z.literal('')),
   telefono: z.string().trim().max(50).optional().or(z.literal('')),
 })

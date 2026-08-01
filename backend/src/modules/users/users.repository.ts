@@ -49,7 +49,7 @@ export function createUsersRepository(prisma: PrismaClient) {
       })
     },
 
-    updateOwnProfile(id: string, data: { nombre: string; email: string; cargo: string | null; telefono: string | null }) {
+    updateOwnProfile(id: string, data: { nombre: string; cargo: string | null; telefono: string | null }) {
       return prisma.user.update({
         where: { id },
         data,

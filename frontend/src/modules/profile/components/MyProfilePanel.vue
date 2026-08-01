@@ -55,7 +55,7 @@ async function submitProfile() {
   profileStatus.value = 'loading'
   profileErrorMessage.value = ''
   try {
-    await updateMyProfile({ nombre: nombre.value, email: email.value, cargo: cargo.value, telefono: telefono.value })
+    await updateMyProfile({ nombre: nombre.value, cargo: cargo.value, telefono: telefono.value })
     profileStatus.value = 'success'
   } catch (err) {
     profileStatus.value = 'error'
@@ -243,13 +243,17 @@ const showPasswordModal = ref(false)
               :label="t('myProfile.fields.nombre')"
               :error="profileErrors.nombre"
             />
-            <FormField
-              id="my-profile-email"
-              v-model="email"
-              type="email"
-              :label="t('myProfile.fields.email')"
-              :error="profileErrors.email"
-            />
+            <div>
+              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
+                t('myProfile.fields.email')
+              }}</label>
+              <input
+                :value="email"
+                disabled
+                class="w-full cursor-not-allowed rounded-sm border border-line-strong bg-cream px-4 py-3 text-sm text-navy-700/70"
+              />
+              <p class="mt-1.5 text-xs text-navy-700/60">{{ t('myProfile.emailHint') }}</p>
+            </div>
             <FormField
               id="my-profile-cargo"
               v-model="cargo"
@@ -289,8 +293,15 @@ const showPasswordModal = ref(false)
         <p class="mt-1 text-sm text-navy-700/70">{{ t('myProfile.firma.subtitle') }}</p>
 
         <div class="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-          <div class="flex h-20 w-40 shrink-0 items-center justify-center rounded-sm border border-dashed border-line-strong bg-cream">
-            <img v-if="firmaBase64" :src="firmaBase64" :alt="t('myProfile.firma.alt')" class="h-full w-full object-contain p-2" />
+          <div
+            class="flex h-20 w-40 shrink-0 items-center justify-center rounded-sm border border-dashed border-line-strong bg-cream"
+          >
+            <img
+              v-if="firmaBase64"
+              :src="firmaBase64"
+              :alt="t('myProfile.firma.alt')"
+              class="h-full w-full object-contain p-2"
+            />
             <span v-else class="px-2 text-center text-xs text-navy-700/40">{{ t('myProfile.firma.empty') }}</span>
           </div>
 

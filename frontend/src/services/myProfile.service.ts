@@ -16,7 +16,6 @@ export interface MyProfile {
 
 export interface MyProfileFormValues {
   nombre: string
-  email: string
   cargo: string
   telefono: string
 }

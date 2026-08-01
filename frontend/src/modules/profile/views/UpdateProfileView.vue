@@ -26,7 +26,6 @@ useHead(() => ({ title: `${t('profile.pageTitle')} — RoMa+`, meta: [{ name: 'r
 // --- Datos del responsable — precargados desde la cuenta que creó el admin,
 // el usuario los confirma o corrige acá mismo (una sola vez, junto al branding). ---
 const nombre = ref('')
-const email = ref('')
 const cargo = ref('')
 const telefono = ref('')
 const profileErrors = ref<Record<string, string>>({})
@@ -35,7 +34,6 @@ onMounted(async () => {
   try {
     const profile = await getMyProfile()
     nombre.value = profile.nombre
-    email.value = profile.email
     cargo.value = profile.cargo ?? ''
     telefono.value = profile.telefono ?? ''
   } catch {
@@ -63,7 +61,7 @@ async function submit() {
   status.value = 'loading'
   errorMessage.value = ''
   try {
-    await updateMyProfile({ nombre: nombre.value, email: email.value, cargo: cargo.value, telefono: telefono.value })
+    await updateMyProfile({ nombre: nombre.value, cargo: cargo.value, telefono: telefono.value })
     await saveBranding({
       logoBase64: logoBase64.value,
       primaryColor: primaryColor.value,
@@ -110,13 +108,6 @@ async function submit() {
               v-model="nombre"
               :label="t('myProfile.fields.nombre')"
               :error="profileErrors.nombre"
-            />
-            <FormField
-              id="onboarding-email"
-              v-model="email"
-              type="email"
-              :label="t('myProfile.fields.email')"
-              :error="profileErrors.email"
             />
             <div class="grid gap-4 sm:grid-cols-2">
               <FormField
