@@ -609,8 +609,7 @@
       "hoja3Short": "Hoja 3"
     },
     "clientDashboardTab": {
-      "exportCsv": "Exportar CSV",
-      "exportPdf": "Exportar PDF",
+      "generateReport": "Generar reporte",
       "indicadoresGlobales": "Indicadores globales",
       "valorCabecera": "Valor de cabecera por agente",
       "totalMediciones": "Total de mediciones",
@@ -665,8 +664,6 @@
       "norma": "Norma/Ref",
       "pendiente": "Pendiente",
       "instrumentoPrefix": "Instrumento: ",
-      "exportCsv": "Exportar CSV",
-      "exportPdf": "Exportar PDF",
       "filtroFecha": "Fecha",
       "filtroUltima": "Última carga",
       "filtroArea": "Área de planta",
@@ -815,6 +812,7 @@
       "tipo": "Tipo",
       "instrumento": "Instrumento",
       "incertidumbre": "Incertidumbre",
+      "simbolo": "Símbolo",
       "acciones": "Acciones"
     }
   },
@@ -925,6 +923,17 @@
       "sizeError": "La foto no puede superar 500KB.",
       "uploadError": "No se pudo actualizar la foto.",
       "alt": "Foto de perfil"
+    },
+    "firma": {
+      "title": "Firma para reportes",
+      "subtitle": "Imagen de tu firma escaneada o dibujada — se incluye en la sección \"Firma y sello\" de los reportes PDF que generes.",
+      "empty": "Sin firma cargada",
+      "changeLabel": "Cambiar firma",
+      "hint": "PNG o JPEG, hasta 500KB.",
+      "typeError": "La firma debe ser PNG o JPEG.",
+      "sizeError": "La firma no puede superar 500KB.",
+      "uploadError": "No se pudo actualizar la firma.",
+      "alt": "Firma"
     }
   },
   "branding": {
@@ -960,6 +969,26 @@
       "active": "Activas",
       "suspended": "Suspendidas",
       "pending": "Pendientes de activación"
+    }
+  },
+  "reports": {
+    "tituloBasico": "Generar Reporte Hoja 1 (básico)",
+    "tituloTecnico": "Generar Reporte Hoja 2 (técnico)",
+    "subtitulo": "Estos datos son solo para este reporte — no se guardan en la empresa.",
+    "close": "Cerrar",
+    "genericError": "No se pudo generar el reporte.",
+    "generando": "Generando…",
+    "generarPdf": "Generar PDF",
+    "generarCsv": "Generar CSV",
+    "fields": {
+      "direccion": "Dirección",
+      "ciudad": "Ciudad",
+      "sede": "Sede",
+      "area": "Área",
+      "periodoEvaluacion": "Periodo de evaluación",
+      "numeroInforme": "N° de informe",
+      "elaboradoPor": "Elaborado por",
+      "elaboradoPorPlaceholder": "Tu nombre, si es distinto al de tu cuenta"
     }
   }
 }

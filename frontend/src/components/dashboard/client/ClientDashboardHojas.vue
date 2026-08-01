@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { DashboardData, DashboardFilters, UploadHistoryEntry } from '@/types/dashboard'
-import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
+import SectionTitleBanner from '../SectionTitleBanner.vue'
+import ReportGeneratorModal from '../ReportGeneratorModal.vue'
 import ClientDashboardTab from './ClientDashboardTab.vue'
 import ClientDetalleTecnicoTab from './ClientDetalleTecnicoTab.vue'
 import ClientAnalisisTab from './ClientAnalisisTab.vue'
 
-defineProps<{
+const props = defineProps<{
   dashboard: DashboardData
   fetchHistory: () => Promise<UploadHistoryEntry[]>
   fetchFilteredDashboard: (filters: DashboardFilters) => Promise<DashboardData>
@@ -16,72 +17,50 @@ defineProps<{
 const activeHoja = defineModel<'hoja1' | 'hoja2' | 'hoja3'>('activeHoja', { default: 'hoja1' })
 
 const { t } = useI18n()
-const primaryTextClass = useOrgPrimaryTextClass()
 
-// "Hoja" ≠ "pestaña": nav interna de la pestaña "Dashboard" (pills
-// horizontales acá, en el contenido), NO ítems del sidebar principal — ver
-// .superpowers/sdd/handoff-navbar-sidebar.md, decisión #1.
-const HOJAS = [
-  { key: 'hoja1', label: 'dashboard.clientTabs.hoja1' },
-  { key: 'hoja2', label: 'dashboard.clientTabs.hoja2' },
-  { key: 'hoja3', label: 'dashboard.clientTabs.hoja3' },
-] as const
+// El selector de Hoja 1/2/3 vive en el sidebar (DashboardSidebar.vue),
+// anidado bajo la pestaña "Dashboard" — acá solo queda el título de la hoja
+// activa y el botón para generar el reporte (PDF/CSV reales del backend,
+// exactos a la plantilla — ver reports.service.ts).
+const TITLES = {
+  hoja1: 'dashboard.clientTabs.hoja1',
+  hoja2: 'dashboard.clientTabs.hoja2',
+  hoja3: 'dashboard.clientTabs.hoja3',
+} as const
 
-// Hoja 1 y Hoja 2 exponen exportCsv/printReport vía defineExpose para que
-// sus botones se puedan renderizar acá arriba, junto al selector de hojas,
-// en vez de repetir la lógica de exportación en cada hoja.
-const hoja1Ref = ref<InstanceType<typeof ClientDashboardTab> | null>(null)
-const hoja2Ref = ref<InstanceType<typeof ClientDetalleTecnicoTab> | null>(null)
+const currentTitle = computed(() => t(TITLES[activeHoja.value]))
+
+const showReportModal = ref(false)
 </script>
 
 <template>
   <div class="grid gap-6">
-    <div class="flex flex-wrap items-center justify-between gap-4 print:hidden">
-      <div class="inline-flex w-fit gap-1 rounded-lg border border-line-strong bg-white p-1">
-        <button
-          v-for="hoja in HOJAS"
-          :key="hoja.key"
-          type="button"
-          class="rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
-          :class="
-            activeHoja === hoja.key
-              ? ['bg-[var(--org-primary,#0b1a33)]', primaryTextClass.text]
-              : 'text-navy-700 hover:bg-cream'
-          "
-          @click="activeHoja = hoja.key"
-        >
-          {{ t(hoja.label) }}
-        </button>
-      </div>
+    <SectionTitleBanner :title="currentTitle" />
 
-      <div v-if="activeHoja === 'hoja1' || activeHoja === 'hoja2'" class="flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="rounded-sm border border-[var(--org-primary,#0b1a33)] bg-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium transition-colors hover:bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
-          :class="[primaryTextClass.text, 'hover:text-[var(--org-primary,#0b1a33)]']"
-          @click="activeHoja === 'hoja1' ? hoja1Ref?.exportCsv() : hoja2Ref?.exportCsv()"
-        >
-          {{ t('dashboard.clientDashboardTab.exportCsv') }}
-        </button>
-        <button
-          type="button"
-          class="rounded-sm border border-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium text-[var(--org-primary,#0b1a33)] transition-colors hover:bg-[var(--org-primary,#0b1a33)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
-          :class="primaryTextClass.hoverText"
-          @click="activeHoja === 'hoja1' ? hoja1Ref?.printReport() : hoja2Ref?.printReport()"
-        >
-          {{ t('dashboard.clientDashboardTab.exportPdf') }}
-        </button>
-      </div>
+    <div v-if="activeHoja === 'hoja1' || activeHoja === 'hoja2'" class="flex flex-wrap justify-end gap-3 print:hidden">
+      <button
+        type="button"
+        class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium text-cream transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
+        @click="showReportModal = true"
+      >
+        {{ t('dashboard.clientDashboardTab.generateReport') }}
+      </button>
     </div>
 
-    <ClientDashboardTab v-if="activeHoja === 'hoja1'" ref="hoja1Ref" :dashboard="dashboard" />
+    <ClientDashboardTab v-if="activeHoja === 'hoja1'" :dashboard="dashboard" />
     <ClientDetalleTecnicoTab
       v-else-if="activeHoja === 'hoja2'"
-      ref="hoja2Ref"
       :dashboard="dashboard"
       :fetch-history="fetchHistory"
       :fetch-filtered-dashboard="fetchFilteredDashboard"
     />
     <ClientAnalisisTab v-else-if="activeHoja === 'hoja3'" :dashboard="dashboard" />
+
+    <ReportGeneratorModal
+      v-if="showReportModal"
+      :service-slug="props.dashboard.service.slug"
+      :tipo="activeHoja === 'hoja1' ? 'basico' : 'tecnico'"
+      @close="showReportModal = false"
+    />
   </div>
 </template>

@@ -33,44 +33,6 @@ const headlineCards = computed(() =>
     })
     .filter((entry) => entry.variable),
 )
-
-function escapeCsv(value: string | number): string {
-  const str = String(value)
-  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str
-}
-
-function exportCsv() {
-  const rows: string[] = [['Indicador', 'Valor'].join(',')]
-  rows.push(['Total de mediciones', props.dashboard.globalCompliance.total].map(escapeCsv).join(','))
-  rows.push(['Mediciones que cumplen norma', props.dashboard.globalCompliance.verde].map(escapeCsv).join(','))
-  rows.push(['Mediciones que no cumplen norma', noCumplen.value].map(escapeCsv).join(','))
-  rows.push(['Cumplimiento global (%)', props.dashboard.globalCompliance.pct].map(escapeCsv).join(','))
-  rows.push(['Riesgo global promedio', riesgoGlobalLabel.value].map(escapeCsv).join(','))
-  rows.push(['Alertas activas', props.dashboard.alertasActivas].map(escapeCsv).join(','))
-  for (const { categoria, variable } of headlineCards.value) {
-    if (!variable) continue
-    rows.push([categoria, formatSummaryValue(variable)].map(escapeCsv).join(','))
-  }
-  const blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const fecha = props.dashboard.lastUpdated?.slice(0, 10) ?? 'sin-fecha'
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `dashboard-${props.dashboard.service.slug}-${fecha}.csv`
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-function printReport() {
-  window.print()
-}
-
-// ClientDashboardHojas.vue renderiza estos botones en su cabecera (junto al
-// título de la hoja activa), no acá — los expone vía ref en vez de vía
-// Teleport porque el target de un Teleport debe existir FUERA del árbol de
-// componentes que se está montando; acá el target vive en el padre que se
-// monta en la misma pasada, así que Vue nunca lo encuentra a tiempo.
-defineExpose({ exportCsv, printReport })
 </script>
 
 <template>

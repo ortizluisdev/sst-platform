@@ -609,8 +609,7 @@
       "hoja3Short": "Sheet 3"
     },
     "clientDashboardTab": {
-      "exportCsv": "Export CSV",
-      "exportPdf": "Export PDF",
+      "generateReport": "Generate report",
       "indicadoresGlobales": "Global indicators",
       "valorCabecera": "Headline value per agent",
       "totalMediciones": "Total measurements",
@@ -665,8 +664,6 @@
       "norma": "Standard/Ref",
       "pendiente": "Pending",
       "instrumentoPrefix": "Instrument: ",
-      "exportCsv": "Export CSV",
-      "exportPdf": "Export PDF",
       "filtroFecha": "Date",
       "filtroUltima": "Latest upload",
       "filtroArea": "Plant area",
@@ -815,6 +812,7 @@
       "tipo": "Type",
       "instrumento": "Instrument",
       "incertidumbre": "Uncertainty",
+      "simbolo": "Symbol",
       "acciones": "Actions"
     }
   },
@@ -925,6 +923,17 @@
       "sizeError": "The photo can't exceed 500KB.",
       "uploadError": "Couldn't update the photo.",
       "alt": "Profile photo"
+    },
+    "firma": {
+      "title": "Report signature",
+      "subtitle": "A scanned or drawn image of your signature — included in the \"Signature and seal\" section of PDF reports you generate.",
+      "empty": "No signature uploaded",
+      "changeLabel": "Change signature",
+      "hint": "PNG or JPEG, up to 500KB.",
+      "typeError": "The signature must be PNG or JPEG.",
+      "sizeError": "The signature can't exceed 500KB.",
+      "uploadError": "Couldn't update the signature.",
+      "alt": "Signature"
     }
   },
   "branding": {
@@ -960,6 +969,26 @@
       "active": "Active",
       "suspended": "Suspended",
       "pending": "Pending activation"
+    }
+  },
+  "reports": {
+    "tituloBasico": "Generate Sheet 1 report (basic)",
+    "tituloTecnico": "Generate Sheet 2 report (technical)",
+    "subtitulo": "This info is only for this report — it isn't saved to the company profile.",
+    "close": "Close",
+    "genericError": "Couldn't generate the report.",
+    "generando": "Generating…",
+    "generarPdf": "Generate PDF",
+    "generarCsv": "Generate CSV",
+    "fields": {
+      "direccion": "Address",
+      "ciudad": "City",
+      "sede": "Site",
+      "area": "Area",
+      "periodoEvaluacion": "Evaluation period",
+      "numeroInforme": "Report number",
+      "elaboradoPor": "Prepared by",
+      "elaboradoPorPlaceholder": "Your name, if different from your account"
     }
   }
 }
