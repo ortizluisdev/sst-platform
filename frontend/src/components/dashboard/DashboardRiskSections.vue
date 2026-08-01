@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { VariableSummary, NonConformity, NonConformityPriority, NonConformityStatus } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { categoryLabel } from '@/utils/categoryLabel'
+import { variableLabel } from '@/utils/variableLabel'
 import { formatRange } from '@/utils/formatRange'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
@@ -176,7 +177,11 @@ onMounted(() => {
             <tbody>
               <tr v-for="{ categoria, variable } in headlineCards" :key="categoria" class="border-t border-line">
                 <td class="px-4 py-3 text-navy-900">
-                  {{ variable?.nombre ?? categoryLabel(categoria, locale as Locale) }}
+                  {{
+                    variable
+                      ? variableLabel(variable.codigo, variable.nombre, locale as Locale)
+                      : categoryLabel(categoria, locale as Locale)
+                  }}
                 </td>
                 <td class="px-4 py-3 font-mono text-navy-900">
                   {{ variable ? `${variable.promedio} ${variable.unidadMedida}` : '—' }}

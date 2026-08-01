@@ -6,6 +6,8 @@ import ComplianceRing from '../ComplianceRing.vue'
 import ComparisonTable from '../ComparisonTable.vue'
 import { formatDate } from '@/utils/formatDate'
 import { serviceLabel } from '@/utils/serviceLabel'
+import { categoryLabel } from '@/utils/categoryLabel'
+import { variableLabel } from '@/utils/variableLabel'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 
 const props = defineProps<{ dashboard: DashboardData }>()
@@ -31,8 +33,8 @@ function exportCsv() {
     for (const v of categoria.variables) {
       rows.push(
         [
-          categoria.categoria,
-          v.nombre,
+          categoryLabel(categoria.categoria, locale.value as Locale),
+          variableLabel(v.codigo, v.nombre, locale.value as Locale),
           v.promedio,
           v.unidadMedida,
           formatNorma(v.limiteMin, v.limiteMax),

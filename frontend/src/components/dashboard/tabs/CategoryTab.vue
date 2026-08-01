@@ -9,6 +9,8 @@ import CorrectReadingModal from '../CorrectReadingModal.vue'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
 import { formatSummaryValue } from '@/utils/formatSummaryValue'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
+import { variableLabel } from '@/utils/variableLabel'
+import type { Locale } from '@/i18n'
 
 const props = defineProps<{
   category: CategorySummary
@@ -17,7 +19,7 @@ const props = defineProps<{
   editable?: boolean
   correctReading?: (readingId: string, valor: number, reason: string) => Promise<void>
 }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 interface EditTarget {
   reading: WorkPointReading
@@ -77,7 +79,7 @@ const workPointRows = computed<WorkPointRow[]>(() => {
       <SummaryCard
         v-for="v in category.variables"
         :key="v.definitionId"
-        :titulo="v.nombre"
+        :titulo="variableLabel(v.codigo, v.nombre, locale as Locale)"
         :valor="formatSummaryValue(v)"
         :cumplimiento-pct="v.cumplimientoPct"
         :estado="resolveDisplayStatus(v)"
@@ -97,7 +99,7 @@ const workPointRows = computed<WorkPointRow[]>(() => {
               <th class="px-4 py-3 font-semibold">{{ t('dashboard.category.workPoint') }}</th>
               <th class="px-4 py-3 font-semibold">{{ t('dashboard.category.areaPlant') }}</th>
               <th v-for="v in category.variables" :key="v.definitionId" class="px-4 py-3 font-semibold">
-                {{ v.nombre }}
+                {{ variableLabel(v.codigo, v.nombre, locale as Locale) }}
                 <span class="block font-normal normal-case opacity-70">{{ v.normativaRef }}</span>
               </th>
             </tr>
@@ -139,7 +141,13 @@ const workPointRows = computed<WorkPointRow[]>(() => {
                     type="button"
                     class="text-navy-700/40 hover:text-navy-900"
                     :aria-label="t('dashboard.category.editLabel')"
-                    @click="openEdit(row.valores[v.definitionId]!, v.nombre, v.unidadMedida)"
+                    @click="
+                      openEdit(
+                        row.valores[v.definitionId]!,
+                        variableLabel(v.codigo, v.nombre, locale as Locale),
+                        v.unidadMedida,
+                      )
+                    "
                   >
                     <Pencil class="h-3.5 w-3.5" />
                   </button>
@@ -162,7 +170,7 @@ const workPointRows = computed<WorkPointRow[]>(() => {
       <TrendChart
         v-for="v in category.variables"
         :key="v.definitionId"
-        :titulo="`${t('dashboard.category.trendPrefix')}${v.nombre}`"
+        :titulo="`${t('dashboard.category.trendPrefix')}${variableLabel(v.codigo, v.nombre, locale as Locale)}`"
         :unidad-medida="v.unidadMedida"
         :codigo="v.codigo"
         :trend="trend"

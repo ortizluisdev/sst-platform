@@ -5,6 +5,7 @@ import type { Locale } from '@/i18n'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { categoryLabel } from '@/utils/categoryLabel'
+import { variableLabel } from '@/utils/variableLabel'
 import { formatRange } from '@/utils/formatRange'
 
 defineProps<{ categories: CategorySummary[] }>()
@@ -36,7 +37,7 @@ const { t, locale } = useI18n()
               <!-- Borde izquierdo por fila (mismo lenguaje que SummaryCard.vue):
                detecta el estado de reojo sin depender del badge de la última columna. -->
               <td class="border-l-4 px-4 py-3 text-navy-900" :class="SEMAPHORE_STYLES[resolveDisplayStatus(v)].accent">
-                {{ v.nombre }}
+                {{ variableLabel(v.codigo, v.nombre, locale as Locale) }}
                 <span class="block text-xs text-navy-700 opacity-60">{{ v.normativaRef }}</span>
               </td>
               <td class="px-4 py-3 font-mono tabular-nums text-navy-900">{{ v.promedio }} {{ v.unidadMedida }}</td>

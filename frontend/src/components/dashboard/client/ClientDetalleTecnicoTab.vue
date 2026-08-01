@@ -12,6 +12,7 @@ import type {
 import type { Locale } from '@/i18n'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
+import { variableLabel } from '@/utils/variableLabel'
 import { formatDate } from '@/utils/formatDate'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
@@ -219,7 +220,7 @@ function formatNorma(min: number | null, max: number | null): string {
                   :data-label="t('dashboard.detalleTecnico.parametro')"
                   class="block px-5 pb-1 pt-3 text-navy-900 before:mr-1.5 before:text-[11px] before:font-semibold before:uppercase before:tracking-wide before:text-navy-700/50 before:content-[attr(data-label)] sm:table-cell sm:px-5 sm:py-3 sm:before:content-none"
                 >
-                  {{ v.nombre }}
+                  {{ variableLabel(v.codigo, v.nombre, locale as Locale) }}
                 </td>
                 <td
                   :data-label="t('dashboard.detalleTecnico.resultado')"
