@@ -5,6 +5,8 @@ import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
 import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { useAuthStore } from '@/stores/auth'
+import { serviceLabel } from '@/utils/serviceLabel'
+import type { Locale } from '@/i18n'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
 
@@ -18,7 +20,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:selecte
 
 const activeHoja = defineModel<'hoja1' | 'hoja2' | 'hoja3'>('activeHoja', { default: 'hoja1' })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const drawer = useSidebarDrawer()
 const auth = useAuthStore()
 
@@ -109,7 +111,9 @@ function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
             @click="selectService(service.slug)"
           >
             <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span class="min-w-0 flex-1 truncate">{{ service.nombre }}</span>
+            <span class="min-w-0 flex-1 truncate">{{
+              serviceLabel(service.slug, service.nombre, locale as Locale)
+            }}</span>
             <ChevronDown v-if="service.slug === selectedServiceSlug" class="h-4 w-4 shrink-0" aria-hidden="true" />
           </button>
 
@@ -130,13 +134,20 @@ function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
               >
                 <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span class="min-w-0 flex-1 truncate">{{ tab.label }}</span>
-                <ChevronDown v-if="tab.key === 'resumen' && tab.key === modelValue" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                <ChevronDown
+                  v-if="tab.key === 'resumen' && tab.key === modelValue"
+                  class="h-3.5 w-3.5 shrink-0"
+                  aria-hidden="true"
+                />
               </button>
 
               <!-- Hoja 1/2/3: navegación interna de "Dashboard", un nivel más
               adentro — nunca ítems sueltos al mismo nivel que las demás
               pestañas (esa era la mezcla confusa de antes). -->
-              <ul v-if="tab.key === 'resumen' && tab.key === modelValue" class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2">
+              <ul
+                v-if="tab.key === 'resumen' && tab.key === modelValue"
+                class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+              >
                 <li v-for="hoja in HOJAS" :key="hoja.key">
                   <button
                     type="button"

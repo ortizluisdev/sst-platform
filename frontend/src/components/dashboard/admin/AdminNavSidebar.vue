@@ -6,6 +6,8 @@ import { Bell, ChevronDown, ChevronRight, LayoutGrid, User, Users } from 'lucide
 import { useAuthStore } from '@/stores/auth'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
+import { serviceLabel } from '@/utils/serviceLabel'
+import type { Locale } from '@/i18n'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
 
@@ -102,7 +104,9 @@ function handleTabClick(tab: TabDef) {
             @click="handleServiceClick(service)"
           >
             <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span class="min-w-0 flex-1 truncate">{{ service.nombre }}</span>
+            <span class="min-w-0 flex-1 truncate">{{
+              serviceLabel(service.slug, service.nombre, locale as Locale)
+            }}</span>
             <ChevronDown
               v-if="isExpandable(service.slug) && expandedSlug === service.slug"
               class="h-4 w-4 shrink-0"

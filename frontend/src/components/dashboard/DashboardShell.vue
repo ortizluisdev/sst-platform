@@ -11,6 +11,7 @@ import ComparativoTab from './tabs/ComparativoTab.vue'
 import HistorialTab from './tabs/HistorialTab.vue'
 import ReportesTab from './tabs/ReportesTab.vue'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
+import { serviceLabel } from '@/utils/serviceLabel'
 import SectionTitleBanner from './SectionTitleBanner.vue'
 
 const props = defineProps<{
@@ -59,7 +60,11 @@ const activeCategory = computed(() => props.dashboard.categories.find((c) => `ca
 const currentTabLabel = computed(() => tabs.value.find((tab) => tab.key === activeTab.value)?.label ?? '')
 
 const bannerTitle = computed(() => {
-  const parts = [props.dashboard.service.nombre, props.orgLabel, currentTabLabel.value].filter(Boolean)
+  const parts = [
+    serviceLabel(props.dashboard.service.slug, props.dashboard.service.nombre, locale.value as Locale),
+    props.orgLabel,
+    currentTabLabel.value,
+  ].filter(Boolean)
   return parts.join(' — ')
 })
 </script>

@@ -8,6 +8,7 @@ import ComplianceRing from '../ComplianceRing.vue'
 import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
+import { serviceLabel } from '@/utils/serviceLabel'
 import { formatDate } from '@/utils/formatDate'
 import { formatSummaryValue } from '@/utils/formatSummaryValue'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
@@ -47,7 +48,8 @@ const lastUpdatedLabel = computed(() =>
     >
       <div>
         <h1 class="font-serif text-xl font-semibold text-navy-900">
-          {{ t('dashboard.resumen.titlePrefix') }}{{ dashboard.service.nombre }}
+          {{ t('dashboard.resumen.titlePrefix')
+          }}{{ serviceLabel(dashboard.service.slug, dashboard.service.nombre, locale as Locale) }}
         </h1>
         <p class="text-xs text-navy-700 opacity-70">
           {{ t('dashboard.resumen.lastUpdatePrefix') }}{{ lastUpdatedLabel }}

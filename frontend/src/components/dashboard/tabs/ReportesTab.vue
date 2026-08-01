@@ -5,6 +5,7 @@ import type { Locale } from '@/i18n'
 import ComplianceRing from '../ComplianceRing.vue'
 import ComparisonTable from '../ComparisonTable.vue'
 import { formatDate } from '@/utils/formatDate'
+import { serviceLabel } from '@/utils/serviceLabel'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 
 const props = defineProps<{ dashboard: DashboardData }>()
@@ -29,7 +30,15 @@ function exportCsv() {
   for (const categoria of props.dashboard.categories) {
     for (const v of categoria.variables) {
       rows.push(
-        [categoria.categoria, v.nombre, v.promedio, v.unidadMedida, formatNorma(v.limiteMin, v.limiteMax), v.cumplimientoPct, v.estado]
+        [
+          categoria.categoria,
+          v.nombre,
+          v.promedio,
+          v.unidadMedida,
+          formatNorma(v.limiteMin, v.limiteMax),
+          v.cumplimientoPct,
+          v.estado,
+        ]
           .map(escapeCsv)
           .join(','),
       )
@@ -72,9 +81,13 @@ function printReport() {
     </div>
 
     <div class="rounded-lg border border-line-strong bg-white p-5">
-      <p class="font-serif text-lg font-semibold text-navy-900">{{ t('dashboard.reportes.reportTitlePrefix') }}{{ dashboard.service.nombre }}</p>
+      <p class="font-serif text-lg font-semibold text-navy-900">
+        {{ t('dashboard.reportes.reportTitlePrefix')
+        }}{{ serviceLabel(dashboard.service.slug, dashboard.service.nombre, locale as Locale) }}
+      </p>
       <p class="text-xs text-navy-700 opacity-70">
-        {{ t('dashboard.reportes.generatedOn') }}{{ formatDate(new Date(), locale as Locale) }} · {{ dashboard.totalWorkPoints }}{{ t('dashboard.resumen.workPointsSuffix') }}
+        {{ t('dashboard.reportes.generatedOn') }}{{ formatDate(new Date(), locale as Locale) }} ·
+        {{ dashboard.totalWorkPoints }}{{ t('dashboard.resumen.workPointsSuffix') }}
       </p>
     </div>
 
