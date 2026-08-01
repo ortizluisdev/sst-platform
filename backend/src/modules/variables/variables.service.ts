@@ -742,6 +742,7 @@ function buildVariableSummary(
     tipo: VariableMeasurementType | null
     instrumento: string | null
     incertidumbre: string | null
+    simbolo: string | null
   },
   readings: {
     id: string
@@ -774,9 +775,11 @@ function buildVariableSummary(
     limiteMin: definition.limiteMin,
     limiteMax: definition.limiteMax,
     normativaRef: definition.normativaRef,
+    comparisonType: definition.comparisonType,
     tipo: definition.tipo,
     instrumento: definition.instrumento,
     incertidumbre: definition.incertidumbre,
+    simbolo: definition.simbolo,
     promedio,
     cumplimientoPct,
     estado,
@@ -811,9 +814,11 @@ function buildEmptyVariableSummary(definition: {
   limiteMin: number | null
   limiteMax: number | null
   normativaRef: string | null
+  comparisonType: SemaphoreThresholds['comparisonType']
   tipo: VariableMeasurementType | null
   instrumento: string | null
   incertidumbre: string | null
+  simbolo: string | null
 }) {
   return {
     definitionId: definition.id,
@@ -823,9 +828,11 @@ function buildEmptyVariableSummary(definition: {
     limiteMin: definition.limiteMin,
     limiteMax: definition.limiteMax,
     normativaRef: definition.normativaRef,
+    comparisonType: definition.comparisonType,
     tipo: definition.tipo,
     instrumento: definition.instrumento,
     incertidumbre: definition.incertidumbre,
+    simbolo: definition.simbolo,
     promedio: 0,
     cumplimientoPct: 0,
     estado: 'SIN_DATOS' as const,

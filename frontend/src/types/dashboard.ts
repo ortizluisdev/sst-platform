@@ -34,9 +34,11 @@ export interface VariableSummary {
   limiteMin: number | null
   limiteMax: number | null
   normativaRef: string | null
+  comparisonType: 'RANGE' | 'MAX_LIMIT' | 'MIN_LIMIT'
   tipo: MeasurementType | null
   instrumento: string | null
   incertidumbre: string | null
+  simbolo: string | null
   promedio: number
   cumplimientoPct: number
   estado: CategoryCardStatus
