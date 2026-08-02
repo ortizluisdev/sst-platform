@@ -529,6 +529,8 @@
       "catalogAddNew": "Add new",
       "catalogNewPlaceholder": "New name",
       "catalogAddConfirm": "Add",
+      "chooseFile": "Choose file",
+      "noFile": "No file selected",
       "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. Also accepts the full Excel report (Reporte Hoja 2).",
       "omittedHeading": "Skipped rows (not loaded):",
       "omittedReason": {
@@ -954,6 +956,8 @@
   "branding": {
     "fields": {
       "logoLabel": "Your company's logo",
+      "logoChooseButton": "Choose file",
+      "logoNoFile": "No file selected",
       "logoHint": "SVG only, up to 500KB — scales without pixelating in the navbar.",
       "logoTypeError": "The file must be SVG.",
       "logoSizeError": "The logo can't exceed 500KB.",
@@ -1020,6 +1024,8 @@
     "upload": {
       "label": "Upload registry (Excel)",
       "hint": "Upload the full workbook (registro_seguridad_vial_MSSV_1.xlsx) — replaces the current vehicles, people, PESV, and route data.",
+      "chooseButton": "Choose file",
+      "noFile": "No file selected",
       "loading": "Uploading and processing…",
       "success": "File \"{file}\" processed successfully.",
       "genericError": "Could not process the file."

@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { ClipboardCheck, Truck, Users, Map, AlertTriangle } from 'lucide-vue-next'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
@@ -18,6 +19,7 @@ import {
   DashboardRequestError,
 } from '@/services/dashboard.service'
 import type { DashboardData, DashboardFilters } from '@/types/dashboard'
+import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
 import type { Locale } from '@/i18n'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
@@ -47,6 +49,10 @@ async function loadDashboard() {
   if (serviceSlug.value === 'seguridad-vial') {
     status.value = 'ready'
     dashboard.value = null
+    // Mismo reset que hace Higiene Industrial abajo (activeTab = 'resumen')
+    // al entrar a un servicio distinto — acá el primer tab real es 'hoja1',
+    // no 'resumen' (Seguridad Vial no tiene ese concepto).
+    activeTab.value = 'hoja1'
     return
   }
 
@@ -82,6 +88,20 @@ function selectService(slug: string) {
 
 const tabs = computed(() => (dashboard.value ? buildDashboardTabs(dashboard.value, t, locale.value as Locale) : []))
 
+// Seguridad Vial no tiene categorías del modelo genérico (ver loadDashboard
+// arriba) — sus "pestañas" son las 5 hojas, listadas DIRECTAS bajo el
+// servicio (sin nodo "Dashboard" intermedio), exactamente igual que
+// AdminNavSidebar.vue las muestra del lado admin. Antes vivían como una
+// barra de pestañas interna dentro de RoadSafetyClientPanel.vue, lo que
+// dejaba la navegación en dos sitios distintos y el sidebar sin hijos.
+const roadSafetyTabs = computed<TabDef[]>(() => [
+  { key: 'hoja1', label: t('roadSafety.tabs.hoja1'), icon: ClipboardCheck },
+  { key: 'hoja2', label: t('roadSafety.tabs.hoja2'), icon: Truck },
+  { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: Users },
+  { key: 'hoja4', label: t('roadSafety.tabs.hoja4'), icon: Map },
+  { key: 'alertas', label: t('roadSafety.tabs.alertas'), icon: AlertTriangle },
+])
+
 function fetchHistory() {
   return getClientUploadHistory(serviceSlug.value)
 }
@@ -105,15 +125,18 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
       <DashboardSidebar
         v-model="activeTab"
         v-model:active-hoja="activeHoja"
-        :tabs="[]"
+        :tabs="roadSafetyTabs"
         :services="services"
         :selected-service-slug="serviceSlug"
         @update:selected-service-slug="selectService"
       />
       <div>
-        <RoadSafetyClientPanel v-if="activeTab === 'resumen'" />
-        <NotificationsPanel v-else-if="activeTab === 'notificaciones'" />
+        <NotificationsPanel v-if="activeTab === 'notificaciones'" />
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />
+        <RoadSafetyClientPanel
+          v-else
+          :active-tab="(activeTab as 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas')"
+        />
       </div>
     </div>
     <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[220px_1fr]">

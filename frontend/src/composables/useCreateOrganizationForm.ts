@@ -43,13 +43,13 @@ export function useCreateOrganizationForm() {
     ),
   )
 
-  const { defineField, handleSubmit, errors, resetForm } = useForm<CreateOrganizationFormValues>({
+  const { defineField, handleSubmit, errors, resetForm, setFieldValue, values } = useForm<CreateOrganizationFormValues>({
     validationSchema,
     initialValues: {
       nombre: '',
       nit: '',
       contactEmail: '',
-      serviceSlug: '',
+      serviceSlugs: [],
       logoBase64: '',
       // Arranca en los colores de RoMa como punto de partida razonable — el
       // admin los personaliza desde ahí (mismo criterio que UpdateProfileView.vue).
@@ -62,7 +62,11 @@ export function useCreateOrganizationForm() {
   const [nombre, nombreAttrs] = defineField('nombre')
   const [nit, nitAttrs] = defineField('nit')
   const [contactEmail, contactEmailAttrs] = defineField('contactEmail')
-  const [serviceSlug, serviceSlugAttrs] = defineField('serviceSlug')
+  const serviceSlugs = computed(() => values.serviceSlugs ?? [])
+  function toggleService(slug: string, checked: boolean) {
+    const current = values.serviceSlugs ?? []
+    setFieldValue('serviceSlugs', checked ? [...current, slug] : current.filter((s) => s !== slug))
+  }
   const [logoBase64] = defineField('logoBase64')
   const [primaryColor] = defineField('primaryColor')
   const [secondaryColor] = defineField('secondaryColor')
@@ -111,8 +115,8 @@ export function useCreateOrganizationForm() {
     nitAttrs,
     contactEmail,
     contactEmailAttrs,
-    serviceSlug,
-    serviceSlugAttrs,
+    serviceSlugs,
+    toggleService,
     logoBase64,
     primaryColor,
     secondaryColor,

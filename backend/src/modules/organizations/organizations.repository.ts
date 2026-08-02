@@ -67,7 +67,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       nombre: string
       nit: string
       contactEmail: string
-      serviceId: string
+      serviceIds: string[]
       logoBase64?: string
       primaryColor?: string
       secondaryColor?: string
@@ -95,8 +95,8 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
             secondaryColor: input.secondaryColor,
           },
         })
-        await tx.organizationService.create({
-          data: { organizationId: organization.id, serviceId: input.serviceId, isActive: true },
+        await tx.organizationService.createMany({
+          data: input.serviceIds.map((serviceId) => ({ organizationId: organization.id, serviceId, isActive: true })),
         })
         const responsable = await tx.user.create({
           data: {

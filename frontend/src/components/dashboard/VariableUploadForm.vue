@@ -10,6 +10,7 @@ const emit = defineEmits<{ uploaded: [] }>()
 
 const { t } = useI18n()
 
+const fileInput = ref<HTMLInputElement | null>(null)
 const file = ref<File | null>(null)
 const fechaEvaluacion = ref('')
 const zonaId = ref('')
@@ -45,6 +46,7 @@ async function submit() {
     })
     status.value = 'idle'
     file.value = null
+    if (fileInput.value) fileInput.value.value = ''
     emit('uploaded')
   } catch (err) {
     status.value = 'error'
@@ -64,12 +66,25 @@ async function submit() {
 
     <form class="grid grid-cols-1 gap-4" @submit.prevent="submit">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <input
-          type="file"
-          accept=".csv,.xlsx,.xls"
-          class="w-full min-w-0 rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900 file:mr-3 file:rounded-sm file:border-0 file:bg-sky-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-navy-700"
-          @change="onFileChange"
-        />
+        <div>
+          <input
+            ref="fileInput"
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            class="hidden"
+            @change="onFileChange"
+          />
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="shrink-0 rounded-sm bg-sky-100 px-3 py-2.5 text-xs font-semibold text-navy-700 hover:bg-sky-200"
+              @click="fileInput?.click()"
+            >
+              {{ t('dashboard.uploadForm.chooseFile') }}
+            </button>
+            <span class="truncate text-sm text-navy-900">{{ file?.name || t('dashboard.uploadForm.noFile') }}</span>
+          </div>
+        </div>
         <input
           v-model="fechaEvaluacion"
           type="date"

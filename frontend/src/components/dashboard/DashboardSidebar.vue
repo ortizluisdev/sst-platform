@@ -135,7 +135,7 @@ function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
                 <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span class="min-w-0 flex-1 truncate">{{ tab.label }}</span>
                 <ChevronDown
-                  v-if="tab.key === 'resumen' && tab.key === modelValue"
+                  v-if="tab.key === 'resumen' && tab.key === modelValue && selectedServiceSlug === 'higiene-industrial'"
                   class="h-3.5 w-3.5 shrink-0"
                   aria-hidden="true"
                 />
@@ -143,9 +143,14 @@ function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
 
               <!-- Hoja 1/2/3: navegación interna de "Dashboard", un nivel más
               adentro — nunca ítems sueltos al mismo nivel que las demás
-              pestañas (esa era la mezcla confusa de antes). -->
+              pestañas (esa era la mezcla confusa de antes). Específico de
+              Higiene Industrial (esas 3 hojas no existen en otros servicios,
+              ej. Seguridad Vial tiene su propia navegación interna de 5
+              pestañas dentro de RoadSafetyClientPanel.vue) — acá solo se
+              muestra el nodo "Dashboard" sin este submenú para no listar
+              hojas que no aplican. -->
               <ul
-                v-if="tab.key === 'resumen' && tab.key === modelValue"
+                v-if="tab.key === 'resumen' && tab.key === modelValue && selectedServiceSlug === 'higiene-industrial'"
                 class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
               >
                 <li v-for="hoja in HOJAS" :key="hoja.key">

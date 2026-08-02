@@ -26,14 +26,18 @@ export function createOrganizationsService(prisma: PrismaClient) {
         throw new OrganizationsError('DOCUMENT_TAKEN', 'Ya existe una cuenta con ese número de documento')
       }
 
-      const service = await repository.findServiceBySlug(input.serviceSlug)
-      if (!service) throw new OrganizationsError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+      // Todos los slugs deben existir — si uno no se encuentra, se rechaza el
+      // alta completa (no se crea la empresa con solo algunos servicios).
+      const services = await Promise.all(input.serviceSlugs.map((slug) => repository.findServiceBySlug(slug)))
+      const missingIndex = services.findIndex((s) => !s)
+      if (missingIndex !== -1) throw new OrganizationsError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+      const serviceIds = services.map((s) => s!.id)
 
       const { organization, responsable } = await repository.createWithResponsible({
         nombre: input.nombre,
         nit: input.nit,
         contactEmail: input.contactEmail,
-        serviceId: service.id,
+        serviceIds,
         logoBase64: input.logoBase64,
         primaryColor: input.primaryColor,
         secondaryColor: input.secondaryColor,
@@ -44,7 +48,7 @@ export function createOrganizationsService(prisma: PrismaClient) {
         userId: createdByUserId,
         organizationId: organization.id,
         action: 'USER_CREATED_BY_ADMIN',
-        metadata: { targetUserId: responsable.id, serviceSlug: input.serviceSlug },
+        metadata: { targetUserId: responsable.id, serviceSlugs: input.serviceSlugs },
         ipAddress,
       })
 

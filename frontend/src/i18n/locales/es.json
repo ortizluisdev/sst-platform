@@ -529,6 +529,8 @@
       "catalogAddNew": "Agregar nuevo",
       "catalogNewPlaceholder": "Nombre nuevo",
       "catalogAddConfirm": "Agregar",
+      "chooseFile": "Seleccionar archivo",
+      "noFile": "Ningún archivo seleccionado",
       "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. También acepta el reporte completo de Excel (Reporte Hoja 2).",
       "omittedHeading": "Filas omitidas (no se cargaron):",
       "omittedReason": {
@@ -954,6 +956,8 @@
   "branding": {
     "fields": {
       "logoLabel": "Logo de tu empresa",
+      "logoChooseButton": "Seleccionar archivo",
+      "logoNoFile": "Ningún archivo seleccionado",
       "logoHint": "Solo SVG, hasta 500KB — se adapta sin pixelarse al navbar.",
       "logoTypeError": "El archivo debe ser SVG.",
       "logoSizeError": "El logo no puede superar 500KB.",
@@ -1020,6 +1024,8 @@
     "upload": {
       "label": "Cargar registro (Excel)",
       "hint": "Sube el libro completo (registro_seguridad_vial_MSSV_1.xlsx) — reemplaza los datos actuales de vehículos, personas, PESV y rutograma.",
+      "chooseButton": "Seleccionar archivo",
+      "noFile": "Ningún archivo seleccionado",
       "loading": "Subiendo y procesando…",
       "success": "Archivo \"{file}\" procesado correctamente.",
       "genericError": "No se pudo procesar el archivo."

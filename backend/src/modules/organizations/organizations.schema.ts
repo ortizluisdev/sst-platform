@@ -23,7 +23,10 @@ export const createOrganizationSchema = z.object({
   nombre: noNewlines(z.string().min(2, 'Ingresa el nombre de la empresa')),
   nit: nitSchema,
   contactEmail: z.string().email('Ingresa un correo de contacto válido'),
-  serviceSlug: z.string().min(1, 'Selecciona un servicio'),
+  // Antes un solo `serviceSlug` — una empresa puede tener varios servicios
+  // contratados activos desde el alta, no solo uno (ver checklist en el
+  // formulario del frontend).
+  serviceSlugs: z.array(z.string().min(1)).min(1, 'Selecciona al menos un servicio'),
   // Obligatorio: "crear la empresa completa" incluye su identidad visual
   // desde el alta — el admin ya no deja el logo/colores pendientes para que
   // el cliente los complete después (ver activation.service.ts,

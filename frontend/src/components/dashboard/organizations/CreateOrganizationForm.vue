@@ -24,8 +24,8 @@ const {
   nitAttrs,
   contactEmail,
   contactEmailAttrs,
-  serviceSlug,
-  serviceSlugAttrs,
+  serviceSlugs,
+  toggleService,
   logoBase64,
   primaryColor,
   secondaryColor,
@@ -89,21 +89,22 @@ watch(status, (value) => {
       />
 
       <div>
-        <label for="org-service" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+        <p class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
           {{ t('organizations.form.service') }}
-        </label>
-        <select
-          id="org-service"
-          v-model="serviceSlug"
-          v-bind="serviceSlugAttrs"
-          class="w-full rounded-sm border border-line-strong bg-white px-4 py-3 text-sm text-navy-900"
-        >
-          <option value="" disabled>{{ t('organizations.form.servicePlaceholder') }}</option>
-          <option v-for="service in services" :key="service.slug" :value="service.slug">
+        </p>
+        <div class="grid gap-2 rounded-sm border border-line-strong bg-white px-4 py-3 sm:grid-cols-2">
+          <label v-for="service in services" :key="service.slug" class="flex items-center gap-2 text-sm text-navy-900">
+            <input
+              type="checkbox"
+              :value="service.slug"
+              :checked="serviceSlugs.includes(service.slug)"
+              class="h-4 w-4 rounded-sm border-line-strong"
+              @change="toggleService(service.slug, ($event.target as HTMLInputElement).checked)"
+            />
             {{ serviceLabel(service.slug, service.nombre, locale as Locale) }}
-          </option>
-        </select>
-        <p v-if="errors.serviceSlug" class="mt-1.5 text-xs text-red-600">{{ errors.serviceSlug }}</p>
+          </label>
+        </div>
+        <p v-if="errors.serviceSlugs" class="mt-1.5 text-xs text-red-600">{{ errors.serviceSlugs }}</p>
         <p v-if="servicesLoadError" class="mt-1.5 text-xs text-red-600">{{ servicesLoadError }}</p>
       </div>
     </fieldset>

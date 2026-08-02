@@ -15,6 +15,9 @@ const fileError = ref('')
 const ALLOWED_TYPES = ['image/svg+xml']
 const MAX_BYTES = 500 * 1024
 
+const logoInput = ref<HTMLInputElement | null>(null)
+const logoFilename = ref('')
+
 function handleFileChange(event: Event) {
   fileError.value = ''
   const input = event.target as HTMLInputElement
@@ -32,6 +35,8 @@ function handleFileChange(event: Event) {
     return
   }
 
+  logoFilename.value = file.name
+
   const reader = new FileReader()
   reader.onload = () => {
     logoBase64.value = reader.result as string
@@ -48,11 +53,24 @@ function handleFileChange(event: Event) {
       </label>
       <input
         id="branding-logo"
+        ref="logoInput"
         type="file"
         accept="image/svg+xml"
-        class="w-full rounded-sm border border-line-strong bg-white px-4 py-3 text-sm text-navy-900"
+        class="hidden"
         @change="handleFileChange"
       />
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="rounded-sm border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-navy-700 hover:bg-cream"
+          @click="logoInput?.click()"
+        >
+          {{ t('branding.fields.logoChooseButton') }}
+        </button>
+        <span class="truncate text-sm text-navy-700/70">{{
+          logoFilename || t('branding.fields.logoNoFile')
+        }}</span>
+      </div>
       <p class="mt-1 text-xs text-navy-700/60">{{ t('branding.fields.logoHint') }}</p>
       <p v-if="fileError" class="mt-1.5 text-xs text-red-600">{{ fileError }}</p>
       <img v-if="logoBase64" :src="logoBase64" :alt="t('branding.fields.logoPreviewAlt')" class="mt-3 h-10 w-auto" />

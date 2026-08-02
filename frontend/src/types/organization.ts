@@ -22,7 +22,9 @@ export function createOrganizationSchema(messages: OrganizationFormMessages) {
     nombre: z.string().min(2, messages.nombreRequired),
     nit: z.string().regex(/^\d{5,20}$/, messages.nitInvalid),
     contactEmail: z.string().email(messages.contactEmailInvalid),
-    serviceSlug: z.string().min(1, messages.serviceRequired),
+    // Antes un solo serviceSlug — una empresa puede tener varios servicios
+    // contratados activos desde el alta (checklist en el formulario).
+    serviceSlugs: z.array(z.string()).min(1, messages.serviceRequired),
     // Se validan a mano en el composable (logoRequired) — acá solo se
     // tipan como string simple para que el v-model de BrandingFields.vue
     // (required) compile sin castings.

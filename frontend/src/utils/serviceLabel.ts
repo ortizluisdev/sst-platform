@@ -9,6 +9,10 @@ import type { Locale } from '@/i18n'
  */
 const SERVICE_LABELS: Record<string, Partial<Record<Locale, string>>> = {
   'higiene-industrial': { en: 'Industrial Hygiene' },
+  'seguridad-vial': { en: 'Road Safety' },
+  'riesgo-mecanico-locativo': { en: 'Mechanical and Site Risk' },
+  'mantenimiento-basado-en-riesgo': { en: 'Risk-Based Maintenance' },
+  'modelado-cientifico-comportamiento-social': { en: 'Scientific Modeling of Social Behavior' },
 }
 
 export function serviceLabel(slug: string, nombre: string, locale: Locale): string {

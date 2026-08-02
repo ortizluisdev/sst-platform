@@ -11,8 +11,10 @@ import { listOrganizationsFull, updateOrganization, OrganizationRequestError } f
 import { suspendUser, reactivateUser, resendInvitation, AdminUsersRequestError } from '@/services/adminUsers.service'
 import type { OrganizationListItem } from '@/types/organization'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
+import { serviceLabel } from '@/utils/serviceLabel'
+import type { Locale } from '@/i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const primaryTextClass = useOrgPrimaryTextClass()
@@ -218,7 +220,9 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                 </td>
                 <td class="px-4 py-3 text-navy-700">
                   <span v-if="org.services.length === 0">—</span>
-                  <span v-else>{{ org.services.map((s) => s.nombre).join(', ') }}</span>
+                  <span v-else>{{
+                    org.services.map((s) => serviceLabel(s.slug, s.nombre, locale as Locale)).join(', ')
+                  }}</span>
                 </td>
                 <td class="px-4 py-3 text-navy-700">
                   <template v-if="org.responsable">

@@ -11,11 +11,13 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const errorMessage = ref('')
 const lastFileName = ref('')
+const selectedFileName = ref('')
 
 async function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
+  selectedFileName.value = file.name
 
   status.value = 'loading'
   errorMessage.value = ''
@@ -43,10 +45,21 @@ async function onFileChange(event: Event) {
       ref="fileInput"
       type="file"
       accept=".xlsx"
-      class="w-full rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+      class="hidden"
       :disabled="status === 'loading'"
       @change="onFileChange"
     />
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="rounded-sm border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-navy-700 hover:bg-cream disabled:opacity-50"
+        :disabled="status === 'loading'"
+        @click="fileInput?.click()"
+      >
+        {{ t('roadSafety.upload.chooseButton') }}
+      </button>
+      <span class="truncate text-sm text-navy-700/70">{{ selectedFileName || t('roadSafety.upload.noFile') }}</span>
+    </div>
     <p v-if="status === 'loading'" class="mt-1.5 text-xs text-navy-700">{{ t('roadSafety.upload.loading') }}</p>
     <p v-else-if="status === 'success'" class="mt-1.5 text-xs text-emerald-700">
       {{ t('roadSafety.upload.success', { file: lastFileName }) }}
