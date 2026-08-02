@@ -76,6 +76,14 @@ onMounted(async () => {
       services.value = result
     }),
   ])
+  // Llegar acá con `?tab=notificaciones` (o `perfil`) — ej. desde "Ver
+  // todas" del dropdown de la campana — activa esa pestaña reservada del
+  // sidebar en vez de la que loadDashboard() acaba de poner por defecto.
+  // Solo se revisa una vez al montar: cambiar de servicio después usa el
+  // reset normal de loadDashboard(), no este query inicial.
+  if (route.query.tab === 'notificaciones' || route.query.tab === 'perfil') {
+    activeTab.value = route.query.tab
+  }
 })
 
 // El sidebar navega (router.push) al elegir otro servicio — sincroniza el

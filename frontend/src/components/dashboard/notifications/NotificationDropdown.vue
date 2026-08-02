@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { listNotifications, markNotificationRead, markAllNotificationsRead } from '@/services/notification.service'
 import { useNotificationsStore } from '@/stores/notifications'
 import NotificationItem from './NotificationItem.vue'
@@ -9,6 +10,24 @@ import type { AppNotification } from '@/types/notification'
 const props = defineProps<{ open: boolean }>()
 const { t, locale } = useI18n()
 const store = useNotificationsStore()
+const route = useRoute()
+
+// "Ver todas" tiene que quedar DENTRO del layout con sidebar, igual que el
+// ítem "Notificaciones" del sidebar (que nunca navega de ruta, solo cambia
+// de pestaña — ver DashboardSidebar.vue). Antes esto navegaba a una ruta
+// standalone (`/dashboard/notificaciones`) que no tenía sidebar en absoluto.
+// - Admin: `/dashboard/admin/notificaciones` SÍ está envuelta en AdminShell
+//   (con su propio sidebar), así que ahí navegar de ruta funciona bien.
+// - Cliente: no hay ruta equivalente envuelta — en vez de crear una, se
+//   reusa la ruta actual del servicio con `?tab=notificaciones`, que
+//   ClientDashboardView.vue lee para activar la misma pestaña que el
+//   sidebar.
+const viewAllTarget = computed(() => {
+  if (route.path.includes('/dashboard/admin')) return `/${locale.value}/dashboard/admin/notificaciones`
+  const serviceSlug = typeof route.params.serviceSlug === 'string' ? route.params.serviceSlug : null
+  if (serviceSlug) return `/${locale.value}/dashboard/${serviceSlug}?tab=notificaciones`
+  return `/${locale.value}/dashboard/notificaciones`
+})
 
 const items = ref<AppNotification[]>([])
 const loading = ref(false)
@@ -110,10 +129,7 @@ async function handleMarkAllRead() {
     </div>
 
     <div class="border-t border-line px-4 py-2.5 text-center">
-      <router-link
-        :to="`/${locale}/dashboard/notificaciones`"
-        class="text-sm font-medium text-sky-600 hover:text-sky-700"
-      >
+      <router-link :to="viewAllTarget" class="text-sm font-medium text-sky-600 hover:text-sky-700">
         {{ t('dashboard.notifications.viewAll') }}
       </router-link>
     </div>

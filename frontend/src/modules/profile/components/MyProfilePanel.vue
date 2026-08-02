@@ -7,6 +7,7 @@ import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import ChangePasswordModal from './ChangePasswordModal.vue'
+import { useAuthStore } from '@/stores/auth'
 import {
   getMyProfile,
   updateMyProfile,
@@ -17,6 +18,7 @@ import {
 } from '@/services/myProfile.service'
 
 const { t } = useI18n()
+const auth = useAuthStore()
 
 useHead(() => ({ title: `${t('myProfile.sidebarLink')} — RoMa+`, meta: [{ name: 'robots', content: 'noindex' }] }))
 
@@ -101,6 +103,7 @@ function onAvatarFileChange(event: Event) {
     try {
       const updated = await updateMyAvatar(dataUri)
       fotoBase64.value = updated.fotoBase64
+      auth.setAvatar(updated.fotoBase64)
     } catch {
       avatarError.value = t('myProfile.avatar.uploadError')
     } finally {

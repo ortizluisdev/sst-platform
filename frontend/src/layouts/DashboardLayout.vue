@@ -115,7 +115,13 @@ const switchTo = computed(() => ({
               :aria-expanded="profileMenuOpen"
               @click="toggleProfileMenu"
             >
-              <UserCircle class="h-6 w-6 shrink-0" aria-hidden="true" />
+              <img
+                v-if="auth.user.fotoBase64"
+                :src="auth.user.fotoBase64"
+                :alt="t('dashboard.layout.profileMenuLabel')"
+                class="h-6 w-6 shrink-0 rounded-full object-cover"
+              />
+              <UserCircle v-else class="h-6 w-6 shrink-0" aria-hidden="true" />
               <span class="hidden text-sm min-[400px]:inline">{{ auth.user.nombre }}</span>
               <ChevronDown class="h-4 w-4 shrink-0" aria-hidden="true" />
             </button>

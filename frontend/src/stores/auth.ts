@@ -5,6 +5,7 @@ export interface CurrentUser {
   id: string
   documentNumber: string
   nombre: string
+  fotoBase64: string | null
 }
 
 export interface OrganizationBranding {
@@ -75,6 +76,14 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = false
       }
       return this.isAuthenticated
+    },
+
+    // MyProfilePanel.vue la llama tras subir una foto nueva — el navbar
+    // (DashboardLayout.vue) lee auth.user.fotoBase64 para el avatar, así que
+    // sin esto el ícono genérico no se actualizaba hasta el próximo fetchMe
+    // (ej. recargar la página).
+    setAvatar(fotoBase64: string | null) {
+      if (this.user) this.user.fotoBase64 = fotoBase64
     },
 
     async logout() {

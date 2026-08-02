@@ -125,7 +125,7 @@ export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
   }
 
   return reply.code(200).send({
-    user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre },
+    user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre, fotoBase64: user.fotoBase64 },
     organizationId: membership?.organizationId ?? null,
     mustUpdateProfile: user.mustUpdateProfile,
     permissions: [...permissions],

@@ -55,13 +55,18 @@ const switchTo = computed(() => ({ path: `/${otherLocale.value}/`, hash: route.h
 
     <a href="#inicio" class="flex h-16 items-center" aria-label="RoMa — Ciencia Aplicada">
       <span
-        class="flex items-center rounded-lg px-2.5 py-1 transition-colors duration-[350ms]"
+        class="flex flex-col items-start rounded-lg px-2.5 py-1 transition-colors duration-[350ms]"
         :class="isScrolled ? 'bg-white' : 'bg-transparent'"
       >
         <picture>
           <source :srcset="logoWebp" type="image/webp" />
           <img :src="logoPng" alt="RoMa — Ciencia Aplicada" class="block h-10 w-auto" width="572" height="166" />
         </picture>
+        <!-- Mismo lockup que DashboardSidebar.vue: logo + tagline debajo, en
+        vez de solo la imagen sin texto visible que había acá. -->
+        <span class="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-navy-700/60">
+          {{ t('nav.tagline') }}
+        </span>
       </span>
     </a>
 
