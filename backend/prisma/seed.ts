@@ -1291,7 +1291,10 @@ async function main() {
     const passwordHash = await argon2.hash(platformUser.password)
     const user = await prisma.user.upsert({
       where: { documentNumber: platformUser.documentNumber },
-      update: { roleId: role.id, nombre: platformUser.nombre, email: platformUser.email },
+      // passwordHash también en el update: antes solo se fijaba al crear, así
+      // que cambiar SEED_*_PASSWORD y volver a correr el seed no rotaba la
+      // contraseña de un usuario ya existente (había que borrarlo primero).
+      update: { roleId: role.id, nombre: platformUser.nombre, email: platformUser.email, passwordHash },
       create: {
         documentType: 'CC',
         documentNumber: platformUser.documentNumber,
@@ -1326,7 +1329,7 @@ async function main() {
       })
       const user = await tx.user.upsert({
         where: { documentNumber: clientUser.documentNumber },
-        update: { nombre: clientUser.nombre, email: clientUser.email },
+        update: { nombre: clientUser.nombre, email: clientUser.email, passwordHash: clientPasswordHash },
         create: {
           documentType: 'CC',
           documentNumber: clientUser.documentNumber,
