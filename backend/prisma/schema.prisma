@@ -129,6 +129,7 @@ model User {
   correctedReadings      VariableReading[]     @relation("VariableReadingCorrectedBy")
   uploadedHeatmapImages  ServiceHeatmapImage[]
   createdNonConformities NonConformity[]       @relation("NonConformityCreatedBy")
+  roadSafetyUploads      RoadSafetyUpload[]
 
   @@index([documentNumber])
   @@index([roleId])
@@ -163,6 +164,18 @@ model Organization {
   notifications   Notification[]
   heatmapImages   ServiceHeatmapImage[]
   nonConformities NonConformity[]
+
+  roadSafetyUploads   RoadSafetyUpload[]
+  roadSafetyVehicles  RoadSafetyVehicle[]
+  roadSafetyDrivers   RoadSafetyDriver[]
+  roadSafetyPesvSteps RoadSafetyPesvStep[]
+  roadSafetyInventory RoadSafetyInventoryItem[]
+  roadSafetyRoutes    RoadSafetyRoute[]
+
+  zonas        OrgZona[]
+  secciones    OrgSeccion[]
+  cargos       OrgCargo[]
+  trabajadores OrgTrabajador[]
 
   @@map("organizations")
 }
@@ -212,6 +225,7 @@ model Service {
   variableUploads     VariableUpload[]
   heatmapImages       ServiceHeatmapImage[]
   nonConformities     NonConformity[]
+  roadSafetyUploads   RoadSafetyUpload[]
 
   @@map("services")
 }
@@ -502,10 +516,23 @@ model VariableUpload {
   omittedRows     Json?                @map("omitted_rows")
   createdAt       DateTime             @default(now()) @map("created_at")
 
+  /// Asociación organizacional de la carga completa (aplica a todo el
+  /// archivo, no por fila) — exigida por la API para cargas nuevas (ver
+  /// variables.schema.ts), pero nullable a nivel de columna porque las
+  /// cargas creadas antes de esta feature no tienen valor posible.
+  zonaId       String? @map("zona_id")
+  seccionId    String? @map("seccion_id")
+  cargoId      String? @map("cargo_id")
+  trabajadorId String? @map("trabajador_id")
+
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   service      Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   uploadedBy   User              @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
   readings     VariableReading[]
+  zona         OrgZona?          @relation(fields: [zonaId], references: [id], onDelete: SetNull)
+  seccion      OrgSeccion?       @relation(fields: [seccionId], references: [id], onDelete: SetNull)
+  cargo        OrgCargo?         @relation(fields: [cargoId], references: [id], onDelete: SetNull)
+  trabajador   OrgTrabajador?    @relation(fields: [trabajadorId], references: [id], onDelete: SetNull)
 
   // Antes @@unique — cada carga es siempre un período nuevo en el
   // historial (ver nota en variables.service.ts), así que dos cargas para
@@ -513,6 +540,71 @@ model VariableUpload {
   // útil para findLatestUpload()/tendencia.
   @@index([organizationId, serviceId, fechaEvaluacion])
   @@map("variable_uploads")
+}
+
+/// Catálogos organizacionales (Zona, Sección, Cargo, Trabajador): cada
+/// empresa gestiona su propia lista, y una carga de variables debe elegir
+/// uno de cada uno (aplica a toda la carga, no por fila del Excel) — así
+/// los filtros del módulo Clientes tienen sobre qué segmentar, ya que el
+/// Excel de carga no trae esta información.
+model OrgZona {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  nombre         String   @db.VarChar(150)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads      VariableUpload[]
+
+  @@index([organizationId])
+  @@map("org_zonas")
+}
+
+model OrgSeccion {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  nombre         String   @db.VarChar(150)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads      VariableUpload[]
+
+  @@index([organizationId])
+  @@map("org_secciones")
+}
+
+model OrgCargo {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  nombre         String   @db.VarChar(150)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads      VariableUpload[]
+
+  @@index([organizationId])
+  @@map("org_cargos")
+}
+
+model OrgTrabajador {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  nombre         String   @db.VarChar(150)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads      VariableUpload[]
+
+  @@index([organizationId])
+  @@map("org_trabajadores")
 }
 
 enum SemaphoreStatus {
@@ -723,4 +815,221 @@ model ContactSubmission {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("contact_submissions")
+}
+
+// ============================================================
+// SEGURIDAD VIAL (MSSV) — servicio #2, mismo patrón de módulos que
+// Higiene Industrial pero con modelo de datos propio: Hoja 2/3 son el
+// ESTADO ACTUAL de cada vehículo/conductor (no mediciones periódicas por
+// puesto de trabajo), así que no encajan en VariableDefinition/
+// VariableReading. Cada carga hace upsert por llave natural (placa/
+// documento/idRuta) y deja un RoadSafetyUpload como registro de
+// auditoría — el "historial" es esa lista de cargas, no un time-series
+// por campo. Los campos calculados (días hasta vencimiento, ICC, alerta)
+// NUNCA se guardan — dependen de "hoy", se calculan en el service layer
+// en cada lectura (ver utils/roadSafetyCalculations.ts), igual que las
+// fórmulas =HOY()-... del Excel original.
+// ============================================================
+
+/// Cada carga procesa el libro completo (las 4 hojas a la vez, tal como lo
+/// entrega el cliente) — un registro por carga, con el conteo de filas de
+/// cada hoja en `counts` para el historial.
+model RoadSafetyUpload {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  serviceId      String   @map("service_id")
+  uploadedById   String   @map("uploaded_by_id")
+  originalFile   String   @map("original_file") @db.VarChar(500)
+  counts         Json
+  status         String   @default("PROCESADO") @db.VarChar(20)
+  errorMessage   String?  @map("error_message") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service      Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, serviceId, createdAt])
+  @@map("road_safety_uploads")
+}
+
+/// Hoja 2 · Vehículos — un registro por placa, reemplazado (upsert) en
+/// cada carga. Los 33 campos de la plantilla, en el mismo orden y con los
+/// mismos nombres — solo las 4 columnas calculadas (Días SOAT, Días RTM,
+/// Anomalía consumo, Alerta) quedan fuera: se calculan al leer.
+model RoadSafetyVehicle {
+  id                    String    @id @default(cuid())
+  organizationId        String    @map("organization_id")
+  placa                 String    @db.VarChar(20)
+  tipo                  String?   @db.VarChar(100)
+  marcaLinea            String?   @map("marca_linea") @db.VarChar(150)
+  modeloAnio            Int?      @map("modelo_anio")
+  ciudad                String?   @db.VarChar(150)
+  zona                  String?   @db.VarChar(150)
+  sede                  String?   @db.VarChar(150)
+  rutasAsignadas        String?   @map("rutas_asignadas") @db.VarChar(255)
+  conductoresAsignados  String?   @map("conductores_asignados") @db.Text
+  soatVence             DateTime? @map("soat_vence")
+  rtmVence              DateTime? @map("rtm_vence")
+  polizaRcVence         DateTime? @map("poliza_rc_vence")
+  tarjetaOperacionVence DateTime? @map("tarjeta_operacion_vence")
+  comparendos           Int       @default(0)
+  ultMantenimiento      DateTime? @map("ult_mantenimiento")
+  kmActual              Int?      @map("km_actual")
+  kmProxMant            Int?      @map("km_prox_mant")
+  cambioAceite          DateTime? @map("cambio_aceite")
+  pruebaFrenado         String?   @map("prueba_frenado") @db.VarChar(20)
+  alineacionBalanceo    DateTime? @map("alineacion_balanceo")
+  llantasLabradoMm      Float?    @map("llantas_labrado_mm")
+  lucesSenales          String?   @map("luces_senales") @db.VarChar(20)
+  preoperacionalUlt     DateTime? @map("preoperacional_ult")
+  consumoGalMes         Float?    @map("consumo_gal_mes")
+  rendimientoKmGal      Float?    @map("rendimiento_km_gal")
+  rendimientoBaseKmGal  Float?    @map("rendimiento_base_km_gal")
+  seguridadActiva       Boolean?  @map("seguridad_activa")
+  seguridadPasiva       Boolean?  @map("seguridad_pasiva")
+  gpsTelemetria         Boolean?  @map("gps_telemetria")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, placa])
+  @@map("road_safety_vehicles")
+}
+
+/// Hoja 3 · Personas — un registro por documento, upsert en cada carga.
+/// Los 28 campos de la plantilla — ICC, Resultado, Días licencia y Alerta
+/// quedan fuera: se calculan al leer.
+model RoadSafetyDriver {
+  id                           String    @id @default(cuid())
+  organizationId               String    @map("organization_id")
+  documento                    String    @db.VarChar(20)
+  nombre                       String    @db.VarChar(255)
+  cargo                        String?   @db.VarChar(150)
+  actorVial                    String?   @map("actor_vial") @db.VarChar(150)
+  ciudad                       String?   @db.VarChar(150)
+  sede                         String?   @db.VarChar(150)
+  vehiculosAsignados           String?   @map("vehiculos_asignados") @db.Text
+  licCategoria                 String?   @map("lic_categoria") @db.VarChar(20)
+  licenciaVence                DateTime? @map("licencia_vence")
+  psicosensometricoVence       DateTime? @map("psicosensometrico_vence")
+  estadoSalud                  String?   @map("estado_salud") @db.VarChar(20)
+  nCursosSv                    Int?      @map("n_cursos_sv")
+  horasFormacion               Float?    @map("horas_formacion")
+  ultimaCapacitacion           DateTime? @map("ultima_capacitacion")
+  reentrenamientoProgramado    DateTime? @map("reentrenamiento_programado")
+  scoreConduccionSegura        Int?      @map("score_conduccion_segura")
+  scoreManejoDefensivo         Int?      @map("score_manejo_defensivo")
+  scoreManejoComentadoDiurno   Int?      @map("score_manejo_comentado_diurno")
+  scoreManejoComentadoNocturno Int?      @map("score_manejo_comentado_nocturno")
+  scoreConocimientoVehiculo    Int?      @map("score_conocimiento_vehiculo")
+  scoreNormasTransito          Int?      @map("score_normas_transito")
+  scoreGestionFatiga           Int?      @map("score_gestion_fatiga")
+  scoreInvestigacionSiniestros Int?      @map("score_investigacion_siniestros")
+  scorePrimerosAuxilios        Int?      @map("score_primeros_auxilios")
+  createdAt                    DateTime  @default(now()) @map("created_at")
+  updatedAt                    DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, documento])
+  @@map("road_safety_drivers")
+}
+
+/// Hoja 1 (bloque PESV) — los 24 pasos son fijos (Res. 40595/2022), un
+/// registro por paso, upsert por número de paso. `elemento` queda editable
+/// (no hardcodeado) porque los pasos 18 y 19 se ajustan según la matriz y
+/// nivel del cliente — ver nota en Leyenda.
+model RoadSafetyPesvStep {
+  id               String   @id @default(cuid())
+  organizationId   String   @map("organization_id")
+  fase             String   @db.VarChar(5)
+  paso             Int
+  elemento         String   @db.VarChar(255)
+  nivelAplicable   String?  @map("nivel_aplicable") @db.VarChar(100)
+  cumplimiento     String   @db.VarChar(20)
+  porcentajeAvance Int?     @map("porcentaje_avance")
+  evidencia        String?  @db.Text
+  observaciones    String?  @db.Text
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, paso])
+  @@map("road_safety_pesv_steps")
+}
+
+/// Hoja 1 (bloques de inventario) — actores viales, parque automotor y
+/// cobertura operacional son 3 grupos de conteos con conceptos fijos
+/// (definidos en el Excel). Los totales ("Total actores viales", etc.) NO
+/// se guardan — se suman al leer, para no quedar desincronizados.
+model RoadSafetyInventoryItem {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  grupo          String   @db.VarChar(50)
+  concepto       String   @db.VarChar(150)
+  cantidad       Int      @default(0)
+  observaciones  String?  @db.Text
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, grupo, concepto])
+  @@map("road_safety_inventory_items")
+}
+
+/// Hoja 4 · Rutograma — formato ficha (no tabular), un registro por ruta,
+/// upsert por idRuta. `condicionesRiesgo` guarda los 14 checks fijos como
+/// JSON ({clave: boolean}); `organismosApoyoLocal` los 4 renglones
+/// editables de "Ciudad más cercana" (los 8 nacionales son fijos, se
+/// hardcodean en el código — ver roadSafetyConstants.ts — porque nunca
+/// cambian entre clientes).
+model RoadSafetyRoute {
+  id                        String    @id @default(cuid())
+  organizationId            String    @map("organization_id")
+  codigo                    String?   @db.VarChar(50)
+  version                   String?   @db.VarChar(20)
+  fecha                     DateTime?
+  idRuta                    String    @map("id_ruta") @db.VarChar(50)
+  clienteProyecto           String?   @map("cliente_proyecto") @db.VarChar(255)
+  origen                    String?   @db.VarChar(255)
+  destino                   String?   @db.VarChar(255)
+  rutaAlterna               String?   @map("ruta_alterna") @db.VarChar(255)
+  sitiosParada              String?   @map("sitios_parada") @db.VarChar(255)
+  kmsRecorridos             String?   @map("kms_recorridos") @db.VarChar(50)
+  duracion                  String?   @db.VarChar(50)
+  sstNombreTelefono         String?   @map("sst_nombre_telefono") @db.VarChar(255)
+  operacionesNombreTelefono String?   @map("operaciones_nombre_telefono") @db.VarChar(255)
+  mapaImagenBase64          String?   @map("mapa_imagen_base64") @db.LongText
+  condicionesRiesgo         Json?     @map("condiciones_riesgo")
+  organismosApoyoLocal      Json?     @map("organismos_apoyo_local")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  organization Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  puntos       RoadSafetyRoutePoint[]
+
+  @@unique([organizationId, idRuta])
+  @@map("road_safety_routes")
+}
+
+/// Tabla "Puntos de la ruta" de la Hoja 4 — filas repetibles, se reemplazan
+/// completas en cada carga (deleteMany + createMany dentro de la
+/// transacción de upsert de la ruta).
+model RoadSafetyRoutePoint {
+  id                       String  @id @default(cuid())
+  routeId                  String  @map("route_id")
+  orden                    Int
+  kmViaReferencia          String? @map("km_via_referencia") @db.VarChar(255)
+  senalesTransito          String? @map("senales_transito") @db.Text
+  aspectosRelevantes       String? @map("aspectos_relevantes") @db.Text
+  controlesExistentes      String? @map("controles_existentes") @db.Text
+  recomendacionesSeguridad String? @map("recomendaciones_seguridad") @db.Text
+  riesgoMasRelevante       String? @map("riesgo_mas_relevante") @db.VarChar(20)
+
+  route RoadSafetyRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@index([routeId])
+  @@map("road_safety_route_points")
 }

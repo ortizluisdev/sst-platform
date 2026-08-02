@@ -7,6 +7,7 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
 import ClientDashboardHojas from '@/components/dashboard/client/ClientDashboardHojas.vue'
+import RoadSafetyClientPanel from '@/components/dashboard/roadSafety/RoadSafetyClientPanel.vue'
 import NotificationsPanel from '@/modules/notifications/components/NotificationsPanel.vue'
 import MyProfilePanel from '@/modules/profile/components/MyProfilePanel.vue'
 import {
@@ -40,6 +41,15 @@ const activeHoja = ref<'hoja1' | 'hoja2' | 'hoja3'>('hoja1')
 useHead(() => ({ title: t('dashboard.clientView.pageTitle'), meta: [{ name: 'robots', content: 'noindex' }] }))
 
 async function loadDashboard() {
+  // Seguridad Vial no usa el modelo de VariableDefinition/VariableReading
+  // (ver RoadSafetyClientPanel.vue, tiene su propio módulo/endpoints) — no
+  // tiene sentido pedirle datos al endpoint genérico de dashboard.
+  if (serviceSlug.value === 'seguridad-vial') {
+    status.value = 'ready'
+    dashboard.value = null
+    return
+  }
+
   status.value = 'loading'
   // Cada servicio tiene sus propias pestañas/categorías — al cambiar de
   // servicio no tiene sentido conservar la pestaña activa del anterior.
@@ -91,6 +101,21 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
     </p>
+    <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[220px_1fr]">
+      <DashboardSidebar
+        v-model="activeTab"
+        v-model:active-hoja="activeHoja"
+        :tabs="[]"
+        :services="services"
+        :selected-service-slug="serviceSlug"
+        @update:selected-service-slug="selectService"
+      />
+      <div>
+        <RoadSafetyClientPanel v-if="activeTab === 'resumen'" />
+        <NotificationsPanel v-else-if="activeTab === 'notificaciones'" />
+        <MyProfilePanel v-else-if="activeTab === 'perfil'" />
+      </div>
+    </div>
     <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[220px_1fr]">
       <DashboardSidebar
         v-model="activeTab"
@@ -112,12 +137,12 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />
         <DashboardShell
           v-else
+          v-model:active-tab="activeTab"
           :dashboard="dashboard"
           :fetch-history="fetchHistory"
           :fetch-upload-detail="fetchUploadDetail"
           hide-sidebar
           :tabs="tabs"
-          v-model:active-tab="activeTab"
         />
       </div>
     </div>

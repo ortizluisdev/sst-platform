@@ -99,6 +99,10 @@ const PERMISSIONS = [
     key: 'platform.variables.manage',
     description: 'Editar Tipo/Instrumento/Incertidumbre del catálogo de variables. Solo super-admin/adminsystem.',
   },
+  {
+    key: 'platform.workCatalogs.manage',
+    description: 'CRUD de zonas/secciones/cargos/trabajadores por empresa. Solo super-admin/adminsystem.',
+  },
 ] as const
 
 /**
@@ -126,7 +130,7 @@ const ROLES = [
     name: 'cliente',
     description: 'Rol de organización cliente. Solo lectura de sus dashboards contratados.',
     isSystem: true,
-    permissionKeys: ['dashboard.higiene-industrial.view', 'dashboard.metrics.view'],
+    permissionKeys: ['dashboard.higiene-industrial.view', 'dashboard.seguridad-vial.view', 'dashboard.metrics.view'],
   },
 ] as const
 
@@ -167,10 +171,14 @@ interface ClientOrgSeed {
 }
 
 /** Usuarios cliente de prueba: cada uno es el responsable (login por
- * cédula) de su propia organización, con rol "cliente". Perfiles de
- * cumplimiento distintos a propósito — para poder comparar visualmente
- * cómo se comporta el dashboard (semáforo, cumplimiento global, tendencia)
- * entre una organización sana y una con hallazgos críticos frecuentes. */
+ * cédula) de su propia organización, con rol "cliente".
+ *
+ * Fase de pruebas (2026-08): se dejó un solo cliente demo a propósito —
+ * antes había una segunda organización ("Organizacion 2", 1000000004) solo
+ * para comparar visualmente un perfil de cumplimiento sano vs. uno crítico,
+ * pero la nueva fase de pruebas arranca limpia con únicamente los 3
+ * usuarios de siempre (1000000001/02/03). Si se necesita ese segundo
+ * perfil de comparación más adelante, se puede volver a agregar aquí. */
 function buildClientUsers(): ClientOrgSeed[] {
   return [
     {
@@ -182,16 +190,6 @@ function buildClientUsers(): ClientOrgSeed[] {
       organizationNit: '900000001-1',
       workPointCount: 20,
       complianceProfile: 'saludable',
-    },
-    {
-      documentNumber: '1000000004',
-      email: 'dimigaar1990@gmail.com',
-      password: requireEnv('SEED_CLIENTE2_PASSWORD'),
-      nombre: 'Usuario Organización 2',
-      organizationName: 'Organizacion 2',
-      organizationNit: '900000002-1',
-      workPointCount: 14,
-      complianceProfile: 'critico',
     },
   ]
 }

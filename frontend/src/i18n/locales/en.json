@@ -516,9 +516,19 @@
       }
     },
     "uploadForm": {
-      "missingFields": "Select a file and an evaluation date.",
+      "missingFields": "Select a file, an evaluation date, zone, section, position and worker.",
       "processError": "Error processing the file.",
       "heading": "Upload variables (CSV or Excel)",
+      "openButton": "Upload variables",
+      "close": "Close",
+      "zonaLabel": "Zone",
+      "seccionLabel": "Section",
+      "cargoLabel": "Position",
+      "trabajadorLabel": "Worker",
+      "catalogSelectPlaceholder": "Select...",
+      "catalogAddNew": "Add new",
+      "catalogNewPlaceholder": "New name",
+      "catalogAddConfirm": "Add",
       "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. Also accepts the full Excel report (Reporte Hoja 2).",
       "omittedHeading": "Skipped rows (not loaded):",
       "omittedReason": {
@@ -670,6 +680,10 @@
       "filtroTodas": "All areas",
       "filtroProceso": "Process/activity",
       "filtroTodos": "All processes",
+      "filtroTodasZonas": "All zones",
+      "filtroTodasSecciones": "All sections",
+      "filtroTodosCargos": "All positions",
+      "filtroTodosTrabajadores": "All workers",
       "limpiarFiltros": "Clear filters",
       "filtrando": "Applying filters...",
       "sinResultados": "No results for the selected filters."
@@ -990,6 +1004,150 @@
       "numeroInforme": "Report number",
       "elaboradoPor": "Prepared by",
       "elaboradoPorPlaceholder": "Your name, if different from your account"
+    }
+  },
+  "roadSafety": {
+    "loading": "Loading…",
+    "loadError": "Could not load the information.",
+    "noData": "No data",
+    "tabs": {
+      "hoja1": "Sheet 1 · General",
+      "hoja2": "Sheet 2 · Vehicles",
+      "hoja3": "Sheet 3 · People",
+      "hoja4": "Sheet 4 · Route map",
+      "alertas": "Alerts panel"
+    },
+    "upload": {
+      "label": "Upload registry (Excel)",
+      "hint": "Upload the full workbook (registro_seguridad_vial_MSSV_1.xlsx) — replaces the current vehicles, people, PESV, and route data.",
+      "loading": "Uploading and processing…",
+      "success": "File \"{file}\" processed successfully.",
+      "genericError": "Could not process the file."
+    },
+    "hoja1": {
+      "pesvTitle": "PESV self-assessment — 24 steps (Resolution 40595 of 2022)",
+      "cumplimientoGlobal": "Overall compliance",
+      "fase": "Phase",
+      "paso": "Step",
+      "elemento": "PESV element",
+      "nivelAplicable": "Applicable level",
+      "cumplimiento": "Compliance",
+      "avance": "% progress",
+      "total": "Total",
+      "grupo": {
+        "ACTORES_VIALES": "Mobility inventory — road users",
+        "PARQUE_AUTOMOTOR": "Vehicle fleet",
+        "COBERTURA_OPERACIONAL": "Operational coverage"
+      }
+    },
+    "hoja2": {
+      "filtroPlaca": "Filter by plate",
+      "placa": "Plate",
+      "tipo": "Type",
+      "ciudad": "City",
+      "conductores": "Driver(s)",
+      "soatVence": "SOAT expires",
+      "diasSoat": "SOAT days",
+      "rtmVence": "RTM expires",
+      "diasRtm": "RTM days",
+      "comparendos": "Traffic tickets",
+      "kmActual": "Current km",
+      "pruebaFrenado": "Brake test",
+      "labrado": "Tread depth (mm)",
+      "anomalia": "Consumption anomaly",
+      "alerta": "Alert",
+      "empty": "No vehicles match the filter."
+    },
+    "hoja3": {
+      "documento": "Document",
+      "nombre": "Name",
+      "actorVial": "Road user type",
+      "ciudad": "City",
+      "licenciaVence": "License expires",
+      "diasLicencia": "License days",
+      "estadoSalud": "Health status",
+      "icc": "DCI",
+      "resultado": "Result",
+      "alerta": "Alert",
+      "empty": "No drivers registered yet."
+    },
+    "hoja4": {
+      "empty": "No routes registered yet — upload the full workbook to see the route map.",
+      "selectRuta": "Select route",
+      "encabezado": "Header",
+      "codigo": "Code",
+      "version": "Version",
+      "fecha": "Date",
+      "idRuta": "Route ID",
+      "infoGeneral": "General information",
+      "origen": "Origin",
+      "destino": "Destination",
+      "rutaAlterna": "Alternate route",
+      "sitiosParada": "Authorized stop points",
+      "kmsRecorridos": "Distance",
+      "duracion": "Duration",
+      "organismosApoyo": "Available support agencies",
+      "entidad": "Agency",
+      "municipio": "Municipality / office",
+      "telefono1": "Phone 1",
+      "telefono2": "Phone 2",
+      "condicionesRiesgo": "Route analysis — risk conditions",
+      "puntosRuta": "Route points",
+      "kmVia": "KM / road / reference",
+      "senales": "Traffic signs",
+      "aspectos": "Relevant aspects",
+      "controles": "Existing controls",
+      "recomendaciones": "Safety recommendations",
+      "riesgo": "Most relevant risk",
+      "puntosEmpty": "No route points registered."
+    },
+    "alerta": {
+      "vehiculo": {
+        "OK": "OK",
+        "ALERTA": "Alert",
+        "VENCIDO": "Expired"
+      },
+      "conductor": {
+        "OK": "OK",
+        "ALERTA": "Alert",
+        "LICENCIA_VENCIDA": "License expired"
+      }
+    },
+    "alertas": {
+      "vehiculos": "Vehicles",
+      "conductores": "Drivers",
+      "vencidos": "Expired vehicles",
+      "enAlerta": "Vehicles on alert",
+      "soatRtmPorVencer": "SOAT/RTM expiring (≤30 d)",
+      "conComparendos": "With traffic tickets",
+      "licenciasVencidas": "Expired licenses",
+      "licenciasPorVencer": "Licenses expiring (≤30 d)",
+      "noAprobados": "Not passed (DCI<70)",
+      "enAlertaConductor": "Drivers on alert",
+      "hint": "For details, filter the Alert column in sheets 2 and 3 by \"Alert\", \"Expired\", or \"License expired\"."
+    },
+    "reports": {
+      "titulo": {
+        "h1": "Generate H1 Report — General summary",
+        "h2": "Generate H2 Report — Fleet report",
+        "h3": "Generate H3 Report — People report",
+        "h4": "Generate H4 Report — Route map report"
+      },
+      "subtitulo": "This info is only for this report — it isn't saved to the company profile.",
+      "close": "Close",
+      "genericError": "Couldn't generate the report.",
+      "generando": "Generating…",
+      "generarPdf": "Generate PDF",
+      "generarCsv": "Generate CSV",
+      "generarReporte": "Generate report",
+      "fields": {
+        "sedePrincipal": "Main site",
+        "ciudad": "City",
+        "responsablePesv": "PESV responsible",
+        "nivelPesv": "PESV level",
+        "numeroInforme": "Report number",
+        "fechaCorte": "Cutoff date"
+      }
     }
   }
 }

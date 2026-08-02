@@ -177,6 +177,14 @@ export interface UploadHistoryEntry {
   totalLecturas: number
   totalPuestos: number
   hasOmittedRows: boolean
+  zonaId: string | null
+  zonaNombre: string | null
+  seccionId: string | null
+  seccionNombre: string | null
+  cargoId: string | null
+  cargoNombre: string | null
+  trabajadorId: string | null
+  trabajadorNombre: string | null
 }
 
 export interface UploadOmittedRow {
@@ -205,6 +213,10 @@ export interface UploadDetail {
   originalFile: string
   status: 'PENDIENTE' | 'PROCESADO' | 'ERROR'
   uploadedByNombre: string
+  zonaNombre: string | null
+  seccionNombre: string | null
+  cargoNombre: string | null
+  trabajadorNombre: string | null
   omittedRows: UploadOmittedRow[]
   readings: UploadDetailReading[]
 }

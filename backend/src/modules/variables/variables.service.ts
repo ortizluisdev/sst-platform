@@ -82,7 +82,8 @@ export class VariablesError extends Error {
       | 'INVALID_FILE'
       | 'UNKNOWN_VARIABLES'
       | 'UPLOAD_NOT_FOUND'
-      | 'READING_NOT_FOUND',
+      | 'READING_NOT_FOUND'
+      | 'CATALOG_ITEM_NOT_FOUND',
     message: string,
   ) {
     super(message)
@@ -113,6 +114,10 @@ export function createVariablesService(prisma: PrismaClient) {
       serviceSlug: string
       uploadedById: string
       fechaEvaluacion: Date
+      zonaId: string
+      seccionId: string
+      cargoId: string
+      trabajadorId: string
       fileBuffer: Buffer
       filename: string
       ipAddress?: string
@@ -127,6 +132,20 @@ export function createVariablesService(prisma: PrismaClient) {
       if (!orgService || !orgService.isActive) {
         throw new VariablesError('SERVICE_NOT_CONTRACTED', 'Esta organización no tiene contratado este servicio')
       }
+
+      // Anti-IDOR: los 4 ids deben pertenecer a ESTA organización — nunca
+      // confiar en que un id de catálogo que llega del frontend es válido
+      // solo porque tiene forma de cuid.
+      const [zona, seccion, cargo, trabajador] = await Promise.all([
+        repository.findZonaById(input.zonaId, input.organizationId),
+        repository.findSeccionById(input.seccionId, input.organizationId),
+        repository.findCargoById(input.cargoId, input.organizationId),
+        repository.findTrabajadorById(input.trabajadorId, input.organizationId),
+      ])
+      if (!zona) throw new VariablesError('CATALOG_ITEM_NOT_FOUND', 'Zona no encontrada')
+      if (!seccion) throw new VariablesError('CATALOG_ITEM_NOT_FOUND', 'Sección no encontrada')
+      if (!cargo) throw new VariablesError('CATALOG_ITEM_NOT_FOUND', 'Cargo no encontrado')
+      if (!trabajador) throw new VariablesError('CATALOG_ITEM_NOT_FOUND', 'Trabajador no encontrado')
 
       const esXlsx = !input.filename.toLowerCase().endsWith('.csv')
       let rows: { codigoPuesto: string; nombrePuesto: string; areaPlanta: string; procesoActividad: string; jornada: string; codigoVariable: string; valor: number }[]
@@ -261,6 +280,10 @@ export function createVariablesService(prisma: PrismaClient) {
         originalFile: input.filename,
         fechaEvaluacion: fechaEvaluacionFinal,
         origen,
+        zonaId: input.zonaId,
+        seccionId: input.seccionId,
+        cargoId: input.cargoId,
+        trabajadorId: input.trabajadorId,
         rows: preparedRows,
         omittedRows: filasOmitidasFormato.length > 0 ? filasOmitidasFormato : null,
       })
@@ -592,6 +615,14 @@ export function createVariablesService(prisma: PrismaClient) {
         totalLecturas: upload.readings.length,
         totalPuestos: new Set(upload.readings.map((r) => r.workPointId)).size,
         hasOmittedRows: Array.isArray(upload.omittedRows) && upload.omittedRows.length > 0,
+        zonaId: upload.zonaId,
+        zonaNombre: upload.zona?.nombre ?? null,
+        seccionId: upload.seccionId,
+        seccionNombre: upload.seccion?.nombre ?? null,
+        cargoId: upload.cargoId,
+        cargoNombre: upload.cargo?.nombre ?? null,
+        trabajadorId: upload.trabajadorId,
+        trabajadorNombre: upload.trabajador?.nombre ?? null,
       }))
     },
 
@@ -607,6 +638,10 @@ export function createVariablesService(prisma: PrismaClient) {
         originalFile: upload.originalFile,
         status: upload.status,
         uploadedByNombre: upload.uploadedBy.nombre,
+        zonaNombre: upload.zona?.nombre ?? null,
+        seccionNombre: upload.seccion?.nombre ?? null,
+        cargoNombre: upload.cargo?.nombre ?? null,
+        trabajadorNombre: upload.trabajador?.nombre ?? null,
         omittedRows: (upload.omittedRows as { nombre: string; motivo: string }[] | null) ?? [],
         readings: upload.readings.map((r) => ({
           workPointCodigo: r.workPoint.codigo,

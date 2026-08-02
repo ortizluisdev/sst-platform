@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Bell, ChevronDown, ChevronRight, LayoutGrid, User, Users } from 'lucide-vue-next'
+import { Bell, ChevronRight, LayoutGrid, User, Users } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
@@ -27,18 +27,19 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const auth = useAuthStore()
 
-// Solo Higiene Industrial tiene sub-vistas reales hoy (las 7 pestañas de
-// DashboardShell) — los demás servicios son ítems planos que navegan directo
-// a su placeholder "panel en construcción".
+// Higiene Industrial y Seguridad Vial tienen panel real con sub-vistas hoy
+// (7 pestañas de DashboardShell / 5 hojas+alertas de RoadSafetyAdminPanel)
+// — los demás servicios son ítems planos que navegan directo a su
+// placeholder "panel en construcción".
 function isExpandable(slug: string): boolean {
-  return slug === 'higiene-industrial'
+  return slug === 'higiene-industrial' || slug === 'seguridad-vial'
 }
 
 // Los demás servicios del catálogo (Mantenimiento Basado en Riesgo, Modelado
-// Científico, Riesgo Mecánico y Locativo, Seguridad Vial) no tienen catálogo
-// de variables ni panel real detrás todavía — listarlos en el sidebar como
-// si fueran navegables sería mostrar algo roto. Se ocultan hasta que tengan
-// contenido real, no solo un placeholder "en construcción".
+// Científico, Riesgo Mecánico y Locativo) no tienen catálogo de variables ni
+// panel real detrás todavía — listarlos en el sidebar como si fueran
+// navegables sería mostrar algo roto. Se ocultan hasta que tengan contenido
+// real, no solo un placeholder "en construcción".
 const visibleServices = computed(() => props.services.filter((s) => isExpandable(s.slug)))
 
 // Derivado puro (no un ref propio): expandido si y solo si estamos viendo
@@ -91,7 +92,12 @@ function handleTabClick(tab: TabDef) {
         <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-navy-700/50">
           {{ t('dashboard.adminShell.noActiveServices') }}
         </li>
-        <li v-for="service in visibleServices" :key="service.slug">
+        <li
+          v-for="service in visibleServices"
+          :key="service.slug"
+          class="rounded-md transition-colors"
+          :class="expandedSlug === service.slug ? 'bg-sky-400/5' : ''"
+        >
           <button
             type="button"
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
@@ -107,14 +113,21 @@ function handleTabClick(tab: TabDef) {
             <span class="min-w-0 flex-1 truncate">{{
               serviceLabel(service.slug, service.nombre, locale as Locale)
             }}</span>
-            <ChevronDown
-              v-if="isExpandable(service.slug) && expandedSlug === service.slug"
-              class="h-4 w-4 shrink-0"
+            <ChevronRight
+              v-if="isExpandable(service.slug)"
+              class="h-4 w-4 shrink-0 transition-transform duration-200"
+              :class="expandedSlug === service.slug ? 'rotate-90' : ''"
               aria-hidden="true"
             />
-            <ChevronRight v-else-if="isExpandable(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
           </button>
 
+          <!-- v-if simple (no un truco de grid-rows ni <Transition>): solo el
+          servicio realmente expandido renderiza props.serviceTabs. Se probó
+          con grid-template-rows (0fr↔1fr) y con <Transition> y ambos dejaban
+          el acordeón en un estado inconsistente (una entrada "atascada" a
+          medio animar, mostrando el contenido del otro servicio) — la
+          prioridad acá es que nunca se vea información cruzada entre
+          servicios, aunque el despliegue sea instantáneo en vez de animado. -->
           <ul
             v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
             class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"

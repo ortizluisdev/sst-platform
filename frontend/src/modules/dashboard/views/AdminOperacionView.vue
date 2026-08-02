@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import HigieneIndustrialPanel from '@/components/dashboard/operacion/HigieneIndustrialPanel.vue'
+import RoadSafetyAdminPanel from '@/components/dashboard/operacion/RoadSafetyAdminPanel.vue'
 import ServicePanelPlaceholder from '@/components/dashboard/operacion/ServicePanelPlaceholder.vue'
 import type { ServiceOption } from '@/types/organization'
 
@@ -25,7 +26,12 @@ const activeServiceNombre = computed(
 </script>
 
 <template>
-  <HigieneIndustrialPanel v-if="orgId && serviceSlug === 'higiene-industrial'" :organization-id="orgId" />
-  <ServicePanelPlaceholder v-else-if="orgId && serviceSlug" :nombre="activeServiceNombre" />
-  <p v-else class="text-sm text-navy-700">{{ t('dashboard.adminView.noOrgs') }}</p>
+  <HigieneIndustrialPanel v-if="orgId && serviceSlug === 'higiene-industrial'" key="higiene" :organization-id="orgId" />
+  <RoadSafetyAdminPanel
+    v-else-if="orgId && serviceSlug === 'seguridad-vial'"
+    key="seguridad-vial"
+    :organization-id="orgId"
+  />
+  <ServicePanelPlaceholder v-else-if="orgId && serviceSlug" :key="serviceSlug" :nombre="activeServiceNombre" />
+  <p v-else key="empty" class="text-sm text-navy-700">{{ t('dashboard.adminView.noOrgs') }}</p>
 </template>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
+import CatalogSelect from '@/components/dashboard/CatalogSelect.vue'
 import { uploadVariablesFile, DashboardRequestError, type UploadResult } from '@/services/dashboard.service'
 
 const props = defineProps<{ organizationId: string; serviceSlug: string }>()
@@ -11,6 +12,10 @@ const { t } = useI18n()
 
 const file = ref<File | null>(null)
 const fechaEvaluacion = ref('')
+const zonaId = ref('')
+const seccionId = ref('')
+const cargoId = ref('')
+const trabajadorId = ref('')
 const status = ref<'idle' | 'loading' | 'error'>('idle')
 const errorMessage = ref('')
 const lastResult = ref<UploadResult | null>(null)
@@ -20,7 +25,7 @@ function onFileChange(event: Event) {
 }
 
 async function submit() {
-  if (!file.value || !fechaEvaluacion.value) {
+  if (!file.value || !fechaEvaluacion.value || !zonaId.value || !seccionId.value || !cargoId.value || !trabajadorId.value) {
     status.value = 'error'
     errorMessage.value = t('dashboard.uploadForm.missingFields')
     return
@@ -33,6 +38,10 @@ async function submit() {
       serviceSlug: props.serviceSlug,
       file: file.value,
       fechaEvaluacion: fechaEvaluacion.value,
+      zonaId: zonaId.value,
+      seccionId: seccionId.value,
+      cargoId: cargoId.value,
+      trabajadorId: trabajadorId.value,
     })
     status.value = 'idle'
     file.value = null
@@ -45,7 +54,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="rounded-lg border border-line-strong bg-white p-4 sm:p-5">
+  <div>
     <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
       {{ t('dashboard.uploadForm.heading') }}
     </p>
@@ -53,18 +62,48 @@ async function submit() {
       {{ t('dashboard.uploadForm.columnsHint') }}
     </p>
 
-    <form class="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_180px_auto] sm:gap-4" @submit.prevent="submit">
-      <input
-        type="file"
-        accept=".csv,.xlsx,.xls"
-        class="w-full min-w-0 rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900 file:mr-3 file:rounded-sm file:border-0 file:bg-sky-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-navy-700"
-        @change="onFileChange"
-      />
-      <input
-        v-model="fechaEvaluacion"
-        type="date"
-        class="w-full rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900"
-      />
+    <form class="grid grid-cols-1 gap-4" @submit.prevent="submit">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input
+          type="file"
+          accept=".csv,.xlsx,.xls"
+          class="w-full min-w-0 rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900 file:mr-3 file:rounded-sm file:border-0 file:bg-sky-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-navy-700"
+          @change="onFileChange"
+        />
+        <input
+          v-model="fechaEvaluacion"
+          type="date"
+          class="w-full rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <CatalogSelect
+          v-model="zonaId"
+          :organization-id="props.organizationId"
+          tipo="zona"
+          :label="t('dashboard.uploadForm.zonaLabel')"
+        />
+        <CatalogSelect
+          v-model="seccionId"
+          :organization-id="props.organizationId"
+          tipo="seccion"
+          :label="t('dashboard.uploadForm.seccionLabel')"
+        />
+        <CatalogSelect
+          v-model="cargoId"
+          :organization-id="props.organizationId"
+          tipo="cargo"
+          :label="t('dashboard.uploadForm.cargoLabel')"
+        />
+        <CatalogSelect
+          v-model="trabajadorId"
+          :organization-id="props.organizationId"
+          tipo="trabajador"
+          :label="t('dashboard.uploadForm.trabajadorLabel')"
+        />
+      </div>
+
       <SubmitButton :loading="status === 'loading'" :loading-label="t('dashboard.uploadForm.processing')">{{ t('dashboard.uploadForm.submit') }}</SubmitButton>
     </form>
 

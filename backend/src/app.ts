@@ -13,6 +13,7 @@ import { usersRoutes } from './modules/users/users.routes.js'
 import { variablesRoutes } from './modules/variables/variables.routes.js'
 import { notificationsRoutes } from './modules/notifications/notifications.routes.js'
 import { organizationsRoutes } from './modules/organizations/organizations.routes.js'
+import { orgCatalogsRoutes } from './modules/orgCatalogs/orgCatalogs.routes.js'
 import { organizationBrandingRoutes } from './modules/organizationBranding/organizationBranding.routes.js'
 import { activationRoutes } from './modules/activation/activation.routes.js'
 import { servicesRoutes } from './modules/services/services.routes.js'
@@ -20,6 +21,8 @@ import { variableCatalogRoutes } from './modules/variableCatalog/variableCatalog
 import { serviceHeatmapRoutes } from './modules/serviceHeatmap/serviceHeatmap.routes.js'
 import { nonConformitiesRoutes } from './modules/nonConformities/nonConformities.routes.js'
 import { reportsRoutes } from './modules/reports/reports.routes.js'
+import { roadSafetyRoutes } from './modules/roadSafety/roadSafety.routes.js'
+import { roadSafetyReportsRoutes } from './modules/roadSafety/roadSafetyReports.routes.js'
 import { env } from './config/env.js'
 
 export async function buildApp() {
@@ -51,6 +54,7 @@ export async function buildApp() {
   await app.register(variablesRoutes)
   await app.register(notificationsRoutes)
   await app.register(organizationsRoutes)
+  await app.register(orgCatalogsRoutes)
   await app.register(organizationBrandingRoutes)
   await app.register(activationRoutes)
   await app.register(servicesRoutes)
@@ -58,6 +62,8 @@ export async function buildApp() {
   await app.register(serviceHeatmapRoutes)
   await app.register(nonConformitiesRoutes)
   await app.register(reportsRoutes)
+  await app.register(roadSafetyRoutes)
+  await app.register(roadSafetyReportsRoutes)
 
   return app
 }

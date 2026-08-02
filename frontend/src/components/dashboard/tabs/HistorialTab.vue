@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
-import { formatDate } from '@/utils/formatDate'
+import { formatDateTime } from '@/utils/formatDate'
 
 const props = defineProps<{
   fetchHistory: () => Promise<UploadHistoryEntry[]>
@@ -17,16 +17,32 @@ const status = ref<'loading' | 'ready' | 'error'>('loading')
 const uploads = ref<UploadHistoryEntry[]>([])
 const desde = ref('')
 const hasta = ref('')
+const zona = ref('')
+const seccion = ref('')
+const cargo = ref('')
+const trabajador = ref('')
 
 const expandedId = ref<string | null>(null)
 const detailByUpload = ref<Record<string, UploadDetail>>({})
 const detailLoading = ref(false)
+
+function uniqueNombres(key: 'zonaNombre' | 'seccionNombre' | 'cargoNombre' | 'trabajadorNombre') {
+  return [...new Set(uploads.value.map((u) => u[key]).filter((v): v is string => !!v))].sort()
+}
+const zonaOptions = computed(() => uniqueNombres('zonaNombre'))
+const seccionOptions = computed(() => uniqueNombres('seccionNombre'))
+const cargoOptions = computed(() => uniqueNombres('cargoNombre'))
+const trabajadorOptions = computed(() => uniqueNombres('trabajadorNombre'))
 
 const filteredUploads = computed(() =>
   uploads.value.filter((u) => {
     const fecha = u.fechaEvaluacion.slice(0, 10)
     if (desde.value && fecha < desde.value) return false
     if (hasta.value && fecha > hasta.value) return false
+    if (zona.value && u.zonaNombre !== zona.value) return false
+    if (seccion.value && u.seccionNombre !== seccion.value) return false
+    if (cargo.value && u.cargoNombre !== cargo.value) return false
+    if (trabajador.value && u.trabajadorNombre !== trabajador.value) return false
     return true
   }),
 )
@@ -87,6 +103,42 @@ function statusLabel(s: UploadHistoryEntry['status']): string {
           class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
         />
       </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.zonaLabel')
+        }}</label>
+        <select v-model="zona" class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900">
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasZonas') }}</option>
+          <option v-for="z in zonaOptions" :key="z" :value="z">{{ z }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.seccionLabel')
+        }}</label>
+        <select v-model="seccion" class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900">
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasSecciones') }}</option>
+          <option v-for="s in seccionOptions" :key="s" :value="s">{{ s }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.cargoLabel')
+        }}</label>
+        <select v-model="cargo" class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900">
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosCargos') }}</option>
+          <option v-for="c in cargoOptions" :key="c" :value="c">{{ c }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.trabajadorLabel')
+        }}</label>
+        <select v-model="trabajador" class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900">
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosTrabajadores') }}</option>
+          <option v-for="tr in trabajadorOptions" :key="tr" :value="tr">{{ tr }}</option>
+        </select>
+      </div>
     </div>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.historial.loading') }}</p>
@@ -117,7 +169,7 @@ function statusLabel(s: UploadHistoryEntry['status']): string {
           <tbody>
             <template v-for="upload in filteredUploads" :key="upload.id">
               <tr class="cursor-pointer border-t border-line hover:bg-sky-100/40" @click="toggleExpand(upload)">
-                <td class="px-4 py-3 text-navy-900">{{ formatDate(upload.fechaEvaluacion, locale as Locale) }}</td>
+                <td class="px-4 py-3 text-navy-900">{{ formatDateTime(upload.fechaEvaluacion, locale as Locale) }}</td>
                 <td class="px-4 py-3 text-navy-700">{{ upload.uploadedByNombre }}</td>
                 <td class="px-4 py-3 text-navy-700">{{ upload.originalFile }}</td>
                 <td class="px-4 py-3 text-navy-700">{{ upload.totalPuestos }}</td>
@@ -138,6 +190,16 @@ function statusLabel(s: UploadHistoryEntry['status']): string {
                     {{ t('dashboard.historial.loadingDetail') }}
                   </p>
                   <template v-else-if="detailByUpload[upload.id]">
+                    <div
+                      v-if="upload.zonaNombre || upload.seccionNombre || upload.cargoNombre || upload.trabajadorNombre"
+                      class="mb-3 grid grid-cols-2 gap-x-4 gap-y-1 rounded-sm border border-line-strong bg-white px-3 py-2 text-xs text-navy-700 sm:grid-cols-4"
+                    >
+                      <p><span class="font-semibold text-navy-900">{{ t('dashboard.uploadForm.zonaLabel') }}:</span> {{ upload.zonaNombre }}</p>
+                      <p><span class="font-semibold text-navy-900">{{ t('dashboard.uploadForm.seccionLabel') }}:</span> {{ upload.seccionNombre }}</p>
+                      <p><span class="font-semibold text-navy-900">{{ t('dashboard.uploadForm.cargoLabel') }}:</span> {{ upload.cargoNombre }}</p>
+                      <p><span class="font-semibold text-navy-900">{{ t('dashboard.uploadForm.trabajadorLabel') }}:</span> {{ upload.trabajadorNombre }}</p>
+                    </div>
+
                     <div
                       v-if="detailByUpload[upload.id]!.omittedRows.length > 0"
                       class="mb-3 rounded-sm border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800"

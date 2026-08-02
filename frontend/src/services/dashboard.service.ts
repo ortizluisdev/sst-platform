@@ -145,10 +145,18 @@ export async function uploadVariablesFile(input: {
   serviceSlug: string
   file: File
   fechaEvaluacion: string
+  zonaId: string
+  seccionId: string
+  cargoId: string
+  trabajadorId: string
 }): Promise<UploadResult> {
   const formData = new FormData()
   formData.append('file', input.file)
   formData.append('fechaEvaluacion', input.fechaEvaluacion)
+  formData.append('zonaId', input.zonaId)
+  formData.append('seccionId', input.seccionId)
+  formData.append('cargoId', input.cargoId)
+  formData.append('trabajadorId', input.trabajadorId)
 
   try {
     const { data } = await apiClient.post(

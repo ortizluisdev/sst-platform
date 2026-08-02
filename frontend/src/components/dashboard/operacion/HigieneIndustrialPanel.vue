@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
+import { computed, inject, onMounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
-import VariableUploadForm from '@/components/dashboard/VariableUploadForm.vue'
+import VariableUploadModal from '@/components/dashboard/VariableUploadModal.vue'
 import {
   getAdminDashboard,
   getAdminUploadHistory,
@@ -39,11 +39,18 @@ const activeOrgNombre = computed(() => organizations.value.find((org) => org.id 
 // Acordeón del sidebar admin (Fase C): AdminShell posee estas refs porque es
 // el ancestro común de AdminNavSidebar y de este panel (varios niveles abajo
 // del router-view) — provide/inject no puede subir de este componente a un
-// hermano. Este panel las rellena mientras está montado y las limpia al
-// desmontarse, para que el acordeón no arrastre sub-vistas de una empresa u
-// otro servicio ya no visible.
+// hermano. Este panel las rellena mientras está montado.
+//
+// NO se limpia sharedServiceTabs en onUnmounted: la visibilidad ya está
+// condicionada por expandedSlug en AdminNavSidebar.vue (un valor viejo nunca
+// se llega a mostrar), y limpiarlo acá competía en una carrera con el watch
+// del panel que entra al cambiar de servicio — el onUnmounted del panel
+// saliente podía correr DESPUÉS de que el que entra ya puso su valor,
+// dejando el array en blanco y el acordeón sin sub-ítems.
 const sharedActiveTab = inject<Ref<string>>('operacionActiveTab', ref('resumen'))
 const sharedServiceTabs = inject<Ref<TabDef[]>>('operacionServiceTabs', ref([]))
+
+const showUploadModal = ref(false)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
@@ -55,10 +62,13 @@ const tabs = computed<TabDef[]>(() =>
 
 watch(tabs, (value) => {
   sharedServiceTabs.value = value
-})
-
-onUnmounted(() => {
-  sharedServiceTabs.value = []
+  // Si venimos de otro panel (ej. Seguridad Vial) sharedActiveTab puede traer
+  // una clave que no existe acá ('hoja1', etc.) — DashboardShell no reconoce
+  // esa clave y no renderiza nada. Sin este chequeo el panel queda en blanco
+  // al volver a Higiene Industrial desde otro servicio.
+  if (value.length > 0 && !value.some((tab) => tab.key === sharedActiveTab.value)) {
+    sharedActiveTab.value = 'resumen'
+  }
 })
 
 async function loadDashboard() {
@@ -131,16 +141,28 @@ async function correctReading(readingId: string, valor: number, reason: string) 
               </select>
             </div>
 
-            <div class="border-t border-line-strong pt-3 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0">
-              <VariableUploadForm
-                :organization-id="props.organizationId"
-                :service-slug="SERVICE_SLUG"
-                @uploaded="loadDashboard"
-              />
+            <div
+              class="flex items-center border-t border-line-strong pt-3 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0"
+            >
+              <button
+                type="button"
+                class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-4 py-2.5 text-sm font-semibold text-cream hover:opacity-90"
+                @click="showUploadModal = true"
+              >
+                {{ t('dashboard.uploadForm.openButton') }}
+              </button>
             </div>
           </div>
         </section>
       </template>
     </DashboardShell>
+
+    <VariableUploadModal
+      v-if="showUploadModal"
+      :organization-id="props.organizationId"
+      :service-slug="SERVICE_SLUG"
+      @uploaded="loadDashboard"
+      @close="showUploadModal = false"
+    />
   </div>
 </template>

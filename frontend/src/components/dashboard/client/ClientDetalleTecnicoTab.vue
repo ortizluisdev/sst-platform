@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Filter } from 'lucide-vue-next'
 import type {
@@ -40,10 +40,42 @@ const uploadHistory = ref<UploadHistoryEntry[]>([])
 const selectedUploadId = ref('')
 const selectedArea = ref('')
 const selectedProceso = ref('')
+const selectedZona = ref('')
+const selectedSeccion = ref('')
+const selectedCargo = ref('')
+const selectedTrabajador = ref('')
 const filtering = ref(false)
 
 onMounted(async () => {
   uploadHistory.value = await props.fetchHistory()
+})
+
+function uniqueNombres(key: 'zonaNombre' | 'seccionNombre' | 'cargoNombre' | 'trabajadorNombre') {
+  return [...new Set(uploadHistory.value.map((u) => u[key]).filter((v): v is string => !!v))].sort()
+}
+const zonaOptions = computed(() => uniqueNombres('zonaNombre'))
+const seccionOptions = computed(() => uniqueNombres('seccionNombre'))
+const cargoOptions = computed(() => uniqueNombres('cargoNombre'))
+const trabajadorOptions = computed(() => uniqueNombres('trabajadorNombre'))
+
+// Zona/sección/cargo/trabajador son atributos de la CARGA completa (no de
+// cada lectura, a diferencia de área/proceso) — así que no se filtran las
+// lecturas mostradas, se filtra CUÁL carga está disponible para elegir en
+// el selector de fecha.
+const filteredUploadHistory = computed(() =>
+  uploadHistory.value.filter(
+    (u) =>
+      (!selectedZona.value || u.zonaNombre === selectedZona.value) &&
+      (!selectedSeccion.value || u.seccionNombre === selectedSeccion.value) &&
+      (!selectedCargo.value || u.cargoNombre === selectedCargo.value) &&
+      (!selectedTrabajador.value || u.trabajadorNombre === selectedTrabajador.value),
+  ),
+)
+
+watch([selectedZona, selectedSeccion, selectedCargo, selectedTrabajador], () => {
+  if (selectedUploadId.value && !filteredUploadHistory.value.some((u) => u.id === selectedUploadId.value)) {
+    selectedUploadId.value = filteredUploadHistory.value[0]?.id ?? ''
+  }
 })
 
 watch([selectedUploadId, selectedArea, selectedProceso], async ([uploadId, areaPlanta, procesoActividad]) => {
@@ -63,6 +95,10 @@ function limpiarFiltros() {
   selectedUploadId.value = ''
   selectedArea.value = ''
   selectedProceso.value = ''
+  selectedZona.value = ''
+  selectedSeccion.value = ''
+  selectedCargo.value = ''
+  selectedTrabajador.value = ''
 }
 
 /** Estado global de la categoría: el peor caso entre sus variables — si una
@@ -108,9 +144,57 @@ function formatNorma(min: number | null, max: number | null): string {
           class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
         >
           <option value="">{{ t('dashboard.detalleTecnico.filtroUltima') }}</option>
-          <option v-for="u in uploadHistory" :key="u.id" :value="u.id">
+          <option v-for="u in filteredUploadHistory" :key="u.id" :value="u.id">
             {{ formatDate(u.fechaEvaluacion, locale as Locale) }}
           </option>
+        </select>
+      </div>
+      <div class="flex min-w-[160px] flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.zonaLabel')
+        }}</label>
+        <select
+          v-model="selectedZona"
+          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+        >
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasZonas') }}</option>
+          <option v-for="zona in zonaOptions" :key="zona" :value="zona">{{ zona }}</option>
+        </select>
+      </div>
+      <div class="flex min-w-[160px] flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.seccionLabel')
+        }}</label>
+        <select
+          v-model="selectedSeccion"
+          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+        >
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasSecciones') }}</option>
+          <option v-for="seccion in seccionOptions" :key="seccion" :value="seccion">{{ seccion }}</option>
+        </select>
+      </div>
+      <div class="flex min-w-[160px] flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.cargoLabel')
+        }}</label>
+        <select
+          v-model="selectedCargo"
+          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+        >
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosCargos') }}</option>
+          <option v-for="cargo in cargoOptions" :key="cargo" :value="cargo">{{ cargo }}</option>
+        </select>
+      </div>
+      <div class="flex min-w-[160px] flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+          t('dashboard.uploadForm.trabajadorLabel')
+        }}</label>
+        <select
+          v-model="selectedTrabajador"
+          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+        >
+          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosTrabajadores') }}</option>
+          <option v-for="trabajador in trabajadorOptions" :key="trabajador" :value="trabajador">{{ trabajador }}</option>
         </select>
       </div>
       <div class="flex min-w-[160px] flex-col gap-1">

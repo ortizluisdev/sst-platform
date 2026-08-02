@@ -22,6 +22,7 @@ function sendVariablesError(reply: FastifyReply, err: unknown) {
       UNKNOWN_VARIABLES: 422,
       UPLOAD_NOT_FOUND: 404,
       READING_NOT_FOUND: 404,
+      CATALOG_ITEM_NOT_FOUND: 422,
     } as const
     return reply.code(statusByCode[err.code]).send({ message: err.message })
   }
@@ -79,7 +80,30 @@ export async function uploadVariablesHandler(
     return reply.code(422).send({ errors: { fechaEvaluacion: 'Fecha de evaluación inválida o faltante' } })
   }
 
+  // Asociación organizacional obligatoria (ver nota en variables.service.ts):
+  // el Excel no trae zona/sección/cargo/trabajador, así que se piden una vez
+  // por carga completa en el modal de subida.
+  const zonaId = (data.fields.zonaId as { value?: string } | undefined)?.value
+  const seccionId = (data.fields.seccionId as { value?: string } | undefined)?.value
+  const cargoId = (data.fields.cargoId as { value?: string } | undefined)?.value
+  const trabajadorId = (data.fields.trabajadorId as { value?: string } | undefined)?.value
+  const catalogErrors: Record<string, string> = {}
+  if (!zonaId) catalogErrors.zonaId = 'Selecciona una zona'
+  if (!seccionId) catalogErrors.seccionId = 'Selecciona una sección'
+  if (!cargoId) catalogErrors.cargoId = 'Selecciona un cargo'
+  if (!trabajadorId) catalogErrors.trabajadorId = 'Selecciona un trabajador'
+  if (Object.keys(catalogErrors).length > 0) return reply.code(422).send({ errors: catalogErrors })
+
   const buffer = await data.toBuffer()
+
+  // La fecha llega como "YYYY-MM-DD" (sin hora, el input es type="date").
+  // Se combina con la hora actual del momento de la carga para que dos
+  // cargas del mismo día queden distinguibles en Historial.
+  const [anio, mes, dia] = fechaEvaluacionRaw.slice(0, 10).split('-').map(Number)
+  const ahora = new Date()
+  const fechaEvaluacion = new Date(
+    Date.UTC(anio, mes - 1, dia, ahora.getUTCHours(), ahora.getUTCMinutes(), ahora.getUTCSeconds()),
+  )
 
   const service = createVariablesService(request.server.prisma)
   try {
@@ -87,7 +111,11 @@ export async function uploadVariablesHandler(
       organizationId: paramsParsed.data.organizationId,
       serviceSlug: paramsParsed.data.serviceSlug,
       uploadedById: request.user.sub,
-      fechaEvaluacion: new Date(fechaEvaluacionRaw),
+      fechaEvaluacion,
+      zonaId: zonaId!,
+      seccionId: seccionId!,
+      cargoId: cargoId!,
+      trabajadorId: trabajadorId!,
       fileBuffer: buffer,
       filename: data.filename,
       ipAddress: request.ip,

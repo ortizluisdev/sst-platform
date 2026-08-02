@@ -516,9 +516,19 @@
       }
     },
     "uploadForm": {
-      "missingFields": "Selecciona un archivo y una fecha de evaluación.",
+      "missingFields": "Selecciona un archivo, una fecha de evaluación, zona, sección, cargo y trabajador.",
       "processError": "Error al procesar el archivo.",
       "heading": "Cargar variables (CSV o Excel)",
+      "openButton": "Cargar variables",
+      "close": "Cerrar",
+      "zonaLabel": "Zona",
+      "seccionLabel": "Sección",
+      "cargoLabel": "Cargo",
+      "trabajadorLabel": "Trabajador",
+      "catalogSelectPlaceholder": "Selecciona...",
+      "catalogAddNew": "Agregar nuevo",
+      "catalogNewPlaceholder": "Nombre nuevo",
+      "catalogAddConfirm": "Agregar",
       "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. También acepta el reporte completo de Excel (Reporte Hoja 2).",
       "omittedHeading": "Filas omitidas (no se cargaron):",
       "omittedReason": {
@@ -670,6 +680,10 @@
       "filtroTodas": "Todas las áreas",
       "filtroProceso": "Proceso/actividad",
       "filtroTodos": "Todos los procesos",
+      "filtroTodasZonas": "Todas las zonas",
+      "filtroTodasSecciones": "Todas las secciones",
+      "filtroTodosCargos": "Todos los cargos",
+      "filtroTodosTrabajadores": "Todos los trabajadores",
       "limpiarFiltros": "Limpiar filtros",
       "filtrando": "Aplicando filtros...",
       "sinResultados": "No hay resultados para los filtros seleccionados."
@@ -990,6 +1004,150 @@
       "numeroInforme": "N° de informe",
       "elaboradoPor": "Elaborado por",
       "elaboradoPorPlaceholder": "Tu nombre, si es distinto al de tu cuenta"
+    }
+  },
+  "roadSafety": {
+    "loading": "Cargando…",
+    "loadError": "No se pudo cargar la información.",
+    "noData": "Sin datos",
+    "tabs": {
+      "hoja1": "Hoja 1 · Generalidad",
+      "hoja2": "Hoja 2 · Vehículos",
+      "hoja3": "Hoja 3 · Personas",
+      "hoja4": "Hoja 4 · Rutograma",
+      "alertas": "Panel de alertas"
+    },
+    "upload": {
+      "label": "Cargar registro (Excel)",
+      "hint": "Sube el libro completo (registro_seguridad_vial_MSSV_1.xlsx) — reemplaza los datos actuales de vehículos, personas, PESV y rutograma.",
+      "loading": "Subiendo y procesando…",
+      "success": "Archivo \"{file}\" procesado correctamente.",
+      "genericError": "No se pudo procesar el archivo."
+    },
+    "hoja1": {
+      "pesvTitle": "Autodiagnóstico PESV — 24 pasos (Resolución 40595 de 2022)",
+      "cumplimientoGlobal": "Cumplimiento global",
+      "fase": "Fase",
+      "paso": "Paso",
+      "elemento": "Elemento del PESV",
+      "nivelAplicable": "Nivel aplicable",
+      "cumplimiento": "Cumplimiento",
+      "avance": "% avance",
+      "total": "Total",
+      "grupo": {
+        "ACTORES_VIALES": "Inventario de movilidad — actores viales",
+        "PARQUE_AUTOMOTOR": "Parque automotor",
+        "COBERTURA_OPERACIONAL": "Cobertura operacional"
+      }
+    },
+    "hoja2": {
+      "filtroPlaca": "Filtrar por placa",
+      "placa": "Placa",
+      "tipo": "Tipo",
+      "ciudad": "Ciudad",
+      "conductores": "Conductor(es)",
+      "soatVence": "SOAT vence",
+      "diasSoat": "Días SOAT",
+      "rtmVence": "RTM vence",
+      "diasRtm": "Días RTM",
+      "comparendos": "Comparendos",
+      "kmActual": "Km actual",
+      "pruebaFrenado": "Prueba de frenado",
+      "labrado": "Labrado (mm)",
+      "anomalia": "Anomalía consumo",
+      "alerta": "Alerta",
+      "empty": "No hay vehículos que coincidan con el filtro."
+    },
+    "hoja3": {
+      "documento": "Documento",
+      "nombre": "Nombre",
+      "actorVial": "Actor vial",
+      "ciudad": "Ciudad",
+      "licenciaVence": "Licencia vence",
+      "diasLicencia": "Días licencia",
+      "estadoSalud": "Estado de salud",
+      "icc": "ICC",
+      "resultado": "Resultado",
+      "alerta": "Alerta",
+      "empty": "No hay conductores registrados todavía."
+    },
+    "hoja4": {
+      "empty": "No hay rutas registradas todavía — sube el libro completo para ver el rutograma.",
+      "selectRuta": "Seleccionar ruta",
+      "encabezado": "Encabezado",
+      "codigo": "Código",
+      "version": "Versión",
+      "fecha": "Fecha",
+      "idRuta": "ID Ruta",
+      "infoGeneral": "Información general",
+      "origen": "Origen",
+      "destino": "Destino",
+      "rutaAlterna": "Ruta alterna",
+      "sitiosParada": "Sitios de parada autorizados",
+      "kmsRecorridos": "Kms recorridos",
+      "duracion": "Duración",
+      "organismosApoyo": "Organismos de apoyo disponibles",
+      "entidad": "Entidad / organismo",
+      "municipio": "Municipio / sede",
+      "telefono1": "Teléfono 1",
+      "telefono2": "Teléfono 2",
+      "condicionesRiesgo": "Análisis de ruta — condiciones de riesgo",
+      "puntosRuta": "Puntos de la ruta",
+      "kmVia": "KM / vía / referencia",
+      "senales": "Señales de tránsito",
+      "aspectos": "Aspectos relevantes",
+      "controles": "Controles existentes",
+      "recomendaciones": "Recomendaciones de seguridad",
+      "riesgo": "Riesgo más relevante",
+      "puntosEmpty": "Sin puntos de ruta registrados."
+    },
+    "alerta": {
+      "vehiculo": {
+        "OK": "OK",
+        "ALERTA": "Alerta",
+        "VENCIDO": "Vencido"
+      },
+      "conductor": {
+        "OK": "OK",
+        "ALERTA": "Alerta",
+        "LICENCIA_VENCIDA": "Licencia vencida"
+      }
+    },
+    "alertas": {
+      "vehiculos": "Vehículos",
+      "conductores": "Conductores",
+      "vencidos": "Vehículos vencidos",
+      "enAlerta": "Vehículos en alerta",
+      "soatRtmPorVencer": "SOAT/RTM por vencer (≤30 d)",
+      "conComparendos": "Con comparendos",
+      "licenciasVencidas": "Licencias vencidas",
+      "licenciasPorVencer": "Licencias por vencer (≤30 d)",
+      "noAprobados": "No aprobados (ICC<70)",
+      "enAlertaConductor": "Conductores en alerta",
+      "hint": "Para ver el detalle, filtra la columna Alerta en las hojas 2 y 3 por \"Alerta\", \"Vencido\" o \"Licencia vencida\"."
+    },
+    "reports": {
+      "titulo": {
+        "h1": "Generar Reporte H1 — Informe general",
+        "h2": "Generar Reporte H2 — Informe de flota",
+        "h3": "Generar Reporte H3 — Informe de personas",
+        "h4": "Generar Reporte H4 — Informe de rutograma"
+      },
+      "subtitulo": "Estos datos son solo para este reporte — no se guardan en la empresa.",
+      "close": "Cerrar",
+      "genericError": "No se pudo generar el reporte.",
+      "generando": "Generando…",
+      "generarPdf": "Generar PDF",
+      "generarCsv": "Generar CSV",
+      "generarReporte": "Generar reporte",
+      "fields": {
+        "sedePrincipal": "Sede principal",
+        "ciudad": "Ciudad",
+        "responsablePesv": "Responsable PESV",
+        "nivelPesv": "Nivel PESV",
+        "numeroInforme": "N° de informe",
+        "fechaCorte": "Fecha de corte"
+      }
     }
   }
 }

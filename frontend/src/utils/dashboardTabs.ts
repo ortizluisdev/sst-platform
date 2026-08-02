@@ -1,4 +1,4 @@
-import { LayoutDashboard, Table2, History, FileText } from 'lucide-vue-next'
+import { Home, Table2, History, FileText } from 'lucide-vue-next'
 import type { DashboardData } from '@/types/dashboard'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { Locale } from '@/i18n'
@@ -15,7 +15,7 @@ import { categoryLabel } from './categoryLabel'
  */
 export function buildDashboardTabs(dashboard: DashboardData, t: (key: string) => string, locale: Locale): TabDef[] {
   return [
-    { key: 'resumen', label: t('dashboard.tabs.dashboard'), icon: LayoutDashboard },
+    { key: 'resumen', label: t('dashboard.tabs.dashboard'), icon: Home },
     ...dashboard.categories.map((c) => ({
       key: `cat:${c.categoria}`,
       label: categoryLabel(c.categoria, locale),

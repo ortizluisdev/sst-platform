@@ -20,6 +20,22 @@ export function createVariablesRepository(prisma: PrismaClient) {
       return prisma.organization.findUnique({ where: { id } })
     },
 
+    findZonaById(id: string, organizationId: string) {
+      return prisma.orgZona.findFirst({ where: { id, organizationId, isActive: true } })
+    },
+
+    findSeccionById(id: string, organizationId: string) {
+      return prisma.orgSeccion.findFirst({ where: { id, organizationId, isActive: true } })
+    },
+
+    findCargoById(id: string, organizationId: string) {
+      return prisma.orgCargo.findFirst({ where: { id, organizationId, isActive: true } })
+    },
+
+    findTrabajadorById(id: string, organizationId: string) {
+      return prisma.orgTrabajador.findFirst({ where: { id, organizationId, isActive: true } })
+    },
+
     /** Para el selector de organizaciones del super-admin: solo las que
      * tienen contratado el servicio dado. */
     findOrganizationsByService(serviceId: string) {
@@ -49,6 +65,10 @@ export function createVariablesRepository(prisma: PrismaClient) {
       originalFile: string
       fechaEvaluacion: Date
       origen: 'CSV' | 'REPORTE_EXCEL'
+      zonaId: string
+      seccionId: string
+      cargoId: string
+      trabajadorId: string
       omittedRows: { nombre: string; motivo: string }[] | null
       rows: {
         codigoPuesto: string
@@ -71,6 +91,10 @@ export function createVariablesRepository(prisma: PrismaClient) {
             fechaEvaluacion: input.fechaEvaluacion,
             origen: input.origen,
             status: 'PROCESADO',
+            zonaId: input.zonaId,
+            seccionId: input.seccionId,
+            cargoId: input.cargoId,
+            trabajadorId: input.trabajadorId,
             omittedRows: input.omittedRows ?? undefined,
           },
         })
@@ -215,6 +239,10 @@ export function createVariablesRepository(prisma: PrismaClient) {
         include: {
           uploadedBy: { select: { nombre: true } },
           readings: { select: { workPointId: true } },
+          zona: { select: { nombre: true } },
+          seccion: { select: { nombre: true } },
+          cargo: { select: { nombre: true } },
+          trabajador: { select: { nombre: true } },
         },
       })
     },
@@ -229,6 +257,10 @@ export function createVariablesRepository(prisma: PrismaClient) {
         include: {
           uploadedBy: { select: { nombre: true } },
           readings: { include: { definition: true, workPoint: true } },
+          zona: { select: { nombre: true } },
+          seccion: { select: { nombre: true } },
+          cargo: { select: { nombre: true } },
+          trabajador: { select: { nombre: true } },
         },
       })
     },
