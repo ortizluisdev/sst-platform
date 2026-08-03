@@ -146,9 +146,10 @@ function buildPlatformUsers() {
   return [
     {
       documentNumber: '1000000001',
-      email: 'ortiz.luis.dev@gmail.com',
+      email: 'romaservicessst@gmail.com',
       password: requireEnv('SEED_SUPERADMIN_PASSWORD'),
-      nombre: 'Luis Ortiz',
+      nombre: 'Mauricio Cruz',
+      telefono: '57 315 0987752',
       roleName: 'super-admin',
     },
     {
@@ -156,6 +157,7 @@ function buildPlatformUsers() {
       email: 'luisangel930115@gmail.com',
       password: requireEnv('SEED_ADMINSYSTEM_PASSWORD'),
       nombre: 'Luis Angel (Dev)',
+      telefono: null,
       roleName: 'adminsystem',
     },
   ] as const
@@ -1328,13 +1330,20 @@ async function main() {
       // passwordHash también en el update: antes solo se fijaba al crear, así
       // que cambiar SEED_*_PASSWORD y volver a correr el seed no rotaba la
       // contraseña de un usuario ya existente (había que borrarlo primero).
-      update: { roleId: role.id, nombre: platformUser.nombre, email: platformUser.email, passwordHash },
+      update: {
+        roleId: role.id,
+        nombre: platformUser.nombre,
+        email: platformUser.email,
+        telefono: platformUser.telefono,
+        passwordHash,
+      },
       create: {
         documentType: 'CC',
         documentNumber: platformUser.documentNumber,
         email: platformUser.email,
         passwordHash,
         nombre: platformUser.nombre,
+        telefono: platformUser.telefono,
         roleId: role.id,
         accountStatus: 'ACTIVE',
       },
