@@ -103,6 +103,10 @@ const PERMISSIONS = [
     key: 'platform.workCatalogs.manage',
     description: 'CRUD de zonas/secciones/cargos/trabajadores por empresa. Solo super-admin/adminsystem.',
   },
+  {
+    key: 'platform.notifications.manage',
+    description: 'Redactar, editar y eliminar (borrado suave) notificaciones de cualquier destinatario. Solo super-admin/adminsystem.',
+  },
 ] as const
 
 /**

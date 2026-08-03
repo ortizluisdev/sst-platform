@@ -55,6 +55,7 @@ export function createNotificationsRepository(prisma: PrismaClient) {
     async findManyForRecipient(recipientId: string, filters: ListFilters) {
       const where: Prisma.NotificationWhereInput = {
         recipientId,
+        deletedAt: null,
         ...(filters.isRead !== undefined ? { isRead: filters.isRead } : {}),
         ...(filters.type ? { type: filters.type } : {}),
         ...(filters.severity ? { severity: filters.severity } : {}),
@@ -74,18 +75,18 @@ export function createNotificationsRepository(prisma: PrismaClient) {
     },
 
     countUnread(recipientId: string) {
-      return prisma.notification.count({ where: { recipientId, isRead: false } })
+      return prisma.notification.count({ where: { recipientId, isRead: false, deletedAt: null } })
     },
 
     /** IDOR-safe: recipientId siempre viene de la sesión, nunca del param —
      * si no coincide, la fila simplemente no aparece (404, no 403). */
     findByIdForRecipient(id: string, recipientId: string) {
-      return prisma.notification.findFirst({ where: { id, recipientId } })
+      return prisma.notification.findFirst({ where: { id, recipientId, deletedAt: null } })
     },
 
     async markRead(id: string, recipientId: string) {
       const result = await prisma.notification.updateMany({
-        where: { id, recipientId, isRead: false },
+        where: { id, recipientId, isRead: false, deletedAt: null },
         data: { isRead: true, readAt: new Date() },
       })
       return result.count > 0
@@ -93,7 +94,7 @@ export function createNotificationsRepository(prisma: PrismaClient) {
 
     async markAllRead(recipientId: string) {
       const result = await prisma.notification.updateMany({
-        where: { recipientId, isRead: false },
+        where: { recipientId, isRead: false, deletedAt: null },
         data: { isRead: true, readAt: new Date() },
       })
       return result.count
@@ -127,6 +128,55 @@ export function createNotificationsRepository(prisma: PrismaClient) {
         select: { id: true },
       })
       return admins.map((a) => a.id)
+    },
+
+    /** "Cliente" = tiene al menos una membresía de organización (los 2 roles
+     * de plataforma nunca tienen UserOrganization, ver seed.ts) — usado por
+     * "enviar a todos los clientes" del CRUD admin. */
+    async findAllClientUserIds(): Promise<string[]> {
+      const memberships = await prisma.userOrganization.findMany({ select: { userId: true }, distinct: ['userId'] })
+      return memberships.map((m) => m.userId)
+    },
+
+    update(id: string, data: { message?: string; severity?: NotificationSeverity }) {
+      return prisma.notification.update({ where: { id }, data })
+    },
+
+    softDelete(id: string) {
+      return prisma.notification.update({ where: { id }, data: { deletedAt: new Date() } })
+    },
+
+    /** CRUD admin: cualquier destinatario, no solo el de la sesión — nunca
+     * usar fuera de rutas protegidas por platform.notifications.manage. */
+    async findManyAdmin(filters: {
+      type?: NotificationType
+      severity?: NotificationSeverity
+      deletedOnly?: boolean
+      page: number
+      pageSize: number
+    }) {
+      const where: Prisma.NotificationWhereInput = {
+        deletedAt: filters.deletedOnly ? { not: null } : null,
+        ...(filters.type ? { type: filters.type } : {}),
+        ...(filters.severity ? { severity: filters.severity } : {}),
+      }
+
+      const [items, total] = await Promise.all([
+        prisma.notification.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip: (filters.page - 1) * filters.pageSize,
+          take: filters.pageSize,
+          include: {
+            recipient: { select: { nombre: true, email: true } },
+            sender: { select: { nombre: true } },
+            organization: { select: { nombre: true } },
+          },
+        }),
+        prisma.notification.count({ where }),
+      ])
+
+      return { items, total }
     },
   }
 }

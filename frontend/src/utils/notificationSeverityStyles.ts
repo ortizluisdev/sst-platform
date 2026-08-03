@@ -33,4 +33,5 @@ export const NOTIFICATION_TYPE_LABEL_KEY: Record<string, string> = {
   REGISTRO_PENDIENTE: 'dashboard.notifications.type.registroPendiente',
   CONTACTO_RECIBIDO: 'dashboard.notifications.type.contactoRecibido',
   LECTURA_CORREGIDA: 'dashboard.notifications.type.lecturaCorregida',
+  MENSAJE_ADMIN: 'dashboard.notifications.type.mensajeAdmin',
 }

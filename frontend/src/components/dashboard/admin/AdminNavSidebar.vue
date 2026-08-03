@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Bell, ChevronRight, LayoutGrid, User, Users } from 'lucide-vue-next'
+import { Bell, ChevronRight, LayoutGrid, MessageSquarePlus, User, Users } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
@@ -184,6 +184,20 @@ function handleTabClick(tab: TabDef) {
           >
             <Bell class="h-4 w-4 shrink-0" aria-hidden="true" />
             {{ t('dashboard.adminShell.notificacionesLink') }}
+          </router-link>
+        </li>
+        <li v-if="auth.hasPermission('platform.notifications.manage')">
+          <router-link
+            :to="`/${locale}/dashboard/admin/notificaciones/gestion`"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              $route.name === 'admin-gestion-notificaciones'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+          >
+            <MessageSquarePlus class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {{ t('dashboard.adminShell.gestionNotificacionesLink') }}
           </router-link>
         </li>
         <li>

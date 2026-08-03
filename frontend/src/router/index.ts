@@ -125,6 +125,12 @@ const router = createRouter({
           component: () => import('@/modules/notifications/components/NotificationsPanel.vue'),
         },
         {
+          path: 'notificaciones/gestion',
+          name: 'admin-gestion-notificaciones',
+          component: () => import('@/modules/notifications/components/NotificationsAdminPanel.vue'),
+          meta: { permission: 'platform.notifications.manage' },
+        },
+        {
           path: 'mi-perfil',
           name: 'admin-mi-perfil',
           component: () => import('@/modules/profile/components/MyProfilePanel.vue'),

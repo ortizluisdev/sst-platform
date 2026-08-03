@@ -7,6 +7,7 @@ export type NotificationType =
   | 'REGISTRO_PENDIENTE'
   | 'CONTACTO_RECIBIDO'
   | 'LECTURA_CORREGIDA'
+  | 'MENSAJE_ADMIN'
 
 export type NotificationSeverity = 'CRITICAL' | 'WARNING' | 'INFO'
 
@@ -28,6 +29,10 @@ export interface AppNotification {
   emailSentAt: string | null
   emailError: string | null
   createdAt: string
+  deletedAt?: string | null
+  recipient?: { nombre: string; email: string }
+  sender?: { nombre: string } | null
+  organization?: { nombre: string } | null
 }
 
 export interface NotificationListResult {
@@ -43,5 +48,29 @@ export interface NotificationListFilters {
   pageSize?: number
   isRead?: boolean
   type?: NotificationType
+  severity?: NotificationSeverity
+}
+
+export interface AdminNotificationListFilters {
+  page?: number
+  pageSize?: number
+  type?: NotificationType
+  severity?: NotificationSeverity
+  deletedOnly?: boolean
+}
+
+export type NotificationRecipientMode = 'user' | 'organization' | 'admins' | 'all_clients'
+
+export interface CreateNotificationInput {
+  message: string
+  severity: NotificationSeverity
+  sendEmail: boolean
+  recipientMode: NotificationRecipientMode
+  recipientId?: string
+  organizationId?: string
+}
+
+export interface UpdateNotificationInput {
+  message?: string
   severity?: NotificationSeverity
 }

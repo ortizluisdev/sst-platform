@@ -729,7 +729,8 @@
         "contactoRecibido": "Contacto recibido",
         "cuentaSuspendida": "Cuenta suspendida",
         "cuentaReactivada": "Cuenta reactivada",
-        "lecturaCorregida": "Lectura corregida"
+        "lecturaCorregida": "Lectura corregida",
+        "mensajeAdmin": "Mensaje del admin"
       },
       "filters": {
         "allStatus": "Todas",
@@ -742,6 +743,49 @@
         "prev": "Anterior",
         "next": "Siguiente",
         "pageOf": "Página {page} de {totalPages}"
+      }
+    },
+    "notificationsAdmin": {
+      "pageTitle": "Gestionar notificaciones — RoMa+",
+      "title": "Gestionar notificaciones",
+      "newButton": "+ Nueva notificación",
+      "tabActive": "Activas",
+      "tabHistory": "Historial (eliminadas)",
+      "empty": "No hay notificaciones.",
+      "emptyHistory": "No hay notificaciones eliminadas.",
+      "loadError": "Error al cargar las notificaciones.",
+      "colRecipient": "Destinatario",
+      "colMessage": "Mensaje",
+      "colType": "Tipo",
+      "colSeverity": "Severidad",
+      "colDate": "Fecha",
+      "colActions": "Acciones",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Eliminar esta notificación? Quedará en el historial, no se pierde el rastro.",
+      "deleteError": "No se pudo eliminar la notificación.",
+      "everyone": "Todos los administradores",
+      "allClients": "Todos los clientes",
+      "form": {
+        "createTitle": "Nueva notificación",
+        "editTitle": "Editar notificación",
+        "recipientModeLabel": "Destinatario",
+        "recipientModeUser": "Un cliente específico",
+        "recipientModeAdmins": "Todos los administradores",
+        "recipientModeAllClients": "Todos los clientes",
+        "organizationLabel": "Empresa",
+        "organizationPlaceholder": "Selecciona una empresa...",
+        "messageLabel": "Mensaje",
+        "messagePlaceholder": "Escribe el mensaje que verá el destinatario...",
+        "severityLabel": "Severidad",
+        "sendEmailLabel": "También enviar por correo",
+        "cancel": "Cancelar",
+        "submit": "Enviar",
+        "submitting": "Enviando...",
+        "save": "Guardar",
+        "saving": "Guardando...",
+        "genericError": "Ocurrió un error al enviar la notificación.",
+        "successMessage": "Notificación enviada a {count} destinatario(s)."
       }
     },
     "accountManagement": {
@@ -804,6 +848,7 @@
       "orgSelectorLabel": "Empresa",
       "clientesLink": "Clientes",
       "notificacionesLink": "Notificaciones",
+      "gestionNotificacionesLink": "Gestionar notificaciones",
       "noActiveServices": "No hay servicios activos en el catálogo."
     },
     "operacion": {

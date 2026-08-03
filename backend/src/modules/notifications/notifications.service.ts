@@ -1,4 +1,4 @@
-import type { NotificationType, PrismaClient } from '@prisma/client'
+import type { NotificationSeverity, NotificationType, PrismaClient } from '@prisma/client'
 import { createNotificationsRepository } from './notifications.repository.js'
 import { NOTIFICATION_TYPE_CONFIG } from './notification-types.js'
 import { sendNotificationEmail } from '../../utils/mailer.js'
@@ -14,8 +14,19 @@ export interface NotifyInput {
   organizationId?: string
   /** Fan-out a todos los usuarios con rol de plataforma "*". */
   toAdmins?: boolean
+  /** Fan-out a todos los usuarios cliente de cualquier organización — usado
+   * por el CRUD admin ("enviar a todos los clientes"), ningún tipo
+   * automático lo necesita hoy. */
+  allClients?: boolean
   senderId?: string | null
   message: string
+  /** Override puntual de la severidad fija del tipo — solo lo usa el CRUD
+   * admin (MENSAJE_ADMIN), donde el admin la elige por mensaje. */
+  severity?: NotificationSeverity
+  /** Override puntual de si se intenta enviar correo, además de
+   * emailForced/emailByDefault del tipo — el checkbox "también enviar por
+   * correo" del CRUD admin. */
+  forceEmail?: boolean
   metadata?: Record<string, unknown>
   /** Ruta relativa del frontend (ej. "/dashboard/historial/abc123"). */
   link?: string | null
@@ -45,6 +56,10 @@ export function createNotificationService(prisma: PrismaClient) {
       const adminIds = await repository.findPlatformAdminIds()
       adminIds.forEach((id) => ids.add(id))
     }
+    if (input.allClients) {
+      const clientIds = await repository.findAllClientUserIds()
+      clientIds.forEach((id) => ids.add(id))
+    }
     return [...ids]
   }
 
@@ -60,14 +75,14 @@ export function createNotificationService(prisma: PrismaClient) {
       const recipientIds = await resolveRecipients(input)
       if (recipientIds.length === 0) return []
 
-      const shouldEmail = config.emailForced || config.emailByDefault
+      const shouldEmail = config.emailForced || config.emailByDefault || (input.forceEmail ?? false)
 
       const rows = await repository.createForRecipients({
         recipientIds,
         senderId: input.senderId ?? null,
         organizationId: input.organizationId ?? null,
         type: input.type,
-        severity: config.severity,
+        severity: input.severity ?? config.severity,
         message: input.message,
         metadata: input.metadata,
         link: input.link,
@@ -123,6 +138,66 @@ export function createNotificationService(prisma: PrismaClient) {
 
     markAllRead(recipientId: string) {
       return repository.markAllRead(recipientId)
+    },
+
+    /** CRUD admin: todas las notificaciones de cualquier destinatario (no
+     * solo las propias) — usado por la pantalla de gestión, nunca por la
+     * bandeja personal. `deletedOnly` alterna entre la vista "Activas" y
+     * el historial de borradas. */
+    async listAdmin(filters: {
+      type?: NotificationType
+      severity?: NotificationSeverity
+      deletedOnly?: boolean
+      page: number
+      pageSize: number
+    }) {
+      const { items, total } = await repository.findManyAdmin(filters)
+      return {
+        items,
+        page: filters.page,
+        pageSize: filters.pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / filters.pageSize)),
+      }
+    },
+
+    /** Redacta y envía una notificación manual — reusa `notify()` con
+     * type: MENSAJE_ADMIN, así que hereda gratis el fan-out por
+     * organización/todos-los-clientes/admins y el envío de correo. */
+    createManual(input: {
+      senderId: string
+      message: string
+      severity: NotificationSeverity
+      forceEmail: boolean
+      recipientIds?: string[]
+      organizationId?: string
+      toAdmins?: boolean
+      allClients?: boolean
+    }) {
+      return this.notify({
+        type: 'MENSAJE_ADMIN',
+        senderId: input.senderId,
+        message: input.message,
+        severity: input.severity,
+        forceEmail: input.forceEmail,
+        recipientIds: input.recipientIds,
+        organizationId: input.organizationId,
+        toAdmins: input.toAdmins,
+        allClients: input.allClients,
+        emailSubject: 'Nuevo mensaje de RoMa+',
+        emailTitle: 'Nuevo mensaje de RoMa+',
+      })
+    },
+
+    /** Edición de contenido — solo message/severity, nunca destinatario ni
+     * tipo (eso requeriría volver a resolver el fan-out y el envío de
+     * correo desde cero, es más simple pedir borrar + crear de nuevo). */
+    update(id: string, data: { message?: string; severity?: NotificationSeverity }) {
+      return repository.update(id, data)
+    },
+
+    softDelete(id: string) {
+      return repository.softDelete(id)
     },
   }
 }

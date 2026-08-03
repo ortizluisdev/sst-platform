@@ -72,4 +72,14 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationType
     audience: 'CLIENTE',
     defaultEmailSubject: 'Se corrigió una lectura en tu dashboard',
   },
+  /** Redactado a mano por el admin (CRUD) — severidad y envío de correo se
+   * deciden por mensaje (ver NotifyInput.severity/forceEmail), no por un
+   * valor fijo de tipo como el resto. Lo de acá es solo el respaldo si el
+   * admin no especifica nada. */
+  MENSAJE_ADMIN: {
+    severity: 'INFO',
+    emailByDefault: false,
+    audience: 'AMBOS',
+    defaultEmailSubject: 'Nuevo mensaje de RoMa+',
+  },
 }

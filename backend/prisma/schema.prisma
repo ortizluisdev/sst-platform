@@ -330,6 +330,10 @@ enum NotificationType {
   /// Un admin corrigió manualmente una lectura ya procesada — el cliente no
   /// se enteraba de esto antes (solo quedaba en AuditLog, invisible para él).
   LECTURA_CORREGIDA
+  /// Mensaje redactado a mano por un admin (CRUD de notificaciones) — a
+  /// diferencia de los demás tipos, no es un efecto secundario automático
+  /// de otro módulo.
+  MENSAJE_ADMIN
 }
 
 enum NotificationSeverity {
@@ -368,6 +372,11 @@ model Notification {
   emailSentAt    DateTime?            @map("email_sent_at")
   emailError     String?              @map("email_error") @db.Text
   createdAt      DateTime             @default(now()) @map("created_at")
+  /// Borrado suave: un admin la "elimina" de la bandeja normal, pero queda
+  /// consultable en el historial admin (nunca se pierde el rastro). Las
+  /// vistas de bandeja normal (cliente y campana) siempre filtran
+  /// deletedAt = null.
+  deletedAt      DateTime?            @map("deleted_at")
 
   recipient    User          @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
   sender       User?         @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)

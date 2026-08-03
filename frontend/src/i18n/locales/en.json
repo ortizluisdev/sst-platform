@@ -729,7 +729,8 @@
         "contactoRecibido": "Contact received",
         "cuentaSuspendida": "Account suspended",
         "cuentaReactivada": "Account reactivated",
-        "lecturaCorregida": "Reading corrected"
+        "lecturaCorregida": "Reading corrected",
+        "mensajeAdmin": "Admin message"
       },
       "filters": {
         "allStatus": "All",
@@ -742,6 +743,49 @@
         "prev": "Previous",
         "next": "Next",
         "pageOf": "Page {page} of {totalPages}"
+      }
+    },
+    "notificationsAdmin": {
+      "pageTitle": "Manage notifications — RoMa+",
+      "title": "Manage notifications",
+      "newButton": "+ New notification",
+      "tabActive": "Active",
+      "tabHistory": "History (deleted)",
+      "empty": "No notifications.",
+      "emptyHistory": "No deleted notifications.",
+      "loadError": "Error loading notifications.",
+      "colRecipient": "Recipient",
+      "colMessage": "Message",
+      "colType": "Type",
+      "colSeverity": "Severity",
+      "colDate": "Date",
+      "colActions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this notification? It stays in the history — nothing is lost.",
+      "deleteError": "Could not delete the notification.",
+      "everyone": "All administrators",
+      "allClients": "All clients",
+      "form": {
+        "createTitle": "New notification",
+        "editTitle": "Edit notification",
+        "recipientModeLabel": "Recipient",
+        "recipientModeUser": "A specific client",
+        "recipientModeAdmins": "All administrators",
+        "recipientModeAllClients": "All clients",
+        "organizationLabel": "Company",
+        "organizationPlaceholder": "Select a company...",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Write the message the recipient will see...",
+        "severityLabel": "Severity",
+        "sendEmailLabel": "Also send by email",
+        "cancel": "Cancel",
+        "submit": "Send",
+        "submitting": "Sending...",
+        "save": "Save",
+        "saving": "Saving...",
+        "genericError": "An error occurred while sending the notification.",
+        "successMessage": "Notification sent to {count} recipient(s)."
       }
     },
     "accountManagement": {
@@ -804,6 +848,7 @@
       "orgSelectorLabel": "Organization",
       "clientesLink": "Clients",
       "notificacionesLink": "Notifications",
+      "gestionNotificacionesLink": "Manage notifications",
       "noActiveServices": "No active services in the catalog."
     },
     "operacion": {
