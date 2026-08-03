@@ -21,6 +21,24 @@ import {
 } from '../../utils/trendAnalysis.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
 import { createNonConformitiesService } from '../nonConformities/nonConformities.service.js'
+import {
+  calcularTemperaturaRadianteMedia,
+  calcularWBGT,
+  calcularPMV,
+  calcularPPD,
+  calcularRegimenTrabajoDescanso,
+} from '../../utils/thermalStressCalculations.js'
+import { calcularNivelExposicionDiaria, calcularDosisRuido } from '../../utils/soundCalculations.js'
+import {
+  calcularExposicionDiariaManoBrazo,
+  calcularExposicionDiariaCuerpoEntero,
+  calcularVDV,
+} from '../../utils/vibrationCalculations.js'
+import {
+  calcularExposicionRadianteEfectiva,
+  calcularTiempoMaximoExposicion,
+  JORNADA_HORAS,
+} from '../../utils/uvRadiationCalculations.js'
 
 interface CriticalReading {
   variable: string
@@ -118,6 +136,9 @@ export function createVariablesService(prisma: PrismaClient) {
       seccionId: string
       cargoId: string
       trabajadorId: string
+      /** Aplica a TODOS los puestos de trabajo de esta carga (decisión
+       * explícita — el modal de carga no captura por puesto individual). */
+      exposicionSolar: boolean
       fileBuffer: Buffer
       filename: string
       ipAddress?: string
@@ -175,12 +196,14 @@ export function createVariablesService(prisma: PrismaClient) {
             valor: r.valor,
           }))
           origen = 'REPORTE_EXCEL'
-          // Trunca a medianoche (solo la fecha, no la hora exacta) — así,
-          // si se sube este mismo formato dos veces el mismo día, la
-          // restricción única (organización+servicio+fecha) hace que la
-          // segunda carga actualice la primera en vez de duplicarla,
-          // igual que ya pasa con el formato CSV plano.
-          fechaEvaluacionFinal = new Date(new Date().toISOString().slice(0, 10))
+          // fechaEvaluacionFinal se queda en el valor con el que ya arrancó
+          // (input.fechaEvaluacion, línea 153) — la fecha que el admin
+          // elige en el date-picker del modal de carga, igual que para el
+          // formato CSV. Antes se sobreescribía con la fecha de hoy para
+          // que una restricción única de BD fusionara cargas del mismo
+          // día; esa restricción ya no existe (cada carga es siempre un
+          // período nuevo), así que ese truncado ya no tenía ningún efecto
+          // real, solo descartaba la fecha real elegida por el admin.
           filasOmitidasFormato = parsed.omitidas
         } else {
           const parsed = await parseVariableFile(input.fileBuffer, input.filename)
@@ -201,7 +224,45 @@ export function createVariablesService(prisma: PrismaClient) {
         throw err
       }
 
-      const definitions = await repository.findDefinitionsByService(service.id)
+      // ============================================================
+      // ÚNICO PUNTO DE FILTRADO por categoría habilitada — catálogo de
+      // variables configurable por cliente (2026-08): las 5 categorías de
+      // Higiene Industrial (Estrés Térmico/Iluminación/Sonido/Radiación UV/
+      // Vibración) se venden por separado, así que `definitionByCode` de
+      // abajo NUNCA debe contener códigos de una categoría que este cliente
+      // no tiene habilitada. Todo lo demás en esta función (missingVariables,
+      // los `if (definitionByCode.has('TER-03'))` / 'RUI-04' que gatean el
+      // motor de cálculo, y el split rowsConCatalogo/rowsSinCatalogo de más
+      // abajo) lee de `definitionByCode` sin saber nada de categorías — el
+      // filtrado pasa "gratis" a toda esa lógica posterior. Si agregas una
+      // categoría nueva (Vibración/Radiación UV con motor de cálculo propio
+      // más adelante), no hace falta tocar nada fuera de este bloque.
+      //
+      // Snapshot por request: `disabledCategoryLabels` se lee una sola vez
+      // al inicio de uploadVariables() y se usa durante todo el
+      // procesamiento de ESTA carga. Si un admin deshabilita una categoría
+      // mientras otra carga ya está en curso, esa carga en curso ve el
+      // estado de habilitación que tenía al empezar, no el de a mitad de
+      // camino — aceptable para el volumen de este sistema (una carga es
+      // una transacción corta), pero queda documentado por si el
+      // guardado inmediato del toggle en el admin alguna vez necesita más
+      // garantías de consistencia.
+      const definitionsCompletas = await repository.findDefinitionsByService(service.id)
+      const disabledCategoryLabels = await repository.findDisabledCategoryLabels(input.organizationId)
+
+      // Reporte Hoja 2: las filas de una categoría deshabilitada se
+      // descartan SILENCIOSAMENTE (no se reportan como omitidas) — el
+      // cliente ni siquiera contrató ese servicio, no tiene sentido
+      // mostrarlo como un error de formato.
+      if (origen === 'REPORTE_EXCEL' && disabledCategoryLabels.size > 0) {
+        const definitionByCodeCompleto = new Map(definitionsCompletas.map((d) => [d.codigo, d]))
+        rows = rows.filter((r) => {
+          const def = definitionByCodeCompleto.get(r.codigoVariable)
+          return !def || !disabledCategoryLabels.has(def.categoria)
+        })
+      }
+
+      const definitions = definitionsCompletas.filter((d) => !disabledCategoryLabels.has(d.categoria))
       const definitionByCode = new Map(definitions.map((d) => [d.codigo, d]))
 
       // Una variable sin código equivalente en el catálogo YA NO rechaza el
@@ -219,6 +280,296 @@ export function createVariablesService(prisma: PrismaClient) {
         })
       }
       rows = rowsConCatalogo
+
+      // ============================================================
+      // Motor de cálculo de Estrés Térmico (TER-03/04/07/09/13/14) —
+      // SIEMPRE se calculan con thermalStressCalculations.ts a partir de
+      // las MEDICION/INSPECCION de esta misma carga (TER-01/02/05/06/
+      // 08/10/11), REEMPLAZANDO cualquier valor que el archivo haya
+      // traído para estos 6 códigos — decisión explícita (Fase 1b,
+      // 2026-08): nunca se usa lo que venga del archivo para ellos. Solo
+      // aplica si el catálogo de este servicio tiene TER-03 (Higiene
+      // Industrial); para cualquier otro servicio este bloque no hace
+      // nada. `exposicionSolar` aplica a TODOS los puestos de esta carga
+      // (el modal no captura por puesto individual — ver decisión).
+      // ============================================================
+      const CODIGOS_CALCULO_TERMICO = ['TER-03', 'TER-04', 'TER-07', 'TER-09', 'TER-13', 'TER-14']
+      if (definitionByCode.has('TER-03')) {
+        const rowsSinCalculoTermico = rows.filter((r) => !CODIGOS_CALCULO_TERMICO.includes(r.codigoVariable))
+        const filasCalculadas: typeof rows = []
+        const puestos = [...new Set(rowsSinCalculoTermico.map((r) => r.codigoPuesto))]
+
+        for (const puesto of puestos) {
+          const rowsPuesto = rowsSinCalculoTermico.filter((r) => r.codigoPuesto === puesto)
+          const base = rowsPuesto[0]!
+          const valorDe = (codigo: string) => rowsPuesto.find((r) => r.codigoVariable === codigo)?.valor ?? null
+
+          const ta = valorDe('TER-01')
+          const hr = valorDe('TER-02')
+          const tg = valorDe('TER-05')
+          const tnw = valorDe('TER-06')
+          const va = valorDe('TER-08')
+          const m = valorDe('TER-10')
+          const icl = valorDe('TER-11')
+
+          const agregarOmitida = (codigo: string, motivo: string) => {
+            filasOmitidasFormato.push({
+              nombre: `${base.nombrePuesto || puesto} — ${codigo}: ${motivo}`,
+              motivo: 'valor_no_numerico',
+            })
+          }
+          const agregarCalculada = (codigo: string, valor: number) => {
+            if (!definitionByCode.has(codigo)) {
+              agregarOmitida(codigo, 'variable no está en el catálogo activo de este servicio')
+              return
+            }
+            filasCalculadas.push({
+              codigoPuesto: base.codigoPuesto,
+              nombrePuesto: base.nombrePuesto,
+              areaPlanta: base.areaPlanta,
+              procesoActividad: base.procesoActividad,
+              jornada: base.jornada,
+              codigoVariable: codigo,
+              valor,
+            })
+          }
+
+          const trResult = calcularTemperaturaRadianteMedia({ tg, ta, va })
+          if (trResult.ok) agregarCalculada('TER-07', trResult.value)
+          else agregarOmitida('TER-07', trResult.reason)
+
+          const wbgtResult = calcularWBGT({ tnw, tg, ta, exposicionSolar: input.exposicionSolar })
+          if (wbgtResult.ok) agregarCalculada('TER-03', wbgtResult.value)
+          else agregarOmitida('TER-03', wbgtResult.reason)
+
+          const pmvResult = calcularPMV({ ta, tr: trResult.ok ? trResult.value : null, va, hr, m, icl })
+          if (pmvResult.ok) agregarCalculada('TER-04', pmvResult.value)
+          else agregarOmitida('TER-04', pmvResult.reason)
+
+          const ppdResult = calcularPPD(pmvResult.ok ? pmvResult.value : null)
+          if (ppdResult.ok) agregarCalculada('TER-09', ppdResult.value)
+          else agregarOmitida('TER-09', ppdResult.reason)
+
+          const regimenResult = calcularRegimenTrabajoDescanso({ wbgt: wbgtResult.ok ? wbgtResult.value : null, m })
+          if (regimenResult.ok && regimenResult.value.tiempoTrabajoPermitidoMin != null) {
+            agregarCalculada('TER-13', regimenResult.value.tiempoTrabajoPermitidoMin)
+            agregarCalculada('TER-14', regimenResult.value.tiempoDescansoRequeridoMin!)
+          } else if (regimenResult.ok) {
+            // categoría "Muy pesado" — tabla ACGIH no disponible (ver TODO en thermalStressCalculations.ts)
+            agregarOmitida('TER-13/TER-14', 'categoría "Muy pesado" — tabla ACGIH no disponible, requiere validación')
+          } else {
+            agregarOmitida('TER-13/TER-14', regimenResult.reason)
+          }
+        }
+
+        rows = [...rowsSinCalculoTermico, ...filasCalculadas]
+      }
+
+      // ============================================================
+      // Motor de cálculo de Sonido (RUI-04/RUI-06) — SIEMPRE se calculan
+      // con soundCalculations.ts a partir de RUI-05 (LAeq) y RUI-03 (t) de
+      // esta misma carga, REEMPLAZANDO cualquier valor que el archivo haya
+      // traído para estos 2 códigos (mismo criterio que Estrés Térmico).
+      // Solo aplica si el catálogo (ya filtrado por categorías habilitadas
+      // de esta organización) tiene RUI-04 — si Sonido está deshabilitado
+      // para este cliente, este bloque no hace nada.
+      // ============================================================
+      const CODIGOS_CALCULO_SONIDO = ['RUI-04', 'RUI-06']
+      if (definitionByCode.has('RUI-04')) {
+        const rowsSinCalculoSonido = rows.filter((r) => !CODIGOS_CALCULO_SONIDO.includes(r.codigoVariable))
+        const filasCalculadasSonido: typeof rows = []
+        const puestosSonido = [...new Set(rowsSinCalculoSonido.map((r) => r.codigoPuesto))]
+
+        for (const puesto of puestosSonido) {
+          const rowsPuesto = rowsSinCalculoSonido.filter((r) => r.codigoPuesto === puesto)
+          const base = rowsPuesto[0]!
+          const valorDe = (codigo: string) => rowsPuesto.find((r) => r.codigoVariable === codigo)?.valor ?? null
+
+          const laeq = valorDe('RUI-05')
+          const t = valorDe('RUI-03')
+
+          const agregarOmitida = (codigo: string, motivo: string) => {
+            filasOmitidasFormato.push({
+              nombre: `${base.nombrePuesto || puesto} — ${codigo}: ${motivo}`,
+              motivo: 'valor_no_numerico',
+            })
+          }
+          const agregarCalculada = (codigo: string, valor: number) => {
+            if (!definitionByCode.has(codigo)) {
+              agregarOmitida(codigo, 'variable no está en el catálogo activo de este servicio')
+              return
+            }
+            filasCalculadasSonido.push({
+              codigoPuesto: base.codigoPuesto,
+              nombrePuesto: base.nombrePuesto,
+              areaPlanta: base.areaPlanta,
+              procesoActividad: base.procesoActividad,
+              jornada: base.jornada,
+              codigoVariable: codigo,
+              valor,
+            })
+          }
+
+          const lex8hResult = calcularNivelExposicionDiaria({ laeq, t })
+          if (lex8hResult.ok) agregarCalculada('RUI-06', lex8hResult.value)
+          else agregarOmitida('RUI-06', lex8hResult.reason)
+
+          const dosisResult = calcularDosisRuido(lex8hResult.ok ? lex8hResult.value : null)
+          if (dosisResult.ok) agregarCalculada('RUI-04', dosisResult.value)
+          else agregarOmitida('RUI-04', dosisResult.reason)
+        }
+
+        rows = [...rowsSinCalculoSonido, ...filasCalculadasSonido]
+      }
+
+      // ============================================================
+      // Motor de cálculo de Vibración (VIB-06/08/09) — SIEMPRE se calculan
+      // con vibrationCalculations.ts a partir de VIB-04/05/07/10 de esta
+      // misma carga, REEMPLAZANDO cualquier valor que el archivo haya
+      // traído para estos 3 códigos (mismo criterio que Estrés Térmico y
+      // Sonido). Solo aplica si el catálogo (ya filtrado por categorías
+      // habilitadas de esta organización) tiene VIB-06 — si Vibración está
+      // deshabilitada para este cliente, este bloque no hace nada.
+      //
+      // VIB-03 (Frecuencia dominante) NO está en este bloque: su input real
+      // es un espectro de frecuencias (lista de pares frecuencia/aceleración
+      // de longitud variable por puesto), que no encaja en el modelo actual
+      // de "un valor escalar por código de variable" del CSV/catálogo — no
+      // hay forma de cargarlo hoy. calcularFrecuenciaDominante() ya existe
+      // en vibrationCalculations.ts, probada, lista para conectarse en
+      // cuanto el formato del espectro se confirme con el cliente (mismo
+      // estado pendiente que los percentiles L10/L50/L90 de Sonido).
+      // ============================================================
+      const CODIGOS_CALCULO_VIBRACION = ['VIB-06', 'VIB-08', 'VIB-09']
+      if (definitionByCode.has('VIB-06')) {
+        const rowsSinCalculoVibracion = rows.filter((r) => !CODIGOS_CALCULO_VIBRACION.includes(r.codigoVariable))
+        const filasCalculadasVibracion: typeof rows = []
+        const puestosVibracion = [...new Set(rowsSinCalculoVibracion.map((r) => r.codigoPuesto))]
+
+        for (const puesto of puestosVibracion) {
+          const rowsPuesto = rowsSinCalculoVibracion.filter((r) => r.codigoPuesto === puesto)
+          const base = rowsPuesto[0]!
+          const valorDe = (codigo: string) => rowsPuesto.find((r) => r.codigoVariable === codigo)?.valor ?? null
+
+          const t = valorDe('VIB-04')
+          const ahv = valorDe('VIB-05')
+          const aw = valorDe('VIB-07')
+          const factorCresta = valorDe('VIB-10')
+
+          const agregarOmitida = (codigo: string, motivo: string) => {
+            filasOmitidasFormato.push({
+              nombre: `${base.nombrePuesto || puesto} — ${codigo}: ${motivo}`,
+              motivo: 'valor_no_numerico',
+            })
+          }
+          const agregarCalculada = (codigo: string, valor: number) => {
+            if (!definitionByCode.has(codigo)) {
+              agregarOmitida(codigo, 'variable no está en el catálogo activo de este servicio')
+              return
+            }
+            filasCalculadasVibracion.push({
+              codigoPuesto: base.codigoPuesto,
+              nombrePuesto: base.nombrePuesto,
+              areaPlanta: base.areaPlanta,
+              procesoActividad: base.procesoActividad,
+              jornada: base.jornada,
+              codigoVariable: codigo,
+              valor,
+            })
+          }
+
+          const exposicionManoBrazoResult = calcularExposicionDiariaManoBrazo({ ahv, t })
+          if (exposicionManoBrazoResult.ok) agregarCalculada('VIB-06', exposicionManoBrazoResult.value)
+          else agregarOmitida('VIB-06', exposicionManoBrazoResult.reason)
+
+          const exposicionCuerpoEnteroResult = calcularExposicionDiariaCuerpoEntero({ aw, t })
+          if (exposicionCuerpoEnteroResult.ok) agregarCalculada('VIB-08', exposicionCuerpoEnteroResult.value)
+          else agregarOmitida('VIB-08', exposicionCuerpoEnteroResult.reason)
+
+          const vdvResult = calcularVDV({ aw, t, factorCresta })
+          if (vdvResult.ok) agregarCalculada('VIB-09', vdvResult.value)
+          else agregarOmitida('VIB-09', vdvResult.reason)
+        }
+
+        rows = [...rowsSinCalculoVibracion, ...filasCalculadasVibracion]
+      }
+
+      // ============================================================
+      // Motor de cálculo de Radiación UV (RUV-03/04) — SIEMPRE se calculan
+      // con uvRadiationCalculations.ts a partir de RUV-02 (Eeff) y `jornada`
+      // (campo genérico compartido entre categorías, no una variable
+      // dedicada — decisión explícita 2026-08, confirmada por el cliente)
+      // de esta misma carga, REEMPLAZANDO cualquier valor que el archivo
+      // haya traído para estos 2 códigos (mismo criterio que las demás
+      // categorías). `jornada` se resuelve a horas vía JORNADA_HORAS
+      // (DIURNA/NOCTURNA/MIXTA = 8h las 3, confirmado con el cliente — no
+      // es un default adivinado) y se convierte a segundos, porque el
+      // límite normativo de RUV-04 (ICNIRP, 30 J/m²) está definido en
+      // segundos aunque el catálogo persiste el resultado en horas. Solo
+      // aplica si el catálogo (ya filtrado por categorías habilitadas de
+      // esta organización) tiene RUV-03 — si Radiación UV está
+      // deshabilitada para este cliente, este bloque no hace nada.
+      // ============================================================
+      const CODIGOS_CALCULO_RUV = ['RUV-03', 'RUV-04']
+      if (definitionByCode.has('RUV-03')) {
+        const rowsSinCalculoRuv = rows.filter((r) => !CODIGOS_CALCULO_RUV.includes(r.codigoVariable))
+        const filasCalculadasRuv: typeof rows = []
+        const puestosRuv = [...new Set(rowsSinCalculoRuv.map((r) => r.codigoPuesto))]
+
+        for (const puesto of puestosRuv) {
+          const rowsPuesto = rowsSinCalculoRuv.filter((r) => r.codigoPuesto === puesto)
+          const base = rowsPuesto[0]!
+          const valorDe = (codigo: string) => rowsPuesto.find((r) => r.codigoVariable === codigo)?.valor ?? null
+
+          const eeff = valorDe('RUV-02')
+          const tSegundos = JORNADA_HORAS[normalizeShift(base.jornada)] * 3600
+
+          const agregarOmitida = (codigo: string, motivo: string) => {
+            filasOmitidasFormato.push({
+              nombre: `${base.nombrePuesto || puesto} — ${codigo}: ${motivo}`,
+              motivo: 'valor_no_numerico',
+            })
+          }
+          const agregarCalculada = (codigo: string, valor: number) => {
+            if (!definitionByCode.has(codigo)) {
+              agregarOmitida(codigo, 'variable no está en el catálogo activo de este servicio')
+              return
+            }
+            filasCalculadasRuv.push({
+              codigoPuesto: base.codigoPuesto,
+              nombrePuesto: base.nombrePuesto,
+              areaPlanta: base.areaPlanta,
+              procesoActividad: base.procesoActividad,
+              jornada: base.jornada,
+              codigoVariable: codigo,
+              valor,
+            })
+          }
+
+          const heffResult = calcularExposicionRadianteEfectiva({ eeff, tSegundos })
+          if (heffResult.ok) agregarCalculada('RUV-03', heffResult.value)
+          else agregarOmitida('RUV-03', heffResult.reason)
+
+          const tiempoMaximoResult = calcularTiempoMaximoExposicion(eeff)
+          if (tiempoMaximoResult.ok) agregarCalculada('RUV-04', tiempoMaximoResult.horas)
+          else agregarOmitida('RUV-04', tiempoMaximoResult.reason)
+        }
+
+        rows = [...rowsSinCalculoRuv, ...filasCalculadasRuv]
+      }
+
+      // Cobertura del catálogo — solo tiene sentido para REPORTE_EXCEL: es
+      // una única evaluación general, se espera que cubra todo el catálogo
+      // activo del servicio. El CSV plano es por puesto de trabajo — una
+      // carga legítima puede cubrir solo un subconjunto de variables, así
+      // que ahí "faltante" no significa nada y no se calcula.
+      const missingVariables =
+        origen === 'REPORTE_EXCEL'
+          ? computeMissingVariables(
+              rows.map((r) => r.codigoVariable),
+              definitions,
+            )
+          : null
 
       if (rows.length === 0) {
         const message = `Ninguna fila del archivo coincide con el catálogo de variables de "${service.nombre}".`
@@ -284,8 +635,10 @@ export function createVariablesService(prisma: PrismaClient) {
         seccionId: input.seccionId,
         cargoId: input.cargoId,
         trabajadorId: input.trabajadorId,
+        exposicionSolar: input.exposicionSolar,
         rows: preparedRows,
         omittedRows: filasOmitidasFormato.length > 0 ? filasOmitidasFormato : null,
+        missingVariables,
       })
       const uploadId = upload.id
       const filasNuevas = preparedRows.length
@@ -402,6 +755,14 @@ export function createVariablesService(prisma: PrismaClient) {
 
       const totalWorkPoints = await repository.countActiveWorkPoints(organizationId)
 
+      // Catálogo por categoría, configurable por cliente (2026-08): una
+      // categoría deshabilitada para esta organización no debe aparecer en
+      // el sidebar (tabs, derivadas de `categories` abajo) ni contar en el
+      // "Cumplimiento normativo global" — pero los datos históricos NO se
+      // borran, solo se dejan de mostrar hacia adelante (ver decisión en
+      // variables.service.ts, bloque de uploadVariables()).
+      const disabledCategoryLabels = await repository.findDisabledCategoryLabels(organizationId)
+
       let selectedUploadId: string | null
       let selectedFecha: Date | null
       if (filters.uploadId) {
@@ -425,7 +786,9 @@ export function createVariablesService(prisma: PrismaClient) {
         // categorías del catálogo contratado en estado SIN_DATOS — la
         // organización ya sabe qué se le va a medir aunque aún no haya
         // resultados (ver ajuste post-lanzamiento, 2026-07-28).
-        const definitions = await repository.findDefinitionsByService(service.id)
+        const definitions = (await repository.findDefinitionsByService(service.id)).filter(
+          (d) => !disabledCategoryLabels.has(d.categoria),
+        )
         const categoriesMap = new Map<string, ReturnType<typeof buildEmptyVariableSummary>[]>()
         for (const definition of definitions) {
           const list = categoriesMap.get(definition.categoria) ?? []
@@ -453,7 +816,11 @@ export function createVariablesService(prisma: PrismaClient) {
         }
       }
 
-      const allReadings = await repository.findReadingsByUpload(selectedUploadId)
+      const allReadingsSinFiltrarCategoria = await repository.findReadingsByUpload(selectedUploadId)
+      // No se borra nada en BD (ver nota arriba) — solo se excluye de lo que
+      // este dashboard muestra desde este punto en adelante: sidebar,
+      // tabla comparativa y "Cumplimiento normativo global".
+      const allReadings = allReadingsSinFiltrarCategoria.filter((r) => !disabledCategoryLabels.has(r.definition.categoria))
 
       // Opciones reales disponibles para los selectores de filtro — del total
       // de la carga, antes de aplicar el filtro (para que el desplegable no
@@ -615,6 +982,7 @@ export function createVariablesService(prisma: PrismaClient) {
         totalLecturas: upload.readings.length,
         totalPuestos: new Set(upload.readings.map((r) => r.workPointId)).size,
         hasOmittedRows: Array.isArray(upload.omittedRows) && upload.omittedRows.length > 0,
+        hasMissingVariables: Array.isArray(upload.missingVariables) && upload.missingVariables.length > 0,
         zonaId: upload.zonaId,
         zonaNombre: upload.zona?.nombre ?? null,
         seccionId: upload.seccionId,
@@ -643,6 +1011,7 @@ export function createVariablesService(prisma: PrismaClient) {
         cargoNombre: upload.cargo?.nombre ?? null,
         trabajadorNombre: upload.trabajador?.nombre ?? null,
         omittedRows: (upload.omittedRows as { nombre: string; motivo: string }[] | null) ?? [],
+        missingVariables: (upload.missingVariables as { codigo: string; nombre: string }[] | null) ?? [],
         readings: upload.readings.map((r) => ({
           workPointCodigo: r.workPoint.codigo,
           workPointNombre: r.workPoint.nombre,
@@ -850,6 +1219,19 @@ function buildEmptyVariableSummary(definition: {
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100
+}
+
+/** Códigos del catálogo activo que NO aparecen en `codigosEncontrados` —
+ * extraída como función pura (sin acceso a Prisma) para poder testearla
+ * sin mockear el repositorio. `null` si no falta ninguno (mismo criterio
+ * que omittedRows: no persistir un arreglo vacío). */
+export function computeMissingVariables(
+  codigosEncontrados: string[],
+  catalogo: { codigo: string; nombre: string }[],
+): { codigo: string; nombre: string }[] | null {
+  const encontrados = new Set(codigosEncontrados)
+  const faltantes = catalogo.filter((d) => !encontrados.has(d.codigo)).map((d) => ({ codigo: d.codigo, nombre: d.nombre }))
+  return faltantes.length > 0 ? faltantes : null
 }
 
 export type VariablesService = ReturnType<typeof createVariablesService>

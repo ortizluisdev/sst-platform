@@ -177,6 +177,7 @@ export interface UploadHistoryEntry {
   totalLecturas: number
   totalPuestos: number
   hasOmittedRows: boolean
+  hasMissingVariables: boolean
   zonaId: string | null
   zonaNombre: string | null
   seccionId: string | null
@@ -190,6 +191,11 @@ export interface UploadHistoryEntry {
 export interface UploadOmittedRow {
   nombre: string
   motivo: 'sin_variable_equivalente' | 'valor_no_numerico' | 'ya_corregida'
+}
+
+export interface UploadMissingVariable {
+  codigo: string
+  nombre: string
 }
 
 export interface UploadDetailReading {
@@ -218,5 +224,6 @@ export interface UploadDetail {
   cargoNombre: string | null
   trabajadorNombre: string | null
   omittedRows: UploadOmittedRow[]
+  missingVariables: UploadMissingVariable[]
   readings: UploadDetailReading[]
 }

@@ -177,6 +177,8 @@ model Organization {
   cargos       OrgCargo[]
   trabajadores OrgTrabajador[]
 
+  categoryConfigs OrganizationCategoryConfig[]
+
   @@map("organizations")
 }
 
@@ -245,6 +247,41 @@ model OrganizationService {
   @@unique([organizationId, serviceId])
   @@index([serviceId])
   @@map("organization_services")
+}
+
+/// Las 5 categorías de Higiene Industrial — cada una se vende por separado,
+/// así que un cliente puede tener el servicio contratado pero solo un
+/// subconjunto de categorías habilitado. Mapea 1:1 contra el string libre
+/// `VariableDefinition.categoria` (ver CATEGORIA_ENUM_TO_LABEL en
+/// higieneCategorias.ts) — ese campo sigue siendo texto libre porque otros
+/// servicios definen categorías completamente distintas; este enum es
+/// deliberadamente específico de Higiene Industrial.
+enum HigieneCategoria {
+  ESTRES_TERMICO
+  ILUMINACION
+  SONIDO
+  RADIACION_UV
+  VIBRACION
+}
+
+/// Toggle por cliente de cada categoría de Higiene Industrial (2026-08,
+/// "Catálogo de variables por categoría, configurable por cliente"). Todo
+/// cliente existente al migrar queda con las 5 en `habilitada = true` (no
+/// romper nada de lo que ya funciona); toda organización nueva también se
+/// crea con las 5 filas explícitas en true (ver createWithResponsible) —
+/// nunca se lee "falta la fila" como si significara algo, siempre existen
+/// las 5 filas para cada organización.
+model OrganizationCategoryConfig {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  categoria      HigieneCategoria
+  habilitada     Boolean          @default(true)
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, categoria])
+  @@map("organization_category_configs")
 }
 
 // ============================================================
@@ -415,6 +452,17 @@ model WorkPoint {
   areaPlanta       String    @map("area_planta") @db.VarChar(255)
   procesoActividad String    @map("proceso_actividad") @db.VarChar(255)
   jornada          WorkShift @default(DIURNA)
+  /// Si el puesto está expuesto a carga solar directa (trabajo a la
+  /// intemperie) — determina qué fórmula de WBGT y qué tabla de régimen
+  /// trabajo/descanso aplica (ver thermalStressCalculations.ts). Nullable
+  /// A NIVEL DE COLUMNA a propósito, sin default: los puestos creados
+  /// antes de este campo no tienen forma de saber su valor real sin
+  /// adivinar, así que quedan en null hasta que una carga futura lo
+  /// provea. A nivel de APLICACIÓN sí es obligatorio para datos nuevos
+  /// (ver variables.schema.ts) — si viene null al calcular WBGT/régimen
+  /// trabajo-descanso para este puesto, esas variables quedan explícitas
+  /// como "no calculable: falta exposicionSolar", nunca se asume un valor.
+  exposicionSolar  Boolean?  @map("exposicion_solar")
   isActive         Boolean   @default(true) @map("is_active")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
@@ -504,26 +552,32 @@ enum UploadStatus {
 /// organizationId y serviceId son los campos que toda query debe usar para
 /// aislar datos por cliente — nunca un parámetro que venga del frontend.
 model VariableUpload {
-  id              String               @id @default(cuid())
-  organizationId  String               @map("organization_id")
-  serviceId       String               @map("service_id")
-  uploadedById    String               @map("uploaded_by_id")
-  originalFile    String               @map("original_file") @db.VarChar(500)
+  id               String               @id @default(cuid())
+  organizationId   String               @map("organization_id")
+  serviceId        String               @map("service_id")
+  uploadedById     String               @map("uploaded_by_id")
+  originalFile     String               @map("original_file") @db.VarChar(500)
   /// Fecha real de la evaluación en campo — puede diferir de createdAt
   /// (cuándo se subió el archivo). Es la fecha que se grafica en tendencia.
-  fechaEvaluacion DateTime             @map("fecha_evaluacion")
-  status          UploadStatus         @default(PENDIENTE)
+  fechaEvaluacion  DateTime             @map("fecha_evaluacion")
+  status           UploadStatus         @default(PENDIENTE)
   /// De dónde vino la carga: CSV (formato plano de siempre) o
   /// REPORTE_EXCEL (el workbook completo de 6 hojas, Reporte Hoja 2) —
   /// para que Historial pueda distinguir el mecanismo de origen.
-  origen          VariableUploadOrigen @default(CSV)
-  errorMessage    String?              @map("error_message") @db.Text
+  origen           VariableUploadOrigen @default(CSV)
+  errorMessage     String?              @map("error_message") @db.Text
   /// Filas del archivo subido que NO se cargaron (variable sin código
   /// equivalente en el catálogo, o valor no numérico) — persistido para que
   /// el admin pueda revisarlas después, no solo en el toast de la carga
   /// (`{ nombre: string, motivo: 'sin_variable_equivalente' | 'valor_no_numerico' }[]`).
-  omittedRows     Json?                @map("omitted_rows")
-  createdAt       DateTime             @default(now()) @map("created_at")
+  omittedRows      Json?                @map("omitted_rows")
+  /// Códigos del catálogo activo que NO aparecieron en esta carga — solo se
+  /// calcula para origen REPORTE_EXCEL (una sola evaluación general, tiene
+  /// sentido esperar cobertura completa del catálogo; el CSV plano es por
+  /// puesto de trabajo, una carga legítimamente puede cubrir solo algunos).
+  /// `{ codigo: string, nombre: string }[]`, mismo patrón que omittedRows.
+  missingVariables Json?                @map("missing_variables")
+  createdAt        DateTime             @default(now()) @map("created_at")
 
   /// Asociación organizacional de la carga completa (aplica a todo el
   /// archivo, no por fila) — exigida por la API para cargas nuevas (ver

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import CreateOrganizationModal from '@/components/dashboard/organizations/CreateOrganizationModal.vue'
 import EditOrganizationModal from '@/components/dashboard/organizations/EditOrganizationModal.vue'
+import CategoryConfigModal from '@/components/dashboard/organizations/CategoryConfigModal.vue'
 import SuspendUserModal from '@/components/dashboard/notifications/SuspendUserModal.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import { listOrganizationsFull, updateOrganization, OrganizationRequestError } from '@/services/organizations.service'
@@ -31,6 +32,7 @@ const errorMessage = ref('')
 const organizations = ref<OrganizationListItem[]>([])
 const showCreateModal = ref(false)
 const editingOrganization = ref<OrganizationListItem | null>(null)
+const categoryConfigOrganization = ref<OrganizationListItem | null>(null)
 const suspendTarget = ref<OrganizationListItem | null>(null)
 const actioningId = ref<string | null>(null)
 const resentIds = ref<Set<string>>(new Set())
@@ -257,6 +259,14 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                       {{ t('dashboard.servicesManagement.edit') }}
                     </button>
                     <button
+                      v-if="org.services.some((s) => s.slug === 'higiene-industrial')"
+                      type="button"
+                      class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
+                      @click="categoryConfigOrganization = org"
+                    >
+                      {{ t('clients.categoryConfig.openButton') }}
+                    </button>
+                    <button
                       v-if="tab === 'active' && org.responsable"
                       type="button"
                       class="rounded-sm border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
@@ -309,6 +319,12 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       :email="suspendTarget.responsable.email"
       @confirm="handleSuspend"
       @cancel="suspendTarget = null"
+    />
+    <CategoryConfigModal
+      v-if="categoryConfigOrganization"
+      :organization-id="categoryConfigOrganization.id"
+      :organization-nombre="categoryConfigOrganization.nombre"
+      @cancel="categoryConfigOrganization = null"
     />
   </div>
 </template>

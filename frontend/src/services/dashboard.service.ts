@@ -149,6 +149,7 @@ export async function uploadVariablesFile(input: {
   seccionId: string
   cargoId: string
   trabajadorId: string
+  exposicionSolar: boolean
 }): Promise<UploadResult> {
   const formData = new FormData()
   formData.append('file', input.file)
@@ -157,6 +158,7 @@ export async function uploadVariablesFile(input: {
   formData.append('seccionId', input.seccionId)
   formData.append('cargoId', input.cargoId)
   formData.append('trabajadorId', input.trabajadorId)
+  formData.append('exposicionSolar', String(input.exposicionSolar))
 
   try {
     const { data } = await apiClient.post(

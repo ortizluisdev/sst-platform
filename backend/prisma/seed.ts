@@ -207,6 +207,10 @@ function buildClientUsers(): ClientOrgSeed[] {
  *   las nuevas definiciones. Cargas nuevas usan exclusivamente el catálogo
  *   activo (los códigos deprecados quedan fuera de la validación de carga
  *   y del catálogo admin, vía el mismo `isActive` que ya filtraba ambos).
+ * - ILU-05, ILU-12, ILU-13, RUI-07 también quedan `isActive: false` (2026-08,
+ *   mismo criterio): "Reporte Hoja 2" nunca trae una fila de resultado para
+ *   estos 4 códigos, así que no hay forma de que una carga real los llene —
+ *   quedaban siempre en SIN_DATOS. Catálogo activo real: 56 variables.
  * - `tipo` (M/C/I) y límites vienen del Excel; donde el Excel no da un
  *   límite o instrumento específico, quedan `null` (no se inventan normas).
  */
@@ -272,7 +276,7 @@ const HIGIENE_VARIABLES = [
     limiteMax: null,
     normativaRef: null,
     tipo: 'MEDICION',
-    isActive: true,
+    isActive: false, // "Reporte Hoja 2" no trae fila de resultado para este código
   },
   // Deprecada: dividida en ILU-14/15/16 (iluminancia vertical a 0.0/1.0/1.5 m)
   // — son 3 puntos de referencia distintos (piso, plano de trabajo, altura de
@@ -362,7 +366,7 @@ const HIGIENE_VARIABLES = [
     limiteMax: null,
     normativaRef: null,
     tipo: 'CALCULO',
-    isActive: true,
+    isActive: false, // "Reporte Hoja 2" no trae fila de resultado para este código
   },
   {
     codigo: 'ILU-13',
@@ -374,7 +378,7 @@ const HIGIENE_VARIABLES = [
     limiteMax: null,
     normativaRef: null,
     tipo: 'CALCULO',
-    isActive: true,
+    isActive: false, // "Reporte Hoja 2" no trae fila de resultado para este código
   },
   {
     codigo: 'ILU-14',
@@ -497,7 +501,7 @@ const HIGIENE_VARIABLES = [
     limiteMax: null,
     normativaRef: null,
     tipo: 'MEDICION',
-    isActive: true,
+    isActive: false, // "Reporte Hoja 2" no trae fila de resultado para este código
   },
   // Deprecada: dividida en RUI-11/12/13 (L10/L50/L90) — son 3 descriptores
   // acústicos estándar (ISO 1996-2) con significado distinto (picos, nivel
@@ -1069,6 +1073,22 @@ const HIGIENE_VARIABLES = [
     tipo: 'CALCULO',
     isActive: true,
   },
+  // Input nuevo (2026-08, VDV estimado) — lo reporta directamente el
+  // vibrómetro, no se calcula: es la razón entre el pico instantáneo y el
+  // valor rms de la señal de aceleración. Sin límite normativo propio (no
+  // es en sí una variable regulada), solo alimenta calcularVDV().
+  {
+    codigo: 'VIB-10',
+    categoria: 'Vibración',
+    nombre: 'Factor de cresta',
+    unidadMedida: 'adimensional',
+    comparisonType: 'RANGE',
+    limiteMin: null,
+    limiteMax: null,
+    normativaRef: null,
+    tipo: 'MEDICION',
+    isActive: true,
+  },
 ] as const
 
 const AREAS = ['Planta Principal', 'Planta de Ensamble', 'Bodega de Materiales', 'Área de Mantenimiento']
@@ -1119,26 +1139,21 @@ function generateReadingValue(def: (typeof HIGIENE_VARIABLES)[number], profile: 
   return randomInRange(min * 0.7, min * 0.9)
 }
 
-async function seedHigieneIndustrialData(
-  organizationId: string,
-  uploadedById: string,
-  workPointCount: number,
-  complianceProfile: ComplianceProfile,
-) {
-  const service = await prisma.service.findUniqueOrThrow({ where: { slug: 'higiene-industrial' } })
-
-  // Asegura que la organización de prueba tenga el servicio contratado —
-  // sin esto ni el cliente ni el dashboard verían nada.
-  await prisma.organizationService.upsert({
-    where: { organizationId_serviceId: { organizationId, serviceId: service.id } },
-    update: { isActive: true },
-    create: { organizationId, serviceId: service.id, isActive: true },
-  })
-
+/** Upsert del catálogo de variables de Higiene Industrial — antes vivía
+ * DENTRO de seedHigieneIndustrialData (llamada solo por cliente demo), así
+ * que si CLIENT_USERS queda vacío (fase de pruebas sin clientes demo, ver
+ * buildClientUsers) el catálogo real NUNCA se sembraba: en una instalación
+ * fresca (migrate reset + seed) el admin no tenía nada contra qué validar
+ * cargas. VariableDefinition es global por servicio, no por organización,
+ * así que esto corre siempre en main(), sin depender de que existan
+ * clientes. Devuelve el mapa código→definición para que
+ * seedHigieneIndustrialData lo reuse al generar lecturas demo, sin volver
+ * a hacer el upsert. */
+async function seedHigieneVariableCatalog(serviceId: string) {
   const definitionByCode = new Map<string, { id: string; comparisonType: string; limiteMin: number | null; limiteMax: number | null; toleranciaAlerta: number }>()
   for (const v of HIGIENE_VARIABLES) {
     const row = await prisma.variableDefinition.upsert({
-      where: { serviceId_codigo: { serviceId: service.id, codigo: v.codigo } },
+      where: { serviceId_codigo: { serviceId, codigo: v.codigo } },
       update: {
         categoria: v.categoria,
         nombre: v.nombre,
@@ -1151,7 +1166,7 @@ async function seedHigieneIndustrialData(
         isActive: v.isActive,
       },
       create: {
-        serviceId: service.id,
+        serviceId,
         codigo: v.codigo,
         categoria: v.categoria,
         nombre: v.nombre,
@@ -1166,6 +1181,25 @@ async function seedHigieneIndustrialData(
     })
     definitionByCode.set(v.codigo, row)
   }
+  return definitionByCode
+}
+
+async function seedHigieneIndustrialData(
+  organizationId: string,
+  uploadedById: string,
+  workPointCount: number,
+  complianceProfile: ComplianceProfile,
+  definitionByCode: Map<string, { id: string; comparisonType: string; limiteMin: number | null; limiteMax: number | null; toleranciaAlerta: number }>,
+) {
+  const service = await prisma.service.findUniqueOrThrow({ where: { slug: 'higiene-industrial' } })
+
+  // Asegura que la organización de prueba tenga el servicio contratado —
+  // sin esto ni el cliente ni el dashboard verían nada.
+  await prisma.organizationService.upsert({
+    where: { organizationId_serviceId: { organizationId, serviceId: service.id } },
+    update: { isActive: true },
+    create: { organizationId, serviceId: service.id, isActive: true },
+  })
 
   // Idempotencia: si ya hay cargas para esta organización/servicio, no
   // duplicar work points ni lecturas en una segunda corrida del seed.
@@ -1236,13 +1270,19 @@ async function main() {
   const PLATFORM_USERS = buildPlatformUsers()
   const CLIENT_USERS = buildClientUsers()
 
+  let higieneServiceId = ''
   for (const service of SERVICES) {
-    await prisma.service.upsert({
+    const row = await prisma.service.upsert({
       where: { slug: service.slug },
       update: { nombre: service.nombre, descripcion: service.descripcion },
       create: service,
     })
+    if (service.slug === 'higiene-industrial') higieneServiceId = row.id
   }
+
+  // Catálogo real (60 activas + deprecadas) — siempre, sin depender de que
+  // existan clientes demo (ver nota en seedHigieneVariableCatalog).
+  const higieneDefinitionByCode = await seedHigieneVariableCatalog(higieneServiceId)
 
   for (const permission of PERMISSIONS) {
     await prisma.permission.upsert({
@@ -1341,7 +1381,13 @@ async function main() {
       return organization.id
     })
 
-    await seedHigieneIndustrialData(clientOrganizationId, superAdminUserId, clientUser.workPointCount, clientUser.complianceProfile)
+    await seedHigieneIndustrialData(
+      clientOrganizationId,
+      superAdminUserId,
+      clientUser.workPointCount,
+      clientUser.complianceProfile,
+      higieneDefinitionByCode,
+    )
   }
 
   console.log(`Seed completo: ${SERVICES.length} servicios, ${PERMISSIONS.length} permisos, ${ROLES.length} roles.`)

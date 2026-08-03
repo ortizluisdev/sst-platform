@@ -94,6 +94,16 @@ export async function uploadVariablesHandler(
   if (!trabajadorId) catalogErrors.trabajadorId = 'Selecciona un trabajador'
   if (Object.keys(catalogErrors).length > 0) return reply.code(422).send({ errors: catalogErrors })
 
+  // Aplica a TODOS los puestos de trabajo de esta carga (decisión explícita
+  // — un cliente con puestos interior y exterior mezclados necesita subir 2
+  // archivos separados). Obligatorio y explícito, sin default: el frontend
+  // siempre manda "true" o "false" literal, nunca lo omite.
+  const exposicionSolarRaw = (data.fields.exposicionSolar as { value?: string } | undefined)?.value
+  if (exposicionSolarRaw !== 'true' && exposicionSolarRaw !== 'false') {
+    return reply.code(422).send({ errors: { exposicionSolar: 'Indica si hay exposición solar directa' } })
+  }
+  const exposicionSolar = exposicionSolarRaw === 'true'
+
   const buffer = await data.toBuffer()
 
   // La fecha llega como "YYYY-MM-DD" (sin hora, el input es type="date").
@@ -116,6 +126,7 @@ export async function uploadVariablesHandler(
       seccionId: seccionId!,
       cargoId: cargoId!,
       trabajadorId: trabajadorId!,
+      exposicionSolar,
       fileBuffer: buffer,
       filename: data.filename,
       ipAddress: request.ip,

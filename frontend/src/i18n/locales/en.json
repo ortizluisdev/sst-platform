@@ -533,6 +533,7 @@
       "chooseFile": "Choose file",
       "noFile": "No file selected",
       "columnsHint": "Required columns: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. Also accepts the full Excel report (Reporte Hoja 2).",
+      "exposicionSolarLabel": "Direct solar exposure (outdoor work) — applies to all work points in this upload",
       "omittedHeading": "Skipped rows (not loaded):",
       "omittedReason": {
         "sin_variable_equivalente": "no matching catalog variable",
@@ -594,7 +595,9 @@
       "statusError": "Error",
       "statusPendiente": "Pending",
       "hasObservations": "Has observations",
+      "hasMissingVariables": "Missing variables",
       "omittedHeading": "Rows omitted from this upload:",
+      "missingVariablesHeading": "Catalog variables that did not appear in this upload:",
       "correctedBadge": "Corrected",
       "correctedReasonPrefix": "Reason: "
     },
@@ -1034,6 +1037,21 @@
       "active": "Active",
       "suspended": "Suspended",
       "pending": "Pending activation"
+    },
+    "categoryConfig": {
+      "openButton": "Categories",
+      "title": "Occupational Hygiene categories",
+      "hint": "Each category is sold separately. Disabling a category only affects future uploads and calculations — historical data already loaded is never deleted or hidden.",
+      "loading": "Loading categories...",
+      "loadError": "Couldn't load categories.",
+      "actionError": "Couldn't update the category.",
+      "categorias": {
+        "ESTRES_TERMICO": "Thermal Stress",
+        "ILUMINACION": "Lighting",
+        "SONIDO": "Sound",
+        "RADIACION_UV": "UV Radiation",
+        "VIBRACION": "Vibration"
+      }
     }
   },
   "reports": {

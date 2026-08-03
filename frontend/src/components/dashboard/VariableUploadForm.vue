@@ -17,6 +17,7 @@ const zonaId = ref('')
 const seccionId = ref('')
 const cargoId = ref('')
 const trabajadorId = ref('')
+const exposicionSolar = ref(false)
 const status = ref<'idle' | 'loading' | 'error'>('idle')
 const errorMessage = ref('')
 const lastResult = ref<UploadResult | null>(null)
@@ -43,6 +44,7 @@ async function submit() {
       seccionId: seccionId.value,
       cargoId: cargoId.value,
       trabajadorId: trabajadorId.value,
+      exposicionSolar: exposicionSolar.value,
     })
     status.value = 'idle'
     file.value = null
@@ -118,6 +120,11 @@ async function submit() {
           :label="t('dashboard.uploadForm.trabajadorLabel')"
         />
       </div>
+
+      <label class="flex items-center gap-2 text-sm text-navy-900">
+        <input v-model="exposicionSolar" type="checkbox" class="h-4 w-4 rounded-sm border-line-strong" />
+        {{ t('dashboard.uploadForm.exposicionSolarLabel') }}
+      </label>
 
       <SubmitButton :loading="status === 'loading'" :loading-label="t('dashboard.uploadForm.processing')">{{ t('dashboard.uploadForm.submit') }}</SubmitButton>
     </form>

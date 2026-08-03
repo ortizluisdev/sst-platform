@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient, type WorkShift } from '@prisma/client'
+import { CATEGORIA_ENUM_TO_LABEL } from '../../utils/higieneCategorias.js'
 
 export function createVariablesRepository(prisma: PrismaClient) {
   return {
@@ -14,6 +15,18 @@ export function createVariablesRepository(prisma: PrismaClient) {
 
     findDefinitionsByService(serviceId: string) {
       return prisma.variableDefinition.findMany({ where: { serviceId, isActive: true } })
+    },
+
+    /** Labels (`VariableDefinition.categoria`) de las categorías de Higiene
+     * Industrial deshabilitadas para esta organización — se venden por
+     * separado (2026-08, "Catálogo de variables por categoría"). Cualquier
+     * categoría que no sea una de las 5 conocidas (otros servicios) nunca
+     * aparece aquí, así que nunca se filtra por error. */
+    async findDisabledCategoryLabels(organizationId: string): Promise<Set<string>> {
+      const rows = await prisma.organizationCategoryConfig.findMany({
+        where: { organizationId, habilitada: false },
+      })
+      return new Set(rows.map((r) => CATEGORIA_ENUM_TO_LABEL[r.categoria]))
     },
 
     findOrganizationById(id: string) {
@@ -69,7 +82,11 @@ export function createVariablesRepository(prisma: PrismaClient) {
       seccionId: string
       cargoId: string
       trabajadorId: string
+      /** Aplica a TODOS los puestos de trabajo de esta carga — ver nota en
+       * variables.service.ts. */
+      exposicionSolar: boolean
       omittedRows: { nombre: string; motivo: string }[] | null
+      missingVariables: { codigo: string; nombre: string }[] | null
       rows: {
         codigoPuesto: string
         nombrePuesto: string
@@ -96,6 +113,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
             cargoId: input.cargoId,
             trabajadorId: input.trabajadorId,
             omittedRows: input.omittedRows ?? undefined,
+            missingVariables: input.missingVariables ?? undefined,
           },
         })
 
@@ -110,11 +128,13 @@ export function createVariablesRepository(prisma: PrismaClient) {
               areaPlanta: row.areaPlanta,
               procesoActividad: row.procesoActividad,
               jornada: row.jornada,
+              exposicionSolar: input.exposicionSolar,
             },
             create: {
               organizationId: input.organizationId,
               codigo,
               nombre: row.nombrePuesto,
+              exposicionSolar: input.exposicionSolar,
               areaPlanta: row.areaPlanta,
               procesoActividad: row.procesoActividad,
               jornada: row.jornada,

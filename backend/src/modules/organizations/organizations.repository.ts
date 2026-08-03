@@ -1,4 +1,5 @@
 import type { AccountStatus, DocumentType, Prisma, PrismaClient } from '@prisma/client'
+import { TODAS_LAS_CATEGORIAS } from '../../utils/higieneCategorias.js'
 
 export function createOrganizationsRepository(prisma: PrismaClient) {
   return {
@@ -97,6 +98,15 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
         })
         await tx.organizationService.createMany({
           data: input.serviceIds.map((serviceId) => ({ organizationId: organization.id, serviceId, isActive: true })),
+        })
+        // Mismo default que el backfill de organizaciones existentes: las 5
+        // categorías de Higiene Industrial arrancan habilitadas — el admin
+        // las desactiva manualmente después si el cliente no las contrató.
+        // Se crean para TODA organización nueva (no solo las que contratan
+        // Higiene Industrial) para que nunca exista una fila "faltante" que
+        // el resto del código tenga que interpretar como default adivinado.
+        await tx.organizationCategoryConfig.createMany({
+          data: TODAS_LAS_CATEGORIAS.map((categoria) => ({ organizationId: organization.id, categoria, habilitada: true })),
         })
         const responsable = await tx.user.create({
           data: {

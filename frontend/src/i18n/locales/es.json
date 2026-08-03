@@ -533,6 +533,7 @@
       "chooseFile": "Seleccionar archivo",
       "noFile": "Ningún archivo seleccionado",
       "columnsHint": "Columnas requeridas: codigo_puesto, nombre_puesto, area_planta, proceso_actividad, jornada, codigo_variable, valor. También acepta el reporte completo de Excel (Reporte Hoja 2).",
+      "exposicionSolarLabel": "Exposición solar directa (trabajo a la intemperie) — aplica a todos los puestos de esta carga",
       "omittedHeading": "Filas omitidas (no se cargaron):",
       "omittedReason": {
         "sin_variable_equivalente": "sin variable equivalente en el catálogo",
@@ -594,7 +595,9 @@
       "statusError": "Error",
       "statusPendiente": "Pendiente",
       "hasObservations": "Con observaciones",
+      "hasMissingVariables": "Variables faltantes",
       "omittedHeading": "Filas omitidas en esta carga:",
+      "missingVariablesHeading": "Variables del catálogo que no aparecieron en esta carga:",
       "correctedBadge": "Corregido",
       "correctedReasonPrefix": "Motivo: "
     },
@@ -1034,6 +1037,21 @@
       "active": "Activas",
       "suspended": "Suspendidas",
       "pending": "Pendientes de activación"
+    },
+    "categoryConfig": {
+      "openButton": "Categorías",
+      "title": "Categorías de Higiene Industrial",
+      "hint": "Cada categoría se vende por separado. Desactivar una categoría solo afecta cargas y cálculos futuros — los datos históricos ya cargados no se borran ni se ocultan.",
+      "loading": "Cargando categorías...",
+      "loadError": "No se pudieron cargar las categorías.",
+      "actionError": "No se pudo actualizar la categoría.",
+      "categorias": {
+        "ESTRES_TERMICO": "Estrés Térmico",
+        "ILUMINACION": "Iluminación",
+        "SONIDO": "Sonido",
+        "RADIACION_UV": "Radiación UV",
+        "VIBRACION": "Vibración"
+      }
     }
   },
   "reports": {
