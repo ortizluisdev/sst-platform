@@ -177,25 +177,15 @@ interface ClientOrgSeed {
 /** Usuarios cliente de prueba: cada uno es el responsable (login por
  * cédula) de su propia organización, con rol "cliente".
  *
- * Fase de pruebas (2026-08): se dejó un solo cliente demo a propósito —
- * antes había una segunda organización ("Organizacion 2", 1000000004) solo
- * para comparar visualmente un perfil de cumplimiento sano vs. uno crítico,
- * pero la nueva fase de pruebas arranca limpia con únicamente los 3
- * usuarios de siempre (1000000001/02/03). Si se necesita ese segundo
- * perfil de comparación más adelante, se puede volver a agregar aquí. */
+ * Fase de pruebas (2026-08): sin clientes demo — el admin borró
+ * explícitamente tanto "Organizacion 1" (1000000003) como la segunda
+ * ("Organizacion 2", 1000000004, que ya existía antes solo para comparar
+ * un perfil sano vs. uno crítico) porque un cliente real está revisando el
+ * sistema y no debe ver datos de prueba. Correr el seed ya NO debe volver
+ * a crear ningún cliente — si algún día hace falta un cliente demo para
+ * pruebas, agregarlo de nuevo acá a propósito, nunca por accidente. */
 function buildClientUsers(): ClientOrgSeed[] {
-  return [
-    {
-      documentNumber: '1000000003',
-      email: 'LAOR14548662@soy.sena.edu.co',
-      password: requireEnv('SEED_CLIENTE_PASSWORD'),
-      nombre: 'Usuario Organización 1',
-      organizationName: 'Organizacion 1',
-      organizationNit: '900000001-1',
-      workPointCount: 20,
-      complianceProfile: 'saludable',
-    },
-  ]
+  return []
 }
 
 // ============================================================
