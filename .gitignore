@@ -3,3 +3,6 @@
 
 # Volcados de BD usados para el cutover a Docker — nunca al repo.
 *.sql
+
+# Worktrees aislados para ejecutar planes de superpowers.
+.worktrees
