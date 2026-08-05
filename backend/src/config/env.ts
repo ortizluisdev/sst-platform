@@ -1,6 +1,14 @@
 import 'dotenv/config'
 import { z } from 'zod'
 
+// Docker Compose pasa `VAR=""` (string vacío, no "no seteada") cuando una
+// variable opcional del .env queda sin llenar (`${ZOHO_SMTP_PORT:-}`) — muy
+// distinto de que la variable no exista en process.env. z.coerce.number()
+// convierte "" a 0, que después falla `.positive()` con un error confuso.
+// Este preprocess normaliza "" a undefined ANTES de coercionar, para que
+// una variable opcional vacía se comporte igual que una no seteada.
+const emptyStringToUndefined = (val: unknown) => (val === '' ? undefined : val)
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -24,7 +32,7 @@ const envSchema = z.object({
   // Dos cuentas separadas: NOTIFICATIONS para todo lo transaccional (reset,
   // activación, eventos) y CONTACT para el formulario de contacto humano.
   ZOHO_SMTP_HOST: z.string().optional(),
-  ZOHO_SMTP_PORT: z.coerce.number().int().positive().optional(),
+  ZOHO_SMTP_PORT: z.preprocess(emptyStringToUndefined, z.coerce.number().int().positive().optional()),
   ZOHO_NOTIFICATIONS_USER: z.string().optional(),
   ZOHO_NOTIFICATIONS_PASSWORD: z.string().optional(),
   ZOHO_CONTACT_USER: z.string().optional(),

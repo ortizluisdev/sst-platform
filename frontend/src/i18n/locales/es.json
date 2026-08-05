@@ -450,7 +450,9 @@
       "servicesLabel": "Servicios",
       "generalLabel": "General",
       "closeMenu": "Cerrar menú de navegación",
-      "notificationsLink": "Notificaciones"
+      "notificationsLink": "Notificaciones",
+      "collapse": "Contraer a solo íconos",
+      "expand": "Expandir menú"
     },
     "tabs": {
       "dashboard": "Dashboard",
@@ -791,6 +793,74 @@
         "successMessage": "Notificación enviada a {count} destinatario(s)."
       }
     },
+    "nonConformitiesAdmin": {
+      "tabLabel": "Recomendaciones",
+      "subtitle": "Administra las recomendaciones y no conformidades de esta empresa: automáticas (generadas por lecturas fuera de norma) y manuales.",
+      "tabActive": "Activas",
+      "tabHistory": "Historial (eliminadas)",
+      "newButton": "+ Nueva recomendación",
+      "filterEstadoAll": "Todo estado",
+      "filterPrioridadAll": "Toda prioridad",
+      "filterOrigenAll": "Todo origen",
+      "origenAuto": "Automática",
+      "origenManual": "Manual",
+      "colOrigen": "Origen",
+      "colActions": "Acciones",
+      "empty": "No hay recomendaciones ni no conformidades registradas.",
+      "emptyHistory": "No hay recomendaciones eliminadas.",
+      "loadError": "Error al cargar las recomendaciones.",
+      "deleteConfirm": "¿Eliminar esta recomendación? Quedará en el historial, no se pierde el rastro.",
+      "deleteError": "No se pudo eliminar la recomendación.",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "form": {
+        "createTitle": "Nueva recomendación",
+        "editTitle": "Editar recomendación",
+        "variableLabel": "Variable",
+        "descripcionLabel": "Descripción",
+        "zonaLabel": "Zona / Punto (opcional)",
+        "prioridadLabel": "Prioridad",
+        "estadoLabel": "Estado",
+        "cancel": "Cancelar",
+        "submit": "Crear",
+        "save": "Guardar",
+        "submitting": "Creando...",
+        "saving": "Guardando...",
+        "descripcionRequired": "La descripción es obligatoria.",
+        "variableRequired": "Selecciona una variable."
+      }
+    },
+    "higieneConfig": {
+      "tabLabel": "Configuración",
+      "subtitle": "Configuración de Higiene Industrial para esta empresa: categorías habilitadas y catálogos de zona, sección, cargo y trabajador.",
+      "loading": "Cargando...",
+      "categories": {
+        "title": "Categorías habilitadas",
+        "hint": "Cada categoría se vende por separado — desactivarla la oculta del dashboard y del catálogo de variables para esta empresa.",
+        "loadError": "Error al cargar las categorías.",
+        "actionError": "No se pudo actualizar la categoría."
+      },
+      "catalogs": {
+        "title": "Catálogos de la organización",
+        "hint": "Zonas, secciones, cargos y trabajadores que se exigen al cargar variables. Renombrar o desactivar aquí no afecta las cargas ya registradas.",
+        "tipo": {
+          "zona": "Zona",
+          "seccion": "Sección",
+          "cargo": "Cargo",
+          "trabajador": "Trabajador"
+        },
+        "loadError": "Error al cargar el catálogo.",
+        "actionError": "No se pudo aplicar el cambio.",
+        "empty": "No hay elementos registrados.",
+        "addPlaceholder": "Nombre nuevo",
+        "addButton": "Agregar",
+        "rename": "Renombrar",
+        "deactivate": "Desactivar",
+        "deactivateConfirm": "¿Desactivar \"{nombre}\"? Dejará de aparecer como opción al cargar variables.",
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      }
+    },
     "accountManagement": {
       "documentType": {
         "CC": "Cédula",
@@ -1079,11 +1149,30 @@
     "loadError": "No se pudo cargar la información.",
     "noData": "Sin datos",
     "tabs": {
-      "hoja1": "Hoja 1 · Generalidad",
-      "hoja2": "Hoja 2 · Vehículos",
-      "hoja3": "Hoja 3 · Personas",
-      "hoja4": "Hoja 4 · Rutograma",
-      "alertas": "Panel de alertas"
+      "dashboard": "Dashboard",
+      "hoja1": "Hoja 2 · Generalidad",
+      "hoja2": "Hoja 3 · Vehículos",
+      "hoja3": "Hoja 4 · Personas",
+      "hoja4": "Hoja 5 · Rutograma",
+      "alertas": "Panel de alertas",
+      "historial": "Historial",
+      "reportes": "Informes",
+      "configuracion": "Configuración"
+    },
+    "tabsAdmin": {
+      "hoja1": "Generalidad",
+      "hoja2": "Vehículos",
+      "hoja3": "Personas",
+      "hoja4": "Rutograma"
+    },
+    "dashboard": {
+      "lastUpdatedPrefix": "Última actualización:",
+      "noUploads": "Sin cargas todavía",
+      "cumplimientoPesv": "Cumplimiento PESV",
+      "totalVehiculos": "Vehículos",
+      "totalConductores": "Conductores",
+      "totalRutas": "Rutas registradas",
+      "alertasTitle": "Alertas activas"
     },
     "upload": {
       "label": "Cargar registro (Excel)",
@@ -1183,6 +1272,23 @@
         "LICENCIA_VENCIDA": "Licencia vencida"
       }
     },
+    "historial": {
+      "subtitle": "Cargas de Excel anteriores para esta empresa — cada carga reemplaza los datos actuales de vehículos, personas, PESV y rutograma.",
+      "loading": "Cargando…",
+      "loadError": "No se pudo cargar el historial.",
+      "empty": "Todavía no hay cargas registradas.",
+      "fecha": "Fecha de carga",
+      "archivo": "Archivo",
+      "cargadoPor": "Cargado por",
+      "pesvPasos": "Pasos PESV",
+      "inventario": "Inventario",
+      "vehiculos": "Vehículos",
+      "conductores": "Conductores",
+      "rutaPuntos": "Puntos de ruta"
+    },
+    "reportesTab": {
+      "subtitle": "Genera el informe de cualquiera de las hojas del servicio, en PDF o CSV."
+    },
     "alertas": {
       "vehiculos": "Vehículos",
       "conductores": "Conductores",
@@ -1198,10 +1304,10 @@
     },
     "reports": {
       "titulo": {
-        "h1": "Generar Reporte H1 — Informe general",
-        "h2": "Generar Reporte H2 — Informe de flota",
-        "h3": "Generar Reporte H3 — Informe de personas",
-        "h4": "Generar Reporte H4 — Informe de rutograma"
+        "h1": "Generar Reporte H2 — Informe general",
+        "h2": "Generar Reporte H3 — Informe de flota",
+        "h3": "Generar Reporte H4 — Informe de personas",
+        "h4": "Generar Reporte H5 — Informe de rutograma"
       },
       "subtitulo": "Estos datos son solo para este reporte — no se guardan en la empresa.",
       "close": "Cerrar",
@@ -1218,6 +1324,30 @@
         "numeroInforme": "N° de informe",
         "fechaCorte": "Fecha de corte"
       }
+    },
+    "config": {
+      "subtitle": "Configuración de Seguridad Vial.",
+      "loadError": "Error al cargar la configuración.",
+      "actionError": "No se pudo aplicar el cambio.",
+      "frequency": {
+        "title": "Frecuencia de actualización",
+        "hint": "Aplica a todas las empresas con Seguridad Vial contratado — no es específico de la empresa seleccionada.",
+        "weekly": "Semanal",
+        "biweekly": "Quincenal"
+      }
+    },
+    "correct": {
+      "editLabel": "Corregir",
+      "title": "Corrección puntual",
+      "close": "Cerrar",
+      "newValueLabel": "Nuevo valor",
+      "booleanLabel": "Sí",
+      "reasonLabel": "Motivo de la corrección",
+      "reasonPlaceholder": "Explica por qué se corrige este dato...",
+      "reasonError": "El motivo debe tener al menos 10 caracteres.",
+      "cancel": "Cancelar",
+      "confirm": "Guardar corrección",
+      "genericError": "No se pudo guardar la corrección."
     }
   }
 }

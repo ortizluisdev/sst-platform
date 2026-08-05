@@ -778,6 +778,11 @@ model NonConformity {
   createdById    String?               @map("created_by_id")
   createdAt      DateTime              @default(now()) @map("created_at")
   updatedAt      DateTime              @updatedAt @map("updated_at")
+  /// Borrado suave (mismo patrón que Notification.deletedAt) — un registro
+  /// de cumplimiento SST puede tener valor de auditoría, así que "eliminar"
+  /// desde el admin nunca borra la fila, solo la oculta de las listas
+  /// normales. null = visible.
+  deletedAt      DateTime?             @map("deleted_at")
 
   organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   service      Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -840,6 +845,10 @@ enum AuditAction {
   /// Admin completa Tipo/Instrumento/Incertidumbre de una variable del
   /// catálogo (2026-07-29).
   VARIABLE_DEFINITION_UPDATED
+  /// Corrección puntual por celda en Seguridad Vial (Hoja 2/3, 2026-08-05) —
+  /// mismo espíritu que VARIABLE_READING_CORRECTED pero genérico a
+  /// cualquiera de los campos corregibles (ver roadSafetyFieldSpecs.ts).
+  ROAD_SAFETY_FIELD_CORRECTED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda
@@ -952,6 +961,13 @@ model RoadSafetyVehicle {
   seguridadActiva       Boolean?  @map("seguridad_activa")
   seguridadPasiva       Boolean?  @map("seguridad_pasiva")
   gpsTelemetria         Boolean?  @map("gps_telemetria")
+  /// Corrección puntual por celda (admin) — `{ [nombreCampo]: { correctedAt,
+  /// correctedById, reason } }`. Solo metadata de auditoría in-row para
+  /// pintar el badge "editado" por campo; el valor real ya vive en su propia
+  /// columna arriba. Se limpia explícitamente en cada re-carga de Excel (ver
+  /// upsertVehiculo en roadSafety.repository.ts) — una corrección habla de
+  /// un valor que ya quedó obsoleto en cuanto llega dato fresco.
+  correctedFields       Json?     @map("corrected_fields")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
 
@@ -991,6 +1007,8 @@ model RoadSafetyDriver {
   scoreGestionFatiga           Int?      @map("score_gestion_fatiga")
   scoreInvestigacionSiniestros Int?      @map("score_investigacion_siniestros")
   scorePrimerosAuxilios        Int?      @map("score_primeros_auxilios")
+  /// Ver comentario en RoadSafetyVehicle.correctedFields — mismo patrón.
+  correctedFields              Json?     @map("corrected_fields")
   createdAt                    DateTime  @default(now()) @map("created_at")
   updatedAt                    DateTime  @updatedAt @map("updated_at")
 
