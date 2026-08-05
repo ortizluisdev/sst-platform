@@ -103,7 +103,7 @@ const tabs = computed(() => (dashboard.value ? buildDashboardTabs(dashboard.valu
 // "Dashboard" separa el resumen KPI del detalle de Hoja 1 — antes Hoja 1
 // hacía de landing por defecto, mezclando ambos roles.
 const roadSafetyTabs = computed<TabDef[]>(() => [
-  { key: 'dashboard', label: t('roadSafety.tabs.dashboard'), icon: Home },
+  { key: 'dashboard', label: t('roadSafety.tabs.dashboardShort'), icon: Home },
   { key: 'hoja1', label: t('roadSafety.tabs.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabs.hoja2'), icon: Truck },
   { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: Users },
