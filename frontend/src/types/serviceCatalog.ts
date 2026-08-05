@@ -17,4 +17,5 @@ export interface UpdateServiceFormValues {
   nombre?: string
   descripcion?: string | null
   isActive?: boolean
+  updateFrequency?: 'WEEKLY' | 'BIWEEKLY'
 }

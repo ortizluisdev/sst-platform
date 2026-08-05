@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Settings, ShieldAlert } from 'lucide-vue-next'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
+import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import VariableUploadModal from '@/components/dashboard/VariableUploadModal.vue'
+import NonConformitiesAdminTab from '@/components/dashboard/nonConformities/NonConformitiesAdminTab.vue'
+import HigieneConfigTab from '@/components/dashboard/higieneConfig/HigieneConfigTab.vue'
 import {
   getAdminDashboard,
   getAdminUploadHistory,
@@ -15,6 +19,7 @@ import type { TabDef } from '@/types/dashboardTabs'
 import type { Locale } from '@/i18n'
 import type { OrganizationListItem } from '@/types/organization'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
+import { serviceLabel } from '@/utils/serviceLabel'
 
 const SERVICE_SLUG = 'higiene-industrial'
 
@@ -56,9 +61,36 @@ const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
 const dashboard = ref<DashboardData | null>(null)
 
+// "Recomendaciones" y "Configuración" son admin-only — se agregan acá, no en
+// buildDashboardTabs() (compartida con el cliente), para no tocar la vista
+// cliente. DashboardShell no reconoce estas claves (nunca se les agrega su
+// v-else-if, ver comentario en el template) — este panel intercepta esas
+// claves antes de delegar a DashboardShell.
 const tabs = computed<TabDef[]>(() =>
-  dashboard.value ? buildDashboardTabs(dashboard.value, t, locale.value as Locale) : [],
+  dashboard.value
+    ? [
+        ...buildDashboardTabs(dashboard.value, t, locale.value as Locale),
+        { key: 'recomendaciones', label: t('dashboard.nonConformitiesAdmin.tabLabel'), icon: ShieldAlert },
+        { key: 'configuracion', label: t('dashboard.higieneConfig.tabLabel'), icon: Settings },
+      ]
+    : [],
 )
+
+// Mismo formato que el bannerTitle interno de DashboardShell.vue — las
+// pestañas "Recomendaciones" y "Configuración" se renderizan por fuera del
+// shell (ver template) así que nunca reciben su SectionTitleBanner; sin
+// esto quedaban sin encabezado de servicio/empresa/pestaña.
+const sectionBannerTitle = computed(() => {
+  if (!dashboard.value) return ''
+  const currentTabLabel = tabs.value.find((tab) => tab.key === sharedActiveTab.value)?.label ?? ''
+  return [
+    serviceLabel(dashboard.value.service.slug, dashboard.value.service.nombre, locale.value as Locale),
+    activeOrgNombre.value,
+    currentTabLabel,
+  ]
+    .filter(Boolean)
+    .join(' — ')
+})
 
 watch(tabs, (value) => {
   sharedServiceTabs.value = value
@@ -107,6 +139,14 @@ async function correctReading(readingId: string, valor: number, reason: string) 
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
     </p>
+    <div v-else-if="dashboard && sharedActiveTab === 'recomendaciones'" class="grid gap-6">
+      <SectionTitleBanner :title="sectionBannerTitle" />
+      <NonConformitiesAdminTab :organization-id="props.organizationId" :service-slug="SERVICE_SLUG" />
+    </div>
+    <div v-else-if="dashboard && sharedActiveTab === 'configuracion'" class="grid gap-6">
+      <SectionTitleBanner :title="sectionBannerTitle" />
+      <HigieneConfigTab :organization-id="props.organizationId" />
+    </div>
     <DashboardShell
       v-else-if="dashboard"
       :key="props.organizationId"

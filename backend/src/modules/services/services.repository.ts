@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client'
+import type { Prisma, PrismaClient, UpdateFrequency } from '@prisma/client'
 
 export function createServicesRepository(prisma: PrismaClient) {
   return {
@@ -34,7 +34,10 @@ export function createServicesRepository(prisma: PrismaClient) {
       return prisma.service.create({ data })
     },
 
-    update(id: string, data: { nombre?: string; descripcion?: string | null; isActive?: boolean }) {
+    update(
+      id: string,
+      data: { nombre?: string; descripcion?: string | null; isActive?: boolean; updateFrequency?: UpdateFrequency },
+    ) {
       return prisma.service.update({ where: { id }, data })
     },
 

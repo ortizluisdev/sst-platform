@@ -13,6 +13,7 @@ export const updateServiceSchema = z
     nombre: noNewlines(z.string().min(2, 'Ingresa el nombre del servicio')).optional(),
     descripcion: noNewlines(z.string()).nullable().optional(),
     isActive: z.boolean().optional(),
+    updateFrequency: z.enum(['WEEKLY', 'BIWEEKLY']).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, { message: 'No hay cambios para aplicar' })
 

@@ -7,6 +7,7 @@ export type CatalogTipo = 'zona' | 'seccion' | 'cargo' | 'trabajador'
 export interface CatalogItem {
   id: string
   nombre: string
+  isActive: boolean
 }
 
 function rethrow(err: unknown): never {
@@ -37,6 +38,19 @@ export async function createOrgCatalogItem(
   try {
     const { data } = await apiClient.post(`/admin/organizations/${organizationId}/catalogs/${tipo}`, { nombre })
     return data.item
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function updateOrgCatalogItem(
+  organizationId: string,
+  tipo: CatalogTipo,
+  itemId: string,
+  data: { nombre?: string; isActive?: boolean },
+): Promise<void> {
+  try {
+    await apiClient.patch(`/admin/organizations/${organizationId}/catalogs/${tipo}/${itemId}`, data)
   } catch (err) {
     rethrow(err)
   }
