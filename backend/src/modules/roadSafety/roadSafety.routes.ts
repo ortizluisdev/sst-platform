@@ -9,6 +9,8 @@ import {
   hoja3Handlers,
   hoja4Handlers,
   alertasHandlers,
+  correctVehiculoFieldHandler,
+  correctConductorFieldHandler,
 } from './roadSafety.controller.js'
 
 /** Mismos permisos que Higiene Industrial (platform.variables.upload /
@@ -47,4 +49,18 @@ export async function roadSafetyRoutes(app: FastifyInstance) {
     )
     app.get(`/api/road-safety/${sheet}`, { preHandler: [requireAuth] }, handlers.client)
   }
+
+  // Corrección puntual por celda — admin-only (mismo permiso que la carga,
+  // corregir un dato ya cargado es la misma responsabilidad). No existe
+  // ruta cliente: el cliente nunca corrige, solo ve.
+  app.patch<{ Params: { organizationId: string; entityId: string } }>(
+    '/api/admin/organizations/:organizationId/road-safety/hoja2/vehiculos/:entityId',
+    { preHandler: [requireAuth, requirePermission('platform.variables.upload')] },
+    correctVehiculoFieldHandler,
+  )
+  app.patch<{ Params: { organizationId: string; entityId: string } }>(
+    '/api/admin/organizations/:organizationId/road-safety/hoja3/conductores/:entityId',
+    { preHandler: [requireAuth, requirePermission('platform.variables.upload')] },
+    correctConductorFieldHandler,
+  )
 }

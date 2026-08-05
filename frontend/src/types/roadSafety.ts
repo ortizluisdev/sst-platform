@@ -35,6 +35,14 @@ export interface RoadSafetyHoja1Data {
   }
 }
 
+/** Metadata de auditoría por campo corregido — el valor real vive en su
+ * propia columna, esto solo dice quién/cuándo/por qué se corrigió. */
+export interface RoadSafetyFieldCorrection {
+  correctedAt: string
+  correctedById: string
+  reason: string
+}
+
 export type VehicleAlertState = 'OK' | 'ALERTA' | 'VENCIDO'
 
 export interface RoadSafetyVehiculo {
@@ -72,6 +80,7 @@ export interface RoadSafetyVehiculo {
   seguridadPasiva: boolean | null
   gpsTelemetria: boolean | null
   alerta: VehicleAlertState
+  correctedFields: Record<string, RoadSafetyFieldCorrection> | null
 }
 
 export type DriverAlertState = 'OK' | 'ALERTA' | 'LICENCIA_VENCIDA'
@@ -107,6 +116,7 @@ export interface RoadSafetyConductor {
   icc: number | null
   resultado: DriverResult | null
   alerta: DriverAlertState
+  correctedFields: Record<string, RoadSafetyFieldCorrection> | null
 }
 
 export interface RoadSafetyOrganismoApoyo {

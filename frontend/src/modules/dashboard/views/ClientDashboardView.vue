@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { ClipboardCheck, Truck, Users, Map, AlertTriangle } from 'lucide-vue-next'
+import { ClipboardCheck, Truck, Users, Map, AlertTriangle, History, FileText, Home } from 'lucide-vue-next'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
@@ -50,9 +50,9 @@ async function loadDashboard() {
     status.value = 'ready'
     dashboard.value = null
     // Mismo reset que hace Higiene Industrial abajo (activeTab = 'resumen')
-    // al entrar a un servicio distinto — acá el primer tab real es 'hoja1',
-    // no 'resumen' (Seguridad Vial no tiene ese concepto).
-    activeTab.value = 'hoja1'
+    // al entrar a un servicio distinto — acá el primer tab real es
+    // 'dashboard', igual que 'resumen' en Higiene Industrial.
+    activeTab.value = 'dashboard'
     return
   }
 
@@ -97,17 +97,20 @@ function selectService(slug: string) {
 const tabs = computed(() => (dashboard.value ? buildDashboardTabs(dashboard.value, t, locale.value as Locale) : []))
 
 // Seguridad Vial no tiene categorías del modelo genérico (ver loadDashboard
-// arriba) — sus "pestañas" son las 5 hojas, listadas DIRECTAS bajo el
-// servicio (sin nodo "Dashboard" intermedio), exactamente igual que
-// AdminNavSidebar.vue las muestra del lado admin. Antes vivían como una
-// barra de pestañas interna dentro de RoadSafetyClientPanel.vue, lo que
-// dejaba la navegación en dos sitios distintos y el sidebar sin hijos.
+// arriba) — sus "pestañas" son "Dashboard" + las 4 hojas + alertas, listadas
+// DIRECTAS bajo el servicio (sin acordeón anidado), exactamente igual que
+// AdminNavSidebar.vue las muestra del lado admin (RoadSafetyAdminPanel.vue).
+// "Dashboard" separa el resumen KPI del detalle de Hoja 1 — antes Hoja 1
+// hacía de landing por defecto, mezclando ambos roles.
 const roadSafetyTabs = computed<TabDef[]>(() => [
+  { key: 'dashboard', label: t('roadSafety.tabs.dashboard'), icon: Home },
   { key: 'hoja1', label: t('roadSafety.tabs.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabs.hoja2'), icon: Truck },
   { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: Users },
   { key: 'hoja4', label: t('roadSafety.tabs.hoja4'), icon: Map },
   { key: 'alertas', label: t('roadSafety.tabs.alertas'), icon: AlertTriangle },
+  { key: 'historial', label: t('roadSafety.tabs.historial'), icon: History },
+  { key: 'reportes', label: t('roadSafety.tabs.reportes'), icon: FileText },
 ])
 
 function fetchHistory() {
@@ -129,7 +132,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
     </p>
-    <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[220px_1fr]">
+    <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[auto_1fr]">
       <DashboardSidebar
         v-model="activeTab"
         v-model:active-hoja="activeHoja"
@@ -143,11 +146,11 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />
         <RoadSafetyClientPanel
           v-else
-          :active-tab="(activeTab as 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas')"
+          :active-tab="(activeTab as 'dashboard' | 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas' | 'historial' | 'reportes')"
         />
       </div>
     </div>
-    <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[220px_1fr]">
+    <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[auto_1fr]">
       <DashboardSidebar
         v-model="activeTab"
         v-model:active-hoja="activeHoja"

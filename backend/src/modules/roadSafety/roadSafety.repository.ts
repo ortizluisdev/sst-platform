@@ -1,4 +1,5 @@
-import type { PrismaClient, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
 import type {
   RoadSafetyParseResult,
   ParsedVehiculo,
@@ -98,6 +99,38 @@ export function createRoadSafetyRepository(prisma: PrismaClient) {
         include: { puntos: { orderBy: { orden: 'asc' } } },
       })
     },
+
+    findVehiculoById(id: string, organizationId: string) {
+      return prisma.roadSafetyVehicle.findFirst({ where: { id, organizationId } })
+    },
+
+    correctVehiculo(id: string, data: Prisma.RoadSafetyVehicleUpdateInput) {
+      return prisma.roadSafetyVehicle.update({ where: { id }, data })
+    },
+
+    findConductorById(id: string, organizationId: string) {
+      return prisma.roadSafetyDriver.findFirst({ where: { id, organizationId } })
+    },
+
+    correctConductor(id: string, data: Prisma.RoadSafetyDriverUpdateInput) {
+      return prisma.roadSafetyDriver.update({ where: { id }, data })
+    },
+
+    createAuditLog(input: {
+      userId: string
+      organizationId: string
+      action: 'ROAD_SAFETY_FIELD_CORRECTED'
+      metadata: Record<string, unknown>
+    }) {
+      return prisma.auditLog.create({
+        data: {
+          userId: input.userId,
+          organizationId: input.organizationId,
+          action: input.action,
+          metadata: input.metadata as Prisma.InputJsonValue,
+        },
+      })
+    },
   }
 }
 
@@ -130,7 +163,9 @@ async function upsertVehiculo(tx: Tx, organizationId: string, vehiculo: ParsedVe
   await tx.roadSafetyVehicle.upsert({
     where: { organizationId_placa: { organizationId, placa } },
     create: { organizationId, placa, ...data },
-    update: data,
+    // correctedFields se limpia acá (no solo en create): una corrección
+    // puntual habla de un valor que la carga fresca del Excel ya reemplazó.
+    update: { ...data, correctedFields: Prisma.DbNull },
   })
 }
 
@@ -139,7 +174,7 @@ async function upsertConductor(tx: Tx, organizationId: string, conductor: Parsed
   await tx.roadSafetyDriver.upsert({
     where: { organizationId_documento: { organizationId, documento } },
     create: { organizationId, documento, ...data },
-    update: data,
+    update: { ...data, correctedFields: Prisma.DbNull },
   })
 }
 

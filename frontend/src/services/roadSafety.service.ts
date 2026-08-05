@@ -123,6 +123,47 @@ export async function getRoadSafetyAlertas(scope: RoadSafetyScope): Promise<Road
   }
 }
 
+export type RoadSafetyFieldValue = string | number | boolean | null
+
+/** Corrección puntual por celda (admin) — organizationId siempre presente
+ * acá (nunca se llama en contexto cliente, que no tiene permiso ni UI para
+ * esto). */
+export async function correctRoadSafetyVehiculoField(
+  organizationId: string,
+  vehiculoId: string,
+  field: string,
+  value: RoadSafetyFieldValue,
+  reason: string,
+): Promise<RoadSafetyVehiculo> {
+  try {
+    const { data } = await apiClient.patch(
+      `/admin/organizations/${organizationId}/road-safety/hoja2/vehiculos/${vehiculoId}`,
+      { field, value, reason },
+    )
+    return data
+  } catch (err) {
+    return rethrow(err)
+  }
+}
+
+export async function correctRoadSafetyConductorField(
+  organizationId: string,
+  conductorId: string,
+  field: string,
+  value: RoadSafetyFieldValue,
+  reason: string,
+): Promise<RoadSafetyConductor> {
+  try {
+    const { data } = await apiClient.patch(
+      `/admin/organizations/${organizationId}/road-safety/hoja3/conductores/${conductorId}`,
+      { field, value, reason },
+    )
+    return data
+  } catch (err) {
+    return rethrow(err)
+  }
+}
+
 export async function generateRoadSafetyReportPdf(
   scope: RoadSafetyScope,
   tipo: RoadSafetyReportTipo,

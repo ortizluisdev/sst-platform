@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getRoadSafetyHoja3, RoadSafetyRequestError } from '@/services/roadSafety.service'
+import { Pencil } from 'lucide-vue-next'
+import {
+  getRoadSafetyHoja3,
+  correctRoadSafetyConductorField,
+  RoadSafetyRequestError,
+  type RoadSafetyFieldValue,
+} from '@/services/roadSafety.service'
 import { formatDate } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { RoadSafetyConductor } from '@/types/roadSafety'
+import RoadSafetyCorrectFieldModal from './RoadSafetyCorrectFieldModal.vue'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
+
+const isAdmin = computed(() => !!props.organizationId)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
@@ -37,6 +46,32 @@ const ALERTA_CLASS: Record<string, string> = {
 function fecha(value: string | null): string {
   return value ? formatDate(value, locale.value as Locale) : '—'
 }
+
+// --- Corrección puntual por celda (admin) — ver mismo bloque en
+// RoadSafetyHoja2Tab.vue. ICC/Resultado/Días licencia/Alerta se calculan al
+// leer, no tienen lápiz.
+type FieldType = 'string' | 'text' | 'int' | 'float' | 'date'
+const correcting = ref<{ conductor: RoadSafetyConductor; field: string; label: string; type: FieldType } | null>(null)
+
+const correctError = ref('')
+
+function openCorrect(conductor: RoadSafetyConductor, field: string, label: string, type: FieldType) {
+  correctError.value = ''
+  correcting.value = { conductor, field, label, type }
+}
+
+async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) {
+  if (!correcting.value || !props.organizationId) return
+  const { conductor, field } = correcting.value
+  try {
+    const updated = await correctRoadSafetyConductorField(props.organizationId, conductor.id, field, value, reason)
+    const index = conductores.value.findIndex((c) => c.id === conductor.id)
+    if (index !== -1) conductores.value[index] = updated
+    correcting.value = null
+  } catch (err) {
+    correctError.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.correct.genericError')
+  }
+}
 </script>
 
 <template>
@@ -44,6 +79,9 @@ function fecha(value: string | null): string {
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
+    </p>
+    <p v-if="correctError" class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+      {{ correctError }}
     </p>
     <div v-else class="overflow-hidden rounded-lg border border-line-strong bg-white">
       <div class="overflow-x-auto">
@@ -64,13 +102,91 @@ function fecha(value: string | null): string {
           </thead>
           <tbody>
             <tr v-for="c in conductores" :key="c.id" class="border-t border-line">
-              <td class="px-3 py-2 font-mono text-xs text-navy-700/70">{{ c.documento }}</td>
-              <td class="px-3 py-2 font-semibold text-navy-900">{{ c.nombre }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ c.actorVial ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ c.ciudad ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ fecha(c.licenciaVence) }}</td>
+              <td class="px-3 py-2 font-mono text-xs text-navy-700/70">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ c.documento }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'documento', t('roadSafety.hoja3.documento'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 font-semibold text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ c.nombre }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'nombre', t('roadSafety.hoja3.nombre'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ c.actorVial ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'actorVial', t('roadSafety.hoja3.actorVial'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ c.ciudad ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'ciudad', t('roadSafety.hoja3.ciudad'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ fecha(c.licenciaVence) }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'licenciaVence', t('roadSafety.hoja3.licenciaVence'), 'date')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
               <td class="bg-cream px-3 py-2 font-mono tabular-nums text-navy-900">{{ c.diasLicencia ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ c.estadoSalud ?? '—' }}</td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ c.estadoSalud ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(c, 'estadoSalud', t('roadSafety.hoja3.estadoSalud'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
               <td class="bg-cream px-3 py-2 font-mono tabular-nums text-navy-900">{{ c.icc ?? '—' }}</td>
               <td class="bg-cream px-3 py-2 text-navy-700">{{ c.resultado ?? '—' }}</td>
               <td class="bg-cream px-3 py-2">
@@ -91,5 +207,14 @@ function fecha(value: string | null): string {
         </table>
       </div>
     </div>
+
+    <RoadSafetyCorrectFieldModal
+      v-if="correcting"
+      :field-label="correcting.label"
+      :field-type="correcting.type"
+      :current-value="(correcting.conductor as unknown as Record<string, RoadSafetyFieldValue>)[correcting.field]"
+      @submit="handleCorrectSubmit"
+      @cancel="correcting = null"
+    />
   </div>
 </template>

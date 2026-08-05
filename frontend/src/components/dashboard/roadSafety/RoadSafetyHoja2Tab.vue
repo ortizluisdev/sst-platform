@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getRoadSafetyHoja2, RoadSafetyRequestError } from '@/services/roadSafety.service'
+import { Pencil } from 'lucide-vue-next'
+import {
+  getRoadSafetyHoja2,
+  correctRoadSafetyVehiculoField,
+  RoadSafetyRequestError,
+  type RoadSafetyFieldValue,
+} from '@/services/roadSafety.service'
 import { formatDate } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { RoadSafetyVehiculo } from '@/types/roadSafety'
+import RoadSafetyCorrectFieldModal from './RoadSafetyCorrectFieldModal.vue'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
+
+const isAdmin = computed(() => !!props.organizationId)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
@@ -42,6 +51,33 @@ const ALERTA_CLASS: Record<string, string> = {
 function fecha(value: string | null): string {
   return value ? formatDate(value, locale.value as Locale) : '—'
 }
+
+// --- Corrección puntual por celda (admin) --------------------------------
+// Solo las columnas visibles que son dato crudo (no calculado) tienen
+// lápiz — Días SOAT/RTM, Anomalía y Alerta se recalculan al leer, no hay
+// nada que corregir ahí (ver roadSafetyFieldSpecs.ts en el backend).
+type FieldType = 'string' | 'text' | 'int' | 'float' | 'date'
+const correcting = ref<{ vehiculo: RoadSafetyVehiculo; field: string; label: string; type: FieldType } | null>(null)
+
+const correctError = ref('')
+
+function openCorrect(vehiculo: RoadSafetyVehiculo, field: string, label: string, type: FieldType) {
+  correctError.value = ''
+  correcting.value = { vehiculo, field, label, type }
+}
+
+async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) {
+  if (!correcting.value || !props.organizationId) return
+  const { vehiculo, field } = correcting.value
+  try {
+    const updated = await correctRoadSafetyVehiculoField(props.organizationId, vehiculo.id, field, value, reason)
+    const index = vehiculos.value.findIndex((v) => v.id === vehiculo.id)
+    if (index !== -1) vehiculos.value[index] = updated
+    correcting.value = null
+  } catch (err) {
+    correctError.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.correct.genericError')
+  }
+}
 </script>
 
 <template>
@@ -52,6 +88,9 @@ function fecha(value: string | null): string {
       :placeholder="t('roadSafety.hoja2.filtroPlaca')"
       class="w-full max-w-xs rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
     />
+    <p v-if="correctError" class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+      {{ correctError }}
+    </p>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
     <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -80,18 +119,148 @@ function fecha(value: string | null): string {
           </thead>
           <tbody>
             <tr v-for="v in filtrados" :key="v.id" class="border-t border-line">
-              <td class="px-3 py-2 font-mono font-semibold text-navy-900">{{ v.placa }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ v.tipo ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ v.ciudad ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ v.conductoresAsignados ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ fecha(v.soatVence) }}</td>
+              <td class="px-3 py-2 font-mono font-semibold text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.placa }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'placa', t('roadSafety.hoja2.placa'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.tipo ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'tipo', t('roadSafety.hoja2.tipo'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.ciudad ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'ciudad', t('roadSafety.hoja2.ciudad'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.conductoresAsignados ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'conductoresAsignados', t('roadSafety.hoja2.conductores'), 'text')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ fecha(v.soatVence) }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'soatVence', t('roadSafety.hoja2.soatVence'), 'date')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
               <td class="bg-cream px-3 py-2 font-mono tabular-nums text-navy-900">{{ v.diasSoat ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ fecha(v.rtmVence) }}</td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ fecha(v.rtmVence) }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'rtmVence', t('roadSafety.hoja2.rtmVence'), 'date')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
               <td class="bg-cream px-3 py-2 font-mono tabular-nums text-navy-900">{{ v.diasRtm ?? '—' }}</td>
-              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">{{ v.comparendos }}</td>
-              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">{{ v.kmActual ?? '—' }}</td>
-              <td class="px-3 py-2 text-navy-700">{{ v.pruebaFrenado ?? '—' }}</td>
-              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">{{ v.llantasLabradoMm ?? '—' }}</td>
+              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.comparendos }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'comparendos', t('roadSafety.hoja2.comparendos'), 'int')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.kmActual ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'kmActual', t('roadSafety.hoja2.kmActual'), 'int')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-navy-700">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.pruebaFrenado ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'pruebaFrenado', t('roadSafety.hoja2.pruebaFrenado'), 'string')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
+              <td class="px-3 py-2 font-mono tabular-nums text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ v.llantasLabradoMm ?? '—' }}
+                  <button
+                    v-if="isAdmin"
+                    type="button"
+                    class="rounded-sm p-0.5 text-navy-700/40 hover:bg-sky-100 hover:text-navy-700"
+                    :aria-label="t('roadSafety.correct.editLabel')"
+                    @click="openCorrect(v, 'llantasLabradoMm', t('roadSafety.hoja2.labrado'), 'float')"
+                  >
+                    <Pencil class="h-3 w-3" />
+                  </button>
+                </span>
+              </td>
               <td class="bg-cream px-3 py-2 font-mono tabular-nums text-navy-900">
                 {{ v.anomaliaConsumoPct != null ? `${v.anomaliaConsumoPct}%` : '—' }}
               </td>
@@ -113,5 +282,14 @@ function fecha(value: string | null): string {
         </table>
       </div>
     </div>
+
+    <RoadSafetyCorrectFieldModal
+      v-if="correcting"
+      :field-label="correcting.label"
+      :field-type="correcting.type"
+      :current-value="(correcting.vehiculo as unknown as Record<string, RoadSafetyFieldValue>)[correcting.field]"
+      @submit="handleCorrectSubmit"
+      @cancel="correcting = null"
+    />
   </div>
 </template>

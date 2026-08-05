@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client'
+import type { Prisma, PrismaClient } from '@prisma/client'
 import { createRoadSafetyRepository } from './roadSafety.repository.js'
 import { parseRoadSafetyWorkbook, RoadSafetyParseError } from '../../utils/roadSafetyWorkbookParser.js'
 import {
@@ -18,14 +18,29 @@ import {
   ORGANISMOS_APOYO_NACIONALES,
   type InventarioGrupo,
 } from '../../utils/roadSafetyConstants.js'
+import {
+  VEHICULO_FIELDS,
+  CONDUCTOR_FIELDS,
+  coerceFieldValue,
+  RoadSafetyFieldValidationError,
+} from '../../utils/roadSafetyFieldSpecs.js'
 
 export class RoadSafetyError extends Error {
   constructor(
-    public code: 'SERVICE_NOT_FOUND' | 'ORG_NOT_FOUND' | 'PARSE_ERROR',
+    public code: 'SERVICE_NOT_FOUND' | 'ORG_NOT_FOUND' | 'PARSE_ERROR' | 'ENTITY_NOT_FOUND' | 'FIELD_INVALID',
     message: string,
   ) {
     super(message)
   }
+}
+
+interface CorrectFieldInput {
+  organizationId: string
+  entityId: string
+  field: string
+  value: string | number | boolean | null
+  reason: string
+  correctedByUserId: string
 }
 
 export function createRoadSafetyService(prisma: PrismaClient) {
@@ -194,6 +209,93 @@ export function createRoadSafetyService(prisma: PrismaClient) {
           enAlerta: conductores.filter((c) => c.alerta === 'ALERTA' || c.alerta === 'LICENCIA_VENCIDA').length,
         },
       }
+    },
+
+    /** Corrección puntual por celda (admin) — Hoja 2 · Vehículos. Mismo
+     * espíritu que correctReading() en variables.service.ts: valida que el
+     * registro sea de la organización de la ruta (anti-IDOR), coacciona el
+     * valor al tipo declarado del campo, guarda metadata de auditoría
+     * in-row (correctedFields) y deja rastro en AuditLog. */
+    async correctVehiculoField(input: CorrectFieldInput) {
+      const vehiculo = await repository.findVehiculoById(input.entityId, input.organizationId)
+      if (!vehiculo) throw new RoadSafetyError('ENTITY_NOT_FOUND', 'Vehículo no encontrado')
+
+      let coerced: ReturnType<typeof coerceFieldValue>
+      try {
+        coerced = coerceFieldValue(VEHICULO_FIELDS, input.field, input.value)
+      } catch (err) {
+        if (err instanceof RoadSafetyFieldValidationError) throw new RoadSafetyError('FIELD_INVALID', err.message)
+        throw err
+      }
+
+      const previousValue = (vehiculo as unknown as Record<string, unknown>)[coerced.field]
+      const correctedFields = {
+        ...((vehiculo.correctedFields as Record<string, unknown> | null) ?? {}),
+        [coerced.field]: { correctedAt: new Date().toISOString(), correctedById: input.correctedByUserId, reason: input.reason },
+      }
+
+      const updated = await repository.correctVehiculo(input.entityId, {
+        [coerced.field]: coerced.value,
+        correctedFields,
+      } as Prisma.RoadSafetyVehicleUpdateInput)
+
+      await repository.createAuditLog({
+        userId: input.correctedByUserId,
+        organizationId: input.organizationId,
+        action: 'ROAD_SAFETY_FIELD_CORRECTED',
+        metadata: {
+          entity: 'vehiculo',
+          entityId: input.entityId,
+          field: coerced.field,
+          oldValue: previousValue,
+          newValue: coerced.value,
+          reason: input.reason,
+        },
+      })
+
+      return updated
+    },
+
+    /** Corrección puntual por celda (admin) — Hoja 3 · Conductores. Mismo
+     * mecanismo que correctVehiculoField() de arriba. */
+    async correctConductorField(input: CorrectFieldInput) {
+      const conductor = await repository.findConductorById(input.entityId, input.organizationId)
+      if (!conductor) throw new RoadSafetyError('ENTITY_NOT_FOUND', 'Conductor no encontrado')
+
+      let coerced: ReturnType<typeof coerceFieldValue>
+      try {
+        coerced = coerceFieldValue(CONDUCTOR_FIELDS, input.field, input.value)
+      } catch (err) {
+        if (err instanceof RoadSafetyFieldValidationError) throw new RoadSafetyError('FIELD_INVALID', err.message)
+        throw err
+      }
+
+      const previousValue = (conductor as unknown as Record<string, unknown>)[coerced.field]
+      const correctedFields = {
+        ...((conductor.correctedFields as Record<string, unknown> | null) ?? {}),
+        [coerced.field]: { correctedAt: new Date().toISOString(), correctedById: input.correctedByUserId, reason: input.reason },
+      }
+
+      const updated = await repository.correctConductor(input.entityId, {
+        [coerced.field]: coerced.value,
+        correctedFields,
+      } as Prisma.RoadSafetyDriverUpdateInput)
+
+      await repository.createAuditLog({
+        userId: input.correctedByUserId,
+        organizationId: input.organizationId,
+        action: 'ROAD_SAFETY_FIELD_CORRECTED',
+        metadata: {
+          entity: 'conductor',
+          entityId: input.entityId,
+          field: coerced.field,
+          oldValue: previousValue,
+          newValue: coerced.value,
+          reason: input.reason,
+        },
+      })
+
+      return updated
     },
   }
 }

@@ -1,10 +1,10 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createRoadSafetyService, RoadSafetyError } from './roadSafety.service.js'
-import { organizationParamsSchema, formatFieldErrors } from './roadSafety.schema.js'
+import { organizationParamsSchema, correctFieldParamsSchema, correctFieldBodySchema, formatFieldErrors } from './roadSafety.schema.js'
 
 function sendError(reply: FastifyReply, err: unknown) {
   if (err instanceof RoadSafetyError) {
-    const status = err.code === 'PARSE_ERROR' ? 422 : 404
+    const status = err.code === 'PARSE_ERROR' || err.code === 'FIELD_INVALID' ? 422 : 404
     return reply.code(status).send({ message: err.message })
   }
   throw err
@@ -95,3 +95,46 @@ export const hoja4Handlers = makeGetHandler(async (service, organizationId) => (
   rutas: await service.getDashboardHoja4(organizationId),
 }))
 export const alertasHandlers = makeGetHandler((service, organizationId) => service.getAlertasPanel(organizationId))
+
+function makeCorrectFieldHandler(
+  correct: (
+    service: ReturnType<typeof createRoadSafetyService>,
+    input: {
+      organizationId: string
+      entityId: string
+      field: string
+      value: string | number | boolean | null
+      reason: string
+      correctedByUserId: string
+    },
+  ) => Promise<unknown>,
+) {
+  return async (
+    request: FastifyRequest<{ Params: { organizationId: string; entityId: string } }>,
+    reply: FastifyReply,
+  ) => {
+    const paramsParsed = correctFieldParamsSchema.safeParse(request.params)
+    if (!paramsParsed.success) return reply.code(422).send({ errors: formatFieldErrors(paramsParsed.error) })
+
+    const bodyParsed = correctFieldBodySchema.safeParse(request.body)
+    if (!bodyParsed.success) return reply.code(422).send({ errors: formatFieldErrors(bodyParsed.error) })
+
+    const service = createRoadSafetyService(request.server.prisma)
+    try {
+      const updated = await correct(service, {
+        organizationId: paramsParsed.data.organizationId,
+        entityId: paramsParsed.data.entityId,
+        field: bodyParsed.data.field,
+        value: bodyParsed.data.value,
+        reason: bodyParsed.data.reason,
+        correctedByUserId: request.user.sub,
+      })
+      return reply.code(200).send(updated)
+    } catch (err) {
+      return sendError(reply, err)
+    }
+  }
+}
+
+export const correctVehiculoFieldHandler = makeCorrectFieldHandler((service, input) => service.correctVehiculoField(input))
+export const correctConductorFieldHandler = makeCorrectFieldHandler((service, input) => service.correctConductorField(input))
