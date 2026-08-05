@@ -1,0 +1,5 @@
+# Variables reales de docker-compose — nunca commitear, solo el .example.
+.env.docker
+
+# Volcados de BD usados para el cutover a Docker — nunca al repo.
+*.sql

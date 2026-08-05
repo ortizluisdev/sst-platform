@@ -1,0 +1,93 @@
+name: roma
+
+# Red dedicada y exclusiva de este proyecto — el VPS Contabo también corre
+# n8n (otro usuario del sistema, fuera de Docker); esta red aísla los 3
+# servicios de RoMa sin tocar nada más en el servidor.
+networks:
+  roma-net:
+    driver: bridge
+
+volumes:
+  roma-mysql-data:
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    networks:
+      - roma-net
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?falta MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?falta MYSQL_DATABASE en .env}
+      MYSQL_USER: ${MYSQL_USER:?falta MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?falta MYSQL_PASSWORD en .env}
+    volumes:
+      - roma-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${MYSQL_ROOT_PASSWORD}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Sin puerto de host publicado a propósito, mientras dura la fase de
+    # prueba en paralelo — nada fuera de la red roma-net puede alcanzarlo.
+    # Ver docs/superpowers/... para el paso de cutover que decide si esto
+    # cambia.
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - roma-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+      SHADOW_DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}_shadow
+      FRONTEND_URL: ${FRONTEND_URL:?falta FRONTEND_URL en .env}
+      CONTACT_NOTIFICATION_EMAIL: ${CONTACT_NOTIFICATION_EMAIL:?falta CONTACT_NOTIFICATION_EMAIL en .env}
+      CONTACT_WHATSAPP_NUMBER: ${CONTACT_WHATSAPP_NUMBER:-}
+      ACTIVATION_TOKEN_TTL_HOURS: ${ACTIVATION_TOKEN_TTL_HOURS:-48}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET en .env}
+      COOKIE_SECRET: ${COOKIE_SECRET:?falta COOKIE_SECRET en .env}
+      ZOHO_SMTP_HOST: ${ZOHO_SMTP_HOST:-}
+      ZOHO_SMTP_PORT: ${ZOHO_SMTP_PORT:-}
+      ZOHO_NOTIFICATIONS_USER: ${ZOHO_NOTIFICATIONS_USER:-}
+      ZOHO_NOTIFICATIONS_PASSWORD: ${ZOHO_NOTIFICATIONS_PASSWORD:-}
+      ZOHO_CONTACT_USER: ${ZOHO_CONTACT_USER:-}
+      ZOHO_CONTACT_PASSWORD: ${ZOHO_CONTACT_PASSWORD:-}
+    # Aplica migraciones pendientes en cada arranque (idempotente — nunca
+    # ejecuta el seed acá, eso queda manual y deliberado, nunca automático
+    # en producción).
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+    # Puerto de host solo en loopback durante la fase de prueba en
+    # paralelo — no expuesto públicamente hasta el cutover.
+    ports:
+      - '127.0.0.1:3001:3000'
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:?falta VITE_API_BASE_URL en .env}
+        VITE_CONTACT_API_ENDPOINT: ${VITE_CONTACT_API_ENDPOINT:-/contact}
+        VITE_SITE_URL: ${VITE_SITE_URL:-}
+        VITE_WHATSAPP_NUMBER: ${VITE_WHATSAPP_NUMBER:-}
+        VITE_FACEBOOK_URL: ${VITE_FACEBOOK_URL:-}
+        VITE_INSTAGRAM_URL: ${VITE_INSTAGRAM_URL:-}
+        VITE_TIKTOK_URL: ${VITE_TIKTOK_URL:-}
+        VITE_X_URL: ${VITE_X_URL:-}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
+        VITE_ERROR_REPORTING_ENDPOINT: ${VITE_ERROR_REPORTING_ENDPOINT:-}
+    restart: unless-stopped
+    networks:
+      - roma-net
+    depends_on:
+      - backend
+    ports:
+      - '127.0.0.1:8080:80'
