@@ -5,6 +5,7 @@ import {
   adminListNonConformitiesHandler,
   adminCreateNonConformityHandler,
   adminUpdateNonConformityHandler,
+  adminDeleteNonConformityHandler,
 } from './nonConformities.controller.js'
 
 export async function nonConformitiesRoutes(app: FastifyInstance) {
@@ -14,7 +15,7 @@ export async function nonConformitiesRoutes(app: FastifyInstance) {
     clientListNonConformitiesHandler,
   )
 
-  app.get<{ Params: { organizationId: string; serviceSlug: string } }>(
+  app.get<{ Params: { organizationId: string; serviceSlug: string }; Querystring: unknown }>(
     '/api/admin/organizations/:organizationId/dashboard/:serviceSlug/non-conformities',
     { preHandler: [requireAuth, requirePermission('platform.dashboards.view')] },
     adminListNonConformitiesHandler,
@@ -30,5 +31,11 @@ export async function nonConformitiesRoutes(app: FastifyInstance) {
     '/api/admin/organizations/:organizationId/dashboard/:serviceSlug/non-conformities/:id',
     { preHandler: [requireAuth, requirePermission('platform.variables.correct')] },
     adminUpdateNonConformityHandler,
+  )
+
+  app.delete<{ Params: { organizationId: string; serviceSlug: string; id: string } }>(
+    '/api/admin/organizations/:organizationId/dashboard/:serviceSlug/non-conformities/:id',
+    { preHandler: [requireAuth, requirePermission('platform.variables.correct')] },
+    adminDeleteNonConformityHandler,
   )
 }

@@ -1,6 +1,6 @@
 import type { PrismaClient, SemaphoreStatus } from '@prisma/client'
 import { createNonConformitiesRepository } from './nonConformities.repository.js'
-import type { CreateNonConformityInput, UpdateNonConformityInput } from './nonConformities.schema.js'
+import type { CreateNonConformityInput, UpdateNonConformityInput, ListNonConformitiesQuery } from './nonConformities.schema.js'
 
 export class NonConformitiesError extends Error {
   constructor(
@@ -39,6 +39,26 @@ export function createNonConformitiesService(prisma: PrismaClient) {
 
     async update(organizationId: string, id: string, input: UpdateNonConformityInput) {
       const result = await repository.update(id, organizationId, input)
+      if (result.count === 0) throw new NonConformitiesError('NOT_FOUND', 'No conformidad no encontrada')
+    },
+
+    /** CRUD admin paginado — pestaña dedicada, y el resumen recortado de
+     * Hoja 1 · Dashboard (pidiendo pageSize chico en vez de un método aparte). */
+    async listPaginated(organizationId: string, serviceSlug: string, filters: ListNonConformitiesQuery) {
+      const service = await repository.findServiceBySlug(serviceSlug)
+      if (!service) throw new NonConformitiesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+      const { items, total } = await repository.findByOrgServicePaginated(organizationId, service.id, filters)
+      return {
+        items,
+        page: filters.page,
+        pageSize: filters.pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / filters.pageSize)),
+      }
+    },
+
+    async remove(organizationId: string, id: string) {
+      const result = await repository.softDelete(id, organizationId)
       if (result.count === 0) throw new NonConformitiesError('NOT_FOUND', 'No conformidad no encontrada')
     },
 

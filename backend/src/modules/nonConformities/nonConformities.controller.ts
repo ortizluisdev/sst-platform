@@ -1,6 +1,11 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createNonConformitiesService, NonConformitiesError } from './nonConformities.service.js'
-import { createNonConformitySchema, updateNonConformitySchema, formatFieldErrors } from './nonConformities.schema.js'
+import {
+  createNonConformitySchema,
+  updateNonConformitySchema,
+  listNonConformitiesQuerySchema,
+  formatFieldErrors,
+} from './nonConformities.schema.js'
 
 function sendError(reply: FastifyReply, err: unknown) {
   if (err instanceof NonConformitiesError) {
@@ -39,14 +44,25 @@ export async function clientListNonConformitiesHandler(
   }
 }
 
+/** Paginado — alimenta tanto la pestaña dedicada (paginación completa) como
+ * el resumen recortado de Hoja 1 · Dashboard (pageSize chico desde el
+ * frontend). Reemplaza al listado sin paginar que tenía antes: cualquier
+ * llamador que no mande page/pageSize recibe los defaults del schema
+ * (page=1, pageSize=20), así que sigue funcionando sin romper nada. */
 export async function adminListNonConformitiesHandler(
-  request: FastifyRequest<{ Params: { organizationId: string; serviceSlug: string } }>,
+  request: FastifyRequest<{
+    Params: { organizationId: string; serviceSlug: string }
+    Querystring: unknown
+  }>,
   reply: FastifyReply,
 ) {
+  const parsed = listNonConformitiesQuerySchema.safeParse(request.query)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
   const service = createNonConformitiesService(request.server.prisma)
   try {
-    const items = await service.list(request.params.organizationId, request.params.serviceSlug)
-    return reply.code(200).send({ items })
+    const result = await service.listPaginated(request.params.organizationId, request.params.serviceSlug, parsed.data)
+    return reply.code(200).send(result)
   } catch (err) {
     return sendError(reply, err)
   }
@@ -83,6 +99,21 @@ export async function adminUpdateNonConformityHandler(
   const service = createNonConformitiesService(request.server.prisma)
   try {
     await service.update(request.params.organizationId, request.params.id, parsed.data)
+    return reply.code(204).send()
+  } catch (err) {
+    return sendError(reply, err)
+  }
+}
+
+/** Borrado suave — ver comentario de `deletedAt` en schema.prisma, nunca
+ * elimina la fila realmente. */
+export async function adminDeleteNonConformityHandler(
+  request: FastifyRequest<{ Params: { organizationId: string; serviceSlug: string; id: string } }>,
+  reply: FastifyReply,
+) {
+  const service = createNonConformitiesService(request.server.prisma)
+  try {
+    await service.remove(request.params.organizationId, request.params.id)
     return reply.code(204).send()
   } catch (err) {
     return sendError(reply, err)

@@ -15,8 +15,27 @@ export const updateNonConformitySchema = z.object({
   estado: z.enum(['ABIERTA', 'EN_SEGUIMIENTO', 'CERRADA']).optional(),
 })
 
+// --- Listado paginado admin (pestaña dedicada) --------------------------
+
+export const listNonConformitiesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(50).default(20),
+  estado: z.enum(['ABIERTA', 'EN_SEGUIMIENTO', 'CERRADA']).optional(),
+  prioridad: z.enum(['ALTA', 'MEDIA', 'BAJA']).optional(),
+  origen: z.enum(['AUTO', 'MANUAL']).optional(),
+  deletedOnly: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
+  // 'prioridad' = ALTA primero, luego fecha más reciente — usado por el
+  // resumen "más importantes" de Hoja 1 · Dashboard. Default 'fecha'
+  // preserva el comportamiento de la pestaña dedicada (orden cronológico).
+  sort: z.enum(['fecha', 'prioridad']).default('fecha'),
+})
+
 export type CreateNonConformityInput = z.infer<typeof createNonConformitySchema>
 export type UpdateNonConformityInput = z.infer<typeof updateNonConformitySchema>
+export type ListNonConformitiesQuery = z.infer<typeof listNonConformitiesQuerySchema>
 
 export function formatFieldErrors(error: import('zod').ZodError): Record<string, string> {
   const fieldErrors = error.flatten().fieldErrors

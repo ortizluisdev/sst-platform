@@ -9,6 +9,8 @@ import type {
   NonConformity,
   NonConformityInput,
   NonConformityUpdateInput,
+  NonConformityFilters,
+  NonConformityListResult,
 } from '@/types/dashboard'
 import type { ServiceOption } from '@/types/organization'
 
@@ -235,12 +237,30 @@ export async function getClientNonConformities(serviceSlug: string): Promise<Non
   }
 }
 
-export async function getAdminNonConformities(organizationId: string, serviceSlug: string): Promise<NonConformity[]> {
+/** Super-admin: listado paginado con filtros — alimenta tanto la pestaña
+ * dedicada (paginación completa) como el resumen "más importantes" de
+ * Hoja 1 · Dashboard (pageSize chico + sort:'prioridad'). */
+export async function getAdminNonConformitiesPaginated(
+  organizationId: string,
+  serviceSlug: string,
+  filters: NonConformityFilters = {},
+): Promise<NonConformityListResult> {
   try {
     const { data } = await apiClient.get(
       `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities`,
+      { params: filters },
     )
-    return data.items
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Super-admin: borrado suave (ver comentario de `deletedAt` en
+ * schema.prisma) — nunca elimina la fila realmente. */
+export async function deleteNonConformity(organizationId: string, serviceSlug: string, id: string): Promise<void> {
+  try {
+    await apiClient.delete(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities/${id}`)
   } catch (err) {
     rethrow(err)
   }

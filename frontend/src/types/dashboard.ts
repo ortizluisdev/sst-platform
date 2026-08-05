@@ -82,6 +82,26 @@ export interface NonConformityUpdateInput {
   estado?: NonConformityStatus
 }
 
+export interface NonConformityFilters {
+  page?: number
+  pageSize?: number
+  estado?: NonConformityStatus
+  prioridad?: NonConformityPriority
+  origen?: NonConformityOrigin
+  deletedOnly?: boolean
+  /** 'prioridad' = ALTA primero, luego más reciente — usado por el resumen
+   * "más importantes" de Hoja 1 · Dashboard. Default del backend: 'fecha'. */
+  sort?: 'fecha' | 'prioridad'
+}
+
+export interface NonConformityListResult {
+  items: NonConformity[]
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
 export interface GlobalCompliance {
   pct: number
   verde: number

@@ -14,10 +14,13 @@ import {
   getAdminHeatmap,
   saveHeatmap,
   getClientNonConformities,
-  getAdminNonConformities,
+  getAdminNonConformitiesPaginated,
   createNonConformity,
   updateNonConformity,
 } from '@/services/dashboard.service'
+
+const NON_CONFORMITY_PRIORITY_RANK: Record<NonConformityPriority, number> = { ALTA: 0, MEDIA: 1, BAJA: 2 }
+const RESUMEN_LIMIT = 5
 
 const props = defineProps<{
   serviceSlug: string
@@ -64,10 +67,29 @@ function onHeatmapFileChange(event: Event) {
 // --- Recomendaciones / no conformidades ----------------------------------
 const nonConformities = ref<NonConformity[]>([])
 
+// Resumen "más importantes": top 5, estado ABIERTA, prioridad ALTA primero.
+// Admin lo pide ya recortado al backend (pageSize:5, sort:'prioridad') — el
+// cliente sigue consumiendo su endpoint sin paginar (intencionalmente no
+// tocado) y se recorta en el cliente para llegar al mismo resultado visual.
 async function loadNonConformities() {
-  nonConformities.value = isAdmin.value
-    ? await getAdminNonConformities(props.organizationId!, props.serviceSlug)
-    : await getClientNonConformities(props.serviceSlug)
+  if (isAdmin.value) {
+    const result = await getAdminNonConformitiesPaginated(props.organizationId!, props.serviceSlug, {
+      pageSize: RESUMEN_LIMIT,
+      estado: 'ABIERTA',
+      sort: 'prioridad',
+    })
+    nonConformities.value = result.items
+    return
+  }
+  const all = await getClientNonConformities(props.serviceSlug)
+  nonConformities.value = all
+    .filter((item) => item.estado === 'ABIERTA')
+    .sort(
+      (a, b) =>
+        NON_CONFORMITY_PRIORITY_RANK[a.prioridad] - NON_CONFORMITY_PRIORITY_RANK[b.prioridad] ||
+        new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
+    )
+    .slice(0, RESUMEN_LIMIT)
 }
 
 const showAddForm = ref(false)

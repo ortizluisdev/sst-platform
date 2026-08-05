@@ -1,4 +1,4 @@
-import type { PrismaClient, NonConformityPriority, NonConformityStatus } from '@prisma/client'
+import type { Prisma, PrismaClient, NonConformityOrigin, NonConformityPriority, NonConformityStatus } from '@prisma/client'
 
 export function createNonConformitiesRepository(prisma: PrismaClient) {
   return {
@@ -6,11 +6,77 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
       return prisma.service.findUnique({ where: { slug } })
     },
 
+    /** Vista de cliente (solo lectura) — lista completa sin paginar, nunca
+     * incluye lo archivado (borrado suave) por el admin. */
     findByOrgService(organizationId: string, serviceId: string) {
       return prisma.nonConformity.findMany({
-        where: { organizationId, serviceId },
+        where: { organizationId, serviceId, deletedAt: null },
         orderBy: { fecha: 'desc' },
       })
+    },
+
+    /** CRUD admin paginado (pestaña dedicada) — también alimenta el resumen
+     * recortado de Hoja 1 · Dashboard pidiendo pageSize chico y
+     * sort:'prioridad'. */
+    async findByOrgServicePaginated(
+      organizationId: string,
+      serviceId: string,
+      filters: {
+        page: number
+        pageSize: number
+        estado?: NonConformityStatus
+        prioridad?: NonConformityPriority
+        origen?: NonConformityOrigin
+        deletedOnly?: boolean
+        sort?: 'fecha' | 'prioridad'
+      },
+    ) {
+      const where: Prisma.NonConformityWhereInput = {
+        organizationId,
+        serviceId,
+        deletedAt: filters.deletedOnly ? { not: null } : null,
+        ...(filters.estado ? { estado: filters.estado } : {}),
+        ...(filters.prioridad ? { prioridad: filters.prioridad } : {}),
+        ...(filters.origen ? { origen: filters.origen } : {}),
+      }
+
+      // sort:'prioridad' (usado por el resumen de Hoja 1 · Dashboard, "las
+      // más importantes"): el enum ALTA/MEDIA/BAJA no ordena alfabéticamente
+      // en el orden de severidad que queremos, así que Prisma no puede
+      // hacerlo en el ORDER BY — se trae todo lo que matchea el filtro (el
+      // volumen por organización es chico, nunca miles de filas) y se
+      // ordena/pagina en JS.
+      if (filters.sort === 'prioridad') {
+        const PRIORIDAD_RANK: Record<NonConformityPriority, number> = { ALTA: 0, MEDIA: 1, BAJA: 2 }
+        const [all, total] = await Promise.all([
+          prisma.nonConformity.findMany({ where, orderBy: { fecha: 'desc' } }),
+          prisma.nonConformity.count({ where }),
+        ])
+        const sorted = [...all].sort(
+          (a, b) => PRIORIDAD_RANK[a.prioridad] - PRIORIDAD_RANK[b.prioridad] || b.fecha.getTime() - a.fecha.getTime(),
+        )
+        const start = (filters.page - 1) * filters.pageSize
+        return { items: sorted.slice(start, start + filters.pageSize), total }
+      }
+
+      const [items, total] = await Promise.all([
+        prisma.nonConformity.findMany({
+          where,
+          orderBy: { fecha: 'desc' },
+          skip: (filters.page - 1) * filters.pageSize,
+          take: filters.pageSize,
+        }),
+        prisma.nonConformity.count({ where }),
+      ])
+
+      return { items, total }
+    },
+
+    /** Borrado suave, escopeado por organización (mismo patrón anti-IDOR
+     * que `update`) — nunca elimina la fila, ver comentario del campo
+     * `deletedAt` en schema.prisma. */
+    softDelete(id: string, organizationId: string) {
+      return prisma.nonConformity.updateMany({ where: { id, organizationId }, data: { deletedAt: new Date() } })
     },
 
     createManual(input: {
@@ -83,6 +149,9 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
           prioridad: input.prioridad,
           descripcion: input.descripcion,
           estado: 'ABIERTA',
+          // Si el admin había archivado esta AUTO y la misma lectura vuelve
+          // a salirse de norma, reaparece — el problema real recurrió.
+          deletedAt: null,
         },
       })
     },
@@ -116,6 +185,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
         where: {
           organizationId,
           serviceId,
+          deletedAt: null,
           estado: { in: ['ABIERTA', 'EN_SEGUIMIENTO'] },
           OR: [{ reading: { uploadId } }, { readingId: null, fecha: { gte: inicioDia, lte: finDia } }],
         },
