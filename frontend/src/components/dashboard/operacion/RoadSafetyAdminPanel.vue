@@ -40,7 +40,7 @@ const sharedServiceTabs = inject<Ref<TabDef[]>>('operacionServiceTabs', ref([]))
 // pensado para el sidebar de CLIENTE) — mismo criterio que Higiene
 // Industrial, cuyo sidebar admin nunca numera sus categorías.
 const tabs = computed<TabDef[]>(() => [
-  { key: 'dashboard', label: t('roadSafety.tabs.dashboard'), icon: Home },
+  { key: 'dashboard', label: t('roadSafety.tabs.dashboardShort'), icon: Home },
   { key: 'hoja1', label: t('roadSafety.tabsAdmin.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabsAdmin.hoja2'), icon: Truck },
   { key: 'hoja3', label: t('roadSafety.tabsAdmin.hoja3'), icon: Users },
