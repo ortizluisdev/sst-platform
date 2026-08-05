@@ -8,6 +8,7 @@ import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { useAuthStore } from '@/stores/auth'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { Locale } from '@/i18n'
+import { CLIENT_SHEETS_CONFIG } from '@/config/clientSheets.config'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
 
@@ -18,20 +19,6 @@ const props = defineProps<{
   selectedServiceSlug: string
 }>()
 
-// Seguridad Vial: todo lo que no sea el propio nodo "Dashboard" se dibuja
-// anidado debajo de él (ver bloque en el template) — el resto de `tabs` ya
-// viene en el orden correcto (hoja1-4, alertas) desde roadSafetyTabs en
-// ClientDashboardView.vue.
-const roadSafetyHojaTabs = computed(() => props.tabs.filter((tab) => tab.key !== 'dashboard'))
-
-// Nivel superior del acordeón: en Seguridad Vial solo "Dashboard" se lista
-// ahí — hoja1-4/alertas se sacan de este nivel porque ya se dibujan
-// anidados (roadSafetyHojaTabs arriba); sin este filtro aparecerían
-// duplicadas (una vez planas, otra vez anidadas). Los demás servicios no
-// cambian: `tabs` completo, como siempre.
-const visibleTopTabs = computed(() =>
-  props.selectedServiceSlug === 'seguridad-vial' ? props.tabs.filter((tab) => tab.key === 'dashboard') : props.tabs,
-)
 const emit = defineEmits<{ 'update:modelValue': [value: string]; 'update:selectedServiceSlug': [value: string] }>()
 
 const activeHoja = defineModel<'hoja1' | 'hoja2' | 'hoja3'>('activeHoja', { default: 'hoja1' })
@@ -40,14 +27,42 @@ const { t, locale } = useI18n()
 const drawer = useSidebarDrawer()
 const auth = useAuthStore()
 
-// "Hoja" ≠ "pestaña", pero SÍ es navegación de la pestaña "Dashboard" —
-// vive anidada acá, un nivel más adentro, la misma idea que el acordeón de
-// admin (servicio → pestañas) pero un nivel más profundo (pestaña → hoja).
-const HOJAS = [
-  { key: 'hoja1', label: 'dashboard.clientTabs.hoja1Short' },
-  { key: 'hoja2', label: 'dashboard.clientTabs.hoja2Short' },
-  { key: 'hoja3', label: 'dashboard.clientTabs.hoja3Short' },
-] as const
+// Config compartida de "hojas" por servicio (ver clientSheets.config.ts) —
+// reemplaza el filtro anterior (`tab.key !== 'dashboard'`), que agarraba
+// por error TODO lo que no fuera "dashboard" (incluía Alertas/Historial/
+// Informes) en vez de solo las hojas reales (bug reportado 2026-08-05).
+const sheetsConfig = computed(() => CLIENT_SHEETS_CONFIG[props.selectedServiceSlug])
+
+// Solo aplica a servicios con mode: 'realtabs' (hoy: Seguridad Vial) — las
+// hojas anidadas bajo "Dashboard" (sheets[0] es el propio nodo "Dashboard",
+// nunca se incluye acá — ver template, ya se dibuja como botón padre).
+const realtabsHojaTabs = computed(() => {
+  const config = sheetsConfig.value
+  if (!config || config.mode !== 'realtabs') return []
+  const hojaKeys = new Set(config.sheets.slice(1).map((sheet) => sheet.key))
+  return props.tabs.filter((tab) => hojaKeys.has(tab.key))
+})
+
+// Nivel superior del acordeón: en servicios 'realtabs' se excluyen las
+// hojas anidadas (ya se dibujan en realtabsHojaTabs) pero se conservan los
+// ítems hermanos sueltos (Alertas/Historial/Informes) — antes el filtro
+// dejaba solo "dashboard" y por eso esos 3 terminaban cayendo, por
+// descarte, dentro del submenú anidado (el bug). Los servicios 'substate'
+// (Higiene Industrial) no cambian: `tabs` completo, como siempre.
+const visibleTopTabs = computed(() => {
+  const config = sheetsConfig.value
+  if (!config || config.mode !== 'realtabs') return props.tabs
+  const nestedHojaKeys = new Set(config.sheets.slice(1).map((sheet) => sheet.key))
+  return props.tabs.filter((tab) => !nestedHojaKeys.has(tab.key))
+})
+
+/** Label corto ("Hoja N") para un ítem anidado — busca en la config
+ * compartida en vez de usar `tab.label` (que trae el texto largo pensado
+ * para el encabezado, no para el sidebar). */
+function hojaShortLabel(key: string): string {
+  const sheet = sheetsConfig.value?.sheets.find((s) => s.key === key)
+  return sheet ? t(sheet.shortLabelKey) : key
+}
 
 function selectTab(key: string) {
   emit('update:modelValue', key)
@@ -203,7 +218,7 @@ function toggleCollapsed() {
                 <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span class="min-w-0 flex-1 truncate">{{ tab.label }}</span>
                 <ChevronDown
-                  v-if="tab.key === 'resumen' && tab.key === modelValue && selectedServiceSlug === 'higiene-industrial'"
+                  v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
                   class="h-3.5 w-3.5 shrink-0"
                   aria-hidden="true"
                 />
@@ -216,10 +231,10 @@ function toggleCollapsed() {
               acá solo se muestra el nodo "Dashboard" sin este submenú para no
               listar hojas que no aplican. -->
               <ul
-                v-if="tab.key === 'resumen' && tab.key === modelValue && selectedServiceSlug === 'higiene-industrial'"
+                v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
                 class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
               >
-                <li v-for="hoja in HOJAS" :key="hoja.key">
+                <li v-for="hoja in sheetsConfig!.sheets" :key="hoja.key">
                   <button
                     type="button"
                     class="flex w-full items-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
@@ -228,9 +243,9 @@ function toggleCollapsed() {
                         ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
                         : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
                     "
-                    @click="selectHoja(hoja.key)"
+                    @click="selectHoja(hoja.key as 'hoja1' | 'hoja2' | 'hoja3')"
                   >
-                    {{ t(hoja.label) }}
+                    {{ t(hoja.shortLabelKey) }}
                   </button>
                 </li>
               </ul>
@@ -250,10 +265,10 @@ function toggleCollapsed() {
               condición extra fue el bug reportado: el submenú entero
               desaparecía al hacer clic en cualquier hoja. -->
               <ul
-                v-if="tab.key === 'dashboard' && selectedServiceSlug === 'seguridad-vial'"
+                v-if="sheetsConfig?.mode === 'realtabs' && tab.key === sheetsConfig.sheets[0]!.key"
                 class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
               >
-                <li v-for="hijaTab in roadSafetyHojaTabs" :key="hijaTab.key">
+                <li v-for="hijaTab in realtabsHojaTabs" :key="hijaTab.key">
                   <button
                     type="button"
                     class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
@@ -265,7 +280,7 @@ function toggleCollapsed() {
                     @click="selectTab(hijaTab.key)"
                   >
                     <component :is="hijaTab.icon" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    <span class="min-w-0 flex-1 truncate">{{ hijaTab.label }}</span>
+                    <span class="min-w-0 flex-1 truncate">{{ hojaShortLabel(hijaTab.key) }}</span>
                   </button>
                 </li>
               </ul>

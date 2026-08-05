@@ -7,7 +7,7 @@ interface SidebarDrawerContext {
   toggle: () => void
 }
 
-const SIDEBAR_DRAWER_KEY: InjectionKey<SidebarDrawerContext> = Symbol('sidebar-drawer')
+export const SIDEBAR_DRAWER_KEY: InjectionKey<SidebarDrawerContext> = Symbol('sidebar-drawer')
 
 /** Llamar una vez en el layout que contiene el botón hamburguesa —
  * DashboardSidebar (arbitrariamente anidado dentro del slot) se conecta a
