@@ -1,10 +1,13 @@
 <script setup lang="ts">
 /**
- * Input con label + mensaje de error, mismo look de los campos del
- * formulario de contacto (ContactoSection.vue) pero reutilizable entre las
- * 4 páginas de auth. inheritAttrs: false + v-bind="$attrs" en el <input>:
- * los atributos de vee-validate (onBlur/onInput de fooAttrs) deben caer en
- * el input real, no en el <div> contenedor (que sería el fallback por defecto).
+ * Input con label, mismo look de los campos del formulario de contacto
+ * (ContactoSection.vue) pero reutilizable entre las 4 páginas de auth.
+ * inheritAttrs: false + v-bind="$attrs" en el <input>: los atributos de
+ * vee-validate (onBlur/onInput de fooAttrs) deben caer en el input real, no
+ * en el <div> contenedor (que sería el fallback por defecto). El mensaje de
+ * error ya no se renderiza acá — sale por useToast() desde el formulario
+ * que usa este campo; acá solo queda el resaltado visual (borde rojo) para
+ * que el usuario ubique qué campo falló.
  */
 defineOptions({ inheritAttrs: false })
 
@@ -35,10 +38,9 @@ const modelValue = defineModel<string>({ default: '' })
       :type="type"
       :placeholder="placeholder"
       :autocomplete="autocomplete"
-      class="w-full rounded-sm border border-line-strong bg-white px-4 py-3 text-sm text-navy-900 outline-none transition-colors placeholder:text-navy-700/40 focus:border-sky-400"
+      class="w-full rounded-sm border bg-white px-4 py-3 text-sm text-navy-900 outline-none transition-colors placeholder:text-navy-700/40"
+      :class="error ? 'border-red-400 focus:border-red-500' : 'border-line-strong focus:border-sky-400'"
       :aria-invalid="!!error"
-      :aria-describedby="error ? `${id}-error` : undefined"
     />
-    <p v-if="error" :id="`${id}-error`" class="mt-1.5 text-xs text-red-600">{{ error }}</p>
   </div>
 </template>
