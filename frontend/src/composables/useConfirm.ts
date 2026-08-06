@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, type Ref, readonly } from 'vue'
 
 export interface ConfirmRequest {
   title: string
@@ -29,5 +29,5 @@ function resolveCancel() {
 }
 
 export function useConfirm() {
-  return { pending, confirm, resolveConfirm, resolveCancel }
+  return { pending: readonly(pending) as Readonly<Ref<ConfirmRequest | null>>, confirm, resolveConfirm, resolveCancel }
 }
