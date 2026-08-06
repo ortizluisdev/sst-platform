@@ -1,4 +1,4 @@
-import type { CategoryCardStatus } from '@/types/dashboard'
+import type { CategoryCardStatus, GlobalCompliance } from '@/types/dashboard'
 import type { RoadSafetyPesvPaso } from '@/types/roadSafety'
 
 /** Convención adoptada para esta feature (2026-08) — NO es un corte de la
@@ -17,7 +17,7 @@ export function classifyPesvCompliance(pct: number | null): CategoryCardStatus {
  * (pct/verde/amarillo/rojo/total). Los pasos sin dato (`cumplimiento: null`)
  * se excluyen del conteo, igual que el resto del sistema trata "sin datos
  * todavía" como distinto de "en 0". */
-export function buildPesvGlobalCompliance(pasos: RoadSafetyPesvPaso[]) {
+export function buildPesvGlobalCompliance(pasos: RoadSafetyPesvPaso[]): GlobalCompliance {
   const verde = pasos.filter((p) => p.cumplimiento === 'Cumple').length
   const amarillo = pasos.filter((p) => p.cumplimiento === 'Parcial').length
   const rojo = pasos.filter((p) => p.cumplimiento === 'No cumple').length
