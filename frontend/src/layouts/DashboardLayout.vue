@@ -8,6 +8,8 @@ import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { formatDate } from '@/utils/formatDate'
 import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
+import ToastContainer from '@/components/ui/ToastContainer.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import type { Locale } from '@/i18n'
 
 const props = defineProps<{ lastSync?: string | null }>()
@@ -157,5 +159,8 @@ const switchTo = computed(() => ({
         <span>{{ t('dashboard.layout.lastSync') }}{{ lastSyncLabel }}</span>
       </div>
     </footer>
+
+    <ToastContainer />
+    <ConfirmDialog />
   </div>
 </template>
