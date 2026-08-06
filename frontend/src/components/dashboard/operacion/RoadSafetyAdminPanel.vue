@@ -15,10 +15,12 @@ import RoadSafetyReportesTab from '@/components/dashboard/roadSafety/RoadSafetyR
 import RoadSafetyConfigTab from '@/components/dashboard/roadSafety/RoadSafetyConfigTab.vue'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { OrganizationListItem } from '@/types/organization'
+import type { Locale } from '@/i18n'
+import { serviceLabel } from '@/utils/serviceLabel'
 
 const props = defineProps<{ organizationId: string }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const organizations = inject<Ref<OrganizationListItem[]>>('operacionOrganizations', ref([]))
 const selectOrg = inject<(id: string) => void>('operacionSelectOrg', () => {})
@@ -55,6 +57,17 @@ const tabs = computed<TabDef[]>(() => [
 // número para hoja1-4). Aparte de `tabs` porque el banner necesita el label
 // aunque `sharedActiveTab` no coincida con ningún tab.icon renderizado.
 const bannerTabLabel = computed(() => tabs.value.find((tab) => tab.key === sharedActiveTab.value)?.label ?? '')
+
+// Bug reportado 2026-08: el prefijo "Seguridad Vial (MSSV)" quedaba
+// hardcodeado en español en el template (nunca pasaba por serviceLabel/t()),
+// mientras el resto del banner (bannerTabLabel) sí se traducía — mismo
+// patrón que ya usa HigieneIndustrialPanel.vue/DashboardShell.vue para su
+// SectionTitleBanner. "(MSSV)" se deja literal en ambos idiomas — el
+// acrónimo nunca se traduce en el resto del proyecto (ver es.json/en.json,
+// roadSafety.upload.hint).
+const bannerTitle = computed(
+  () => `${serviceLabel('seguridad-vial', 'Seguridad Vial', locale.value as Locale)} (MSSV) — ${bannerTabLabel.value}`,
+)
 
 // Reactivo (no una asignación única): así las etiquetas se actualizan solas
 // al cambiar de idioma, y si sharedActiveTab trae una clave de otro panel
@@ -98,7 +111,7 @@ function reloadAll() {
 
 <template>
   <div class="grid gap-6">
-    <SectionTitleBanner :title="`Seguridad Vial (MSSV) — ${bannerTabLabel}`" />
+    <SectionTitleBanner :title="bannerTitle" />
 
     <!-- Selector de empresa + carga de Excel: solo en "Dashboard", uniforme
     con HigieneIndustrialPanel.vue (donde vive únicamente en "Resumen"). -->
