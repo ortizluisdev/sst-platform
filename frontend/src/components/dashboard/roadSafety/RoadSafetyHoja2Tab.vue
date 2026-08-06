@@ -11,6 +11,8 @@ import {
 import { formatDate } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { RoadSafetyVehiculo } from '@/types/roadSafety'
+import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
+import type { CategoryCardStatus } from '@/types/dashboard'
 import RoadSafetyCorrectFieldModal from './RoadSafetyCorrectFieldModal.vue'
 
 const props = defineProps<{ organizationId?: string }>()
@@ -42,10 +44,13 @@ const filtrados = computed(() =>
   vehiculos.value.filter((v) => v.placa.toLowerCase().includes(filtroPlaca.value.trim().toLowerCase())),
 )
 
-const ALERTA_CLASS: Record<string, string> = {
-  OK: 'bg-emerald-50 text-emerald-700',
-  ALERTA: 'bg-amber-50 text-amber-700',
-  VENCIDO: 'bg-red-50 text-red-700',
+/** VehicleAlertState → CategoryCardStatus, para reutilizar SEMAPHORE_STYLES
+ * (mismos colores que ya tenía este archivo — bg-emerald-50/amber-50/red-50
+ * — ahora desde una sola fuente de verdad compartida con Higiene Industrial). */
+const ALERTA_STATUS: Record<RoadSafetyVehiculo['alerta'], CategoryCardStatus> = {
+  OK: 'VERDE',
+  ALERTA: 'AMARILLO',
+  VENCIDO: 'ROJO',
 }
 
 function fecha(value: string | null): string {
@@ -267,7 +272,7 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
               <td class="bg-cream px-3 py-2">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
-                  :class="ALERTA_CLASS[v.alerta]"
+                  :class="[SEMAPHORE_STYLES[ALERTA_STATUS[v.alerta]].bg, SEMAPHORE_STYLES[ALERTA_STATUS[v.alerta]].text]"
                 >
                   {{ t(`roadSafety.alerta.vehiculo.${v.alerta}`) }}
                 </span>
