@@ -7,7 +7,8 @@
     "jsonLdDescription": "Complexity science and network science applied to risk management, industrial safety, and occupational hygiene."
   },
   "common": {
-    "toastDismiss": "Dismiss notification"
+    "toastDismiss": "Dismiss notification",
+    "cancel": "Cancel"
   },
   "nav": {
     "tagline": "Applied Science",

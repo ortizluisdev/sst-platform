@@ -7,7 +7,8 @@
     "jsonLdDescription": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo, la seguridad industrial y la higiene ocupacional."
   },
   "common": {
-    "toastDismiss": "Cerrar aviso"
+    "toastDismiss": "Cerrar aviso",
+    "cancel": "Cancelar"
   },
   "nav": {
     "tagline": "Ciencia Aplicada",
