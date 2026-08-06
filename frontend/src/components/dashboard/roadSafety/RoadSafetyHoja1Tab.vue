@@ -3,9 +3,12 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getRoadSafetyHoja1, RoadSafetyRequestError } from '@/services/roadSafety.service'
 import type { RoadSafetyHoja1Data } from '@/types/roadSafety'
+import type { Locale } from '@/i18n'
+import { pesvStepLabel, nivelAplicableLabel, cumplimientoLabel } from '@/utils/pesvStepLabel'
+import { inventoryConceptLabel } from '@/utils/inventoryConceptLabel'
 
 const props = defineProps<{ organizationId?: string }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
@@ -69,15 +72,15 @@ const GRUPOS = ['ACTORES_VIALES', 'PARQUE_AUTOMOTOR', 'COBERTURA_OPERACIONAL'] a
               <tr v-for="p in data.pasos" :key="p.paso" class="border-t border-line">
                 <td class="px-3 py-2 font-mono text-xs text-navy-700/70">{{ p.fase }}</td>
                 <td class="px-3 py-2 font-mono text-xs text-navy-700/70">{{ p.paso }}</td>
-                <td class="px-3 py-2 text-navy-900">{{ p.elemento }}</td>
-                <td class="px-3 py-2 text-navy-700">{{ p.nivelAplicable ?? '—' }}</td>
+                <td class="px-3 py-2 text-navy-900">{{ pesvStepLabel(p.paso, p.elemento, locale as Locale) }}</td>
+                <td class="px-3 py-2 text-navy-700">{{ nivelAplicableLabel(p.nivelAplicable, locale as Locale) ?? '—' }}</td>
                 <td class="px-3 py-2">
                   <span
                     v-if="p.cumplimiento"
                     class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
                     :class="CUMPLIMIENTO_CLASS[p.cumplimiento] ?? 'bg-cream text-navy-700'"
                   >
-                    {{ p.cumplimiento }}
+                    {{ cumplimientoLabel(p.cumplimiento, locale as Locale) }}
                   </span>
                   <span v-else class="text-navy-700/40">—</span>
                 </td>
@@ -102,7 +105,7 @@ const GRUPOS = ['ACTORES_VIALES', 'PARQUE_AUTOMOTOR', 'COBERTURA_OPERACIONAL'] a
         <table class="w-full border-collapse text-sm">
           <tbody>
             <tr v-for="item in data.inventario[grupo].items" :key="item.concepto" class="border-t border-line">
-              <td class="px-4 py-2 text-navy-900">{{ item.concepto }}</td>
+              <td class="px-4 py-2 text-navy-900">{{ inventoryConceptLabel(item.concepto, locale as Locale) }}</td>
               <td class="px-4 py-2 text-right font-mono tabular-nums text-navy-900">{{ item.cantidad }}</td>
             </tr>
           </tbody>
