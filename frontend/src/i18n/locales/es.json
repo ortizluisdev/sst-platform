@@ -6,6 +6,9 @@
     "twitterDescription": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo industrial.",
     "jsonLdDescription": "Ciencia de la complejidad y ciencia de redes aplicadas a la gestión del riesgo, la seguridad industrial y la higiene ocupacional."
   },
+  "common": {
+    "toastDismiss": "Cerrar aviso"
+  },
   "nav": {
     "tagline": "Ciencia Aplicada",
     "inicio": "Inicio",

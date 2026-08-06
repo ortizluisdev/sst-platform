@@ -6,6 +6,9 @@
     "twitterDescription": "Complexity science and network science applied to industrial risk management.",
     "jsonLdDescription": "Complexity science and network science applied to risk management, industrial safety, and occupational hygiene."
   },
+  "common": {
+    "toastDismiss": "Dismiss notification"
+  },
   "nav": {
     "tagline": "Applied Science",
     "inicio": "Home",
