@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   getRoadSafetyHoja1,
@@ -12,7 +12,10 @@ import {
 } from '@/services/roadSafety.service'
 import { formatDate } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
-import type { RoadSafetyAlertasPanel } from '@/types/roadSafety'
+import type { RoadSafetyAlertasPanel, RoadSafetyPesvPaso } from '@/types/roadSafety'
+import SummaryCard from '../SummaryCard.vue'
+import ComplianceRing from '../ComplianceRing.vue'
+import { classifyPesvCompliance, buildPesvGlobalCompliance } from '@/utils/roadSafetyCompliance'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -21,11 +24,14 @@ const status = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
 
 const cumplimientoPesvGlobal = ref<number | null>(null)
+const pesvPasos = ref<RoadSafetyPesvPaso[]>([])
 const totalVehiculos = ref(0)
 const totalConductores = ref(0)
 const totalRutas = ref(0)
 const alertas = ref<RoadSafetyAlertasPanel | null>(null)
 const lastUpdated = ref<string | null>(null)
+
+const pesvCompliance = computed(() => buildPesvGlobalCompliance(pesvPasos.value))
 
 async function load() {
   status.value = 'loading'
@@ -40,6 +46,7 @@ async function load() {
       getRoadSafetyUploadHistory(scope),
     ])
     cumplimientoPesvGlobal.value = hoja1.cumplimientoPesvGlobal
+    pesvPasos.value = hoja1.pasos
     totalVehiculos.value = hoja2.length
     totalConductores.value = hoja3.length
     totalRutas.value = hoja4.length
@@ -70,14 +77,12 @@ defineExpose({ reload: load })
       </p>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-lg border border-line-strong bg-white p-4">
-          <p class="text-xs font-semibold uppercase tracking-wide text-navy-700/70">
-            {{ t('roadSafety.dashboard.cumplimientoPesv') }}
-          </p>
-          <p class="mt-1 text-2xl font-bold text-navy-900">
-            {{ cumplimientoPesvGlobal != null ? `${cumplimientoPesvGlobal}%` : t('roadSafety.noData') }}
-          </p>
-        </div>
+        <SummaryCard
+          :titulo="t('roadSafety.dashboard.cumplimientoPesv')"
+          :valor="cumplimientoPesvGlobal != null ? `${cumplimientoPesvGlobal}%` : t('roadSafety.noData')"
+          :cumplimiento-pct="cumplimientoPesvGlobal ?? 0"
+          :estado="classifyPesvCompliance(cumplimientoPesvGlobal)"
+        />
         <div class="rounded-lg border border-line-strong bg-white p-4">
           <p class="text-xs font-semibold uppercase tracking-wide text-navy-700/70">
             {{ t('roadSafety.dashboard.totalVehiculos') }}
@@ -97,6 +102,8 @@ defineExpose({ reload: load })
           <p class="mt-1 text-2xl font-bold text-navy-900">{{ totalRutas }}</p>
         </div>
       </div>
+
+      <ComplianceRing :compliance="pesvCompliance" />
 
       <div v-if="alertas">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
