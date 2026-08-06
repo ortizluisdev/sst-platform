@@ -12,6 +12,8 @@ import { formatDate } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { RoadSafetyConductor } from '@/types/roadSafety'
 import RoadSafetyCorrectFieldModal from './RoadSafetyCorrectFieldModal.vue'
+import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
+import type { CategoryCardStatus } from '@/types/dashboard'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -37,10 +39,12 @@ onMounted(load)
 watch(() => props.organizationId, load)
 defineExpose({ reload: load })
 
-const ALERTA_CLASS: Record<string, string> = {
-  OK: 'bg-emerald-50 text-emerald-700',
-  ALERTA: 'bg-amber-50 text-amber-700',
-  LICENCIA_VENCIDA: 'bg-red-50 text-red-700',
+/** DriverAlertState → CategoryCardStatus — mismo criterio que
+ * RoadSafetyHoja2Tab.vue (ver ese archivo para el porqué). */
+const ALERTA_STATUS: Record<RoadSafetyConductor['alerta'], CategoryCardStatus> = {
+  OK: 'VERDE',
+  ALERTA: 'AMARILLO',
+  LICENCIA_VENCIDA: 'ROJO',
 }
 
 function fecha(value: string | null): string {
@@ -192,7 +196,7 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
               <td class="bg-cream px-3 py-2">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
-                  :class="ALERTA_CLASS[c.alerta]"
+                  :class="[SEMAPHORE_STYLES[ALERTA_STATUS[c.alerta]].bg, SEMAPHORE_STYLES[ALERTA_STATUS[c.alerta]].text]"
                 >
                   {{ t(`roadSafety.alerta.conductor.${c.alerta}`) }}
                 </span>
