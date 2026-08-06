@@ -1,10 +1,14 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useToast } from './useToast'
 
 describe('useToast', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     useToast().toasts.value.splice(0)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('success() agrega un toast tipo success y lo autodescarta a los 4000ms', () => {

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, type Ref, readonly } from 'vue'
 
 export interface ToastItem {
   id: number
@@ -24,7 +24,7 @@ function push(type: ToastItem['type'], message: string) {
 
 export function useToast() {
   return {
-    toasts,
+    toasts: readonly(toasts) as Readonly<Ref<ToastItem[]>>,
     success: (message: string) => push('success', message),
     error: (message: string) => push('error', message),
     dismiss,
