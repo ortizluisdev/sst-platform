@@ -16,6 +16,7 @@ import {
 } from '@/services/myProfile.service'
 import { useAuthStore } from '@/stores/auth'
 import { getDashboardPath } from '@/utils/dashboardRedirect'
+import { useToast } from '@/composables/useToast'
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -87,6 +88,7 @@ async function submit() {
     } else {
       errorMessage.value = t('branding.activation.genericError')
     }
+    useToast().error(errorMessage.value)
   }
 }
 </script>
@@ -138,13 +140,6 @@ async function submit() {
 
           <p v-if="touched && !logoBase64 && status !== 'loading'" class="text-xs text-red-600">
             {{ t('branding.activation.logoRequired') }}
-          </p>
-
-          <p
-            v-if="status === 'error'"
-            class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          >
-            {{ errorMessage }}
           </p>
 
           <SubmitButton :loading="status === 'loading'" :loading-label="t('auth.form.submitting')">

@@ -8,6 +8,7 @@ import SubmitButton from '@/components/ui/SubmitButton.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import ChangePasswordModal from './ChangePasswordModal.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 import {
   getMyProfile,
   updateMyProfile,
@@ -59,6 +60,7 @@ async function submitProfile() {
   try {
     await updateMyProfile({ nombre: nombre.value, cargo: cargo.value, telefono: telefono.value })
     profileStatus.value = 'success'
+    useToast().success(t('myProfile.profileSaved'))
   } catch (err) {
     profileStatus.value = 'error'
     if (err instanceof MyProfileValidationError) {
@@ -69,6 +71,7 @@ async function submitProfile() {
     } else {
       profileErrorMessage.value = t('myProfile.genericError')
     }
+    useToast().error(profileErrorMessage.value)
   }
 }
 
@@ -270,19 +273,6 @@ const showPasswordModal = ref(false)
               :error="profileErrors.telefono"
             />
           </div>
-
-          <p
-            v-if="profileStatus === 'success'"
-            class="rounded-sm border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
-          >
-            {{ t('myProfile.profileSaved') }}
-          </p>
-          <p
-            v-if="profileStatus === 'error'"
-            class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          >
-            {{ profileErrorMessage }}
-          </p>
 
           <SubmitButton :loading="profileStatus === 'loading'">
             {{ t('myProfile.saveProfile') }}
