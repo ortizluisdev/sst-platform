@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
+import { useToast } from '@/composables/useToast'
 import {
   generateRoadSafetyReportPdf,
   generateRoadSafetyReportCsv,
@@ -29,27 +29,24 @@ const metadata = ref<RoadSafetyReportMetadata>({
 
 const generandoPdf = ref(false)
 const generandoCsv = ref(false)
-const errorMessage = ref('')
 
 async function handleGeneratePdf() {
-  errorMessage.value = ''
   generandoPdf.value = true
   try {
     await generateRoadSafetyReportPdf({ organizationId: props.organizationId }, props.tipo, metadata.value)
   } catch (err) {
-    errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.reports.genericError')
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.reports.genericError'))
   } finally {
     generandoPdf.value = false
   }
 }
 
 async function handleGenerateCsv() {
-  errorMessage.value = ''
   generandoCsv.value = true
   try {
     await generateRoadSafetyReportCsv({ organizationId: props.organizationId }, props.tipo)
   } catch (err) {
-    errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.reports.genericError')
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.reports.genericError'))
   } finally {
     generandoCsv.value = false
   }
@@ -57,27 +54,15 @@ async function handleGenerateCsv() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('close')">
-    <div class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
+  <Modal title="" max-width="lg" scrollable @close="emit('close')">
+    <template #header>
+      <div>
+        <h2 class="text-base font-bold text-navy-900">{{ t(`roadSafety.reports.titulo.${tipo}`) }}</h2>
+        <p class="mt-1 text-sm text-navy-700/70">{{ t('roadSafety.reports.subtitulo') }}</p>
+      </div>
+    </template>
 
-      <div class="overflow-y-auto p-5 sm:p-6">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <h2 class="text-base font-bold text-navy-900">{{ t(`roadSafety.reports.titulo.${tipo}`) }}</h2>
-            <p class="mt-1 text-sm text-navy-700/70">{{ t('roadSafety.reports.subtitulo') }}</p>
-          </div>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('roadSafety.reports.close')"
-            @click="emit('close')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <form class="mt-5 grid gap-4 sm:grid-cols-2" novalidate @submit.prevent="handleGeneratePdf">
+    <form class="mt-5 grid gap-4 sm:grid-cols-2" novalidate @submit.prevent="handleGeneratePdf">
           <div v-if="tipo === 'h1'">
             <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
               t('roadSafety.reports.fields.sedePrincipal')
@@ -140,13 +125,6 @@ async function handleGenerateCsv() {
             />
           </div>
 
-          <p
-            v-if="errorMessage"
-            class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:col-span-2"
-          >
-            {{ errorMessage }}
-          </p>
-
           <div class="flex flex-wrap justify-end gap-2 sm:col-span-2">
             <button
               type="button"
@@ -164,8 +142,6 @@ async function handleGenerateCsv() {
               {{ generandoPdf ? t('roadSafety.reports.generando') : t('roadSafety.reports.generarPdf') }}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
-  </div>
+    </form>
+  </Modal>
 </template>
