@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { listAllServices, updateService, ServiceCatalogRequestError } from '@/services/serviceCatalog.service'
 import type { CatalogService } from '@/types/serviceCatalog'
+import { useToast } from '@/composables/useToast'
 
 const SERVICE_SLUG = 'seguridad-vial'
 
@@ -19,10 +20,14 @@ async function load() {
     const services = await listAllServices()
     service.value = services.find((s) => s.slug === SERVICE_SLUG) ?? null
     status.value = service.value ? 'ready' : 'error'
-    if (!service.value) errorMessage.value = t('roadSafety.config.loadError')
+    if (!service.value) {
+      errorMessage.value = t('roadSafety.config.loadError')
+      useToast().error(errorMessage.value)
+    }
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -39,6 +44,7 @@ async function changeFrequency(frequency: 'WEEKLY' | 'BIWEEKLY') {
   } catch (err) {
     service.value.updateFrequency = previous
     errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     saving.value = false
   }
@@ -56,12 +62,6 @@ async function changeFrequency(frequency: 'WEEKLY' | 'BIWEEKLY') {
       <p class="mb-3 text-xs text-navy-700/60">{{ t('roadSafety.config.frequency.hint') }}</p>
 
       <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
-      <p
-        v-else-if="status === 'error'"
-        class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700"
-      >
-        {{ errorMessage }}
-      </p>
       <div v-else-if="service" class="grid max-w-sm gap-2">
         <label
           class="flex items-center justify-between gap-3 rounded-sm border border-line-strong bg-white px-3 py-2.5"
@@ -90,7 +90,6 @@ async function changeFrequency(frequency: 'WEEKLY' | 'BIWEEKLY') {
           />
         </label>
       </div>
-      <p v-if="status === 'ready' && errorMessage" class="mt-2 text-sm text-red-700">{{ errorMessage }}</p>
     </section>
   </div>
 </template>

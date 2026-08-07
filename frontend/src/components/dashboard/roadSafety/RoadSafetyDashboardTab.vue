@@ -16,6 +16,7 @@ import type { RoadSafetyAlertasPanel, RoadSafetyPesvPaso } from '@/types/roadSaf
 import SummaryCard from '../SummaryCard.vue'
 import ComplianceRing from '../ComplianceRing.vue'
 import { classifyPesvCompliance, buildPesvGlobalCompliance } from '@/utils/roadSafetyCompliance'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -56,6 +57,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -67,9 +69,6 @@ defineExpose({ reload: load })
 <template>
   <div class="grid gap-6">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <template v-else>
       <p class="text-xs text-navy-700/60">
         {{ t('roadSafety.dashboard.lastUpdatedPrefix') }}

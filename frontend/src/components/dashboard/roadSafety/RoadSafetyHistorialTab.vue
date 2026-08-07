@@ -5,6 +5,7 @@ import { getRoadSafetyUploadHistory, RoadSafetyRequestError } from '@/services/r
 import { formatDateTime } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { RoadSafetyUploadRecord } from '@/types/roadSafety'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -21,6 +22,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.historial.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -34,9 +36,6 @@ defineExpose({ reload: load })
     <p class="text-sm text-navy-700 opacity-70">{{ t('roadSafety.historial.subtitle') }}</p>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.historial.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <p
       v-else-if="uploads.length === 0"
       class="rounded-lg border border-dashed border-line-strong bg-white p-10 text-center text-sm text-navy-700"

@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getRoadSafetyAlertas, RoadSafetyRequestError } from '@/services/roadSafety.service'
 import type { RoadSafetyAlertasPanel } from '@/types/roadSafety'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t } = useI18n()
@@ -19,6 +20,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -30,9 +32,6 @@ defineExpose({ reload: load })
 <template>
   <div class="grid gap-6">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <template v-else-if="data">
       <div>
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
