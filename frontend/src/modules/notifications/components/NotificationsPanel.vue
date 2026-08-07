@@ -17,7 +17,6 @@ const store = useNotificationsStore()
 useHead(() => ({ title: t('dashboard.notifications.pageTitle'), meta: [{ name: 'robots', content: 'noindex' }] }))
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const items = ref<AppNotification[]>([])
 const page = ref(1)
 const totalPages = ref(1)
@@ -54,8 +53,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof NotificationRequestError ? err.message : t('dashboard.notifications.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof NotificationRequestError ? err.message : t('dashboard.notifications.loadError'))
   }
 }
 

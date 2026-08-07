@@ -10,7 +10,6 @@ const SERVICE_SLUG = 'seguridad-vial'
 const { t } = useI18n()
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const service = ref<CatalogService | null>(null)
 const saving = ref(false)
 
@@ -21,13 +20,11 @@ async function load() {
     service.value = services.find((s) => s.slug === SERVICE_SLUG) ?? null
     status.value = service.value ? 'ready' : 'error'
     if (!service.value) {
-      errorMessage.value = t('roadSafety.config.loadError')
-      useToast().error(errorMessage.value)
+      useToast().error(t('roadSafety.config.loadError'))
     }
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.loadError'))
   }
 }
 
@@ -38,13 +35,11 @@ async function changeFrequency(frequency: 'WEEKLY' | 'BIWEEKLY') {
   const previous = service.value.updateFrequency
   service.value.updateFrequency = frequency
   saving.value = true
-  errorMessage.value = ''
   try {
     await updateService(service.value.id, { updateFrequency: frequency })
   } catch (err) {
     service.value.updateFrequency = previous
-    errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof ServiceCatalogRequestError ? err.message : t('roadSafety.config.actionError'))
   } finally {
     saving.value = false
   }

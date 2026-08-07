@@ -49,18 +49,15 @@ const primaryColor = ref('#0b1a33')
 const secondaryColor = ref('#5b8dc7')
 const touched = ref(false)
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
-const errorMessage = ref('')
 
 async function submit() {
   touched.value = true
   profileErrors.value = {}
   if (!logoBase64.value) {
-    errorMessage.value = t('branding.activation.logoRequired')
     return
   }
 
   status.value = 'loading'
-  errorMessage.value = ''
   try {
     await updateMyProfile({ nombre: nombre.value, cargo: cargo.value, telefono: telefono.value })
     await saveBranding({
@@ -78,17 +75,16 @@ async function submit() {
     status.value = 'error'
     if (err instanceof MyProfileValidationError) {
       profileErrors.value = err.fieldErrors
-      errorMessage.value = Object.values(err.fieldErrors)[0] ?? t('branding.activation.genericError')
+      useToast().error(Object.values(err.fieldErrors)[0] ?? t('branding.activation.genericError'))
     } else if (err instanceof MyProfileRequestError) {
-      errorMessage.value = err.message
+      useToast().error(err.message)
     } else if (err instanceof BrandingValidationError) {
-      errorMessage.value = Object.values(err.fieldErrors)[0] ?? t('branding.activation.genericError')
+      useToast().error(Object.values(err.fieldErrors)[0] ?? t('branding.activation.genericError'))
     } else if (err instanceof BrandingRequestError) {
-      errorMessage.value = err.message
+      useToast().error(err.message)
     } else {
-      errorMessage.value = t('branding.activation.genericError')
+      useToast().error(t('branding.activation.genericError'))
     }
-    useToast().error(errorMessage.value)
   }
 }
 </script>

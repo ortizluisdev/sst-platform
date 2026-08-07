@@ -18,7 +18,6 @@ const serviceSlug = route.params.serviceSlug as string
 useHead(() => ({ title: t('variableCatalog.pageTitle'), meta: [{ name: 'robots', content: 'noindex' }] }))
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const categories = ref<VariableCatalogCategory[]>([])
 const savingId = ref<string | null>(null)
 const drafts = ref<
@@ -42,8 +41,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.loadError'))
   }
 }
 
@@ -53,7 +51,6 @@ async function handleSave(variableId: string) {
   const draft = drafts.value[variableId]
   if (!draft) return
   savingId.value = variableId
-  errorMessage.value = ''
   try {
     await updateVariableCatalogItem(serviceSlug, variableId, {
       tipo: draft.tipo || undefined,
@@ -63,8 +60,7 @@ async function handleSave(variableId: string) {
     })
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.actionError'))
   } finally {
     savingId.value = null
   }

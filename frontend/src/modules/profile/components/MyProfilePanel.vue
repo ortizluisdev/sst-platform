@@ -35,7 +35,6 @@ const firmaBase64 = ref<string | null>(null)
 
 const profileErrors = ref<Record<string, string>>({})
 const profileStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
-const profileErrorMessage = ref('')
 
 onMounted(async () => {
   try {
@@ -56,7 +55,6 @@ onMounted(async () => {
 async function submitProfile() {
   profileErrors.value = {}
   profileStatus.value = 'loading'
-  profileErrorMessage.value = ''
   try {
     await updateMyProfile({ nombre: nombre.value, cargo: cargo.value, telefono: telefono.value })
     profileStatus.value = 'success'
@@ -65,13 +63,12 @@ async function submitProfile() {
     profileStatus.value = 'error'
     if (err instanceof MyProfileValidationError) {
       profileErrors.value = err.fieldErrors
-      profileErrorMessage.value = Object.values(err.fieldErrors)[0] ?? t('myProfile.genericError')
+      useToast().error(Object.values(err.fieldErrors)[0] ?? t('myProfile.genericError'))
     } else if (err instanceof MyProfileRequestError) {
-      profileErrorMessage.value = err.message
+      useToast().error(err.message)
     } else {
-      profileErrorMessage.value = t('myProfile.genericError')
+      useToast().error(t('myProfile.genericError'))
     }
-    useToast().error(profileErrorMessage.value)
   }
 }
 

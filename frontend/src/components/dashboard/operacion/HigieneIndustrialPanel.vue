@@ -59,7 +59,6 @@ const sharedServiceTabs = inject<Ref<TabDef[]>>('operacionServiceTabs', ref([]))
 const showUploadModal = ref(false)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const dashboard = ref<DashboardData | null>(null)
 
 // "Recomendaciones" y "Configuración" son admin-only — se agregan acá, no en
@@ -106,15 +105,13 @@ watch(tabs, (value) => {
 
 async function loadDashboard() {
   status.value = 'loading'
-  errorMessage.value = ''
   try {
     dashboard.value = await getAdminDashboard(props.organizationId, SERVICE_SLUG)
     if (lastSync) lastSync.value = dashboard.value.lastUpdated
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError'))
   }
 }
 

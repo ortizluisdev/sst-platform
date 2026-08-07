@@ -35,7 +35,6 @@ const router = useRouter()
 const serviceSlug = computed(() => route.params.serviceSlug as string)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const dashboard = ref<DashboardData | null>(null)
 const services = ref<ServiceOption[]>([])
 const activeTab = ref('resumen')
@@ -66,8 +65,7 @@ async function loadDashboard() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError'))
   }
 }
 

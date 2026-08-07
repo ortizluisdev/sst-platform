@@ -22,7 +22,6 @@ const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 
 const cumplimientoPesvGlobal = ref<number | null>(null)
 const pesvPasos = ref<RoadSafetyPesvPaso[]>([])
@@ -56,8 +55,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError'))
   }
 }
 

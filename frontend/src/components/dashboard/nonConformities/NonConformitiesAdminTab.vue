@@ -29,7 +29,6 @@ const { t, locale } = useI18n()
 
 const activeTab = ref<'active' | 'history'>('active')
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const items = ref<NonConformity[]>([])
 const page = ref(1)
 const totalPages = ref(1)
@@ -57,8 +56,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.nonConformitiesAdmin.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.nonConformitiesAdmin.loadError'))
   }
 }
 

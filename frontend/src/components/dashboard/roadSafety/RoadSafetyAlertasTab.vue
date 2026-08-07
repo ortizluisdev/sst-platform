@@ -9,7 +9,6 @@ const props = defineProps<{ organizationId?: string }>()
 const { t } = useI18n()
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const data = ref<RoadSafetyAlertasPanel | null>(null)
 
 async function load() {
@@ -19,8 +18,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError'))
   }
 }
 

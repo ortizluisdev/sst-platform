@@ -19,7 +19,6 @@ const { t } = useI18n()
 
 // --- Categorías habilitadas ------------------------------------------------
 const categoryStatus = ref<'loading' | 'ready' | 'error'>('loading')
-const categoryError = ref('')
 const categoryItems = ref<CategoryConfigItem[]>([])
 const togglingCategoria = ref<HigieneCategoria | null>(null)
 
@@ -30,21 +29,18 @@ async function loadCategories() {
     categoryStatus.value = 'ready'
   } catch (err) {
     categoryStatus.value = 'error'
-    categoryError.value = err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.loadError')
-    useToast().error(categoryError.value)
+    useToast().error(err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.loadError'))
   }
 }
 
 async function toggleCategoria(item: CategoryConfigItem) {
   togglingCategoria.value = item.categoria
-  categoryError.value = ''
   const next = !item.habilitada
   try {
     await updateCategoryConfig(props.organizationId, item.categoria, next)
     item.habilitada = next
   } catch (err) {
-    categoryError.value = err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.actionError')
-    useToast().error(categoryError.value)
+    useToast().error(err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.actionError'))
   } finally {
     togglingCategoria.value = null
   }
@@ -54,7 +50,6 @@ async function toggleCategoria(item: CategoryConfigItem) {
 const CATALOG_TIPOS: CatalogTipo[] = ['zona', 'seccion', 'cargo', 'trabajador']
 const activeTipo = ref<CatalogTipo>('zona')
 const catalogStatus = ref<'loading' | 'ready' | 'error'>('loading')
-const catalogError = ref('')
 const catalogItems = ref<CatalogItem[]>([])
 
 const editingId = ref<string | null>(null)
@@ -72,8 +67,7 @@ async function loadCatalog() {
     catalogStatus.value = 'ready'
   } catch (err) {
     catalogStatus.value = 'error'
-    catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.loadError')
-    useToast().error(catalogError.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.loadError'))
   }
 }
 
@@ -98,14 +92,12 @@ async function saveEdit(item: CatalogItem) {
     return
   }
   savingId.value = item.id
-  catalogError.value = ''
   try {
     await updateOrgCatalogItem(props.organizationId, activeTipo.value, item.id, { nombre })
     item.nombre = nombre
     editingId.value = null
   } catch (err) {
-    catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
-    useToast().error(catalogError.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError'))
   } finally {
     savingId.value = null
   }
@@ -119,13 +111,11 @@ async function deactivate(item: CatalogItem) {
   })
   if (!confirmed) return
   savingId.value = item.id
-  catalogError.value = ''
   try {
     await updateOrgCatalogItem(props.organizationId, activeTipo.value, item.id, { isActive: false })
     catalogItems.value = catalogItems.value.filter((i) => i.id !== item.id)
   } catch (err) {
-    catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
-    useToast().error(catalogError.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError'))
   } finally {
     savingId.value = null
   }
@@ -135,15 +125,13 @@ async function submitNew() {
   const nombre = newNombre.value.trim()
   if (!nombre) return
   creating.value = true
-  catalogError.value = ''
   try {
     const item = await createOrgCatalogItem(props.organizationId, activeTipo.value, nombre)
     catalogItems.value.push(item)
     catalogItems.value.sort((a, b) => a.nombre.localeCompare(b.nombre))
     newNombre.value = ''
   } catch (err) {
-    catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
-    useToast().error(catalogError.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError'))
   } finally {
     creating.value = false
   }

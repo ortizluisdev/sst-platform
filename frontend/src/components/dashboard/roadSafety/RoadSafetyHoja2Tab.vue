@@ -22,7 +22,6 @@ const { t, locale } = useI18n()
 const isAdmin = computed(() => !!props.organizationId)
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const vehiculos = ref<RoadSafetyVehiculo[]>([])
 const filtroPlaca = ref('')
 
@@ -33,8 +32,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError'))
   }
 }
 
@@ -66,10 +64,7 @@ function fecha(value: string | null): string {
 type FieldType = 'string' | 'text' | 'int' | 'float' | 'date'
 const correcting = ref<{ vehiculo: RoadSafetyVehiculo; field: string; label: string; type: FieldType } | null>(null)
 
-const correctError = ref('')
-
 function openCorrect(vehiculo: RoadSafetyVehiculo, field: string, label: string, type: FieldType) {
-  correctError.value = ''
   correcting.value = { vehiculo, field, label, type }
 }
 
@@ -82,8 +77,7 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
     if (index !== -1) vehiculos.value[index] = updated
     correcting.value = null
   } catch (err) {
-    correctError.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.correct.genericError')
-    useToast().error(correctError.value)
+    useToast().error(err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.correct.genericError'))
   }
 }
 </script>

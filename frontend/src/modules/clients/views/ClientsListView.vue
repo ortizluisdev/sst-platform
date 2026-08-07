@@ -30,7 +30,6 @@ const tab = ref<Tab>(
 )
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const organizations = ref<OrganizationListItem[]>([])
 const showCreateModal = ref(false)
 const editingOrganization = ref<OrganizationListItem | null>(null)
@@ -56,8 +55,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof OrganizationRequestError ? err.message : t('clients.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.loadError'))
   }
 }
 
@@ -80,8 +78,7 @@ async function handleEditSubmit(values: { nombre: string; nit: string; contactEm
     editingOrganization.value = null
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof OrganizationRequestError ? err.message : t('clients.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
   }
 }
 
@@ -94,8 +91,7 @@ async function handleSuspend(reason: string) {
     suspendTarget.value = null
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
   } finally {
     actioningId.value = null
   }
@@ -114,8 +110,7 @@ async function handleReactivate(org: OrganizationListItem) {
     await reactivateUser(org.responsable.id)
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
   } finally {
     actioningId.value = null
   }
@@ -128,8 +123,7 @@ async function handleResendInvitation(org: OrganizationListItem) {
     await resendInvitation(org.responsable.id)
     resentIds.value = new Set(resentIds.value).add(org.responsable.id)
   } catch (err) {
-    errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
   } finally {
     actioningId.value = null
   }

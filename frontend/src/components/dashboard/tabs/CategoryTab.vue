@@ -29,10 +29,8 @@ interface EditTarget {
 }
 
 const editTarget = ref<EditTarget | null>(null)
-const errorMessage = ref('')
 
 function openEdit(reading: WorkPointReading, variableNombre: string, unidadMedida: string) {
-  errorMessage.value = ''
   editTarget.value = { reading, variableNombre, unidadMedida }
 }
 
@@ -42,8 +40,7 @@ async function handleCorrect(valor: number, reason: string) {
     await props.correctReading(editTarget.value.reading.id, valor, reason)
     editTarget.value = null
   } catch {
-    errorMessage.value = t('dashboard.category.correctModal.genericError')
-    useToast().error(errorMessage.value)
+    useToast().error(t('dashboard.category.correctModal.genericError'))
   }
 }
 

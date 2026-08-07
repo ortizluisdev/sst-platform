@@ -20,7 +20,6 @@ const cargoId = ref('')
 const trabajadorId = ref('')
 const exposicionSolar = ref(false)
 const status = ref<'idle' | 'loading' | 'error'>('idle')
-const errorMessage = ref('')
 const lastResult = ref<UploadResult | null>(null)
 
 function onFileChange(event: Event) {
@@ -30,12 +29,10 @@ function onFileChange(event: Event) {
 async function submit() {
   if (!file.value || !fechaEvaluacion.value || !zonaId.value || !seccionId.value || !cargoId.value || !trabajadorId.value) {
     status.value = 'error'
-    errorMessage.value = t('dashboard.uploadForm.missingFields')
-    useToast().error(errorMessage.value)
+    useToast().error(t('dashboard.uploadForm.missingFields'))
     return
   }
   status.value = 'loading'
-  errorMessage.value = ''
   try {
     lastResult.value = await uploadVariablesFile({
       organizationId: props.organizationId,
@@ -57,8 +54,7 @@ async function submit() {
     )
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.uploadForm.processError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.uploadForm.processError'))
   }
 }
 </script>

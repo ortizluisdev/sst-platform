@@ -20,7 +20,6 @@ const primaryTextClass = useOrgPrimaryTextClass()
 useHead(() => ({ title: t('dashboard.servicesManagement.pageTitle'), meta: [{ name: 'robots', content: 'noindex' }] }))
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
-const errorMessage = ref('')
 const services = ref<CatalogService[]>([])
 const editingService = ref<CatalogService | null>(null)
 const showModal = ref(false)
@@ -33,8 +32,7 @@ async function load() {
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
-    errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.loadError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.loadError'))
   }
 }
 
@@ -60,8 +58,7 @@ async function handleSubmit(values: { nombre: string; descripcion: string }) {
     showModal.value = false
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError'))
   }
 }
 
@@ -79,8 +76,7 @@ async function handleToggleActive(service: CatalogService) {
     await updateService(service.id, { isActive: !service.isActive })
     await load()
   } catch (err) {
-    errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError')
-    useToast().error(errorMessage.value)
+    useToast().error(err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError'))
   } finally {
     togglingId.value = null
   }
