@@ -8,7 +8,8 @@
   },
   "common": {
     "toastDismiss": "Dismiss notification",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "nav": {
     "tagline": "Applied Science",
