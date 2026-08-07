@@ -16,6 +16,8 @@ import { NOTIFICATION_SEVERITY_STYLES, NOTIFICATION_TYPE_LABEL_KEY } from '@/uti
 import { formatDateTime } from '@/utils/formatDate'
 import type { Locale } from '@/i18n'
 import type { AppNotification, CreateNotificationInput, UpdateNotificationInput } from '@/types/notification'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t, locale } = useI18n()
 
@@ -45,6 +47,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof NotificationRequestError ? err.message : t('dashboard.notificationsAdmin.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -79,12 +82,17 @@ async function handleSubmitEdit(input: UpdateNotificationInput) {
 }
 
 async function handleDelete(notification: AppNotification) {
-  if (!confirm(t('dashboard.notificationsAdmin.deleteConfirm'))) return
+  const confirmed = await useConfirm().confirm({
+    title: t('dashboard.notificationsAdmin.delete'),
+    message: t('dashboard.notificationsAdmin.deleteConfirm'),
+    confirmLabel: t('dashboard.notificationsAdmin.delete'),
+  })
+  if (!confirmed) return
   try {
     await deleteNotification(notification.id)
     await load()
   } catch {
-    errorMessage.value = t('dashboard.notificationsAdmin.deleteError')
+    useToast().error(t('dashboard.notificationsAdmin.deleteError'))
   }
 }
 </script>
@@ -123,12 +131,6 @@ async function handleDelete(notification: AppNotification) {
     </div>
 
     <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('dashboard.notifications.loading') }}</p>
-    <p
-      v-else-if="status === 'error'"
-      class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-    >
-      {{ errorMessage }}
-    </p>
     <p v-else-if="items.length === 0" class="mt-6 text-sm text-navy-700/60">
       {{ activeTab === 'active' ? t('dashboard.notificationsAdmin.empty') : t('dashboard.notificationsAdmin.emptyHistory') }}
     </p>

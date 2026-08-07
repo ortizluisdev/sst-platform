@@ -9,6 +9,7 @@ import { listNotifications, markNotificationRead, NotificationRequestError } fro
 import { useNotificationsStore } from '@/stores/notifications'
 import { NOTIFICATION_TYPE_LABEL_KEY } from '@/utils/notificationSeverityStyles'
 import type { AppNotification, NotificationSeverity, NotificationType } from '@/types/notification'
+import { useToast } from '@/composables/useToast'
 
 const { t } = useI18n()
 const store = useNotificationsStore()
@@ -54,6 +55,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof NotificationRequestError ? err.message : t('dashboard.notifications.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -118,12 +120,6 @@ async function handleMarkRead(id: string) {
     </div>
 
     <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('dashboard.notifications.loading') }}</p>
-    <p
-      v-else-if="status === 'error'"
-      class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-    >
-      {{ errorMessage }}
-    </p>
     <p v-else-if="items.length === 0" class="mt-6 text-sm text-navy-700/60">
       {{ t('dashboard.notifications.empty') }}
     </p>
