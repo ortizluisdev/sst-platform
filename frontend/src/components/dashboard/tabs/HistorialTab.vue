@@ -5,6 +5,7 @@ import type { UploadHistoryEntry, UploadDetail } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { formatDateTime } from '@/utils/formatDate'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{
   fetchHistory: () => Promise<UploadHistoryEntry[]>
@@ -53,6 +54,7 @@ onMounted(async () => {
     status.value = 'ready'
   } catch {
     status.value = 'error'
+    useToast().error(t('dashboard.historial.loadError'))
   }
 })
 
@@ -142,9 +144,6 @@ function statusLabel(s: UploadHistoryEntry['status']): string {
     </div>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.historial.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ t('dashboard.historial.loadError') }}
-    </p>
     <p
       v-else-if="filteredUploads.length === 0"
       class="rounded-lg border border-dashed border-line-strong bg-white p-10 text-center text-sm text-navy-700"

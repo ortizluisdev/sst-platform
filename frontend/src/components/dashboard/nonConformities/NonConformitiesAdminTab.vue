@@ -21,6 +21,8 @@ import type {
   NonConformityUpdateInput,
 } from '@/types/dashboard'
 import NonConformityFormModal from './NonConformityFormModal.vue'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 
 const props = defineProps<{ organizationId: string; serviceSlug: string }>()
 const { t, locale } = useI18n()
@@ -56,6 +58,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.nonConformitiesAdmin.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -98,12 +101,17 @@ async function handleSubmitEdit(input: NonConformityUpdateInput) {
 }
 
 async function handleDelete(item: NonConformity) {
-  if (!confirm(t('dashboard.nonConformitiesAdmin.deleteConfirm'))) return
+  const confirmed = await useConfirm().confirm({
+    title: t('dashboard.nonConformitiesAdmin.delete'),
+    message: t('dashboard.nonConformitiesAdmin.deleteConfirm'),
+    confirmLabel: t('dashboard.nonConformitiesAdmin.delete'),
+  })
+  if (!confirmed) return
   try {
     await deleteNonConformity(props.organizationId, props.serviceSlug, item.id)
     await load()
   } catch {
-    errorMessage.value = t('dashboard.nonConformitiesAdmin.deleteError')
+    useToast().error(t('dashboard.nonConformitiesAdmin.deleteError'))
   }
 }
 </script>
@@ -162,9 +170,6 @@ async function handleDelete(item: NonConformity) {
     </div>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.notifications.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <p v-else-if="items.length === 0" class="text-sm text-navy-700/60">
       {{ activeTab === 'active' ? t('dashboard.nonConformitiesAdmin.empty') : t('dashboard.nonConformitiesAdmin.emptyHistory') }}
     </p>

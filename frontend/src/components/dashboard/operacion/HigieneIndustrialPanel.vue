@@ -20,6 +20,7 @@ import type { Locale } from '@/i18n'
 import type { OrganizationListItem } from '@/types/organization'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
 import { serviceLabel } from '@/utils/serviceLabel'
+import { useToast } from '@/composables/useToast'
 
 const SERVICE_SLUG = 'higiene-industrial'
 
@@ -113,6 +114,7 @@ async function loadDashboard() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -136,9 +138,6 @@ async function correctReading(readingId: string, valor: number, reason: string) 
 <template>
   <div class="grid gap-6">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.clientView.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <div v-else-if="dashboard && sharedActiveTab === 'recomendaciones'" class="grid gap-6">
       <SectionTitleBanner :title="sectionBannerTitle" />
       <NonConformitiesAdminTab :organization-id="props.organizationId" :service-slug="SERVICE_SLUG" />

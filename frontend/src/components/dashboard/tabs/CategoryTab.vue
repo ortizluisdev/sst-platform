@@ -11,6 +11,7 @@ import { formatSummaryValue } from '@/utils/formatSummaryValue'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { variableLabel } from '@/utils/variableLabel'
 import type { Locale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{
   category: CategorySummary
@@ -42,6 +43,7 @@ async function handleCorrect(valor: number, reason: string) {
     editTarget.value = null
   } catch {
     errorMessage.value = t('dashboard.category.correctModal.genericError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -176,10 +178,6 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         :trend="trend"
       />
     </div>
-
-    <p v-if="errorMessage" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
 
     <CorrectReadingModal
       v-if="editTarget"

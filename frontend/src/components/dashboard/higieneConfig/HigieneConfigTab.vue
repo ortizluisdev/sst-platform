@@ -11,6 +11,8 @@ import {
 } from '@/services/organizationCategoryConfig.service'
 import { listOrgCatalog, createOrgCatalogItem, updateOrgCatalogItem, type CatalogItem, type CatalogTipo } from '@/services/orgCatalogs.service'
 import { DashboardRequestError } from '@/services/dashboard.service'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 
 const props = defineProps<{ organizationId: string }>()
 const { t } = useI18n()
@@ -29,6 +31,7 @@ async function loadCategories() {
   } catch (err) {
     categoryStatus.value = 'error'
     categoryError.value = err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.loadError')
+    useToast().error(categoryError.value)
   }
 }
 
@@ -41,6 +44,7 @@ async function toggleCategoria(item: CategoryConfigItem) {
     item.habilitada = next
   } catch (err) {
     categoryError.value = err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.actionError')
+    useToast().error(categoryError.value)
   } finally {
     togglingCategoria.value = null
   }
@@ -69,6 +73,7 @@ async function loadCatalog() {
   } catch (err) {
     catalogStatus.value = 'error'
     catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.loadError')
+    useToast().error(catalogError.value)
   }
 }
 
@@ -100,13 +105,19 @@ async function saveEdit(item: CatalogItem) {
     editingId.value = null
   } catch (err) {
     catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
+    useToast().error(catalogError.value)
   } finally {
     savingId.value = null
   }
 }
 
 async function deactivate(item: CatalogItem) {
-  if (!confirm(t('dashboard.higieneConfig.catalogs.deactivateConfirm', { nombre: item.nombre }))) return
+  const confirmed = await useConfirm().confirm({
+    title: t('dashboard.higieneConfig.catalogs.deactivate'),
+    message: t('dashboard.higieneConfig.catalogs.deactivateConfirm', { nombre: item.nombre }),
+    confirmLabel: t('dashboard.higieneConfig.catalogs.deactivate'),
+  })
+  if (!confirmed) return
   savingId.value = item.id
   catalogError.value = ''
   try {
@@ -114,6 +125,7 @@ async function deactivate(item: CatalogItem) {
     catalogItems.value = catalogItems.value.filter((i) => i.id !== item.id)
   } catch (err) {
     catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
+    useToast().error(catalogError.value)
   } finally {
     savingId.value = null
   }
@@ -131,6 +143,7 @@ async function submitNew() {
     newNombre.value = ''
   } catch (err) {
     catalogError.value = err instanceof DashboardRequestError ? err.message : t('dashboard.higieneConfig.catalogs.actionError')
+    useToast().error(catalogError.value)
   } finally {
     creating.value = false
   }
@@ -156,12 +169,6 @@ onMounted(() => {
       <p class="mb-3 text-xs text-navy-700/60">{{ t('dashboard.higieneConfig.categories.hint') }}</p>
 
       <p v-if="categoryStatus === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.higieneConfig.loading') }}</p>
-      <p
-        v-else-if="categoryStatus === 'error'"
-        class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700"
-      >
-        {{ categoryError }}
-      </p>
       <div v-else class="grid gap-2 sm:grid-cols-2">
         <label
           v-for="item in categoryItems"
@@ -178,7 +185,6 @@ onMounted(() => {
           />
         </label>
       </div>
-      <p v-if="categoryStatus === 'ready' && categoryError" class="mt-2 text-sm text-red-700">{{ categoryError }}</p>
     </section>
 
     <!-- Catálogos de la organización -->
@@ -202,12 +208,6 @@ onMounted(() => {
       </div>
 
       <p v-if="catalogStatus === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.higieneConfig.loading') }}</p>
-      <p
-        v-else-if="catalogStatus === 'error'"
-        class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700"
-      >
-        {{ catalogError }}
-      </p>
       <template v-else>
         <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
           <ul class="divide-y divide-line">
