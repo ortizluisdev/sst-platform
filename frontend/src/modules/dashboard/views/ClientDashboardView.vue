@@ -23,6 +23,7 @@ import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
 import type { Locale } from '@/i18n'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
+import { useToast } from '@/composables/useToast'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -66,6 +67,7 @@ async function loadDashboard() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.clientView.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -129,9 +131,6 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
 <template>
   <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.clientView.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[auto_1fr]">
       <DashboardSidebar
         v-model="activeTab"

@@ -9,6 +9,7 @@ import {
   VariableCatalogRequestError,
 } from '@/services/variableCatalog.service'
 import type { VariableCatalogCategory, MeasurementType } from '@/types/variableCatalog'
+import { useToast } from '@/composables/useToast'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -42,6 +43,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -62,6 +64,7 @@ async function handleSave(variableId: string) {
     await load()
   } catch (err) {
     errorMessage.value = err instanceof VariableCatalogRequestError ? err.message : t('variableCatalog.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     savingId.value = null
   }
@@ -74,18 +77,8 @@ async function handleSave(variableId: string) {
     <p class="mt-1 text-sm text-navy-700/70">{{ t('variableCatalog.pageSubtitle') }}</p>
 
     <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('variableCatalog.loading') }}</p>
-    <p
-      v-else-if="status === 'error'"
-      class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-    >
-      {{ errorMessage }}
-    </p>
 
-    <template v-else>
-      <p v-if="errorMessage" class="mt-4 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {{ errorMessage }}
-      </p>
-
+    <template v-else-if="status !== 'error'">
       <div
         v-for="cat in categories"
         :key="cat.categoria"

@@ -901,6 +901,7 @@
       "viewCatalog": "View catalog",
       "activate": "Activate",
       "deactivate": "Deactivate",
+      "deactivateConfirm": "Deactivate the service \"{nombre}\"? Clients will no longer be able to access it.",
       "table": {
         "nombre": "Name",
         "descripcion": "Description",

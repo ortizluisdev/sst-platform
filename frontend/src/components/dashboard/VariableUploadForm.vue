@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import CatalogSelect from '@/components/dashboard/CatalogSelect.vue'
 import { uploadVariablesFile, DashboardRequestError, type UploadResult } from '@/services/dashboard.service'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId: string; serviceSlug: string }>()
 const emit = defineEmits<{ uploaded: [] }>()
@@ -30,6 +31,7 @@ async function submit() {
   if (!file.value || !fechaEvaluacion.value || !zonaId.value || !seccionId.value || !cargoId.value || !trabajadorId.value) {
     status.value = 'error'
     errorMessage.value = t('dashboard.uploadForm.missingFields')
+    useToast().error(errorMessage.value)
     return
   }
   status.value = 'loading'
@@ -50,9 +52,13 @@ async function submit() {
     file.value = null
     if (fileInput.value) fileInput.value.value = ''
     emit('uploaded')
+    useToast().success(
+      `${t('dashboard.uploadForm.successPrefix')}${lastResult.value.filasProcesadas}${t('dashboard.uploadForm.successRows')}${lastResult.value.puestosAfectados}${t('dashboard.uploadForm.successSuffix')}`,
+    )
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof DashboardRequestError ? err.message : t('dashboard.uploadForm.processError')
+    useToast().error(errorMessage.value)
   }
 }
 </script>
@@ -129,12 +135,6 @@ async function submit() {
       <SubmitButton :loading="status === 'loading'" :loading-label="t('dashboard.uploadForm.processing')">{{ t('dashboard.uploadForm.submit') }}</SubmitButton>
     </form>
 
-    <p v-if="status === 'error'" class="mt-3 rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
-    <p v-if="lastResult" class="mt-3 rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
-      {{ t('dashboard.uploadForm.successPrefix') }}{{ lastResult.filasProcesadas }}{{ t('dashboard.uploadForm.successRows') }}{{ lastResult.puestosAfectados }}{{ t('dashboard.uploadForm.successSuffix') }}
-    </p>
     <div v-if="lastResult?.filasOmitidas?.length" class="mt-3 rounded-sm border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
       <p class="font-semibold">{{ t('dashboard.uploadForm.omittedHeading') }}</p>
       <ul class="mt-1 list-disc pl-5">

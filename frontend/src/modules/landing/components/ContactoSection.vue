@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AnimatedNetworkBackgroundAsync } from '@/components/shared/AnimatedNetworkBackground.async'
 import { useContactForm } from '@/composables/useContactForm'
+import { useToast } from '@/composables/useToast'
 
 const { t, locale } = useI18n()
 
@@ -25,6 +27,10 @@ const {
   websiteAttrs,
   submit,
 } = useContactForm()
+
+watch(status, (value) => {
+  if (value === 'error') useToast().error(errorMessage.value)
+})
 
 const inputClasses =
   'w-full rounded-sm border border-line-strong bg-white px-4 py-3 text-sm text-navy-900 outline-none transition-colors placeholder:text-navy-700/40 focus:border-sky-400'
@@ -187,10 +193,6 @@ const inputClasses =
           </label>
           <p v-if="errors.consent" id="consent-error" class="mt-1.5 text-xs text-red-600">{{ errors.consent }}</p>
         </div>
-
-        <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {{ errorMessage }}
-        </p>
 
         <button
           type="submit"

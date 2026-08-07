@@ -11,6 +11,8 @@ import {
 } from '@/services/serviceCatalog.service'
 import type { CatalogService } from '@/types/serviceCatalog'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t } = useI18n()
 const primaryTextClass = useOrgPrimaryTextClass()
@@ -32,6 +34,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -58,16 +61,26 @@ async function handleSubmit(values: { nombre: string; descripcion: string }) {
     await load()
   } catch (err) {
     errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError')
+    useToast().error(errorMessage.value)
   }
 }
 
 async function handleToggleActive(service: CatalogService) {
+  if (service.isActive) {
+    const confirmed = await useConfirm().confirm({
+      title: t('dashboard.servicesManagement.deactivate'),
+      message: t('dashboard.servicesManagement.deactivateConfirm', { nombre: service.nombre }),
+      confirmLabel: t('dashboard.servicesManagement.deactivate'),
+    })
+    if (!confirmed) return
+  }
   togglingId.value = service.id
   try {
     await updateService(service.id, { isActive: !service.isActive })
     await load()
   } catch (err) {
     errorMessage.value = err instanceof ServiceCatalogRequestError ? err.message : t('dashboard.servicesManagement.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     togglingId.value = null
   }
@@ -90,12 +103,6 @@ async function handleToggleActive(service: CatalogService) {
       </div>
 
       <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('dashboard.servicesManagement.loading') }}</p>
-      <p
-        v-else-if="status === 'error'"
-        class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-      >
-        {{ errorMessage }}
-      </p>
       <p v-else-if="services.length === 0" class="mt-6 text-sm text-navy-700/60">
         {{ t('dashboard.servicesManagement.empty') }}
       </p>
