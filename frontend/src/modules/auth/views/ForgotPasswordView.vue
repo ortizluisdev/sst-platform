@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import AuthCard from '@/components/ui/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useForgotPasswordForm } from '@/composables/useForgotPasswordForm'
+import { useToast } from '@/composables/useToast'
 
 const { t, locale } = useI18n()
 const { status, errorMessage, errors, documentNumber, documentNumberAttrs, submit } = useForgotPasswordForm()
+
+watch(status, (value) => {
+  if (value === 'error') useToast().error(errorMessage.value)
+})
 
 useHead(() => ({ title: `${t('auth.forgotPassword.title')} — RoMa`, meta: [{ name: 'robots', content: 'noindex' }] }))
 </script>
@@ -41,10 +47,6 @@ useHead(() => ({ title: `${t('auth.forgotPassword.title')} — RoMa`, meta: [{ n
         autocomplete="username"
         :error="errors.documentNumber"
       />
-
-      <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {{ errorMessage }}
-      </p>
 
       <SubmitButton :loading="status === 'loading'" :loading-label="t('auth.form.submitting')">
         {{ t('auth.forgotPassword.submit') }}

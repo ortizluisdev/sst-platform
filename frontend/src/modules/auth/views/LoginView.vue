@@ -7,6 +7,7 @@ import AuthCard from '@/components/ui/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useLoginForm } from '@/composables/useLoginForm'
+import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import { getDashboardPath } from '@/utils/dashboardRedirect'
 
@@ -15,6 +16,10 @@ const router = useRouter()
 const auth = useAuthStore()
 const { status, errorMessage, user, errors, documentNumber, documentNumberAttrs, password, passwordAttrs, submit } =
   useLoginForm()
+
+watch(status, (value) => {
+  if (value === 'error') useToast().error(errorMessage.value)
+})
 
 // noindex: página funcional, no de contenido — no debe competir en buscadores.
 useHead(() => ({ title: `${t('auth.login.title')} — RoMa`, meta: [{ name: 'robots', content: 'noindex' }] }))
@@ -78,10 +83,6 @@ watch(status, async (value) => {
       >
         {{ t('auth.login.forgotPassword') }}
       </router-link>
-
-      <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {{ errorMessage }}
-      </p>
 
       <SubmitButton :loading="status === 'loading'" :loading-label="t('auth.form.submitting')">
         {{ t('auth.login.submit') }}
