@@ -54,11 +54,7 @@ watch(status, (value) => {
 </script>
 
 <template>
-  <template v-if="status === 'success'">
-    <div class="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-700">
-      {{ t('organizations.form.successBody') }}
-    </div>
-  </template>
+  <template v-if="status === 'success'" />
 
   <form v-else class="grid gap-6" novalidate @submit.prevent="submit">
     <fieldset class="grid gap-4 rounded-md border border-line-strong p-4">
