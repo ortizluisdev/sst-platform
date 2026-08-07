@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps<{
   workPointNombre: string
@@ -32,23 +31,8 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('cancel')">
-    <div class="w-full max-w-md overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
-      <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-base font-bold text-navy-900">{{ t('dashboard.category.correctModal.title') }}</h2>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('dashboard.category.correctModal.close')"
-            @click="emit('cancel')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div class="mt-4 grid gap-1 text-sm text-navy-700">
+  <Modal :title="t('dashboard.category.correctModal.title')" @close="emit('cancel')">
+    <div class="mt-4 grid gap-1 text-sm text-navy-700">
           <p>
             <span class="font-semibold text-navy-900">{{ t('dashboard.category.correctModal.workPointLabel') }}:</span>
             {{ props.workPointNombre }}
@@ -119,7 +103,5 @@ function handleSubmit() {
             {{ t('dashboard.category.correctModal.confirm') }}
           </button>
         </div>
-      </div>
-    </div>
-  </div>
+  </Modal>
 </template>

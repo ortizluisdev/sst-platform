@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
 import type { CatalogService } from '@/types/serviceCatalog'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps<{ service: CatalogService | null }>()
 const emit = defineEmits<{
@@ -28,29 +27,15 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('cancel')">
-    <div class="w-full max-w-md overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
-      <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-base font-bold text-navy-900">
-            {{
-              props.service
-                ? t('dashboard.servicesManagement.modal.editTitle')
-                : t('dashboard.servicesManagement.modal.createTitle')
-            }}
-          </h2>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('dashboard.servicesManagement.modal.close')"
-            @click="emit('cancel')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div class="mt-4">
+  <Modal
+    :title="
+      props.service
+        ? t('dashboard.servicesManagement.modal.editTitle')
+        : t('dashboard.servicesManagement.modal.createTitle')
+    "
+    @close="emit('cancel')"
+  >
+    <div class="mt-4">
           <label for="service-nombre" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
             {{ t('dashboard.servicesManagement.modal.nombreLabel') }}
           </label>
@@ -107,7 +92,5 @@ function handleSubmit() {
             {{ t('dashboard.servicesManagement.modal.save') }}
           </button>
         </div>
-      </div>
-    </div>
-  </div>
+  </Modal>
 </template>

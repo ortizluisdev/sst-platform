@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps<{ nombre: string; email: string }>()
 const emit = defineEmits<{ confirm: [reason: string]; cancel: [] }>()
@@ -23,25 +22,10 @@ function handleConfirm() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('cancel')">
-    <div class="w-full max-w-md overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
-      <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-base font-bold text-navy-900">{{ t('dashboard.accountManagement.suspendModal.title') }}</h2>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('dashboard.accountManagement.suspendModal.close')"
-            @click="emit('cancel')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <p class="mt-2 text-sm text-navy-700">
-          {{ t('dashboard.accountManagement.suspendModal.description', { nombre: props.nombre, email: props.email }) }}
-        </p>
+  <Modal :title="t('dashboard.accountManagement.suspendModal.title')" @close="emit('cancel')">
+    <p class="mt-2 text-sm text-navy-700">
+      {{ t('dashboard.accountManagement.suspendModal.description', { nombre: props.nombre, email: props.email }) }}
+    </p>
 
         <label
           for="suspend-reason"
@@ -83,7 +67,5 @@ function handleConfirm() {
             {{ t('dashboard.accountManagement.suspendModal.confirm') }}
           </button>
         </div>
-      </div>
-    </div>
-  </div>
+  </Modal>
 </template>

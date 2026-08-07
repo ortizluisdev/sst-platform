@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
 import type { RoadSafetyFieldValue } from '@/services/roadSafety.service'
 
 const props = defineProps<{
@@ -52,23 +51,8 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('cancel')">
-    <div class="w-full max-w-md overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
-      <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-base font-bold text-navy-900">{{ t('roadSafety.correct.title') }}</h2>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('roadSafety.correct.close')"
-            @click="emit('cancel')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <p class="mt-2 text-sm text-navy-700">
+  <Modal :title="t('roadSafety.correct.title')" @close="emit('cancel')">
+    <p class="mt-2 text-sm text-navy-700">
           <span class="font-semibold text-navy-900">{{ fieldLabel }}</span>
         </p>
 
@@ -140,7 +124,5 @@ function handleSubmit() {
             {{ t('roadSafety.correct.confirm') }}
           </button>
         </div>
-      </div>
-    </div>
-  </div>
+  </Modal>
 </template>
