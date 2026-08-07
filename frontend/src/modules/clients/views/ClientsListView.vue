@@ -12,6 +12,8 @@ import { listOrganizationsFull, updateOrganization, OrganizationRequestError } f
 import { suspendUser, reactivateUser, resendInvitation, AdminUsersRequestError } from '@/services/adminUsers.service'
 import type { OrganizationListItem } from '@/types/organization'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { Locale } from '@/i18n'
 
@@ -55,6 +57,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof OrganizationRequestError ? err.message : t('clients.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -78,6 +81,7 @@ async function handleEditSubmit(values: { nombre: string; nit: string; contactEm
     await load()
   } catch (err) {
     errorMessage.value = err instanceof OrganizationRequestError ? err.message : t('clients.actionError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -91,6 +95,7 @@ async function handleSuspend(reason: string) {
     await load()
   } catch (err) {
     errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     actioningId.value = null
   }
@@ -98,13 +103,19 @@ async function handleSuspend(reason: string) {
 
 async function handleReactivate(org: OrganizationListItem) {
   if (!org.responsable) return
-  if (!window.confirm(t('dashboard.accountManagement.confirmReactivate', { nombre: org.responsable.nombre }))) return
+  const confirmed = await useConfirm().confirm({
+    title: t('dashboard.accountManagement.reactivate'),
+    message: t('dashboard.accountManagement.confirmReactivate', { nombre: org.responsable.nombre }),
+    confirmLabel: t('dashboard.accountManagement.reactivate'),
+  })
+  if (!confirmed) return
   actioningId.value = org.responsable.id
   try {
     await reactivateUser(org.responsable.id)
     await load()
   } catch (err) {
     errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     actioningId.value = null
   }
@@ -118,6 +129,7 @@ async function handleResendInvitation(org: OrganizationListItem) {
     resentIds.value = new Set(resentIds.value).add(org.responsable.id)
   } catch (err) {
     errorMessage.value = err instanceof AdminUsersRequestError ? err.message : t('clients.actionError')
+    useToast().error(errorMessage.value)
   } finally {
     actioningId.value = null
   }
@@ -186,12 +198,6 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       </div>
 
       <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('clients.loading') }}</p>
-      <p
-        v-else-if="status === 'error'"
-        class="mt-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-      >
-        {{ errorMessage }}
-      </p>
       <p v-else-if="items.length === 0" class="mt-6 text-sm text-navy-700/60">
         {{
           tab === 'active'

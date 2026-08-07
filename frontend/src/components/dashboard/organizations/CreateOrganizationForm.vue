@@ -5,6 +5,7 @@ import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import BrandingFields from './BrandingFields.vue'
 import { useCreateOrganizationForm } from '@/composables/useCreateOrganizationForm'
+import { useToast } from '@/composables/useToast'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { Locale } from '@/i18n'
 
@@ -41,6 +42,11 @@ const {
   responsableTelefonoAttrs,
   submit,
 } = useCreateOrganizationForm()
+
+watch(status, (value) => {
+  if (value === 'error') useToast().error(errorMessage.value)
+  if (value === 'success') useToast().success(t('organizations.form.successBody'))
+})
 
 watch(status, (value) => {
   if (value === 'success') emit('created')
@@ -180,10 +186,6 @@ watch(status, (value) => {
         :error="errors['responsable.telefono']"
       />
     </fieldset>
-
-    <p v-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
 
     <SubmitButton :loading="status === 'loading'" :loading-label="t('auth.form.submitting')">
       {{ t('organizations.form.submit') }}
