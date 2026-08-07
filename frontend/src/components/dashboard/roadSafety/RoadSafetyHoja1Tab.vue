@@ -6,6 +6,7 @@ import type { RoadSafetyHoja1Data } from '@/types/roadSafety'
 import type { Locale } from '@/i18n'
 import { pesvStepLabel, nivelAplicableLabel, cumplimientoLabel } from '@/utils/pesvStepLabel'
 import { inventoryConceptLabel } from '@/utils/inventoryConceptLabel'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -22,6 +23,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -41,9 +43,6 @@ const GRUPOS = ['ACTORES_VIALES', 'PARQUE_AUTOMOTOR', 'COBERTURA_OPERACIONAL'] a
 <template>
   <div class="grid gap-6">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <template v-else-if="data">
       <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line-strong bg-sky-100 px-4 py-3">

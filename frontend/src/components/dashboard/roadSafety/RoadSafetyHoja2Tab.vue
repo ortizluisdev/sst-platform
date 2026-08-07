@@ -14,6 +14,7 @@ import type { RoadSafetyVehiculo } from '@/types/roadSafety'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
 import type { CategoryCardStatus } from '@/types/dashboard'
 import RoadSafetyCorrectFieldModal from './RoadSafetyCorrectFieldModal.vue'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{ organizationId?: string }>()
 const { t, locale } = useI18n()
@@ -33,6 +34,7 @@ async function load() {
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.loadError')
+    useToast().error(errorMessage.value)
   }
 }
 
@@ -81,6 +83,7 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
     correcting.value = null
   } catch (err) {
     correctError.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.correct.genericError')
+    useToast().error(correctError.value)
   }
 }
 </script>
@@ -93,14 +96,8 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
       :placeholder="t('roadSafety.hoja2.filtroPlaca')"
       class="w-full max-w-xs rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
     />
-    <p v-if="correctError" class="rounded-sm border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
-      {{ correctError }}
-    </p>
 
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('roadSafety.loading') }}</p>
-    <p v-else-if="status === 'error'" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
-    </p>
     <div v-else class="overflow-hidden rounded-lg border border-line-strong bg-white">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1100px] border-collapse text-sm">
