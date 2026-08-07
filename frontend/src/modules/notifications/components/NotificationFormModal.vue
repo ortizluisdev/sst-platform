@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { X } from 'lucide-vue-next'
-import ModalAccentStrip from '@/components/ui/ModalAccentStrip.vue'
+import Modal from '@/components/ui/Modal.vue'
+import { useToast } from '@/composables/useToast'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { listOrganizationsFull } from '@/services/organizations.service'
 import type { OrganizationListItem } from '@/types/organization'
@@ -34,7 +34,6 @@ const message = ref(props.initialMessage ?? '')
 const severity = ref<NotificationSeverity>(props.initialSeverity ?? 'INFO')
 const sendEmail = ref(false)
 const submitting = ref(false)
-const errorMessage = ref('')
 
 onMounted(async () => {
   if (props.mode === 'create') {
@@ -49,9 +48,8 @@ onMounted(async () => {
 const showOrgSelect = computed(() => recipientMode.value === 'user')
 
 async function handleSubmit() {
-  errorMessage.value = ''
   if (!message.value.trim()) {
-    errorMessage.value = t('dashboard.notificationsAdmin.form.messageLabel')
+    useToast().error(t('dashboard.notificationsAdmin.form.messageLabel'))
     return
   }
   if (props.mode === 'edit') {
@@ -62,7 +60,7 @@ async function handleSubmit() {
   if (recipientMode.value === 'user') {
     const org = organizations.value.find((o) => o.id === organizationId.value)
     if (!org?.responsable) {
-      errorMessage.value = t('dashboard.notificationsAdmin.form.organizationPlaceholder')
+      useToast().error(t('dashboard.notificationsAdmin.form.organizationPlaceholder'))
       return
     }
     submitting.value = true
@@ -90,25 +88,12 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/50 px-4" @click.self="emit('close')">
-    <div class="w-full max-w-lg overflow-hidden rounded-md bg-white shadow-xl">
-      <ModalAccentStrip />
-      <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-base font-bold text-navy-900">
-            {{ mode === 'create' ? t('dashboard.notificationsAdmin.form.createTitle') : t('dashboard.notificationsAdmin.form.editTitle') }}
-          </h2>
-          <button
-            type="button"
-            class="rounded-sm p-1 text-navy-700/60 hover:bg-cream"
-            :aria-label="t('dashboard.notificationsAdmin.form.cancel')"
-            @click="emit('close')"
-          >
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-
-        <form class="mt-4 grid gap-4" @submit.prevent="handleSubmit">
+  <Modal
+    :title="mode === 'create' ? t('dashboard.notificationsAdmin.form.createTitle') : t('dashboard.notificationsAdmin.form.editTitle')"
+    max-width="lg"
+    @close="emit('close')"
+  >
+    <form class="mt-4 grid gap-4" @submit.prevent="handleSubmit">
           <template v-if="mode === 'create'">
             <div>
               <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
@@ -169,10 +154,6 @@ async function handleSubmit() {
             {{ t('dashboard.notificationsAdmin.form.sendEmailLabel') }}
           </label>
 
-          <p v-if="errorMessage" class="rounded-sm border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-            {{ errorMessage }}
-          </p>
-
           <div class="flex justify-end gap-2">
             <button
               type="button"
@@ -188,8 +169,6 @@ async function handleSubmit() {
               {{ mode === 'create' ? t('dashboard.notificationsAdmin.form.submit') : t('dashboard.notificationsAdmin.form.save') }}
             </SubmitButton>
           </div>
-        </form>
-      </div>
-    </div>
-  </div>
+    </form>
+  </Modal>
 </template>
