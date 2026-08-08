@@ -1100,6 +1100,28 @@
       "genericError": "Ocurrió un error. Por favor intenta de nuevo."
     }
   },
+  "settings": {
+    "sidebarLink": "Configuración",
+    "loading": "Cargando...",
+    "notifications": {
+      "title": "Preferencias de notificaciones",
+      "hint": "Elige qué notificaciones querés recibir en la app y cuáles además por correo. Desactivar \"En la app\" también apaga el correo de ese tipo.",
+      "colType": "Tipo",
+      "colInApp": "En la app",
+      "colEmail": "Por correo",
+      "loadError": "Error al cargar tus preferencias.",
+      "actionError": "No se pudo guardar el cambio."
+    },
+    "branding": {
+      "title": "Marca de tu empresa",
+      "hint": "Logo y colores que ve tu equipo en el dashboard — podés cambiarlos cuando quieras, no solo al activar la cuenta.",
+      "loadError": "Error al cargar la marca actual.",
+      "actionError": "No se pudo guardar la marca.",
+      "saved": "Marca actualizada correctamente.",
+      "save": "Guardar cambios",
+      "saving": "Guardando..."
+    }
+  },
   "clients": {
     "pageTitle": "Clientes",
     "newClient": "+ Nueva empresa",

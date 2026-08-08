@@ -17,6 +17,35 @@ export async function saveBrandingHandler(request: FastifyRequest, reply: Fastif
   }
 }
 
+/** Lee el branding actual de la empresa del usuario logueado — para
+ * precargar el formulario de edición en Configuración general. */
+export async function getBrandingHandler(request: FastifyRequest, reply: FastifyReply) {
+  const service = createOrganizationBrandingService(request.server.prisma)
+  try {
+    const branding = await service.getBrandingForUser(request.user.sub)
+    return reply.code(200).send(branding)
+  } catch (err) {
+    if (err instanceof OrganizationBrandingError) return reply.code(403).send({ message: err.message })
+    throw err
+  }
+}
+
+/** Edición deliberada posterior a la activación — siempre sobrescribe, a
+ * diferencia de saveBrandingHandler (que solo aplica la primera vez). */
+export async function updateBrandingHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = saveBrandingSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const service = createOrganizationBrandingService(request.server.prisma)
+  try {
+    await service.updateBrandingForUser(request.user.sub, parsed.data)
+    return reply.code(204).send()
+  } catch (err) {
+    if (err instanceof OrganizationBrandingError) return reply.code(403).send({ message: err.message })
+    throw err
+  }
+}
+
 /** Público — sin requireAuth. Un logo de empresa no es dato sensible, y el
  * navegador debe poder cargarlo vía <img src> aunque frontend/backend vivan
  * en dominios distintos en producción (ahí una cookie SameSite=Lax no viaja

@@ -130,6 +130,7 @@ model User {
   uploadedHeatmapImages  ServiceHeatmapImage[]
   createdNonConformities NonConformity[]       @relation("NonConformityCreatedBy")
   roadSafetyUploads      RoadSafetyUpload[]
+  notificationPreferences NotificationPreference[]
 
   @@index([documentNumber])
   @@index([roleId])
@@ -424,6 +425,26 @@ model Notification {
   @@index([organizationId])
   @@index([type])
   @@map("notifications")
+}
+
+/// Preferencia por usuario+tipo — semántica de "opt-out": si no hay fila,
+/// el tipo está habilitado por ambos canales (mismo default que el
+/// comportamiento de siempre, antes de que existiera esta tabla). Los tipos
+/// con emailForced=true en NOTIFICATION_TYPE_CONFIG (hoy solo
+/// SEMAFORO_CRITICO) ni siquiera se ofrecen acá — notify() los ignora por
+/// completo, ver notifications.service.ts.
+model NotificationPreference {
+  id           String           @id @default(cuid())
+  userId       String           @map("user_id")
+  type         NotificationType
+  inAppEnabled Boolean          @default(true) @map("in_app_enabled")
+  emailEnabled Boolean          @default(true) @map("email_enabled")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("notification_preferences")
 }
 
 // ============================================================
@@ -849,6 +870,10 @@ enum AuditAction {
   /// mismo espíritu que VARIABLE_READING_CORRECTED pero genérico a
   /// cualquiera de los campos corregibles (ver roadSafetyFieldSpecs.ts).
   ROAD_SAFETY_FIELD_CORRECTED
+  /// Cliente edita logo/colores DESPUÉS de la activación, desde la pantalla
+  /// de Configuración general (2026-08-07) — distinto de
+  /// ORGANIZATION_BRANDING_SET (esa es la primera vez, en la activación).
+  ORGANIZATION_BRANDING_UPDATED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

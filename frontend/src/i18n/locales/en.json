@@ -1100,6 +1100,28 @@
       "genericError": "Something went wrong. Please try again."
     }
   },
+  "settings": {
+    "sidebarLink": "Settings",
+    "loading": "Loading...",
+    "notifications": {
+      "title": "Notification preferences",
+      "hint": "Choose which notifications you want in the app and which ones also by email. Turning off \"In app\" also turns off email for that type.",
+      "colType": "Type",
+      "colInApp": "In app",
+      "colEmail": "By email",
+      "loadError": "Error loading your preferences.",
+      "actionError": "Could not save the change."
+    },
+    "branding": {
+      "title": "Your company's brand",
+      "hint": "Logo and colors your team sees in the dashboard — you can change them anytime, not just during account activation.",
+      "loadError": "Error loading the current branding.",
+      "actionError": "Could not save the branding.",
+      "saved": "Branding updated successfully.",
+      "save": "Save changes",
+      "saving": "Saving..."
+    }
+  },
   "clients": {
     "pageTitle": "Clients",
     "newClient": "+ New organization",

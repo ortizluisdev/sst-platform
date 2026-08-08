@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Bell, ChevronRight, LayoutGrid, MessageSquarePlus, User, Users } from 'lucide-vue-next'
+import { Bell, ChevronRight, LayoutGrid, MessageSquarePlus, Settings, User, Users } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
@@ -212,6 +212,20 @@ function handleTabClick(tab: TabDef) {
           >
             <User class="h-4 w-4 shrink-0" aria-hidden="true" />
             {{ t('myProfile.sidebarLink') }}
+          </router-link>
+        </li>
+        <li>
+          <router-link
+            :to="`/${locale}/dashboard/admin/configuracion`"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              $route.name === 'admin-configuracion'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+          >
+            <Settings class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {{ t('settings.sidebarLink') }}
           </router-link>
         </li>
       </ul>

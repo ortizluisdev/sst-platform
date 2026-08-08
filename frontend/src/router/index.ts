@@ -135,6 +135,11 @@ const router = createRouter({
           name: 'admin-mi-perfil',
           component: () => import('@/modules/profile/components/MyProfilePanel.vue'),
         },
+        {
+          path: 'configuracion',
+          name: 'admin-configuracion',
+          component: () => import('@/modules/settings/components/GeneralSettingsPanel.vue'),
+        },
       ],
     },
     // Puente de compatibilidad: la vista de administración de Higiene

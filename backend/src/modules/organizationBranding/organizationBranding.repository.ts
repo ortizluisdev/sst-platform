@@ -31,7 +31,26 @@ export function createOrganizationBrandingRepository(prisma: PrismaClient) {
       return prisma.organization.findUnique({ where: { id }, select: { logoBase64: true } })
     },
 
-    createAuditLog(input: { userId: string; organizationId: string; action: 'ORGANIZATION_BRANDING_SET' }) {
+    findBrandingForOrganization(organizationId: string) {
+      return prisma.organization.findUnique({
+        where: { id: organizationId },
+        select: { logoBase64: true, primaryColor: true, secondaryColor: true },
+      })
+    },
+
+    /** A diferencia de saveBrandingIfUnset, esta sí sobrescribe siempre —
+     * es para la edición deliberada posterior (pantalla de Configuración),
+     * no para la activación inicial (donde sí importa la condición de
+     * carrera entre dos activaciones casi simultáneas). */
+    updateBranding(organizationId: string, data: { logoBase64: string; primaryColor: string; secondaryColor: string }) {
+      return prisma.organization.update({ where: { id: organizationId }, data })
+    },
+
+    createAuditLog(input: {
+      userId: string
+      organizationId: string
+      action: 'ORGANIZATION_BRANDING_SET' | 'ORGANIZATION_BRANDING_UPDATED'
+    }) {
       return prisma.auditLog.create({
         data: { userId: input.userId, organizationId: input.organizationId, action: input.action },
       })

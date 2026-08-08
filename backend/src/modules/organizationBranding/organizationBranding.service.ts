@@ -38,6 +38,35 @@ export function createOrganizationBrandingService(prisma: PrismaClient) {
       const organization = await repository.findOrganizationById(organizationId)
       return organization?.logoBase64 ?? null
     },
+
+    /** Lee el branding actual para precargar el formulario de edición — a
+     * diferencia de saveInitialBranding, acá null es un estado válido (una
+     * empresa vieja que nunca completó branding, o que RoMa creó a mano). */
+    async getBrandingForUser(userId: string) {
+      const organizationId = await repository.findOrganizationIdForUser(userId)
+      if (!organizationId) {
+        throw new OrganizationBrandingError('NO_ORGANIZATION', 'Tu cuenta no pertenece a ninguna organización')
+      }
+      const organization = await repository.findBrandingForOrganization(organizationId)
+      return {
+        logoBase64: organization?.logoBase64 ?? null,
+        primaryColor: organization?.primaryColor ?? null,
+        secondaryColor: organization?.secondaryColor ?? null,
+      }
+    },
+
+    /** Edición deliberada posterior a la activación — a diferencia de
+     * saveInitialBranding, siempre sobrescribe (no hay condición de
+     * carrera que proteger acá, es una sola persona editando su propia
+     * empresa desde Configuración). */
+    async updateBrandingForUser(userId: string, input: SaveBrandingInput) {
+      const organizationId = await repository.findOrganizationIdForUser(userId)
+      if (!organizationId) {
+        throw new OrganizationBrandingError('NO_ORGANIZATION', 'Tu cuenta no pertenece a ninguna organización')
+      }
+      await repository.updateBranding(organizationId, input)
+      await repository.createAuditLog({ userId, organizationId, action: 'ORGANIZATION_BRANDING_UPDATED' })
+    },
   }
 }
 

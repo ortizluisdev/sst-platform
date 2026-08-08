@@ -1,6 +1,7 @@
 import type { NotificationSeverity, NotificationType, PrismaClient } from '@prisma/client'
 import { createNotificationsRepository } from './notifications.repository.js'
 import { NOTIFICATION_TYPE_CONFIG } from './notification-types.js'
+import { createNotificationPreferencesRepository } from '../notificationPreferences/notificationPreferences.repository.js'
 import { sendNotificationEmail } from '../../utils/mailer.js'
 import { env } from '../../config/env.js'
 
@@ -43,6 +44,7 @@ export interface NotifyInput {
 
 export function createNotificationService(prisma: PrismaClient) {
   const repository = createNotificationsRepository(prisma)
+  const preferencesRepository = createNotificationPreferencesRepository(prisma)
 
   async function resolveRecipients(input: NotifyInput): Promise<string[]> {
     if (input.recipientIds && input.recipientIds.length > 0) return [...new Set(input.recipientIds)]
@@ -75,10 +77,7 @@ export function createNotificationService(prisma: PrismaClient) {
       const recipientIds = await resolveRecipients(input)
       if (recipientIds.length === 0) return []
 
-      const shouldEmail = config.emailForced || config.emailByDefault || (input.forceEmail ?? false)
-
-      const rows = await repository.createForRecipients({
-        recipientIds,
+      const baseData = {
         senderId: input.senderId ?? null,
         organizationId: input.organizationId ?? null,
         type: input.type,
@@ -88,12 +87,43 @@ export function createNotificationService(prisma: PrismaClient) {
         link: input.link,
         entityType: input.entityType,
         entityId: input.entityId,
-        emailRequested: shouldEmail,
-      })
+      }
 
-      if (shouldEmail) {
+      let rows: Awaited<ReturnType<typeof repository.createForRecipients>>
+
+      if (config.emailForced) {
+        // Crítico: nunca se filtra por preferencia — ver comentario del tipo
+        // en notification-types.ts, no puede depender de que el cliente
+        // haya entrado alguna vez a apagarlo.
+        rows = await repository.createForRecipients({ recipientIds, ...baseData, emailRequested: true })
+      } else {
+        const shouldEmailByType = config.emailByDefault || (input.forceEmail ?? false)
+        const prefs = await preferencesRepository.findManyForUsers(recipientIds, input.type)
+        const prefByUser = new Map(prefs.map((p) => [p.userId, p]))
+
+        // Ausencia de fila = habilitado (ver comentario de NotificationPreference
+        // en schema.prisma) — nunca se interpreta como "apagado".
+        const included = recipientIds.filter((id) => prefByUser.get(id)?.inAppEnabled ?? true)
+        if (included.length === 0) return []
+
+        const withEmail = shouldEmailByType ? included.filter((id) => prefByUser.get(id)?.emailEnabled ?? true) : []
+        const withoutEmail = included.filter((id) => !withEmail.includes(id))
+
+        const [emailedRows, silentRows] = await Promise.all([
+          withEmail.length > 0
+            ? repository.createForRecipients({ recipientIds: withEmail, ...baseData, emailRequested: true })
+            : Promise.resolve([]),
+          withoutEmail.length > 0
+            ? repository.createForRecipients({ recipientIds: withoutEmail, ...baseData, emailRequested: false })
+            : Promise.resolve([]),
+        ])
+        rows = [...emailedRows, ...silentRows]
+      }
+
+      const rowsToEmail = rows.filter((row) => row.emailRequested)
+      if (rowsToEmail.length > 0) {
         await Promise.all(
-          rows.map(async (row) => {
+          rowsToEmail.map(async (row) => {
             const sent = await sendNotificationEmail({
               to: row.recipient.email,
               nombre: row.recipient.nombre,

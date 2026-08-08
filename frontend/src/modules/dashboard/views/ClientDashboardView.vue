@@ -11,6 +11,7 @@ import ClientDashboardHojas from '@/components/dashboard/client/ClientDashboardH
 import RoadSafetyClientPanel from '@/components/dashboard/roadSafety/RoadSafetyClientPanel.vue'
 import NotificationsPanel from '@/modules/notifications/components/NotificationsPanel.vue'
 import MyProfilePanel from '@/modules/profile/components/MyProfilePanel.vue'
+import GeneralSettingsPanel from '@/modules/settings/components/GeneralSettingsPanel.vue'
 import {
   getClientDashboard,
   getClientUploadHistory,
@@ -141,6 +142,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
       <div>
         <NotificationsPanel v-if="activeTab === 'notificaciones'" />
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />
+        <GeneralSettingsPanel v-else-if="activeTab === 'configuracion'" />
         <RoadSafetyClientPanel
           v-else
           :active-tab="(activeTab as 'dashboard' | 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas' | 'historial' | 'reportes')"
@@ -166,6 +168,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
         />
         <NotificationsPanel v-else-if="activeTab === 'notificaciones'" />
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />
+        <GeneralSettingsPanel v-else-if="activeTab === 'configuracion'" />
         <DashboardShell
           v-else
           v-model:active-tab="activeTab"

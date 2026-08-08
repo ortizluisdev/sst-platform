@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios'
 import { apiClient } from './api'
-import type { BrandingFormValues } from '@/types/organizationBranding'
+import type { BrandingFormValues, CurrentBranding } from '@/types/organizationBranding'
 
 export class BrandingValidationError extends Error {
   fieldErrors: Record<string, string>
@@ -35,6 +35,27 @@ export async function saveBranding(values: BrandingFormValues): Promise<{ applie
   try {
     const { data } = await apiClient.patch('/dashboard/organization/branding', values)
     return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Branding actual — para precargar el formulario de edición en
+ * Configuración general (a diferencia de saveBranding, que es solo-escritura
+ * y exclusivo de la activación inicial). */
+export async function getBranding(): Promise<CurrentBranding> {
+  try {
+    const { data } = await apiClient.get('/dashboard/organization/branding')
+    return data
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+/** Edición deliberada posterior — siempre sobrescribe. */
+export async function updateBranding(values: BrandingFormValues): Promise<void> {
+  try {
+    await apiClient.put('/dashboard/organization/branding', values)
   } catch (err) {
     rethrow(err)
   }

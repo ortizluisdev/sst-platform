@@ -86,19 +86,22 @@ const switchTo = computed(() => ({
           neutro: es su propio elemento del navbar, no un accesorio — y un
           logo en cualquier color (incluido negro puro) sigue siendo visible
           sobre navbar blanco gracias al tinte, sin convertirse en una
-          tarjeta pesada. Rectangular con esquinas suaves, ~48px de alto. -->
+          tarjeta pesada. Rectangular con esquinas suaves, ~48px de alto. El
+          padding horizontal es apenas el mínimo para que el borde no toque
+          la imagen — la imagen ocupa casi todo el alto de la caja (h-10 de
+          10 en una caja h-12), no un logo chico flotando en un campo grande. -->
           <div
             v-if="auth.user"
-            class="flex h-12 items-center justify-center rounded-lg border border-[var(--org-primary,#0f2a4a)]/25 bg-[var(--org-primary,#0f2a4a)]/5 px-3.5"
+            class="flex h-12 items-center justify-center rounded-lg border border-[var(--org-primary,#0f2a4a)]/25 bg-[var(--org-primary,#0f2a4a)]/5 px-2"
           >
             <img
               v-if="orgLogoUrl && !logoFailed"
               :src="orgLogoUrl"
               :alt="t('dashboard.layout.clientLogoAlt')"
-              class="block h-8 w-auto max-w-[140px] object-contain"
+              class="block h-10 w-auto max-w-[160px] object-contain"
               @error="logoFailed = true"
             />
-            <img v-else :src="romaIsotype" alt="" class="block h-8 w-8" aria-hidden="true" />
+            <img v-else :src="romaIsotype" alt="" class="block h-10 w-10" aria-hidden="true" />
           </div>
 
           <router-link

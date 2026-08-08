@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, LayoutGrid, User, X } from 'lucide-vue-next'
+import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, LayoutGrid, Settings, User, X } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
@@ -338,6 +338,24 @@ function toggleCollapsed() {
           >
             <User class="h-5 w-5 shrink-0" aria-hidden="true" />
             <span :class="{ 'lg:hidden': collapsed }">{{ t('myProfile.sidebarLink') }}</span>
+          </button>
+        </li>
+        <li>
+          <!-- Mismo mecanismo que Notificaciones/Mi Perfil: clave reservada
+          de `modelValue` ('configuracion'), no un TabDef del dashboard. -->
+          <button
+            type="button"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            :class="
+              modelValue === 'configuracion'
+                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
+                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+            "
+            :title="collapsed ? t('settings.sidebarLink') : undefined"
+            @click="selectTab('configuracion')"
+          >
+            <Settings class="h-5 w-5 shrink-0" aria-hidden="true" />
+            <span :class="{ 'lg:hidden': collapsed }">{{ t('settings.sidebarLink') }}</span>
           </button>
         </li>
       </ul>

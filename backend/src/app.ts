@@ -12,6 +12,7 @@ import { authRoutes } from './modules/auth/auth.routes.js'
 import { usersRoutes } from './modules/users/users.routes.js'
 import { variablesRoutes } from './modules/variables/variables.routes.js'
 import { notificationsRoutes } from './modules/notifications/notifications.routes.js'
+import { notificationPreferencesRoutes } from './modules/notificationPreferences/notificationPreferences.routes.js'
 import { organizationsRoutes } from './modules/organizations/organizations.routes.js'
 import { orgCatalogsRoutes } from './modules/orgCatalogs/orgCatalogs.routes.js'
 import { orgCategoryConfigRoutes } from './modules/orgCategoryConfig/orgCategoryConfig.routes.js'
@@ -54,6 +55,7 @@ export async function buildApp() {
   await app.register(usersRoutes)
   await app.register(variablesRoutes)
   await app.register(notificationsRoutes)
+  await app.register(notificationPreferencesRoutes)
   await app.register(organizationsRoutes)
   await app.register(orgCatalogsRoutes)
   await app.register(orgCategoryConfigRoutes)
