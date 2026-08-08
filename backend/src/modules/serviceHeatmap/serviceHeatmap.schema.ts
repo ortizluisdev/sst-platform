@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 const HEATMAP_MAX_BYTES = 3 * 1024 * 1024
 
+export const HIGIENE_CATEGORIAS = ['ESTRES_TERMICO', 'ILUMINACION', 'SONIDO', 'RADIACION_UV', 'VIBRACION'] as const
+
 export const heatmapImageSchema = z
   .string()
   .regex(/^data:image\/(png|jpe?g|svg\+xml);base64,/, 'La imagen debe ser PNG, JPEG o SVG')
@@ -10,7 +12,11 @@ export const heatmapImageSchema = z
     return Buffer.byteLength(payload, 'base64') <= HEATMAP_MAX_BYTES
   }, 'La imagen no puede superar 3MB')
 
-export const saveHeatmapSchema = z.object({ imageBase64: heatmapImageSchema })
+export const saveHeatmapSchema = z.object({
+  categoria: z.enum(HIGIENE_CATEGORIAS, { errorMap: () => ({ message: 'Selecciona una categoría válida' }) }),
+  zonaId: z.string().min(1, 'Selecciona una zona'),
+  imageBase64: heatmapImageSchema,
+})
 
 export type SaveHeatmapInput = z.infer<typeof saveHeatmapSchema>
 

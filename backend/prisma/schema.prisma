@@ -643,8 +643,9 @@ model OrgZona {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  uploads      VariableUpload[]
+  organization  Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploads       VariableUpload[]
+  heatmapImages ServiceHeatmapImage[]
 
   @@index([organizationId])
   @@map("org_zonas")
@@ -735,25 +736,32 @@ model VariableReading {
 // ============================================================
 
 /// Imagen estática de mapa de calor (zonas × puntos de medición) que el
-/// admin sube manualmente por empresa+servicio — no se calcula, se muestra
-/// tal cual (decisión explícita: construir el heatmap real desde datos
-/// requeriría agregar el concepto de "zona" al modelo, fuera de alcance por
-/// ahora). Mismo patrón de almacenamiento que Organization.logoBase64: data
-/// URI completo en LongText, sin archivo en disco/S3.
+/// admin sube manualmente por empresa+servicio+categoría+zona — no se
+/// calcula, se muestra tal cual. Una imagen por combinación categoría+zona
+/// (2026-08, "mapa de calor por variable/ubicación") — antes era una sola
+/// imagen por empresa+servicio; `categoria` es deliberadamente específico de
+/// Higiene Industrial (única consumidora de este modelo hoy, ver
+/// HigieneCategoria) y `zonaId` reusa el catálogo de zonas por organización
+/// (mismo que usa la carga de variables) en vez de texto libre. Mismo patrón
+/// de almacenamiento que Organization.logoBase64: data URI completo en
+/// LongText, sin archivo en disco/S3.
 model ServiceHeatmapImage {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  serviceId      String   @map("service_id")
-  imageBase64    String   @map("image_base64") @db.LongText
-  uploadedById   String   @map("uploaded_by_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  serviceId      String           @map("service_id")
+  categoria      HigieneCategoria
+  zonaId         String           @map("zona_id")
+  imageBase64    String           @map("image_base64") @db.LongText
+  uploadedById   String           @map("uploaded_by_id")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   service      Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  zona         OrgZona      @relation(fields: [zonaId], references: [id], onDelete: Cascade)
   uploadedBy   User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
 
-  @@unique([organizationId, serviceId])
+  @@unique([organizationId, serviceId, categoria, zonaId])
   @@map("service_heatmap_images")
 }
 

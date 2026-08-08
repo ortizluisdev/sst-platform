@@ -29,8 +29,8 @@ export async function clientGetHeatmapHandler(
   if (!organizationId) return
   const service = createServiceHeatmapService(request.server.prisma)
   try {
-    const result = await service.getImage(organizationId, request.params.serviceSlug)
-    return reply.code(200).send(result)
+    const images = await service.getImages(organizationId, request.params.serviceSlug)
+    return reply.code(200).send({ images })
   } catch (err) {
     return sendError(reply, err)
   }
@@ -42,8 +42,8 @@ export async function adminGetHeatmapHandler(
 ) {
   const service = createServiceHeatmapService(request.server.prisma)
   try {
-    const result = await service.getImage(request.params.organizationId, request.params.serviceSlug)
-    return reply.code(200).send(result)
+    const images = await service.getImages(request.params.organizationId, request.params.serviceSlug)
+    return reply.code(200).send({ images })
   } catch (err) {
     return sendError(reply, err)
   }
@@ -58,7 +58,7 @@ export async function adminSaveHeatmapHandler(
 
   const service = createServiceHeatmapService(request.server.prisma)
   try {
-    await service.saveImage(request.params.organizationId, request.params.serviceSlug, request.user.sub, parsed.data.imageBase64)
+    await service.saveImage(request.params.organizationId, request.params.serviceSlug, request.user.sub, parsed.data)
     return reply.code(200).send({ applied: true })
   } catch (err) {
     return sendError(reply, err)
