@@ -18,4 +18,11 @@ async function main() {
   }
 }
 
-main()
+// Sin este .catch(), un fallo de buildApp() (ej. no conecta a la BD al
+// registrar el plugin de Prisma) se convertía en un unhandled rejection:
+// no pasaba por ningún logger estructurado y la salida del proceso quedaba
+// a merced del manejo default de Node en vez de un exit code explícito.
+main().catch((err) => {
+  console.error('Fallo fatal al iniciar el servidor:', err)
+  process.exit(1)
+})

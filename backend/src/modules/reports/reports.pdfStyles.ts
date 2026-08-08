@@ -228,8 +228,10 @@ export function drawSignatureBlock(
       doc.roundedRect(x + width - size, y, size, size, 5).clip()
       doc.image(Buffer.from(fotoPayload, 'base64'), x + width - size, y, { width: size, height: size })
       doc.restore()
-    } catch {
-      // Imagen inválida — no bloquea el resto del reporte.
+    } catch (err) {
+      // Imagen inválida — no bloquea el resto del reporte, pero queda
+      // logueado para poder diagnosticar un PDF con foto faltante.
+      console.warn('[reports] foto inválida al generar firma de reporte:', err)
     }
   }
 
@@ -238,9 +240,10 @@ export function drawSignatureBlock(
       const base64Payload = firmaBase64.split(',')[1] ?? ''
       doc.image(Buffer.from(base64Payload, 'base64'), x, y, { fit: [110, 26] })
       y += 28
-    } catch {
+    } catch (err) {
       // Imagen inválida — no bloquea el resto del reporte, se cae al
-      // patrón de línea en blanco de abajo.
+      // patrón de línea en blanco de abajo. Queda logueado para diagnóstico.
+      console.warn('[reports] firma inválida al generar firma de reporte:', err)
       y += 5
     }
   }

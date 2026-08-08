@@ -123,6 +123,11 @@ const router = createRouter({
           path: 'notificaciones',
           name: 'admin-notificaciones',
           component: () => import('@/modules/notifications/components/NotificationsPanel.vue'),
+          // Sin permiso específico de gestión (es la bandeja propia del
+          // admin, no una acción administrativa), pero igual solo para
+          // personal de plataforma — nunca para un cliente. Mismo permiso
+          // que ya gatea la ruta por defecto del shell admin (operacion).
+          meta: { permission: 'platform.variables.upload' },
         },
         {
           path: 'notificaciones/gestion',
@@ -134,11 +139,13 @@ const router = createRouter({
           path: 'mi-perfil',
           name: 'admin-mi-perfil',
           component: () => import('@/modules/profile/components/MyProfilePanel.vue'),
+          meta: { permission: 'platform.variables.upload' },
         },
         {
           path: 'configuracion',
           name: 'admin-configuracion',
           component: () => import('@/modules/settings/components/GeneralSettingsPanel.vue'),
+          meta: { permission: 'platform.variables.upload' },
         },
       ],
     },
