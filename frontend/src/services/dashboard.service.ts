@@ -193,36 +193,47 @@ export async function correctReading(
   }
 }
 
-export interface HeatmapImageResponse {
-  imageBase64: string | null
-  updatedAt: string | null
+export type HigieneCategoria = 'ESTRES_TERMICO' | 'ILUMINACION' | 'SONIDO' | 'RADIACION_UV' | 'VIBRACION'
+
+export interface HeatmapImage {
+  id: string
+  categoria: HigieneCategoria
+  zonaId: string
+  zonaNombre: string
+  imageBase64: string
+  updatedAt: string
 }
 
-/** Cliente: mapa de calor de riesgo vigente para su propia empresa. Es una
- * imagen subida por el admin (no calculada) — ver decisión en la spec de
- * "tendencia de riesgo". */
-export async function getClientHeatmap(serviceSlug: string): Promise<HeatmapImageResponse> {
+/** Cliente: mapas de calor de riesgo vigentes para su propia empresa — una
+ * imagen por combinación categoría+zona, subida por el admin (no calculada,
+ * ver decisión en la spec de "tendencia de riesgo"). */
+export async function getClientHeatmap(serviceSlug: string): Promise<HeatmapImage[]> {
   try {
     const { data } = await apiClient.get(`/dashboard/${serviceSlug}/heatmap`)
-    return data
+    return data.images
   } catch (err) {
     rethrow(err)
   }
 }
 
-export async function getAdminHeatmap(organizationId: string, serviceSlug: string): Promise<HeatmapImageResponse> {
+export async function getAdminHeatmap(organizationId: string, serviceSlug: string): Promise<HeatmapImage[]> {
   try {
     const { data } = await apiClient.get(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/heatmap`)
-    return data
+    return data.images
   } catch (err) {
     rethrow(err)
   }
 }
 
-/** Super-admin: sube/reemplaza la imagen de mapa de calor de una empresa+servicio. */
-export async function saveHeatmap(organizationId: string, serviceSlug: string, imageBase64: string): Promise<void> {
+/** Admin: sube/reemplaza la imagen de mapa de calor de una combinación
+ * empresa+servicio+categoría+zona. */
+export async function saveHeatmap(
+  organizationId: string,
+  serviceSlug: string,
+  input: { categoria: HigieneCategoria; zonaId: string; imageBase64: string },
+): Promise<void> {
   try {
-    await apiClient.patch(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/heatmap`, { imageBase64 })
+    await apiClient.patch(`/admin/organizations/${organizationId}/dashboard/${serviceSlug}/heatmap`, input)
   } catch (err) {
     rethrow(err)
   }

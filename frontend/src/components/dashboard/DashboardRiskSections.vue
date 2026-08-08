@@ -17,7 +17,12 @@ import {
   getAdminNonConformitiesPaginated,
   createNonConformity,
   updateNonConformity,
+  DashboardRequestError,
+  type HeatmapImage,
+  type HigieneCategoria,
 } from '@/services/dashboard.service'
+import { listOrgCatalog, type CatalogItem } from '@/services/orgCatalogs.service'
+import { useToast } from '@/composables/useToast'
 
 const NON_CONFORMITY_PRIORITY_RANK: Record<NonConformityPriority, number> = { ALTA: 0, MEDIA: 1, BAJA: 2 }
 const RESUMEN_LIMIT = 5
@@ -34,28 +39,59 @@ const props = defineProps<{
 const { t, locale } = useI18n()
 const isAdmin = computed(() => !!props.organizationId)
 
-// --- Mapa de calor (imagen subida por el admin, no calculada) -----------
-const heatmapImage = ref<string | null>(null)
+// --- Mapa de calor (imágenes subidas por el admin, no calculadas) -------
+// Una imagen por combinación categoría+zona (2026-08, antes era una sola
+// imagen por empresa+servicio — ver ServiceHeatmapImage en el schema).
+const HIGIENE_CATEGORIAS: HigieneCategoria[] = ['ESTRES_TERMICO', 'ILUMINACION', 'SONIDO', 'RADIACION_UV', 'VIBRACION']
+
+const heatmapImages = ref<HeatmapImage[]>([])
+const heatmapZonas = ref<CatalogItem[]>([])
 const heatmapUploading = ref(false)
 const heatmapInput = ref<HTMLInputElement | null>(null)
+const newHeatmapCategoria = ref<HigieneCategoria>('ESTRES_TERMICO')
+const newHeatmapZonaId = ref('')
+
+const heatmapByCategoria = computed(() => {
+  const map = new Map<HigieneCategoria, HeatmapImage[]>()
+  for (const cat of HIGIENE_CATEGORIAS) map.set(cat, [])
+  for (const img of heatmapImages.value) map.get(img.categoria)?.push(img)
+  return map
+})
 
 async function loadHeatmap() {
-  const result = isAdmin.value
+  heatmapImages.value = isAdmin.value
     ? await getAdminHeatmap(props.organizationId!, props.serviceSlug)
     : await getClientHeatmap(props.serviceSlug)
-  heatmapImage.value = result.imageBase64
+}
+
+async function loadHeatmapZonas() {
+  if (!isAdmin.value) return
+  heatmapZonas.value = await listOrgCatalog(props.organizationId!, 'zona')
+  if (heatmapZonas.value.length > 0 && !newHeatmapZonaId.value) newHeatmapZonaId.value = heatmapZonas.value[0].id
 }
 
 function onHeatmapFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
+  if (!newHeatmapZonaId.value) {
+    useToast().error(t('dashboard.riskSections.heatmapZonaRequired'))
+    if (heatmapInput.value) heatmapInput.value.value = ''
+    return
+  }
   const reader = new FileReader()
   reader.onload = async () => {
     const dataUri = reader.result as string
     heatmapUploading.value = true
     try {
-      await saveHeatmap(props.organizationId!, props.serviceSlug, dataUri)
-      heatmapImage.value = dataUri
+      await saveHeatmap(props.organizationId!, props.serviceSlug, {
+        categoria: newHeatmapCategoria.value,
+        zonaId: newHeatmapZonaId.value,
+        imageBase64: dataUri,
+      })
+      await loadHeatmap()
+      useToast().success(t('dashboard.riskSections.heatmapSaved'))
+    } catch (err) {
+      useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.riskSections.heatmapError'))
     } finally {
       heatmapUploading.value = false
       if (heatmapInput.value) heatmapInput.value.value = ''
@@ -137,19 +173,47 @@ function formatFecha(iso: string): string {
 
 onMounted(() => {
   loadHeatmap()
+  loadHeatmapZonas()
   loadNonConformities()
 })
 </script>
 
 <template>
   <div class="grid gap-6">
-    <!-- Tendencia de riesgo — mapas de calor -->
+    <!-- Tendencia de riesgo — mapas de calor por categoría + zona -->
     <div>
-      <div class="mb-3 flex items-center justify-between">
-        <p class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-          {{ t('dashboard.riskSections.heatmapTitle') }}
-        </p>
-        <div v-if="isAdmin">
+      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+        {{ t('dashboard.riskSections.heatmapTitle') }}
+      </p>
+
+      <div v-if="isAdmin" class="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-line-strong bg-white p-4">
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+            {{ t('dashboard.riskSections.heatmapCategoriaLabel') }}
+          </label>
+          <select
+            v-model="newHeatmapCategoria"
+            class="rounded-sm border border-line-strong px-3 py-2 text-sm text-navy-900"
+          >
+            <option v-for="cat in HIGIENE_CATEGORIAS" :key="cat" :value="cat">
+              {{ t(`clients.categoryConfig.categorias.${cat}`) }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+            {{ t('dashboard.riskSections.heatmapZonaLabel') }}
+          </label>
+          <select
+            v-model="newHeatmapZonaId"
+            class="rounded-sm border border-line-strong px-3 py-2 text-sm text-navy-900"
+            :disabled="heatmapZonas.length === 0"
+          >
+            <option v-if="heatmapZonas.length === 0" value="">{{ t('dashboard.riskSections.heatmapNoZonas') }}</option>
+            <option v-for="zona in heatmapZonas" :key="zona.id" :value="zona.id">{{ zona.nombre }}</option>
+          </select>
+        </div>
+        <div>
           <input
             ref="heatmapInput"
             type="file"
@@ -159,23 +223,34 @@ onMounted(() => {
           />
           <button
             type="button"
-            class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-cream disabled:opacity-50"
-            :disabled="heatmapUploading"
+            class="rounded-sm border border-line-strong px-3 py-2 text-xs font-semibold text-navy-700 hover:bg-cream disabled:opacity-50"
+            :disabled="heatmapUploading || heatmapZonas.length === 0"
             @click="heatmapInput?.click()"
           >
-            {{
-              heatmapUploading
-                ? t('dashboard.riskSections.heatmapUploading')
-                : heatmapImage
-                  ? t('dashboard.riskSections.heatmapReplaceLabel')
-                  : t('dashboard.riskSections.heatmapUploadLabel')
-            }}
+            {{ heatmapUploading ? t('dashboard.riskSections.heatmapUploading') : t('dashboard.riskSections.heatmapUploadLabel') }}
           </button>
         </div>
       </div>
-      <div class="overflow-hidden rounded-lg border border-line-strong bg-white p-4">
-        <img v-if="heatmapImage" :src="heatmapImage" alt="" class="mx-auto max-h-[480px] w-full object-contain" />
-        <p v-else class="py-8 text-center text-sm text-navy-700/60">{{ t('dashboard.riskSections.heatmapEmpty') }}</p>
+
+      <div class="grid gap-3">
+        <div
+          v-for="cat in HIGIENE_CATEGORIAS"
+          :key="cat"
+          class="overflow-hidden rounded-lg border border-line-strong bg-white"
+        >
+          <p class="border-b border-line-strong bg-sky-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-navy-700">
+            {{ t(`clients.categoryConfig.categorias.${cat}`) }}
+          </p>
+          <div v-if="(heatmapByCategoria.get(cat)?.length ?? 0) === 0" class="p-4 text-center text-sm text-navy-700/60">
+            {{ t('dashboard.riskSections.heatmapEmpty') }}
+          </div>
+          <div v-else class="grid gap-4 p-4 sm:grid-cols-2">
+            <div v-for="img in heatmapByCategoria.get(cat)" :key="img.id">
+              <p class="mb-1.5 text-xs font-semibold text-navy-700">{{ img.zonaNombre }}</p>
+              <img :src="img.imageBase64" alt="" class="max-h-[320px] w-full rounded-sm border border-line object-contain" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
