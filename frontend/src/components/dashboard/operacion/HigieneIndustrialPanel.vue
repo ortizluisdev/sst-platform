@@ -141,7 +141,7 @@ async function correctReading(readingId: string, valor: number, reason: string) 
     </div>
     <div v-else-if="dashboard && sharedActiveTab === 'configuracion'" class="grid gap-6">
       <SectionTitleBanner :title="sectionBannerTitle" />
-      <HigieneConfigTab :organization-id="props.organizationId" />
+      <HigieneConfigTab :organization-id="props.organizationId" @categories-changed="loadDashboard" />
     </div>
     <DashboardShell
       v-else-if="dashboard"

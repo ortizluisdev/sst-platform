@@ -15,6 +15,7 @@ import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 
 const props = defineProps<{ organizationId: string }>()
+const emit = defineEmits<{ categoriesChanged: [] }>()
 const { t } = useI18n()
 
 // --- Categorías habilitadas ------------------------------------------------
@@ -39,6 +40,7 @@ async function toggleCategoria(item: CategoryConfigItem) {
   try {
     await updateCategoryConfig(props.organizationId, item.categoria, next)
     item.habilitada = next
+    emit('categoriesChanged')
   } catch (err) {
     useToast().error(err instanceof CategoryConfigRequestError ? err.message : t('dashboard.higieneConfig.categories.actionError'))
   } finally {
