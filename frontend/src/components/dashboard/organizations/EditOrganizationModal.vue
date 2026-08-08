@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
 import FormField from '@/components/ui/FormField.vue'
 import Modal from '@/components/ui/Modal.vue'
 import type { OrganizationListItem } from '@/types/organization'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 
-const props = defineProps<{ organization: OrganizationListItem }>()
+const props = defineProps<{
+  organization: OrganizationListItem
+  serverErrors?: Record<string, string>
+}>()
 const emit = defineEmits<{
   submit: [values: { nombre: string; nit: string; contactEmail: string }]
   cancel: []
@@ -21,11 +25,35 @@ const contactEmail = ref(props.organization.contactEmail ?? '')
 const touched = ref(false)
 
 const nitRegex = /^\d{5,20}$/
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// z.string().email() — mismo validador que usa el backend (organizations.schema.ts).
+// Un regex hecho a mano no es equivalente: acepta/rechaza un set distinto de casos límite.
+const emailSchema = z.string().email()
+
+const nombreLocalError = computed(() => {
+  if (!touched.value) return undefined
+  if (nombre.value.trim().length < 2) return t('organizations.validation.nombreRequired')
+  // Mismo chequeo que noNewlines() en backend/src/utils/zodHelpers.ts.
+  if (/[\r\n]/.test(nombre.value)) return t('organizations.validation.nombreNewlines')
+  return undefined
+})
+const nitLocalError = computed(() =>
+  touched.value && !nitRegex.test(nit.value) ? t('organizations.validation.nitInvalid') : undefined,
+)
+const contactEmailLocalError = computed(() =>
+  touched.value && !emailSchema.safeParse(contactEmail.value).success
+    ? t('organizations.validation.contactEmailInvalid')
+    : undefined,
+)
+
+// Errores del backend (ej. "ese NIT ya está en uso") se muestran hasta el
+// próximo intento de envío, sin pisar un error de formato local si lo hay.
+const nombreError = computed(() => nombreLocalError.value ?? props.serverErrors?.nombre)
+const nitError = computed(() => nitLocalError.value ?? props.serverErrors?.nit)
+const contactEmailError = computed(() => contactEmailLocalError.value ?? props.serverErrors?.contactEmail)
 
 function handleSubmit() {
   touched.value = true
-  if (nombre.value.trim().length < 2 || !nitRegex.test(nit.value) || !emailRegex.test(contactEmail.value)) return
+  if (nombreLocalError.value || nitLocalError.value || contactEmailLocalError.value) return
   emit('submit', {
     nombre: nombre.value.trim(),
     nit: nit.value.trim(),
@@ -41,7 +69,7 @@ function handleSubmit() {
         id="edit-org-nombre"
         v-model="nombre"
         :label="t('organizations.form.nombre')"
-        :error="touched && nombre.trim().length < 2 ? t('organizations.validation.nombreRequired') : undefined"
+        :error="nombreError"
       />
       <FormField
         id="edit-org-nit"
@@ -49,16 +77,14 @@ function handleSubmit() {
         type="text"
         inputmode="numeric"
         :label="t('organizations.form.nit')"
-        :error="touched && !nitRegex.test(nit) ? t('organizations.validation.nitInvalid') : undefined"
+        :error="nitError"
       />
       <FormField
         id="edit-org-contact-email"
         v-model="contactEmail"
         type="email"
         :label="t('organizations.form.contactEmail')"
-        :error="
-          touched && !emailRegex.test(contactEmail) ? t('organizations.validation.contactEmailInvalid') : undefined
-        "
+        :error="contactEmailError"
       />
     </div>
 

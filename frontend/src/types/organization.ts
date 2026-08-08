@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export interface OrganizationFormMessages {
   nombreRequired: string
+  nombreNewlines: string
   nitInvalid: string
   contactEmailInvalid: string
   serviceRequired: string
@@ -12,6 +13,13 @@ export interface OrganizationFormMessages {
   responsableTelefonoInvalid: string
 }
 
+// Mismo chequeo que noNewlines() en backend/src/utils/zodHelpers.ts — un
+// campo de texto libre que puede terminar en un header de correo no debe
+// admitir \r\n.
+function noNewlines(schema: z.ZodString, message: string) {
+  return schema.refine((value) => !/[\r\n]/.test(value), message)
+}
+
 /** Reglas espejo de backend/src/modules/organizations/organizations.schema.ts.
  * Un solo correo por empresa (contactEmail) — ya no se pide un email aparte
  * para el responsable, ver nota en el schema backend. logoBase64/colores son
@@ -19,7 +27,7 @@ export interface OrganizationFormMessages {
  * en su primer login. */
 export function createOrganizationSchema(messages: OrganizationFormMessages) {
   return z.object({
-    nombre: z.string().min(2, messages.nombreRequired),
+    nombre: noNewlines(z.string().min(2, messages.nombreRequired), messages.nombreNewlines),
     nit: z.string().regex(/^\d{5,20}$/, messages.nitInvalid),
     contactEmail: z.string().email(messages.contactEmailInvalid),
     // Antes un solo serviceSlug — una empresa puede tener varios servicios
@@ -34,8 +42,8 @@ export function createOrganizationSchema(messages: OrganizationFormMessages) {
     responsable: z.object({
       documentType: z.enum(['CC', 'NIT']),
       documentNumber: z.string().regex(/^\d{5,20}$/, messages.responsableDocumentInvalid),
-      nombre: z.string().min(2, messages.responsableNombreRequired),
-      cargo: z.string().min(2, messages.responsableCargoRequired),
+      nombre: noNewlines(z.string().min(2, messages.responsableNombreRequired), messages.nombreNewlines),
+      cargo: noNewlines(z.string().min(2, messages.responsableCargoRequired), messages.nombreNewlines),
       telefono: z
         .string()
         .min(7, messages.responsableTelefonoRequired)

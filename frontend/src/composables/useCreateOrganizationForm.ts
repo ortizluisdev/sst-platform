@@ -31,6 +31,7 @@ export function useCreateOrganizationForm() {
     toTypedSchema(
       createOrganizationSchema({
         nombreRequired: t('organizations.validation.nombreRequired'),
+        nombreNewlines: t('organizations.validation.nombreNewlines'),
         nitInvalid: t('organizations.validation.nitInvalid'),
         contactEmailInvalid: t('organizations.validation.contactEmailInvalid'),
         serviceRequired: t('organizations.validation.serviceRequired'),
