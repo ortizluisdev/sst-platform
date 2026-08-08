@@ -1,8 +1,12 @@
 # Variables reales de docker-compose — nunca commitear, solo el .example.
 .env.docker
 
-# Volcados de BD usados para el cutover a Docker — nunca al repo.
+# Volcados de BD usados para el cutover a Docker — nunca al repo. Excluye
+# explícitamente las migraciones de Prisma (también son .sql) — sin esto,
+# *.sql las ignoraba en silencio y nunca llegaban a git (detectado 2026-08-08,
+# 5 migraciones ya creadas nunca se habían subido).
 *.sql
+!backend/prisma/migrations/**/*.sql
 
 # Worktrees aislados para ejecutar planes de superpowers.
 .worktrees
