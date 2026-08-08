@@ -156,6 +156,10 @@ model Organization {
   /// Hex #rrggbb — formato nativo de <input type="color">.
   primaryColor   String?  @map("primary_color") @db.VarChar(7)
   secondaryColor String?  @map("secondary_color") @db.VarChar(7)
+  /// Borrado suave (mismo patrón que NonConformity.deletedAt/Notification.deletedAt)
+  /// — eliminar una empresa desde el admin nunca borra la fila ni sus datos
+  /// históricos, solo la oculta de los listados normales. null = visible.
+  deletedAt      DateTime? @map("deleted_at")
 
   users           UserOrganization[]
   services        OrganizationService[]
@@ -874,6 +878,10 @@ enum AuditAction {
   /// de Configuración general (2026-08-07) — distinto de
   /// ORGANIZATION_BRANDING_SET (esa es la primera vez, en la activación).
   ORGANIZATION_BRANDING_UPDATED
+  /// Borrado suave de una empresa desde el admin (2026-08-08, auditoría
+  /// panel Admin) — ver Organization.deletedAt.
+  ORGANIZATION_DELETED
+  ORGANIZATION_RESTORED
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda

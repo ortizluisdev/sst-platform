@@ -53,7 +53,7 @@ export function createVariablesRepository(prisma: PrismaClient) {
      * tienen contratado el servicio dado. */
     findOrganizationsByService(serviceId: string) {
       return prisma.organization.findMany({
-        where: { isActive: true, services: { some: { serviceId, isActive: true } } },
+        where: { isActive: true, deletedAt: null, services: { some: { serviceId, isActive: true } } },
         select: { id: true, nombre: true },
         orderBy: { nombre: 'asc' },
       })

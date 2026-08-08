@@ -988,6 +988,7 @@
     },
     "validation": {
       "nombreRequired": "Ingresa el nombre de la empresa",
+      "nombreNewlines": "No se permiten saltos de línea",
       "nitInvalid": "Ingresa un NIT válido (solo números)",
       "contactEmailInvalid": "Ingresa un correo de contacto válido",
       "serviceRequired": "Selecciona un servicio",
@@ -1128,13 +1129,29 @@
     "loading": "Cargando clientes...",
     "loadError": "Error al cargar los clientes.",
     "actionError": "No se pudo completar la acción.",
+    "editSuccess": "Empresa actualizada correctamente.",
+    "suspendSuccess": "Cuenta suspendida correctamente.",
+    "reactivateSuccess": "Cuenta reactivada correctamente.",
+    "resendSuccess": "Invitación reenviada correctamente.",
+    "deleteSuccess": "Empresa eliminada correctamente.",
     "emptyActive": "No hay clientes activos.",
     "emptySuspended": "No hay clientes suspendidos.",
     "emptyPending": "No hay clientes pendientes de activación.",
+    "emptyDeleted": "No hay clientes eliminados.",
     "tabs": {
       "active": "Activas",
       "suspended": "Suspendidas",
-      "pending": "Pendientes de activación"
+      "pending": "Pendientes de activación",
+      "deleted": "Eliminadas"
+    },
+    "delete": {
+      "button": "Eliminar",
+      "confirmTitle": "Eliminar empresa",
+      "confirmMessage": "¿Eliminar \"{nombre}\"? La empresa deja de aparecer en los listados normales, pero sus datos históricos se conservan.",
+      "confirmLabel": "Eliminar",
+      "restoreButton": "Restaurar",
+      "restoreSuccess": "Empresa restaurada correctamente.",
+      "hasActiveDependents": "No se puede eliminar: la empresa tiene un responsable con cuenta activa. Suspéndela primero."
     },
     "categoryConfig": {
       "openButton": "Categorías",

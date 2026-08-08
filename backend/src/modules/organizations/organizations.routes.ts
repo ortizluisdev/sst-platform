@@ -4,6 +4,8 @@ import {
   createOrganizationHandler,
   listOrganizationsFullHandler,
   updateOrganizationHandler,
+  deleteOrganizationHandler,
+  restoreOrganizationHandler,
 } from './organizations.controller.js'
 
 const PERMISSION = 'platform.organizations.manage'
@@ -13,7 +15,7 @@ export async function organizationsRoutes(app: FastifyInstance) {
   // ruta ya existe en variables.routes.ts (listado filtrado por servicio
   // para el selector de "Operación"), y Fastify no permite dos handlers en
   // el mismo método+path exacto.
-  app.get(
+  app.get<{ Querystring: { deletedOnly?: string } }>(
     '/api/admin/organizations/full',
     { preHandler: [requireAuth, requirePermission(PERMISSION)] },
     listOrganizationsFullHandler,
@@ -29,5 +31,17 @@ export async function organizationsRoutes(app: FastifyInstance) {
     '/api/admin/organizations/:organizationId',
     { preHandler: [requireAuth, requirePermission(PERMISSION)] },
     updateOrganizationHandler,
+  )
+
+  app.delete<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId',
+    { preHandler: [requireAuth, requirePermission(PERMISSION)] },
+    deleteOrganizationHandler,
+  )
+
+  app.post<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId/restore',
+    { preHandler: [requireAuth, requirePermission(PERMISSION)] },
+    restoreOrganizationHandler,
   )
 }

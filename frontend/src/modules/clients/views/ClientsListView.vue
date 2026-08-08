@@ -8,7 +8,14 @@ import EditOrganizationModal from '@/components/dashboard/organizations/EditOrga
 import CategoryConfigModal from '@/components/dashboard/organizations/CategoryConfigModal.vue'
 import SuspendUserModal from '@/components/dashboard/notifications/SuspendUserModal.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
-import { listOrganizationsFull, updateOrganization, OrganizationRequestError } from '@/services/organizations.service'
+import {
+  listOrganizationsFull,
+  updateOrganization,
+  deleteOrganization,
+  restoreOrganization,
+  OrganizationRequestError,
+  OrganizationValidationError,
+} from '@/services/organizations.service'
 import { suspendUser, reactivateUser, resendInvitation, AdminUsersRequestError } from '@/services/adminUsers.service'
 import type { OrganizationListItem } from '@/types/organization'
 import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
@@ -24,15 +31,16 @@ const primaryTextClass = useOrgPrimaryTextClass()
 
 useHead(() => ({ title: t('clients.pageTitle'), meta: [{ name: 'robots', content: 'noindex' }] }))
 
-type Tab = 'active' | 'suspended' | 'pending'
-const tab = ref<Tab>(
-  route.query.tab === 'suspended' ? 'suspended' : route.query.tab === 'pending' ? 'pending' : 'active',
-)
+type Tab = 'active' | 'suspended' | 'pending' | 'deleted'
+const TAB_VALUES: Tab[] = ['active', 'suspended', 'pending', 'deleted']
+const tab = ref<Tab>(TAB_VALUES.includes(route.query.tab as Tab) ? (route.query.tab as Tab) : 'active')
 
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 const organizations = ref<OrganizationListItem[]>([])
+const deletedOrganizations = ref<OrganizationListItem[]>([])
 const showCreateModal = ref(false)
 const editingOrganization = ref<OrganizationListItem | null>(null)
+const editServerErrors = ref<Record<string, string>>({})
 const categoryConfigOrganization = ref<OrganizationListItem | null>(null)
 const suspendTarget = ref<OrganizationListItem | null>(null)
 const actioningId = ref<string | null>(null)
@@ -45,13 +53,16 @@ const pending = computed(() => organizations.value.filter((o) => o.responsable?.
 const items = computed(() => {
   if (tab.value === 'active') return active.value
   if (tab.value === 'suspended') return suspended.value
-  return pending.value
+  if (tab.value === 'pending') return pending.value
+  return deletedOrganizations.value
 })
 
 async function load() {
   status.value = 'loading'
   try {
-    organizations.value = await listOrganizationsFull()
+    const [visible, deleted] = await Promise.all([listOrganizationsFull(), listOrganizationsFull({ deletedOnly: true })])
+    organizations.value = visible
+    deletedOrganizations.value = deleted
     status.value = 'ready'
   } catch (err) {
     status.value = 'error'
@@ -73,12 +84,18 @@ async function handleCreated() {
 
 async function handleEditSubmit(values: { nombre: string; nit: string; contactEmail: string }) {
   if (!editingOrganization.value) return
+  editServerErrors.value = {}
   try {
     await updateOrganization(editingOrganization.value.id, values)
     editingOrganization.value = null
+    useToast().success(t('clients.editSuccess'))
     await load()
   } catch (err) {
-    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
+    if (err instanceof OrganizationValidationError) {
+      editServerErrors.value = err.fieldErrors
+    } else {
+      useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
+    }
   }
 }
 
@@ -89,6 +106,7 @@ async function handleSuspend(reason: string) {
   try {
     await suspendUser(org.responsable.id, reason)
     suspendTarget.value = null
+    useToast().success(t('clients.suspendSuccess'))
     await load()
   } catch (err) {
     useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
@@ -108,6 +126,7 @@ async function handleReactivate(org: OrganizationListItem) {
   actioningId.value = org.responsable.id
   try {
     await reactivateUser(org.responsable.id)
+    useToast().success(t('clients.reactivateSuccess'))
     await load()
   } catch (err) {
     useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
@@ -122,8 +141,41 @@ async function handleResendInvitation(org: OrganizationListItem) {
   try {
     await resendInvitation(org.responsable.id)
     resentIds.value = new Set(resentIds.value).add(org.responsable.id)
+    useToast().success(t('clients.resendSuccess'))
   } catch (err) {
     useToast().error(err instanceof AdminUsersRequestError ? err.message : t('clients.actionError'))
+  } finally {
+    actioningId.value = null
+  }
+}
+
+async function handleDelete(org: OrganizationListItem) {
+  const confirmed = await useConfirm().confirm({
+    title: t('clients.delete.confirmTitle'),
+    message: t('clients.delete.confirmMessage', { nombre: org.nombre }),
+    confirmLabel: t('clients.delete.confirmLabel'),
+  })
+  if (!confirmed) return
+  actioningId.value = org.id
+  try {
+    await deleteOrganization(org.id)
+    useToast().success(t('clients.deleteSuccess'))
+    await load()
+  } catch (err) {
+    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
+  } finally {
+    actioningId.value = null
+  }
+}
+
+async function handleRestore(org: OrganizationListItem) {
+  actioningId.value = org.id
+  try {
+    await restoreOrganization(org.id)
+    useToast().success(t('clients.delete.restoreSuccess'))
+    await load()
+  } catch (err) {
+    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
   } finally {
     actioningId.value = null
   }
@@ -189,6 +241,18 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
         >
           {{ t('clients.tabs.pending') }} ({{ pending.length }})
         </button>
+        <button
+          type="button"
+          class="border-b-2 px-3 py-2 text-sm font-semibold transition-colors"
+          :class="
+            tab === 'deleted'
+              ? 'border-sky-400 text-navy-900'
+              : 'border-transparent text-navy-700/60 hover:text-navy-900'
+          "
+          @click="switchTab('deleted')"
+        >
+          {{ t('clients.tabs.deleted') }} ({{ deletedOrganizations.length }})
+        </button>
       </div>
 
       <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('clients.loading') }}</p>
@@ -198,7 +262,9 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
             ? t('clients.emptyActive')
             : tab === 'suspended'
               ? t('clients.emptySuspended')
-              : t('clients.emptyPending')
+              : tab === 'pending'
+                ? t('clients.emptyPending')
+                : t('clients.emptyDeleted')
         }}
       </p>
 
@@ -250,7 +316,17 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                   <span v-else>—</span>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex flex-wrap gap-2">
+                  <div v-if="tab === 'deleted'" class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-sm bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                      :disabled="actioningId === org.id"
+                      @click="handleRestore(org)"
+                    >
+                      {{ t('clients.delete.restoreButton') }}
+                    </button>
+                  </div>
+                  <div v-else class="flex flex-wrap gap-2">
                     <button
                       type="button"
                       class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
@@ -297,6 +373,15 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                           : t('dashboard.accountManagement.resendInvitation')
                       }}
                     </button>
+                    <button
+                      v-if="tab === 'suspended' || tab === 'pending'"
+                      type="button"
+                      class="rounded-sm border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      :disabled="actioningId === org.id"
+                      @click="handleDelete(org)"
+                    >
+                      {{ t('clients.delete.button') }}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -310,6 +395,7 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
     <EditOrganizationModal
       v-if="editingOrganization"
       :organization="editingOrganization"
+      :server-errors="editServerErrors"
       @submit="handleEditSubmit"
       @cancel="editingOrganization = null"
     />

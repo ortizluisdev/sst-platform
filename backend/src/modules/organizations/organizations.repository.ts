@@ -20,9 +20,13 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
     },
 
     /** El responsable es el primer miembro (orden de creación) — hoy toda
-     * organización se crea con exactamente uno vía createWithResponsible(). */
-    listFull() {
+     * organización se crea con exactamente uno vía createWithResponsible().
+     * `deletedOnly` invierte el filtro por defecto (mismo patrón que
+     * nonConformities.repository.ts): false/undefined = solo visibles,
+     * true = solo eliminadas (para la pestaña "Eliminadas" del admin). */
+    listFull(options?: { deletedOnly?: boolean }) {
       return prisma.organization.findMany({
+        where: { deletedAt: options?.deletedOnly ? { not: null } : null },
         select: {
           id: true,
           nombre: true,
@@ -58,6 +62,29 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
 
     update(id: string, data: { nombre?: string; nit?: string; contactEmail?: string }) {
       return prisma.organization.update({ where: { id }, data })
+    },
+
+    /** Responsable de la organización con su accountStatus — usado para
+     * validar que no se elimine una empresa con un responsable ACTIVE sin
+     * suspenderlo primero (ver organizations.service.ts::remove). */
+    findResponsable(organizationId: string) {
+      return prisma.userOrganization.findFirst({
+        where: { organizationId },
+        select: { user: { select: { accountStatus: true } } },
+        orderBy: { createdAt: 'asc' },
+      })
+    },
+
+    /** Borrado suave — solo afecta empresas todavía visibles (evita
+     * reescribir deletedAt si ya estaba eliminada por otra petición
+     * concurrente). Devuelve el conteo de filas afectadas. */
+    softDelete(id: string) {
+      return prisma.organization.updateMany({ where: { id, deletedAt: null }, data: { deletedAt: new Date() } })
+    },
+
+    /** Inverso de softDelete — solo afecta empresas actualmente eliminadas. */
+    restore(id: string) {
+      return prisma.organization.updateMany({ where: { id, deletedAt: { not: null } }, data: { deletedAt: null } })
     },
 
     /** Crea Organization + OrganizationService (contratado, activo) + User
@@ -131,7 +158,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
     createAuditLog(input: {
       userId: string
       organizationId: string
-      action: 'USER_CREATED_BY_ADMIN' | 'ORGANIZATION_UPDATED'
+      action: 'USER_CREATED_BY_ADMIN' | 'ORGANIZATION_UPDATED' | 'ORGANIZATION_DELETED' | 'ORGANIZATION_RESTORED'
       metadata?: Record<string, unknown>
       ipAddress?: string | null
     }) {

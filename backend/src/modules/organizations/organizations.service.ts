@@ -5,7 +5,7 @@ import type { CreateOrganizationInput, UpdateOrganizationInput } from './organiz
 
 export class OrganizationsError extends Error {
   constructor(
-    public code: 'NIT_TAKEN' | 'DOCUMENT_TAKEN' | 'SERVICE_NOT_FOUND' | 'NOT_FOUND',
+    public code: 'NIT_TAKEN' | 'DOCUMENT_TAKEN' | 'SERVICE_NOT_FOUND' | 'NOT_FOUND' | 'HAS_ACTIVE_RESPONSABLE',
     message: string,
   ) {
     super(message)
@@ -62,8 +62,8 @@ export function createOrganizationsService(prisma: PrismaClient) {
       return { organization, responsable }
     },
 
-    async list() {
-      const organizations = await repository.listFull()
+    async list(options?: { deletedOnly?: boolean }) {
+      const organizations = await repository.listFull(options)
       return organizations.map((org) => ({
         id: org.id,
         nombre: org.nombre,
@@ -104,6 +104,46 @@ export function createOrganizationsService(prisma: PrismaClient) {
       })
 
       return updated
+    },
+
+    /** Borrado suave — bloqueado mientras el responsable de la empresa tenga
+     * cuenta ACTIVE (perdería acceso sin aviso); hay que suspenderla primero
+     * desde la pestaña "Activas". Nunca borra datos, solo oculta la fila de
+     * los listados normales (ver Organization.deletedAt). */
+    async remove(organizationId: string, deletedByUserId: string, ipAddress: string) {
+      const existing = await repository.findById(organizationId)
+      if (!existing || existing.deletedAt) throw new OrganizationsError('NOT_FOUND', 'Empresa no encontrada')
+
+      const membership = await repository.findResponsable(organizationId)
+      if (membership?.user.accountStatus === 'ACTIVE') {
+        throw new OrganizationsError(
+          'HAS_ACTIVE_RESPONSABLE',
+          'No se puede eliminar: la empresa tiene un responsable con cuenta activa. Suspéndela primero.',
+        )
+      }
+
+      await repository.softDelete(organizationId)
+
+      await repository.createAuditLog({
+        userId: deletedByUserId,
+        organizationId,
+        action: 'ORGANIZATION_DELETED',
+        ipAddress,
+      })
+    },
+
+    async restore(organizationId: string, restoredByUserId: string, ipAddress: string) {
+      const existing = await repository.findById(organizationId)
+      if (!existing || !existing.deletedAt) throw new OrganizationsError('NOT_FOUND', 'Empresa no encontrada')
+
+      await repository.restore(organizationId)
+
+      await repository.createAuditLog({
+        userId: restoredByUserId,
+        organizationId,
+        action: 'ORGANIZATION_RESTORED',
+        ipAddress,
+      })
     },
   }
 }

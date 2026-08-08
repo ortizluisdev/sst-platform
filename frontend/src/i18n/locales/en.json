@@ -988,6 +988,7 @@
     },
     "validation": {
       "nombreRequired": "Enter the company name",
+      "nombreNewlines": "Line breaks are not allowed",
       "nitInvalid": "Enter a valid Tax ID (numbers only)",
       "contactEmailInvalid": "Enter a valid contact email",
       "serviceRequired": "Select a service",
@@ -1128,13 +1129,29 @@
     "loading": "Loading clients...",
     "loadError": "Error loading clients.",
     "actionError": "The action could not be completed.",
+    "editSuccess": "Organization updated successfully.",
+    "suspendSuccess": "Account suspended successfully.",
+    "reactivateSuccess": "Account reactivated successfully.",
+    "resendSuccess": "Invitation resent successfully.",
+    "deleteSuccess": "Organization deleted successfully.",
     "emptyActive": "No active clients.",
     "emptySuspended": "No suspended clients.",
     "emptyPending": "No clients pending activation.",
+    "emptyDeleted": "No deleted clients.",
     "tabs": {
       "active": "Active",
       "suspended": "Suspended",
-      "pending": "Pending activation"
+      "pending": "Pending activation",
+      "deleted": "Deleted"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirmTitle": "Delete organization",
+      "confirmMessage": "Delete \"{nombre}\"? The organization stops appearing in normal lists, but its historical data is preserved.",
+      "confirmLabel": "Delete",
+      "restoreButton": "Restore",
+      "restoreSuccess": "Organization restored successfully.",
+      "hasActiveDependents": "Can't delete: the organization has a responsible contact with an active account. Suspend it first."
     },
     "categoryConfig": {
       "openButton": "Categories",

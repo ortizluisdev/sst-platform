@@ -53,9 +53,11 @@ export async function createOrganization(values: CreateOrganizationFormValues): 
   }
 }
 
-export async function listOrganizationsFull(): Promise<OrganizationListItem[]> {
+export async function listOrganizationsFull(options?: { deletedOnly?: boolean }): Promise<OrganizationListItem[]> {
   try {
-    const { data } = await apiClient.get('/admin/organizations/full')
+    const { data } = await apiClient.get('/admin/organizations/full', {
+      params: options?.deletedOnly ? { deletedOnly: 'true' } : undefined,
+    })
     return data.organizations
   } catch (err) {
     rethrow(err)
@@ -65,6 +67,22 @@ export async function listOrganizationsFull(): Promise<OrganizationListItem[]> {
 export async function updateOrganization(organizationId: string, values: UpdateOrganizationFormValues): Promise<void> {
   try {
     await apiClient.patch(`/admin/organizations/${organizationId}`, values)
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function deleteOrganization(organizationId: string): Promise<void> {
+  try {
+    await apiClient.delete(`/admin/organizations/${organizationId}`)
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
+export async function restoreOrganization(organizationId: string): Promise<void> {
+  try {
+    await apiClient.post(`/admin/organizations/${organizationId}/restore`)
   } catch (err) {
     rethrow(err)
   }
