@@ -1,4 +1,4 @@
-import type { PrismaClient, SemaphoreStatus } from '@prisma/client'
+import type { PrismaClient, SemaphoreStatus, HigieneCategoria } from '@prisma/client'
 import { createNonConformitiesRepository } from './nonConformities.repository.js'
 import type { CreateNonConformityInput, UpdateNonConformityInput, ListNonConformitiesQuery } from './nonConformities.schema.js'
 
@@ -18,19 +18,34 @@ export function createNonConformitiesService(prisma: PrismaClient) {
     async list(organizationId: string, serviceSlug: string) {
       const service = await repository.findServiceBySlug(serviceSlug)
       if (!service) throw new NonConformitiesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
-      return repository.findByOrgService(organizationId, service.id)
+      const disabledCategorias = await repository.findDisabledCategorias(organizationId)
+      return repository.findByOrgService(organizationId, service.id, disabledCategorias)
+    },
+
+    /** Catálogo de variables para el selector del formulario de creación
+     * manual — ya filtrado por categorías habilitadas de esta organización. */
+    async listVariableOptions(organizationId: string, serviceSlug: string) {
+      const service = await repository.findServiceBySlug(serviceSlug)
+      if (!service) throw new NonConformitiesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+      const disabledCategorias = await repository.findDisabledCategorias(organizationId)
+      return repository.findVariableOptions(service.id, disabledCategorias)
     },
 
     async createManual(organizationId: string, serviceSlug: string, createdById: string, input: CreateNonConformityInput) {
       const service = await repository.findServiceBySlug(serviceSlug)
       if (!service) throw new NonConformitiesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+      const disabledCategorias = await repository.findDisabledCategorias(organizationId)
+      const options = await repository.findVariableOptions(service.id, disabledCategorias)
+      const variable = options.find((o) => o.id === input.variableDefinitionId)
+      if (!variable) throw new NonConformitiesError('NOT_FOUND', 'Variable no encontrada o no disponible')
       return repository.createManual({
         organizationId,
         serviceId: service.id,
         createdById,
         descripcion: input.descripcion,
         prioridad: input.prioridad,
-        variableNombre: input.variableNombre,
+        variableNombre: variable.nombre,
+        categoria: variable.categoria,
         zona: input.zona,
         workPointId: input.workPointId,
         estado: input.estado,
@@ -47,7 +62,13 @@ export function createNonConformitiesService(prisma: PrismaClient) {
     async listPaginated(organizationId: string, serviceSlug: string, filters: ListNonConformitiesQuery) {
       const service = await repository.findServiceBySlug(serviceSlug)
       if (!service) throw new NonConformitiesError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
-      const { items, total } = await repository.findByOrgServicePaginated(organizationId, service.id, filters)
+      const disabledCategorias = await repository.findDisabledCategorias(organizationId)
+      const { items, total } = await repository.findByOrgServicePaginated(
+        organizationId,
+        service.id,
+        disabledCategorias,
+        filters,
+      )
       return {
         items,
         page: filters.page,
@@ -81,6 +102,7 @@ export function createNonConformitiesService(prisma: PrismaClient) {
       semaforo: SemaphoreStatus
       unidadMedida: string
       variableNombre: string
+      categoria?: HigieneCategoria
       workPointNombre: string
       zona: string
     }) {
@@ -94,6 +116,7 @@ export function createNonConformitiesService(prisma: PrismaClient) {
         serviceId: input.serviceId,
         workPointId: input.workPointId,
         variableNombre: input.variableNombre,
+        categoria: input.categoria,
         zona: input.zona,
         prioridad: input.semaforo === 'ROJO' ? 'ALTA' : 'MEDIA',
         descripcion: `${input.variableNombre} fuera de norma en "${input.workPointNombre}": ${input.valor} ${input.unidadMedida}.`,

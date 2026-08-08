@@ -1,4 +1,20 @@
-import type { Prisma, PrismaClient, NonConformityOrigin, NonConformityPriority, NonConformityStatus } from '@prisma/client'
+import type {
+  Prisma,
+  PrismaClient,
+  HigieneCategoria,
+  NonConformityOrigin,
+  NonConformityPriority,
+  NonConformityStatus,
+} from '@prisma/client'
+import { categoriaEnumFromLabel } from '../../utils/higieneCategorias.js'
+
+/** `categoria: null` pasa el filtro siempre (registros de antes de este
+ * campo, o de un servicio sin concepto de categoría) — nunca desaparece
+ * silenciosamente por la migración. */
+function categoriaFilter(disabledCategorias: HigieneCategoria[]): Prisma.NonConformityWhereInput {
+  if (disabledCategorias.length === 0) return {}
+  return { NOT: { categoria: { in: disabledCategorias } } }
+}
 
 export function createNonConformitiesRepository(prisma: PrismaClient) {
   return {
@@ -6,11 +22,37 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
       return prisma.service.findUnique({ where: { slug } })
     },
 
+    /** Categorías de Higiene Industrial deshabilitadas para esta
+     * organización, como enum directo (a diferencia de
+     * variables.repository.ts's findDisabledCategoryLabels, acá no hace
+     * falta convertir a label porque NonConformity.categoria ya guarda el
+     * enum). */
+    async findDisabledCategorias(organizationId: string): Promise<HigieneCategoria[]> {
+      const rows = await prisma.organizationCategoryConfig.findMany({
+        where: { organizationId, habilitada: false },
+      })
+      return rows.map((r) => r.categoria)
+    },
+
+    /** Catálogo de variables activas del servicio, para el selector del
+     * formulario de creación manual — ya excluye las de categorías
+     * deshabilitadas (mismo criterio que el resto de la app). */
+    async findVariableOptions(serviceId: string, disabledCategorias: HigieneCategoria[]) {
+      const definitions = await prisma.variableDefinition.findMany({
+        where: { serviceId, isActive: true },
+        orderBy: { nombre: 'asc' },
+      })
+      const disabledSet = new Set(disabledCategorias)
+      return definitions
+        .map((d) => ({ id: d.id, codigo: d.codigo, nombre: d.nombre, categoria: categoriaEnumFromLabel(d.categoria) }))
+        .filter((d) => !d.categoria || !disabledSet.has(d.categoria))
+    },
+
     /** Vista de cliente (solo lectura) — lista completa sin paginar, nunca
      * incluye lo archivado (borrado suave) por el admin. */
-    findByOrgService(organizationId: string, serviceId: string) {
+    findByOrgService(organizationId: string, serviceId: string, disabledCategorias: HigieneCategoria[]) {
       return prisma.nonConformity.findMany({
-        where: { organizationId, serviceId, deletedAt: null },
+        where: { organizationId, serviceId, deletedAt: null, ...categoriaFilter(disabledCategorias) },
         orderBy: { fecha: 'desc' },
       })
     },
@@ -21,6 +63,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
     async findByOrgServicePaginated(
       organizationId: string,
       serviceId: string,
+      disabledCategorias: HigieneCategoria[],
       filters: {
         page: number
         pageSize: number
@@ -38,6 +81,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
         ...(filters.estado ? { estado: filters.estado } : {}),
         ...(filters.prioridad ? { prioridad: filters.prioridad } : {}),
         ...(filters.origen ? { origen: filters.origen } : {}),
+        ...categoriaFilter(disabledCategorias),
       }
 
       // sort:'prioridad' (usado por el resumen de Hoja 1 · Dashboard, "las
@@ -86,6 +130,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
       descripcion: string
       prioridad: NonConformityPriority
       variableNombre: string
+      categoria?: HigieneCategoria
       zona?: string
       workPointId?: string
       estado: NonConformityStatus
@@ -98,6 +143,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
           descripcion: input.descripcion,
           prioridad: input.prioridad,
           variableNombre: input.variableNombre,
+          categoria: input.categoria,
           zona: input.zona,
           workPointId: input.workPointId,
           estado: input.estado,
@@ -125,6 +171,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
       serviceId: string
       workPointId: string
       variableNombre: string
+      categoria?: HigieneCategoria
       zona: string
       prioridad: NonConformityPriority
       descripcion: string
@@ -137,6 +184,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
           serviceId: input.serviceId,
           workPointId: input.workPointId,
           variableNombre: input.variableNombre,
+          categoria: input.categoria,
           zona: input.zona,
           prioridad: input.prioridad,
           descripcion: input.descripcion,
@@ -145,6 +193,7 @@ export function createNonConformitiesRepository(prisma: PrismaClient) {
         },
         update: {
           variableNombre: input.variableNombre,
+          categoria: input.categoria,
           zona: input.zona,
           prioridad: input.prioridad,
           descripcion: input.descripcion,

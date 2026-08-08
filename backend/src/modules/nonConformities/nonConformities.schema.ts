@@ -3,7 +3,11 @@ import { z } from 'zod'
 export const createNonConformitySchema = z.object({
   descripcion: z.string().trim().min(3, 'La descripción es muy corta').max(2000),
   prioridad: z.enum(['ALTA', 'MEDIA', 'BAJA']).default('MEDIA'),
-  variableNombre: z.string().trim().min(1, 'Selecciona una variable').max(255),
+  // Antes texto libre (variableNombre) sin relación con el catálogo — un
+  // selector garantiza que la categoría se pueda derivar para filtrar por
+  // categorías habilitadas (ver "único punto de filtrado" en
+  // NonConformity.categoria del schema.prisma).
+  variableDefinitionId: z.string().min(1, 'Selecciona una variable'),
   zona: z.string().trim().max(255).optional(),
   workPointId: z.string().optional(),
   estado: z.enum(['ABIERTA', 'EN_SEGUIMIENTO', 'CERRADA']).default('ABIERTA'),

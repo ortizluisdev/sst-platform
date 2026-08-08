@@ -3,6 +3,7 @@ import { requireAuth, requirePermission } from '../../plugins/auth-guard.js'
 import {
   clientListNonConformitiesHandler,
   adminListNonConformitiesHandler,
+  adminListVariableOptionsHandler,
   adminCreateNonConformityHandler,
   adminUpdateNonConformityHandler,
   adminDeleteNonConformityHandler,
@@ -19,6 +20,12 @@ export async function nonConformitiesRoutes(app: FastifyInstance) {
     '/api/admin/organizations/:organizationId/dashboard/:serviceSlug/non-conformities',
     { preHandler: [requireAuth, requirePermission('platform.dashboards.view')] },
     adminListNonConformitiesHandler,
+  )
+
+  app.get<{ Params: { organizationId: string; serviceSlug: string } }>(
+    '/api/admin/organizations/:organizationId/dashboard/:serviceSlug/non-conformities/variable-options',
+    { preHandler: [requireAuth, requirePermission('platform.variables.correct')] },
+    adminListVariableOptionsHandler,
   )
 
   app.post<{ Params: { organizationId: string; serviceSlug: string } }>(

@@ -805,6 +805,14 @@ model NonConformity {
   /// recalcula si el catálogo cambia después (mismo patrón que
   /// Notification.metadata).
   variableNombre String                @map("variable_nombre") @db.VarChar(255)
+  /// Nullable: solo se conoce para Higiene Industrial (única consumidora de
+  /// HigieneCategoria hoy) — otros servicios no tienen este concepto.
+  /// También null en filas creadas antes de este campo (2026-08); esas
+  /// siguen mostrándose siempre, sin filtrar, en vez de desaparecer.
+  /// Único punto de filtrado real para Recomendaciones (antes no existía
+  /// ninguno: `variableNombre` es texto libre, sin relación estructural con
+  /// VariableDefinition/categoría).
+  categoria      HigieneCategoria?
   zona           String?               @db.VarChar(255)
   fecha          DateTime              @default(now())
   estado         NonConformityStatus   @default(ABIERTA)

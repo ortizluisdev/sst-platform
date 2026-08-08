@@ -4,10 +4,12 @@ import { useI18n } from 'vue-i18n'
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-vue-next'
 import {
   getAdminNonConformitiesPaginated,
+  getNonConformityVariableOptions,
   createNonConformity,
   updateNonConformity,
   deleteNonConformity,
   DashboardRequestError,
+  type NonConformityVariableOption,
 } from '@/services/dashboard.service'
 import { PRIORITY_STYLES, STATUS_STYLES } from '@/utils/nonConformityStyles'
 import { formatDate } from '@/utils/formatDate'
@@ -39,6 +41,15 @@ const filterOrigen = ref<NonConformityOrigin | ''>('')
 
 const showFormModal = ref(false)
 const editingItem = ref<NonConformity | null>(null)
+const variableOptions = ref<NonConformityVariableOption[]>([])
+
+async function loadVariableOptions() {
+  try {
+    variableOptions.value = await getNonConformityVariableOptions(props.organizationId, props.serviceSlug)
+  } catch (err) {
+    useToast().error(err instanceof DashboardRequestError ? err.message : t('dashboard.nonConformitiesAdmin.loadError'))
+  }
+}
 
 async function load() {
   status.value = 'loading'
@@ -60,7 +71,10 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadVariableOptions()
+})
 watch(activeTab, () => {
   page.value = 1
   load()
@@ -73,6 +87,7 @@ watch(page, load)
 watch(() => props.organizationId, () => {
   page.value = 1
   load()
+  loadVariableOptions()
 })
 
 function openCreate() {
@@ -266,6 +281,7 @@ async function handleDelete(item: NonConformity) {
       v-if="showFormModal"
       :mode="editingItem ? 'edit' : 'create'"
       :initial="editingItem ?? undefined"
+      :variable-options="variableOptions"
       @close="showFormModal = false"
       @submit-create="handleSubmitCreate"
       @submit-edit="handleSubmitEdit"

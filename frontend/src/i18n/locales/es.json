@@ -829,6 +829,7 @@
         "createTitle": "Nueva recomendación",
         "editTitle": "Editar recomendación",
         "variableLabel": "Variable",
+        "variablePlaceholder": "Selecciona una variable",
         "descripcionLabel": "Descripción",
         "zonaLabel": "Zona / Punto (opcional)",
         "prioridadLabel": "Prioridad",

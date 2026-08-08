@@ -277,6 +277,31 @@ export async function deleteNonConformity(organizationId: string, serviceSlug: s
   }
 }
 
+export interface NonConformityVariableOption {
+  id: string
+  codigo: string
+  nombre: string
+  categoria: HigieneCategoria | null
+}
+
+/** Super-admin: catálogo de variables para el selector del formulario de
+ * creación manual — ya filtrado por categorías habilitadas de la
+ * organización (antes era un campo de texto libre, sin relación con el
+ * catálogo). */
+export async function getNonConformityVariableOptions(
+  organizationId: string,
+  serviceSlug: string,
+): Promise<NonConformityVariableOption[]> {
+  try {
+    const { data } = await apiClient.get(
+      `/admin/organizations/${organizationId}/dashboard/${serviceSlug}/non-conformities/variable-options`,
+    )
+    return data.items
+  } catch (err) {
+    rethrow(err)
+  }
+}
+
 /** Super-admin: redacta una no conformidad manual (además de las que el
  * sistema genera automáticamente por lecturas fuera de norma). */
 export async function createNonConformity(

@@ -71,7 +71,10 @@ export interface NonConformity {
 export interface NonConformityInput {
   descripcion: string
   prioridad: NonConformityPriority
-  variableNombre: string
+  /** Antes texto libre (variableNombre) — un selector garantiza que el
+   * backend pueda derivar la categoría para filtrar por categorías
+   * habilitadas (ver NonConformity.categoria en schema.prisma). */
+  variableDefinitionId: string
   zona?: string
   estado: NonConformityStatus
 }

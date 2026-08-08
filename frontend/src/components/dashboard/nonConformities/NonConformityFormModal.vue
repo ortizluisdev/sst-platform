@@ -5,10 +5,15 @@ import Modal from '@/components/ui/Modal.vue'
 import { useToast } from '@/composables/useToast'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import type { NonConformity, NonConformityInput, NonConformityPriority, NonConformityStatus, NonConformityUpdateInput } from '@/types/dashboard'
+import type { NonConformityVariableOption } from '@/services/dashboard.service'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
   initial?: NonConformity
+  /** Catálogo de variables ya filtrado por categorías habilitadas — vacío
+   * en modo 'edit' (la variable de una no conformidad existente no se
+   * cambia, solo descripción/prioridad/estado). */
+  variableOptions: NonConformityVariableOption[]
 }>()
 
 const emit = defineEmits<{
@@ -20,7 +25,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const descripcion = ref(props.initial?.descripcion ?? '')
-const variableNombre = ref(props.initial?.variableNombre ?? '')
+const variableDefinitionId = ref('')
 const zona = ref(props.initial?.zona ?? '')
 const prioridad = ref<NonConformityPriority>(props.initial?.prioridad ?? 'MEDIA')
 const estado = ref<NonConformityStatus>(props.initial?.estado ?? 'ABIERTA')
@@ -31,7 +36,7 @@ async function handleSubmit() {
     useToast().error(t('dashboard.nonConformitiesAdmin.form.descripcionRequired'))
     return
   }
-  if (props.mode === 'create' && !variableNombre.value.trim()) {
+  if (props.mode === 'create' && !variableDefinitionId.value) {
     useToast().error(t('dashboard.nonConformitiesAdmin.form.variableRequired'))
     return
   }
@@ -41,7 +46,7 @@ async function handleSubmit() {
     if (props.mode === 'create') {
       emit('submitCreate', {
         descripcion: descripcion.value.trim(),
-        variableNombre: variableNombre.value.trim(),
+        variableDefinitionId: variableDefinitionId.value,
         zona: zona.value.trim() || undefined,
         prioridad: prioridad.value,
         estado: estado.value,
@@ -70,11 +75,13 @@ async function handleSubmit() {
             <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
               {{ t('dashboard.nonConformitiesAdmin.form.variableLabel') }}
             </label>
-            <input
-              v-model="variableNombre"
-              type="text"
+            <select
+              v-model="variableDefinitionId"
               class="w-full rounded-sm border border-line-strong bg-white px-3 py-2.5 text-sm text-navy-900"
-            />
+            >
+              <option value="" disabled>{{ t('dashboard.nonConformitiesAdmin.form.variablePlaceholder') }}</option>
+              <option v-for="option in variableOptions" :key="option.id" :value="option.id">{{ option.nombre }}</option>
+            </select>
           </div>
 
           <div>

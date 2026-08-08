@@ -18,3 +18,15 @@ export const TODAS_LAS_CATEGORIAS: HigieneCategoria[] = [
   'RADIACION_UV',
   'VIBRACION',
 ]
+
+/** Inverso de `CATEGORIA_ENUM_TO_LABEL` — usado donde se parte de
+ * `VariableDefinition.categoria` (string libre) y se necesita el enum para
+ * guardar/filtrar (ver NonConformity.categoria). `undefined` si el label no
+ * es una de las 5 categorías de Higiene Industrial (otro servicio). */
+const LABEL_TO_CATEGORIA_ENUM: Record<string, HigieneCategoria> = Object.fromEntries(
+  Object.entries(CATEGORIA_ENUM_TO_LABEL).map(([enumValue, label]) => [label, enumValue as HigieneCategoria]),
+)
+
+export function categoriaEnumFromLabel(label: string): HigieneCategoria | undefined {
+  return LABEL_TO_CATEGORIA_ENUM[label]
+}

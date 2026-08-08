@@ -21,6 +21,7 @@ import {
 } from '../../utils/trendAnalysis.js'
 import { createNotificationService } from '../notifications/notifications.service.js'
 import { createNonConformitiesService } from '../nonConformities/nonConformities.service.js'
+import { categoriaEnumFromLabel } from '../../utils/higieneCategorias.js'
 import {
   calcularTemperaturaRadianteMedia,
   calcularWBGT,
@@ -670,6 +671,7 @@ export function createVariablesService(prisma: PrismaClient) {
           semaforo: reading.semaforo,
           unidadMedida: reading.definition.unidadMedida,
           variableNombre: reading.definition.nombre,
+          categoria: categoriaEnumFromLabel(reading.definition.categoria),
           workPointNombre: reading.workPoint.nombre,
           zona: reading.workPoint.areaPlanta,
         })
@@ -1096,6 +1098,7 @@ export function createVariablesService(prisma: PrismaClient) {
         semaforo,
         unidadMedida: reading.definition.unidadMedida,
         variableNombre: reading.definition.nombre,
+        categoria: categoriaEnumFromLabel(reading.definition.categoria),
         workPointNombre: reading.workPoint.nombre,
         zona: reading.workPoint.areaPlanta,
       })

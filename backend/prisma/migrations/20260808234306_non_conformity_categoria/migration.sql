@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `non_conformities` ADD COLUMN `categoria` ENUM('ESTRES_TERMICO', 'ILUMINACION', 'SONIDO', 'RADIACION_UV', 'VIBRACION') NULL;

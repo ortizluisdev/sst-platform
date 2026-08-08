@@ -15,11 +15,13 @@ import {
   saveHeatmap,
   getClientNonConformities,
   getAdminNonConformitiesPaginated,
+  getNonConformityVariableOptions,
   createNonConformity,
   updateNonConformity,
   DashboardRequestError,
   type HeatmapImage,
   type HigieneCategoria,
+  type NonConformityVariableOption,
 } from '@/services/dashboard.service'
 import { listOrgCatalog, type CatalogItem } from '@/services/orgCatalogs.service'
 import { useToast } from '@/composables/useToast'
@@ -131,23 +133,29 @@ async function loadNonConformities() {
 const showAddForm = ref(false)
 const savingNew = ref(false)
 const newDescripcion = ref('')
-const newVariable = ref('')
+const newVariableDefinitionId = ref('')
 const newPrioridad = ref<NonConformityPriority>('MEDIA')
 const newZona = ref('')
+const variableOptions = ref<NonConformityVariableOption[]>([])
+
+async function loadVariableOptions() {
+  if (!isAdmin.value) return
+  variableOptions.value = await getNonConformityVariableOptions(props.organizationId!, props.serviceSlug)
+}
 
 async function submitNew() {
-  if (!newDescripcion.value.trim() || !newVariable.value.trim()) return
+  if (!newDescripcion.value.trim() || !newVariableDefinitionId.value) return
   savingNew.value = true
   try {
     await createNonConformity(props.organizationId!, props.serviceSlug, {
       descripcion: newDescripcion.value.trim(),
-      variableNombre: newVariable.value.trim(),
+      variableDefinitionId: newVariableDefinitionId.value,
       prioridad: newPrioridad.value,
       zona: newZona.value.trim() || undefined,
       estado: 'ABIERTA',
     })
     newDescripcion.value = ''
-    newVariable.value = ''
+    newVariableDefinitionId.value = ''
     newZona.value = ''
     newPrioridad.value = 'MEDIA'
     showAddForm.value = false
@@ -175,6 +183,7 @@ onMounted(() => {
   loadHeatmap()
   loadHeatmapZonas()
   loadNonConformities()
+  loadVariableOptions()
 })
 </script>
 
@@ -338,12 +347,14 @@ onMounted(() => {
           <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
             t('dashboard.riskSections.form.variable')
           }}</label>
-          <input
-            v-model="newVariable"
-            type="text"
+          <select
+            v-model="newVariableDefinitionId"
             class="w-full rounded-sm border border-line-strong px-3 py-2 text-sm"
             required
-          />
+          >
+            <option value="" disabled>{{ t('dashboard.nonConformitiesAdmin.form.variablePlaceholder') }}</option>
+            <option v-for="option in variableOptions" :key="option.id" :value="option.id">{{ option.nombre }}</option>
+          </select>
         </div>
         <div>
           <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{

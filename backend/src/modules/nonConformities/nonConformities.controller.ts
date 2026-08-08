@@ -68,6 +68,21 @@ export async function adminListNonConformitiesHandler(
   }
 }
 
+/** Catálogo de variables para el selector del formulario de creación
+ * manual — ya filtrado por categorías habilitadas de la organización. */
+export async function adminListVariableOptionsHandler(
+  request: FastifyRequest<{ Params: { organizationId: string; serviceSlug: string } }>,
+  reply: FastifyReply,
+) {
+  const service = createNonConformitiesService(request.server.prisma)
+  try {
+    const items = await service.listVariableOptions(request.params.organizationId, request.params.serviceSlug)
+    return reply.code(200).send({ items })
+  } catch (err) {
+    return sendError(reply, err)
+  }
+}
+
 export async function adminCreateNonConformityHandler(
   request: FastifyRequest<{ Params: { organizationId: string; serviceSlug: string } }>,
   reply: FastifyReply,
