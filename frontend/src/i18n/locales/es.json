@@ -9,7 +9,9 @@
   "common": {
     "toastDismiss": "Cerrar aviso",
     "cancel": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "nav": {
     "tagline": "Ciencia Aplicada",
