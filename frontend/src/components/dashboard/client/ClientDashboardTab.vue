@@ -33,6 +33,10 @@ const headlineCards = computed(() =>
     })
     .filter((entry) => entry.variable),
 )
+
+/** Ver comentario en ResumenTab.vue (versión admin) — dashboard.categories
+ * ya viene filtrado por categorías habilitadas (single filtering point). */
+const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c.categoria))
 </script>
 
 <template>
@@ -93,6 +97,10 @@ const headlineCards = computed(() =>
       </div>
     </div>
 
-    <DashboardRiskSections :service-slug="dashboard.service.slug" :headline-cards="headlineCards" />
+    <DashboardRiskSections
+      :service-slug="dashboard.service.slug"
+      :headline-cards="headlineCards"
+      :enabled-categorias="enabledCategorias"
+    />
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Eye, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import type { VariableSummary, NonConformity, NonConformityPriority, NonConformityStatus } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { categoryLabel } from '@/utils/categoryLabel'
@@ -9,6 +10,8 @@ import { formatRange } from '@/utils/formatRange'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { PRIORITY_STYLES, STATUS_STYLES } from '@/utils/nonConformityStyles'
+import { categoriaEnumFromLabel } from '@/utils/higieneCategorias'
+import Modal from '@/components/ui/Modal.vue'
 import {
   getClientHeatmap,
   getAdminHeatmap,
@@ -36,6 +39,13 @@ const props = defineProps<{
    * es editable. El cliente nunca lo pasa. */
   organizationId?: string
   headlineCards: { categoria: string; variable?: VariableSummary }[]
+  /** Labels de las categorías habilitadas de esta organización — ver
+   * comentario en ResumenTab.vue/ClientDashboardTab.vue. El carrusel de
+   * mapas de calor solo muestra imágenes de estas categorías, y el
+   * selector de subida del admin solo ofrece estas — si se habilita una
+   * categoría nueva, la opción de subir su imagen aparece de una, sin
+   * paso adicional (misma prop reactiva). */
+  enabledCategorias: string[]
 }>()
 
 const { t, locale } = useI18n()
@@ -44,21 +54,47 @@ const isAdmin = computed(() => !!props.organizationId)
 // --- Mapa de calor (imágenes subidas por el admin, no calculadas) -------
 // Una imagen por combinación categoría+zona (2026-08, antes era una sola
 // imagen por empresa+servicio — ver ServiceHeatmapImage en el schema).
-const HIGIENE_CATEGORIAS: HigieneCategoria[] = ['ESTRES_TERMICO', 'ILUMINACION', 'SONIDO', 'RADIACION_UV', 'VIBRACION']
+// Carrusel (2026-08, "carrusel de mapas de calor y filtrado por servicios
+// contratados"): antes una lista vertical de tarjetas por categoría, sin
+// filtrar por categorías habilitadas.
+const enabledCategoriaEnums = computed(() => {
+  const set = new Set<HigieneCategoria>()
+  for (const label of props.enabledCategorias) {
+    const enumValue = categoriaEnumFromLabel(label)
+    if (enumValue) set.add(enumValue)
+  }
+  return set
+})
 
 const heatmapImages = ref<HeatmapImage[]>([])
 const heatmapZonas = ref<CatalogItem[]>([])
 const heatmapUploading = ref(false)
 const heatmapInput = ref<HTMLInputElement | null>(null)
-const newHeatmapCategoria = ref<HigieneCategoria>('ESTRES_TERMICO')
+const newHeatmapCategoria = ref<HigieneCategoria | ''>(categoriaEnumFromLabel(props.enabledCategorias[0] ?? '') ?? '')
 const newHeatmapZonaId = ref('')
+const viewingImage = ref<HeatmapImage | null>(null)
+const carouselTrack = ref<HTMLElement | null>(null)
 
-const heatmapByCategoria = computed(() => {
-  const map = new Map<HigieneCategoria, HeatmapImage[]>()
-  for (const cat of HIGIENE_CATEGORIAS) map.set(cat, [])
-  for (const img of heatmapImages.value) map.get(img.categoria)?.push(img)
-  return map
-})
+/** Solo las categorías contratadas vigentes — una imagen de una categoría
+ * recién deshabilitada deja de mostrarse, sin necesidad de eliminarla (si
+ * la categoría se vuelve a habilitar, la imagen sigue ahí). */
+const carouselImages = computed(() => heatmapImages.value.filter((img) => enabledCategoriaEnums.value.has(img.categoria)))
+
+/** Mismo orden que HIGIENE_CATEGORIAS de siempre, pero recortado a lo
+ * habilitado — usado por el selector de "categoría" al subir una imagen
+ * nueva. */
+const uploadableCategorias = computed(() =>
+  (['ESTRES_TERMICO', 'ILUMINACION', 'SONIDO', 'RADIACION_UV', 'VIBRACION'] as HigieneCategoria[]).filter((cat) =>
+    enabledCategoriaEnums.value.has(cat),
+  ),
+)
+
+function scrollCarousel(direction: 'prev' | 'next') {
+  const el = carouselTrack.value
+  if (!el) return
+  const amount = el.clientWidth * 0.9 * (direction === 'next' ? 1 : -1)
+  el.scrollBy({ left: amount, behavior: 'smooth' })
+}
 
 async function loadHeatmap() {
   heatmapImages.value = isAdmin.value
@@ -75,7 +111,7 @@ async function loadHeatmapZonas() {
 function onHeatmapFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  if (!newHeatmapZonaId.value) {
+  if (!newHeatmapCategoria.value || !newHeatmapZonaId.value) {
     useToast().error(t('dashboard.riskSections.heatmapZonaRequired'))
     if (heatmapInput.value) heatmapInput.value.value = ''
     return
@@ -86,7 +122,7 @@ function onHeatmapFileChange(event: Event) {
     heatmapUploading.value = true
     try {
       await saveHeatmap(props.organizationId!, props.serviceSlug, {
-        categoria: newHeatmapCategoria.value,
+        categoria: newHeatmapCategoria.value as HigieneCategoria,
         zonaId: newHeatmapZonaId.value,
         imageBase64: dataUri,
       })
@@ -203,8 +239,10 @@ onMounted(() => {
           <select
             v-model="newHeatmapCategoria"
             class="rounded-sm border border-line-strong px-3 py-2 text-sm text-navy-900"
+            :disabled="uploadableCategorias.length === 0"
           >
-            <option v-for="cat in HIGIENE_CATEGORIAS" :key="cat" :value="cat">
+            <option v-if="uploadableCategorias.length === 0" value="">{{ t('dashboard.riskSections.heatmapNoCategorias') }}</option>
+            <option v-for="cat in uploadableCategorias" :key="cat" :value="cat">
               {{ t(`clients.categoryConfig.categorias.${cat}`) }}
             </option>
           </select>
@@ -233,7 +271,7 @@ onMounted(() => {
           <button
             type="button"
             class="rounded-sm border border-line-strong px-3 py-2 text-xs font-semibold text-navy-700 hover:bg-cream disabled:opacity-50"
-            :disabled="heatmapUploading || heatmapZonas.length === 0"
+            :disabled="heatmapUploading || heatmapZonas.length === 0 || uploadableCategorias.length === 0"
             @click="heatmapInput?.click()"
           >
             {{ heatmapUploading ? t('dashboard.riskSections.heatmapUploading') : t('dashboard.riskSections.heatmapUploadLabel') }}
@@ -241,26 +279,63 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="grid gap-3">
-        <div
-          v-for="cat in HIGIENE_CATEGORIAS"
-          :key="cat"
-          class="overflow-hidden rounded-lg border border-line-strong bg-white"
+      <p v-if="carouselImages.length === 0" class="rounded-lg border border-line-strong bg-white p-6 text-center text-sm text-navy-700/60">
+        {{ t('dashboard.riskSections.heatmapEmpty') }}
+      </p>
+      <div v-else class="relative">
+        <button
+          type="button"
+          class="absolute left-0 top-1/2 z-10 -translate-x-3 -translate-y-1/2 rounded-full border border-line-strong bg-white p-1.5 text-navy-700 shadow-sm hover:bg-cream"
+          :aria-label="t('dashboard.riskSections.heatmapCarouselPrev')"
+          @click="scrollCarousel('prev')"
         >
-          <p class="border-b border-line-strong bg-sky-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-navy-700">
-            {{ t(`clients.categoryConfig.categorias.${cat}`) }}
-          </p>
-          <div v-if="(heatmapByCategoria.get(cat)?.length ?? 0) === 0" class="p-4 text-center text-sm text-navy-700/60">
-            {{ t('dashboard.riskSections.heatmapEmpty') }}
-          </div>
-          <div v-else class="grid gap-4 p-4 sm:grid-cols-2">
-            <div v-for="img in heatmapByCategoria.get(cat)" :key="img.id">
-              <p class="mb-1.5 text-xs font-semibold text-navy-700">{{ img.zonaNombre }}</p>
-              <img :src="img.imageBase64" alt="" class="max-h-[320px] w-full rounded-sm border border-line object-contain" />
+          <ChevronLeft class="h-4 w-4" />
+        </button>
+        <div ref="carouselTrack" class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1" style="scrollbar-width: none">
+          <div
+            v-for="img in carouselImages"
+            :key="img.id"
+            class="w-56 shrink-0 snap-start overflow-hidden rounded-lg border border-line-strong bg-white"
+          >
+            <img :src="img.imageBase64" alt="" class="h-32 w-full object-cover" />
+            <div class="p-3">
+              <p class="text-xs font-semibold uppercase tracking-wide text-navy-700">
+                {{ t(`clients.categoryConfig.categorias.${img.categoria}`) }}
+              </p>
+              <p class="mt-0.5 text-xs text-navy-700/60">{{ img.zonaNombre }}</p>
+              <button
+                type="button"
+                class="mt-2 inline-flex items-center gap-1.5 rounded-sm border border-line-strong px-2.5 py-1.5 text-xs font-semibold text-navy-700 hover:bg-cream"
+                @click="viewingImage = img"
+              >
+                <Eye class="h-3.5 w-3.5" />
+                {{ t('dashboard.riskSections.heatmapView') }}
+              </button>
             </div>
           </div>
         </div>
+        <button
+          type="button"
+          class="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-3 rounded-full border border-line-strong bg-white p-1.5 text-navy-700 shadow-sm hover:bg-cream"
+          :aria-label="t('dashboard.riskSections.heatmapCarouselNext')"
+          @click="scrollCarousel('next')"
+        >
+          <ChevronRight class="h-4 w-4" />
+        </button>
       </div>
+
+      <Modal
+        v-if="viewingImage"
+        :title="t(`clients.categoryConfig.categorias.${viewingImage.categoria}`)"
+        max-width="2xl"
+        @close="viewingImage = null"
+      >
+        <img :src="viewingImage.imageBase64" alt="" class="mt-4 max-h-[70vh] w-full rounded-sm object-contain" />
+        <p v-if="viewingImage.zonaNombre" class="mt-3 text-sm text-navy-700">
+          <span class="font-semibold text-navy-900">{{ t('dashboard.riskSections.heatmapZonaLabel') }}:</span>
+          {{ viewingImage.zonaNombre }}
+        </p>
+      </Modal>
     </div>
 
     <!-- Comparativo vs. norma (resumen de cada valor cabecera) -->

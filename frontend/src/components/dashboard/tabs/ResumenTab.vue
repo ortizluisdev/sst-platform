@@ -34,6 +34,15 @@ const headlineCards = computed(() =>
   }),
 )
 
+/** Labels de las categorías habilitadas de esta organización — a diferencia
+ * de headlineCards (que siempre trae las 5 entradas, con `variable`
+ * undefined tanto si está deshabilitada como si no tiene datos),
+ * dashboard.categories solo trae las habilitadas (single filtering point,
+ * ver variables.service.ts). Necesario para el carrusel de mapas de calor
+ * (DashboardRiskSections.vue), que debe mostrar únicamente las categorías
+ * de servicios contratados vigentes. */
+const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c.categoria))
+
 const lastUpdatedLabel = computed(() =>
   props.dashboard.lastUpdated
     ? formatDate(props.dashboard.lastUpdated, locale.value as Locale)
@@ -88,6 +97,7 @@ const lastUpdatedLabel = computed(() =>
       :service-slug="dashboard.service.slug"
       :organization-id="organizationId"
       :headline-cards="headlineCards"
+      :enabled-categorias="enabledCategorias"
     />
   </div>
 </template>

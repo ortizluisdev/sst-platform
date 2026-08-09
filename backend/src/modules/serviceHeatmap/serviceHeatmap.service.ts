@@ -17,7 +17,8 @@ export function createServiceHeatmapService(prisma: PrismaClient) {
     async getImages(organizationId: string, serviceSlug: string) {
       const service = await repository.findServiceBySlug(serviceSlug)
       if (!service) throw new ServiceHeatmapError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
-      const records = await repository.findImages(organizationId, service.id)
+      const disabledCategorias = await repository.findDisabledCategorias(organizationId)
+      const records = await repository.findImages(organizationId, service.id, disabledCategorias)
       return records.map((record) => ({
         id: record.id,
         categoria: record.categoria,

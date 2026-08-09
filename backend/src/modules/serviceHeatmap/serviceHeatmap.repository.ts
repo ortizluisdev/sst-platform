@@ -10,9 +10,25 @@ export function createServiceHeatmapRepository(prisma: PrismaClient) {
       return prisma.orgZona.findFirst({ where: { id, organizationId, isActive: true } })
     },
 
-    findImages(organizationId: string, serviceId: string) {
+    /** Categorías de Higiene Industrial deshabilitadas para esta
+     * organización — mismo criterio que nonConformities.repository.ts's
+     * findDisabledCategorias (único punto de filtrado, consistente con el
+     * resto de la app: una categoría deshabilitada no debe verse ni
+     * siquiera inspeccionando la API directamente). */
+    async findDisabledCategorias(organizationId: string): Promise<HigieneCategoria[]> {
+      const rows = await prisma.organizationCategoryConfig.findMany({
+        where: { organizationId, habilitada: false },
+      })
+      return rows.map((r) => r.categoria)
+    },
+
+    findImages(organizationId: string, serviceId: string, disabledCategorias: HigieneCategoria[]) {
       return prisma.serviceHeatmapImage.findMany({
-        where: { organizationId, serviceId },
+        where: {
+          organizationId,
+          serviceId,
+          ...(disabledCategorias.length > 0 ? { NOT: { categoria: { in: disabledCategorias } } } : {}),
+        },
         select: { id: true, categoria: true, zonaId: true, imageBase64: true, updatedAt: true, zona: { select: { nombre: true } } },
         orderBy: [{ categoria: 'asc' }, { zona: { nombre: 'asc' } }],
       })
