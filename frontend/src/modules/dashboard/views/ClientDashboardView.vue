@@ -25,6 +25,7 @@ import type { ServiceOption } from '@/types/organization'
 import type { Locale } from '@/i18n'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
 import { useToast } from '@/composables/useToast'
+import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -129,7 +130,17 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
 
 <template>
   <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null">
-    <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.clientView.loading') }}</p>
+    <!-- Skeleton en vez de un mensaje de texto: la pantalla se sentía "en
+    blanco" hasta que todo el dashboard aparecía de golpe. No intenta
+    replicar el sidebar real (varía por servicio) — solo el área de
+    contenido, que es lo que más tarda en tener datos reales. -->
+    <div v-if="status === 'loading'" class="grid gap-8">
+      <div class="h-10 w-64 animate-pulse rounded-lg bg-line-strong" aria-hidden="true" />
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <SkeletonCard v-for="i in 6" :key="i" />
+      </div>
+      <span class="sr-only">{{ t('dashboard.clientView.loading') }}</span>
+    </div>
     <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[auto_1fr]">
       <DashboardSidebar
         v-model="activeTab"
