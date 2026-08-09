@@ -5,8 +5,9 @@ import { ListChecks, CheckCircle2, XCircle, Percent, Gauge, Bell } from 'lucide-
 import type { DashboardData } from '@/types/dashboard'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
-import { formatSummaryValue } from '@/utils/formatSummaryValue'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
+import { roundDisplay } from '@/utils/formatNumber'
+import type { CategoryCardStatus } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import SummaryCard from '../SummaryCard.vue'
 import ClientStatCard from './ClientStatCard.vue'
@@ -17,6 +18,19 @@ const props = defineProps<{ dashboard: DashboardData }>()
 const { t, locale } = useI18n()
 
 const noCumplen = computed(() => props.dashboard.globalCompliance.amarillo + props.dashboard.globalCompliance.rojo)
+
+// Mismo criterio de "peor caso gana" que categoriaEstado() en
+// ClientDetalleTecnicoTab.vue — el estado semáforo de las tarjetas de
+// indicadores globales (Cumplen/No cumplen/Cumplimiento/Alertas), no un
+// umbral de porcentaje inventado.
+const globalEstado = computed<CategoryCardStatus>(() => {
+  const { rojo, amarillo, total } = props.dashboard.globalCompliance
+  if (rojo > 0) return 'ROJO'
+  if (amarillo > 0) return 'AMARILLO'
+  if (total > 0) return 'VERDE'
+  return 'SIN_DATOS'
+})
+const alertasEstado = computed<CategoryCardStatus>(() => (props.dashboard.alertasActivas > 0 ? 'ROJO' : 'VERDE'))
 
 const riesgoGlobalLabel = computed(() =>
   props.dashboard.riesgoGlobal
@@ -55,16 +69,19 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
           :titulo="t('dashboard.clientDashboardTab.cumplenNorma')"
           :valor="String(dashboard.globalCompliance.verde)"
           :icon="CheckCircle2"
+          estado="VERDE"
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.noCumplenNorma')"
           :valor="String(noCumplen)"
           :icon="XCircle"
+          :estado="noCumplen > 0 ? 'ROJO' : 'VERDE'"
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.cumplimientoGlobal')"
-          :valor="`${dashboard.globalCompliance.pct}%`"
+          :valor="`${roundDisplay(dashboard.globalCompliance.pct)}%`"
           :icon="Percent"
+          :estado="globalEstado"
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.riesgoGlobal')"
@@ -76,6 +93,7 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
           :titulo="t('dashboard.clientDashboardTab.alertasActivas')"
           :valor="String(dashboard.alertasActivas)"
           :icon="Bell"
+          :estado="alertasEstado"
         />
       </div>
     </div>
@@ -89,10 +107,12 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
           v-for="{ categoria, variable } in headlineCards"
           :key="categoria"
           :titulo="categoryLabel(categoria, locale as Locale)"
-          :valor="formatSummaryValue(variable!)"
-          :cumplimiento-pct="variable!.cumplimientoPct"
+          :valor="variable!.estado === 'SIN_DATOS' ? '—' : String(roundDisplay(variable!.promedio))"
+          :unidad="variable!.estado === 'SIN_DATOS' ? '' : variable!.unidadMedida"
+          :cumplimiento-pct="roundDisplay(variable!.cumplimientoPct)"
           :estado="resolveDisplayStatus(variable!)"
           :icon="iconForCategory(categoria)"
+          enhanced
         />
       </div>
     </div>

@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Percent, XCircle, ListChecks } from 'lucide-vue-next'
-import type { DashboardData, TrendPoint } from '@/types/dashboard'
+import type { CategoryCardStatus, DashboardData, TrendPoint } from '@/types/dashboard'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
+import { roundDisplay } from '@/utils/formatNumber'
 import type { Locale } from '@/i18n'
 import TrendChart from '../TrendChart.vue'
 import ClientStatCard from './ClientStatCard.vue'
@@ -12,6 +13,18 @@ import { HEADLINE_CODE_POR_CATEGORIA } from './headlineVariables'
 
 const props = defineProps<{ dashboard: DashboardData }>()
 const { t, locale } = useI18n()
+
+// Mismo criterio "peor caso gana" que ClientDashboardTab.vue — nunca un
+// umbral de porcentaje inventado. Las 4 tarjetas del Grupo B (metodologías
+// pendientes de validación formal, ver grupoBDisclaimer) no reciben estado
+// a propósito.
+const globalEstado = computed<CategoryCardStatus>(() => {
+  const { rojo, amarillo, total } = props.dashboard.globalCompliance
+  if (rojo > 0) return 'ROJO'
+  if (amarillo > 0) return 'AMARILLO'
+  if (total > 0) return 'VERDE'
+  return 'SIN_DATOS'
+})
 
 // Excluye variables SIN_NORMA (sin limiteMin ni limiteMax definidos en el
 // catálogo) — antes este conteo usaba v.estado directo, que el backend
@@ -59,7 +72,7 @@ const tendenciaGlobalValor = computed(() => {
   const tendencia = props.dashboard.tendenciaGlobal
   if (!tendencia) return null
   const signo = tendencia.deltaPct > 0 ? '+' : ''
-  return `${signo}${tendencia.deltaPct}%`
+  return `${signo}${roundDisplay(tendencia.deltaPct)}%`
 })
 
 // Grupo B (interventionAnalysis.ts, backend) — metodologías propuestas y
@@ -89,13 +102,15 @@ const matrizValor = computed(() =>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.cumplimientoGlobal')"
-          :valor="`${dashboard.globalCompliance.pct}%`"
+          :valor="`${roundDisplay(dashboard.globalCompliance.pct)}%`"
           :icon="Percent"
+          :estado="globalEstado"
         />
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.variablesIncumplimiento')"
           :valor="String(variablesEnIncumplimiento)"
           :icon="XCircle"
+          :estado="variablesEnIncumplimiento > 0 ? 'ROJO' : 'VERDE'"
         />
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.medicionesRealizadas')"
@@ -115,7 +130,7 @@ const matrizValor = computed(() =>
           :titulo="t('dashboard.clientAnalisisTab.probabilidadIncumplimiento')"
           :valor="
             dashboard.probabilidadIncumplimiento
-              ? `${dashboard.probabilidadIncumplimiento.probabilidadPct}%`
+              ? `${roundDisplay(dashboard.probabilidadIncumplimiento.probabilidadPct)}%`
               : t('dashboard.clientAnalisisTab.datosInsuficientes')
           "
           :pendiente="!dashboard.probabilidadIncumplimiento"

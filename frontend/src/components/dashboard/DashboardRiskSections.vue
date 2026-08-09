@@ -253,7 +253,7 @@ onMounted(() => {
   cualquier hijo con un ancho mínimo grande (ej. el carrusel de mapas de
   calor) empuja esta columna, y con ella toda la página, más ancha de lo
   que debería. min-w-0 corta esa cascada en la raíz de este componente. -->
-  <div class="grid min-w-0" :class="isAdmin ? 'gap-8' : 'gap-6'">
+  <div class="grid min-w-0 gap-8">
     <!-- Tendencia de riesgo — mapas de calor por categoría + zona -->
     <div>
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
@@ -416,7 +416,7 @@ onMounted(() => {
                   }}
                 </td>
                 <td class="px-4 py-3 font-mono text-navy-900">
-                  {{ variable ? `${isAdmin ? roundDisplay(variable.promedio) : variable.promedio} ${variable.unidadMedida}` : '—' }}
+                  {{ variable ? `${roundDisplay(variable.promedio)} ${variable.unidadMedida}` : '—' }}
                 </td>
                 <td class="px-4 py-3 font-mono text-navy-700">{{ variable?.incertidumbre ?? '—' }}</td>
                 <td class="px-4 py-3 font-mono text-navy-700">
@@ -552,14 +552,8 @@ onMounted(() => {
                     class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
                   >
                     <!-- Punto de color: mismo tratamiento que el badge de
-                    estado de la tabla comparativa y las tarjetas KPI, solo
-                    en el panel admin — la vista cliente no lo recibe, a
-                    propósito, para no tocar su diseño. -->
-                    <span
-                      v-if="isAdmin"
-                      :class="PRIORITY_STYLES[item.prioridad].dot"
-                      class="h-1.5 w-1.5 shrink-0 rounded-full"
-                    />
+                    estado de la tabla comparativa y las tarjetas KPI. -->
+                    <span :class="PRIORITY_STYLES[item.prioridad].dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
                     {{ t(`dashboard.riskSections.priority.${item.prioridad}`) }}
                   </span>
                 </td>
