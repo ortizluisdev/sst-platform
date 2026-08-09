@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { DashboardData } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import SummaryCard from '../SummaryCard.vue'
+import GlobalIndicatorsRow from '../GlobalIndicatorsRow.vue'
 import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
@@ -47,6 +48,8 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
   ruta (servicio — empresa — pestaña, arriba de este componente) y en el
   footer (última sincronización) — repetirla acá era redundante. -->
   <div class="grid gap-8">
+    <GlobalIndicatorsRow :dashboard="dashboard" />
+
     <div
       v-if="dashboard.categories.length === 0"
       class="rounded-lg border border-dashed border-line-strong bg-white p-10 text-center text-sm text-navy-700"

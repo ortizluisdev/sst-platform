@@ -164,39 +164,30 @@ async function correctReading(readingId: string, valor: number, reason: string) 
       :org-label="activeOrgNombre"
       :organization-id="props.organizationId"
     >
-      <template v-if="sharedActiveTab === 'resumen'" #after-banner>
-        <section class="overflow-hidden rounded-lg border border-line-strong bg-white print:hidden">
-          <div class="grid gap-3 p-3 sm:grid-cols-[minmax(0,240px)_1fr] sm:items-start sm:p-4">
-            <div>
-              <label
-                for="operacion-org-select"
-                class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700"
-              >
-                {{ t('dashboard.adminShell.orgSelectorLabel') }}
-              </label>
-              <select
-                id="operacion-org-select"
-                :value="props.organizationId"
-                class="w-full rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-                @change="handleOrgChange"
-              >
-                <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
-              </select>
-            </div>
-
-            <div
-              class="flex items-center border-t border-line-strong pt-3 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0"
-            >
-              <button
-                type="button"
-                class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-4 py-2.5 text-sm font-semibold text-cream hover:opacity-90"
-                @click="showUploadModal = true"
-              >
-                {{ t('dashboard.uploadForm.openButton') }}
-              </button>
-            </div>
-          </div>
-        </section>
+      <!-- En línea con el banner de ruta (antes: tarjeta blanca aparte
+      debajo, dos filas para lo que cabe en una) — select compacto y botón
+      con fondo claro, para que se lean bien sobre el fondo oscuro del
+      banner en vez de heredar el mismo tono (el botón antes usaba el mismo
+      --org-primary que el banner: quedaba casi invisible ahí). -->
+      <template v-if="sharedActiveTab === 'resumen'" #banner-actions>
+        <label for="operacion-org-select" class="sr-only">{{ t('dashboard.adminShell.orgSelectorLabel') }}</label>
+        <select
+          id="operacion-org-select"
+          :value="props.organizationId"
+          class="rounded-sm border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-cream [color-scheme:dark]"
+          @change="handleOrgChange"
+        >
+          <option v-for="org in organizations" :key="org.id" :value="org.id" class="text-navy-900">
+            {{ org.nombre }}
+          </option>
+        </select>
+        <button
+          type="button"
+          class="rounded-sm bg-white px-3 py-1.5 text-xs font-semibold text-navy-900 hover:opacity-90"
+          @click="showUploadModal = true"
+        >
+          {{ t('dashboard.uploadForm.openButton') }}
+        </button>
       </template>
     </DashboardShell>
 

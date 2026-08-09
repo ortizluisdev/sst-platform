@@ -75,7 +75,11 @@ const bannerTitle = computed(() => {
     <DashboardSidebar v-if="!hideSidebar" v-model="activeTab" :tabs="tabs" :services="[]" selected-service-slug="" />
 
     <div class="grid gap-6">
-      <SectionTitleBanner :title="bannerTitle" />
+      <SectionTitleBanner :title="bannerTitle">
+        <template v-if="$slots['banner-actions']" #actions>
+          <slot name="banner-actions" />
+        </template>
+      </SectionTitleBanner>
 
       <slot name="after-banner" />
 
