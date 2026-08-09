@@ -51,6 +51,20 @@ const props = defineProps<{
 const { t, locale } = useI18n()
 const isAdmin = computed(() => !!props.organizationId)
 
+// --- Comparativo vs. norma (resumen de cada valor cabecera) -------------
+// `headlineCards` (prop) siempre trae las 5 entradas — lo arma el padre
+// (ResumenTab.vue/ClientDashboardTab.vue) iterando el mapa fijo de 5
+// categorías, buscando la variable de cabecera en dashboard.categories (ya
+// filtrado por habilitadas) y dejando `variable: undefined` si no la
+// encuentra — pero eso pasa TANTO si la categoría está deshabilitada COMO
+// si solo le falta esa variable puntual, así que no sirve para decidir si
+// la fila se debe mostrar. Filtrar acá, contra enabledCategorias (que sí
+// es la lista real de habilitadas), es lo único que evita mostrar una fila
+// vacía de una categoría que el cliente ya no tiene contratada.
+const filteredHeadlineCards = computed(() =>
+  props.headlineCards.filter((card) => props.enabledCategorias.includes(card.categoria)),
+)
+
 // --- Mapa de calor (imágenes subidas por el admin, no calculadas) -------
 // Una imagen por combinación categoría+zona (2026-08, antes era una sola
 // imagen por empresa+servicio — ver ServiceHeatmapImage en el schema).
@@ -356,7 +370,7 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="{ categoria, variable } in headlineCards" :key="categoria" class="border-t border-line">
+              <tr v-for="{ categoria, variable } in filteredHeadlineCards" :key="categoria" class="border-t border-line">
                 <td class="px-4 py-3 text-navy-900">
                   {{
                     variable
