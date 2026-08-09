@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
 import { createPinia } from 'pinia'
+import { ref } from 'vue'
 import { Home, ClipboardCheck, Truck, Users, Map, AlertTriangle, History, FileText } from 'lucide-vue-next'
 import DashboardSidebar from './DashboardSidebar.vue'
 import { SIDEBAR_DRAWER_KEY } from '@/composables/useSidebarDrawer'
@@ -13,7 +14,13 @@ import type { TabDef } from '@/types/dashboardTabs'
 const i18n = createI18n({ legacy: false, locale: 'es', messages: { es, en } })
 
 const drawerStub = { isOpen: { value: false }, open: () => {}, close: () => {}, toggle: () => {} }
-const collapseStub = { collapsed: { value: false }, toggle: () => {} }
+// `ref()` real, no un objeto plano `{ value: false }`: Vue solo
+// auto-desenvuelve refs de verdad en el template (`isRef()`), así que un
+// objeto plano truthy siempre evaluaba `collapsed` como verdadero sin
+// importar `.value` — no se notaba antes porque las clases dependientes
+// eran estáticas; ahora que el markup colapsado depende del valor real,
+// hace falta un ref real acá.
+const collapseStub = { collapsed: ref(false), toggle: () => {} }
 
 function mountSidebar(props: { tabs: TabDef[]; selectedServiceSlug: string; modelValue?: string }) {
   return mount(DashboardSidebar, {

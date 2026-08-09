@@ -83,7 +83,7 @@ async function handleMarkRead(id: string) {
 </script>
 
 <template>
-  <div class="max-w-3xl">
+  <div>
     <SectionTitleBanner :title="t('dashboard.notifications.title')" />
 
     <div class="mt-4 flex flex-wrap gap-2">

@@ -59,41 +59,47 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.clientDashboardTab.indicadoresGlobales') }}
       </p>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.totalMediciones')"
           :valor="String(dashboard.globalCompliance.total)"
           :icon="ListChecks"
+          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.cumplenNorma')"
           :valor="String(dashboard.globalCompliance.verde)"
           :icon="CheckCircle2"
           estado="VERDE"
+          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.noCumplenNorma')"
           :valor="String(noCumplen)"
           :icon="XCircle"
           :estado="noCumplen > 0 ? 'ROJO' : 'VERDE'"
+          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.cumplimientoGlobal')"
           :valor="`${roundDisplay(dashboard.globalCompliance.pct)}%`"
           :icon="Percent"
           :estado="globalEstado"
+          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.riesgoGlobal')"
           :valor="riesgoGlobalLabel"
           :pendiente="!dashboard.riesgoGlobal"
           :icon="Gauge"
+          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.clientDashboardTab.alertasActivas')"
           :valor="String(dashboard.alertasActivas)"
           :icon="Bell"
           :estado="alertasEstado"
+          compact
         />
       </div>
     </div>
@@ -102,7 +108,7 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.clientDashboardTab.valorCabecera') }}
       </p>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <SummaryCard
           v-for="{ categoria, variable } in headlineCards"
           :key="categoria"
@@ -112,7 +118,7 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
           :cumplimiento-pct="roundDisplay(variable!.cumplimientoPct)"
           :estado="resolveDisplayStatus(variable!)"
           :icon="iconForCategory(categoria)"
-          enhanced
+          compact
         />
       </div>
     </div>

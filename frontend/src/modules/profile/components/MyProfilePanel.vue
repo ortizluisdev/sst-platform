@@ -160,7 +160,7 @@ const showPasswordModal = ref(false)
 </script>
 
 <template>
-  <div class="grid max-w-3xl gap-6">
+  <div class="grid gap-6">
     <SectionTitleBanner :title="t('myProfile.sidebarLink')" />
 
     <p v-if="loadStatus === 'loading'" class="text-sm text-navy-700">{{ t('myProfile.loading') }}</p>

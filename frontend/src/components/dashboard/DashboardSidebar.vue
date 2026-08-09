@@ -104,7 +104,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
 
   <nav
     class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:translate-x-0"
-    :class="collapsed ? 'lg:w-16' : 'lg:w-64'"
+    :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >
     <!-- Dos versiones del logo, nunca un v-if entre ellas: `collapsed` solo
@@ -179,12 +179,13 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
         <li v-for="service in services" :key="service.slug">
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
-            :class="
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
+            :class="[
               service.slug === selectedServiceSlug
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
-            "
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
+              collapsed ? 'justify-center px-1.5 py-2' : 'px-3 py-2',
+            ]"
             :aria-expanded="service.slug === selectedServiceSlug"
             :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
             @click="selectService(service.slug)"
@@ -201,35 +202,41 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             />
           </button>
 
-          <!-- El colapsado a solo-íconos (`collapsed`) es exclusivo de
-          escritorio (el botón que lo activa solo existe en `lg:`, ver
-          arriba) — por eso estos sub-acordeones se ocultan con una clase
-          `lg:hidden` condicionada, nunca con un `v-if`. Un `v-if` los
-          sacaría del DOM en CUALQUIER ancho de pantalla si `collapsed`
-          quedó en `true` desde una sesión de escritorio anterior (persiste
-          en localStorage) — exactamente el "no dañar la vista móvil" que
-          se pidió. -->
+          <!-- Colapsado (`collapsed`, solo escritorio): a diferencia del
+          intento anterior con flyout emergente (descartado, tapaba
+          contenido y era difícil de operar con el mouse), acá el propio
+          sub-acordeón queda visible pero angosto — solo los íconos de cada
+          pestaña (Dashboard/Iluminación/Sonido/Estrés Térmico/...), sin
+          texto ni indentado, para que el usuario vea de un vistazo en qué
+          pestaña está parado (el ícono activo se resalta igual que
+          expandido) sin necesitar abrir el sidebar completo. Solo aplica a
+          este nivel — Hoja 1/2/3 y las hojas de Seguridad Vial (más abajo)
+          no tienen ícono propio, así que ESOS sí se ocultan del todo
+          colapsado (ver `lg:hidden` en esos dos <ul> internos). -->
           <ul
             v-if="service.slug === selectedServiceSlug && visibleTopTabs.length > 0"
-            class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
-            :class="{ 'lg:hidden': collapsed }"
+            class="mt-1 flex flex-col gap-1"
+            :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
           >
             <li v-for="tab in visibleTopTabs" :key="tab.key">
               <button
                 type="button"
-                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
-                :class="
+                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
+                :class="[
                   tab.key === modelValue
                     ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
-                "
+                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
+                  collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
+                ]"
+                :title="collapsed ? tab.label : undefined"
                 @click="selectTab(tab.key)"
               >
                 <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span class="min-w-0 flex-1 truncate">{{ tab.label }}</span>
+                <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{ tab.label }}</span>
                 <ChevronDown
                   v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
                   class="h-3.5 w-3.5 shrink-0"
+                  :class="{ 'lg:hidden': collapsed }"
                   aria-hidden="true"
                 />
               </button>
@@ -239,10 +246,14 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
               pestañas (esa era la mezcla confusa de antes). Específico de
               Higiene Industrial (esas 3 hojas no existen en otros servicios) —
               acá solo se muestra el nodo "Dashboard" sin este submenú para no
-              listar hojas que no aplican. -->
+              listar hojas que no aplican. Sin ícono propio (son "Hoja 1",
+              "Hoja 2"...) — colapsado no hay forma legible de mostrarlas, así
+              que se ocultan del todo (a diferencia de las pestañas de arriba,
+              que sí tienen ícono). -->
               <ul
                 v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
                 class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
+                :class="{ 'lg:hidden': collapsed }"
               >
                 <li v-for="hoja in sheetsConfig!.sheets" :key="hoja.key">
                   <button
@@ -273,24 +284,33 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
               el submenú debe seguir visible aunque el usuario esté parado en
               Hoja 2/3/4/Alertas (no solo mientras ve "Dashboard") — esa
               condición extra fue el bug reportado: el submenú entero
-              desaparecía al hacer clic en cualquier hoja. -->
+              desaparecía al hacer clic en cualquier hoja. Colapsado: a
+              diferencia de Hoja 1/2/3 de Higiene Industrial (sin ícono
+              propio), estas SÍ tienen `hijaTab.icon` — mismo tratamiento
+              icon-only que las pestañas de nivel superior, en vez de
+              ocultarse del todo. -->
               <ul
                 v-if="sheetsConfig?.mode === 'realtabs' && tab.key === sheetsConfig.sheets[0]!.key"
-                class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
+                class="mt-1 flex flex-col gap-1"
+                :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
               >
                 <li v-for="hijaTab in realtabsHojaTabs" :key="hijaTab.key">
                   <button
                     type="button"
-                    class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
-                    :class="
+                    class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
+                    :class="[
                       hijaTab.key === modelValue
                         ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
-                    "
+                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
+                      collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
+                    ]"
+                    :title="collapsed ? hojaShortLabel(hijaTab.key) : undefined"
                     @click="selectTab(hijaTab.key)"
                   >
                     <component :is="hijaTab.icon" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    <span class="min-w-0 flex-1 truncate">{{ hojaShortLabel(hijaTab.key) }}</span>
+                    <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{
+                      hojaShortLabel(hijaTab.key)
+                    }}</span>
                   </button>
                 </li>
               </ul>
@@ -319,13 +339,14 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
           sidebar/panel). -->
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :title="collapsed ? t('dashboard.sidebar.notificationsLink') : undefined"
-            :class="
+            :class="[
               modelValue === 'notificaciones'
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
-            "
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
+              collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
+            ]"
             @click="selectTab('notificaciones')"
           >
             <Bell class="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -337,12 +358,13 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
           `modelValue` ('perfil'), no un TabDef del dashboard. -->
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
-            :class="
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
+            :class="[
               modelValue === 'perfil'
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
-            "
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
+              collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
+            ]"
             :title="collapsed ? t('myProfile.sidebarLink') : undefined"
             @click="selectTab('perfil')"
           >
@@ -355,12 +377,13 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
           de `modelValue` ('configuracion'), no un TabDef del dashboard. -->
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
-            :class="
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
+            :class="[
               modelValue === 'configuracion'
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
-            "
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
+              collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
+            ]"
             :title="collapsed ? t('settings.sidebarLink') : undefined"
             @click="selectTab('configuracion')"
           >

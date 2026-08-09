@@ -49,12 +49,12 @@ const { collapsed: sidebarCollapsed } = provideSidebarCollapse()
 // AdminNavSidebar.vue (en flujo normal, no fixed) y no debe desbalancearse;
 // NotificationsView.vue/UpdateProfileView.vue pasan `enhanced` pero nunca
 // tuvieron sidebar, un padding-left ahí dejaría un hueco vacío.
-// pl-20/pl-72 (no pl-16/pl-64, que es el ancho exacto del sidebar): deja
+// pl-24/pl-72 (no pl-20/pl-64, que es el ancho exacto del sidebar): deja
 // ~16-24px de aire entre el borde del sidebar y el contenido, si no queda
 // pegado.
 const sidebarOffsetClass = computed(() => {
   if (!props.withSidebar) return ''
-  return sidebarCollapsed.value ? 'lg:pl-20' : 'lg:pl-72'
+  return sidebarCollapsed.value ? 'lg:pl-24' : 'lg:pl-72'
 })
 
 // El color de marca del cliente (--org-primary) queda reservado para
@@ -121,27 +121,20 @@ const switchTo = computed(() => ({
           <NotificationBell v-if="auth.user" />
 
           <!-- Logo propio del cliente; si no tiene organización (los dos roles
-          admin), el isotipo de RoMa ocupa el mismo lugar. Borde + fondo
-          tenues en el color de marca del cliente (--org-primary), no gris
-          neutro: es su propio elemento del navbar, no un accesorio — y un
-          logo en cualquier color (incluido negro puro) sigue siendo visible
-          sobre navbar blanco gracias al tinte, sin convertirse en una
-          tarjeta pesada. Rectangular con esquinas suaves, ~48px de alto. El
-          padding horizontal es apenas el mínimo para que el borde no toque
-          la imagen — la imagen ocupa casi todo el alto de la caja (h-10 de
-          10 en una caja h-12), no un logo chico flotando en un campo grande. -->
-          <div
-            v-if="auth.user"
-            class="flex h-12 items-center justify-center rounded-lg border border-[var(--org-primary,#0f2a4a)]/25 bg-[var(--org-primary,#0f2a4a)]/5 px-2"
-          >
+          admin), el isotipo de RoMa ocupa el mismo lugar. Sin marco/tarjeta
+          (2026-08, "no me gusta cómo se ve con marco") — antes llevaba borde
+          + fondo tenue en el color de marca, se veía pesado; ahora es solo
+          la imagen, más grande, con esquinas levemente redondeadas
+          (`rounded-[5%]`, no una píldora). -->
+          <div v-if="auth.user" class="flex h-14 items-center justify-center">
             <img
               v-if="orgLogoUrl && !logoFailed"
               :src="orgLogoUrl"
               :alt="t('dashboard.layout.clientLogoAlt')"
-              class="block h-10 w-auto max-w-[160px] object-contain"
+              class="block h-14 w-auto max-w-[190px] rounded-[5%] object-contain"
               @error="logoFailed = true"
             />
-            <img v-else :src="romaIsotype" alt="" class="block h-10 w-10" aria-hidden="true" />
+            <img v-else :src="romaIsotype" alt="" class="block h-12 w-12 rounded-[5%]" aria-hidden="true" />
           </div>
 
           <router-link
