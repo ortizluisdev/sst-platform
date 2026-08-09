@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ClipboardCheck, Truck, Users, Map, AlertTriangle, History, FileText, Home, Settings } from 'lucide-vue-next'
+import { ClipboardCheck, Truck, IdCard, Map, AlertTriangle, History, FileText, Home, SlidersHorizontal } from 'lucide-vue-next'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import RoadSafetyUploadCard from '@/components/dashboard/roadSafety/RoadSafetyUploadCard.vue'
 import RoadSafetyDashboardTab from '@/components/dashboard/roadSafety/RoadSafetyDashboardTab.vue'
@@ -45,12 +45,12 @@ const tabs = computed<TabDef[]>(() => [
   { key: 'dashboard', label: t('roadSafety.tabs.dashboardShort'), icon: Home },
   { key: 'hoja1', label: t('roadSafety.tabsAdmin.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabsAdmin.hoja2'), icon: Truck },
-  { key: 'hoja3', label: t('roadSafety.tabsAdmin.hoja3'), icon: Users },
+  { key: 'hoja3', label: t('roadSafety.tabsAdmin.hoja3'), icon: IdCard },
   { key: 'hoja4', label: t('roadSafety.tabsAdmin.hoja4'), icon: Map },
   { key: 'alertas', label: t('roadSafety.tabs.alertas'), icon: AlertTriangle },
   { key: 'historial', label: t('roadSafety.tabs.historial'), icon: History },
   { key: 'reportes', label: t('roadSafety.tabs.reportes'), icon: FileText },
-  { key: 'configuracion', label: t('roadSafety.tabs.configuracion'), icon: Settings },
+  { key: 'configuracion', label: t('roadSafety.tabs.configuracion'), icon: SlidersHorizontal },
 ])
 
 // Título del banner: mismo criterio que `tabs` arriba (nombres admin sin

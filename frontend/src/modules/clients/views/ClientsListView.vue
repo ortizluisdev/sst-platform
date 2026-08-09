@@ -190,7 +190,7 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
 
 <template>
   <div>
-    <div class="grid gap-4 max-w-5xl">
+    <div class="grid gap-4">
       <SectionTitleBanner :title="t('clients.pageTitle')" />
 
       <div class="flex flex-wrap items-center justify-end gap-3">

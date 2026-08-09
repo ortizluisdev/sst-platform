@@ -129,18 +129,21 @@ function selectService(slug: string) {
 </script>
 
 <template>
-  <DashboardLayout :last-sync="lastSync">
-    <div class="flex flex-col gap-6 lg:flex-row">
-      <AdminNavSidebar
-        :selected-service-slug="selectedServiceSlug"
-        :services="operacionServices"
-        v-model:active-tab="operacionActiveTab"
-        :service-tabs="operacionServiceTabs"
-        @update:selected-service-slug="selectService"
-      />
-      <div class="min-w-0 flex-1">
-        <router-view />
-      </div>
-    </div>
+  <!-- enhanced + with-sidebar (2026-08, "navbar/sidebar/footer fijos igual
+  que la vista cliente"): header/footer quedan fijos y solo el contenido
+  hace scroll (ver DashboardLayout.vue). AdminNavSidebar ahora es `fixed`
+  (igual que DashboardSidebar.vue del cliente) — ya no reserva columna de
+  grid/flex, por eso el wrapper de acá pasó de `flex lg:flex-row` a un
+  `<div>` plano: el padding-left que le deja espacio vive en
+  DashboardLayout.vue (sidebarOffsetClass), no acá. -->
+  <DashboardLayout :last-sync="lastSync" enhanced with-sidebar>
+    <AdminNavSidebar
+      :selected-service-slug="selectedServiceSlug"
+      :services="operacionServices"
+      v-model:active-tab="operacionActiveTab"
+      :service-tabs="operacionServiceTabs"
+      @update:selected-service-slug="selectService"
+    />
+    <router-view />
   </DashboardLayout>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, LayoutGrid, Settings, User, X } from 'lucide-vue-next'
+import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, Settings, User, X } from 'lucide-vue-next'
+import { iconForService } from '@/utils/serviceIcon'
 import { useI18n } from 'vue-i18n'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
@@ -190,7 +191,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
             @click="selectService(service.slug)"
           >
-            <LayoutGrid class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <component :is="iconForService(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{
               serviceLabel(service.slug, service.nombre, locale as Locale)
             }}</span>

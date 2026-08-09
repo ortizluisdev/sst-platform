@@ -10,7 +10,17 @@ import { roundDisplay } from '@/utils/formatNumber'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-const props = defineProps<{ compliance: GlobalCompliance }>()
+const props = defineProps<{
+  compliance: GlobalCompliance
+  /** Oculta el título interno de la tarjeta (2026-08, DashboardRiskSections.vue
+   * lo pone AFUERA en vez de adentro, igual que el resto de los títulos de
+   * sección junto a los que va — "Comparativo vs. Norma", etc. — quedaban
+   * desalineados: este título interno empujaba el anillo hacia abajo unos
+   * px de más comparado con las tablas vecinas). Sin esta prop, se ve
+   * exactamente igual que siempre — RoadSafetyDashboardTab.vue/ReportesTab.vue
+   * nunca la pasan. */
+  hideTitle?: boolean
+}>()
 const { t } = useI18n()
 
 /** Sin ninguna lectura cargada todavía, un donut al 0% se lee como "todo
@@ -46,7 +56,7 @@ const chartOptions = {
 
 <template>
   <div class="rounded-lg border border-line-strong bg-white p-4 sm:p-5">
-    <p class="mb-4 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+    <p v-if="!hideTitle" class="mb-4 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
       {{ t('dashboard.complianceRing.title') }}
     </p>
     <div class="relative mx-auto h-[140px] w-[140px] sm:h-[160px] sm:w-[160px]">

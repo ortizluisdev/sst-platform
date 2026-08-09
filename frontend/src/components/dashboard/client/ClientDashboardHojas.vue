@@ -15,6 +15,8 @@ const props = defineProps<{
   fetchFilteredDashboard: (filters: DashboardFilters) => Promise<DashboardData>
 }>()
 
+const emit = defineEmits<{ viewAllNonConformities: [] }>()
+
 const activeHoja = defineModel<'hoja1' | 'hoja2' | 'hoja3'>('activeHoja', { default: 'hoja1' })
 
 const { t } = useI18n()
@@ -47,7 +49,11 @@ const showReportModal = ref(false)
       </button>
     </div>
 
-    <ClientDashboardTab v-if="activeHoja === 'hoja1'" :dashboard="dashboard" />
+    <ClientDashboardTab
+      v-if="activeHoja === 'hoja1'"
+      :dashboard="dashboard"
+      @view-all-non-conformities="emit('viewAllNonConformities')"
+    />
     <ClientDetalleTecnicoTab
       v-else-if="activeHoja === 'hoja2'"
       :dashboard="dashboard"

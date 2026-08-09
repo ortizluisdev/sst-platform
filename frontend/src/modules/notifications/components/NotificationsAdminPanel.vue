@@ -96,7 +96,7 @@ async function handleDelete(notification: AppNotification) {
 </script>
 
 <template>
-  <div class="max-w-4xl">
+  <div>
     <SectionTitleBanner :title="t('dashboard.notificationsAdmin.title')" />
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3">

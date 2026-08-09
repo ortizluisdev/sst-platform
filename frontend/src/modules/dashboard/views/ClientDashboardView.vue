@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { ClipboardCheck, Truck, Users, Map, AlertTriangle, History, FileText, Home } from 'lucide-vue-next'
+import { ClipboardCheck, Truck, IdCard, Map, AlertTriangle, History, FileText, Home } from 'lucide-vue-next'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
@@ -108,7 +108,7 @@ const roadSafetyTabs = computed<TabDef[]>(() => [
   { key: 'dashboard', label: t('roadSafety.tabs.dashboardShort'), icon: Home },
   { key: 'hoja1', label: t('roadSafety.tabs.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabs.hoja2'), icon: Truck },
-  { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: Users },
+  { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: IdCard },
   { key: 'hoja4', label: t('roadSafety.tabs.hoja4'), icon: Map },
   { key: 'alertas', label: t('roadSafety.tabs.alertas'), icon: AlertTriangle },
   { key: 'historial', label: t('roadSafety.tabs.historial'), icon: History },
@@ -179,6 +179,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
           :dashboard="dashboard"
           :fetch-history="fetchHistory"
           :fetch-filtered-dashboard="fetchFilteredDashboard"
+          @view-all-non-conformities="activeTab = 'no-conformidades'"
         />
         <NotificationsPanel v-else-if="activeTab === 'notificaciones'" />
         <MyProfilePanel v-else-if="activeTab === 'perfil'" />

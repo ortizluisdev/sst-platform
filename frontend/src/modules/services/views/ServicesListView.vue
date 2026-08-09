@@ -85,7 +85,7 @@ async function handleToggleActive(service: CatalogService) {
 
 <template>
   <div>
-    <div class="mx-auto max-w-4xl">
+    <div>
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-xl font-bold text-navy-900">{{ t('dashboard.servicesManagement.pageTitle') }}</h1>
         <button

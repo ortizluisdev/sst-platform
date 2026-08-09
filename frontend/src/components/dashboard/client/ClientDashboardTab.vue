@@ -15,6 +15,7 @@ import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { HEADLINE_CODE_POR_CATEGORIA } from './headlineVariables'
 
 const props = defineProps<{ dashboard: DashboardData }>()
+const emit = defineEmits<{ viewAllNonConformities: [] }>()
 const { t, locale } = useI18n()
 
 const noCumplen = computed(() => props.dashboard.globalCompliance.amarillo + props.dashboard.globalCompliance.rojo)
@@ -127,6 +128,8 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
       :service-slug="dashboard.service.slug"
       :headline-cards="headlineCards"
       :enabled-categorias="enabledCategorias"
+      :global-compliance="dashboard.globalCompliance"
+      @view-all-non-conformities="emit('viewAllNonConformities')"
     />
   </div>
 </template>

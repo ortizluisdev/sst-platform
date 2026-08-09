@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Settings, ShieldAlert } from 'lucide-vue-next'
+import { ShieldAlert, SlidersHorizontal } from 'lucide-vue-next'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import VariableUploadModal from '@/components/dashboard/VariableUploadModal.vue'
@@ -71,7 +71,7 @@ const tabs = computed<TabDef[]>(() =>
     ? [
         ...buildDashboardTabs(dashboard.value, t, locale.value as Locale),
         { key: 'recomendaciones', label: t('dashboard.nonConformitiesAdmin.tabLabel'), icon: ShieldAlert },
-        { key: 'configuracion', label: t('dashboard.higieneConfig.tabLabel'), icon: Settings },
+        { key: 'configuracion', label: t('dashboard.higieneConfig.tabLabel'), icon: SlidersHorizontal },
       ]
     : [],
 )

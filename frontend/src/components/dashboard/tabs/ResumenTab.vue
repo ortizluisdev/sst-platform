@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import type { DashboardData } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import SummaryCard from '../SummaryCard.vue'
-import ComplianceRing from '../ComplianceRing.vue'
 import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
@@ -15,6 +14,7 @@ import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { HEADLINE_CODE_POR_CATEGORIA } from '../client/headlineVariables'
 
 const props = defineProps<{ dashboard: DashboardData; organizationId?: string }>()
+const emit = defineEmits<{ viewAllNonConformities: [] }>()
 const { t, locale } = useI18n()
 
 /** Variable representativa (la primera) de cada categoría — resumen de
@@ -90,8 +90,6 @@ const lastUpdatedLabel = computed(() =>
           enhanced
         />
       </div>
-
-      <ComplianceRing :compliance="dashboard.globalCompliance" />
     </template>
 
     <DashboardRiskSections
@@ -100,6 +98,8 @@ const lastUpdatedLabel = computed(() =>
       :organization-id="organizationId"
       :headline-cards="headlineCards"
       :enabled-categorias="enabledCategorias"
+      :global-compliance="dashboard.globalCompliance"
+      @view-all-non-conformities="emit('viewAllNonConformities')"
     />
   </div>
 </template>

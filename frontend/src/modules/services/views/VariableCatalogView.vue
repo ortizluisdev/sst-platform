@@ -68,7 +68,7 @@ async function handleSave(variableId: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-5xl">
+  <div>
     <h1 class="text-xl font-bold text-navy-900">{{ t('variableCatalog.pageTitle') }}</h1>
     <p class="mt-1 text-sm text-navy-700/70">{{ t('variableCatalog.pageSubtitle') }}</p>
 

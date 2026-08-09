@@ -464,6 +464,7 @@
     "tabs": {
       "dashboard": "Dashboard",
       "comparativoNormativo": "Comparativo Normativo",
+      "noConformidades": "No conformidades",
       "historial": "Historial",
       "reportes": "Reportes"
     },
@@ -510,6 +511,7 @@
       "recomendacionesTitle": "Recomendaciones / No conformidades",
       "recomendacionesEmpty": "No hay recomendaciones ni no conformidades registradas.",
       "addButton": "Agregar recomendación",
+      "viewAllButton": "Ver todas",
       "prioridad": "Prioridad",
       "descripcion": "Descripción",
       "zona": "Zona / Punto",
@@ -595,6 +597,12 @@
     },
     "comparativo": {
       "subtitle": "Vista de auditoría: todas las variables de todas las categorías, en una sola tabla."
+    },
+    "noConformidadesTab": {
+      "subtitle": "Listado completo de recomendaciones y no conformidades, sin recortar.",
+      "prevPage": "Anterior",
+      "nextPage": "Siguiente",
+      "pageOf": "Página {page} de {totalPages}"
     },
     "historial": {
       "desde": "Desde",

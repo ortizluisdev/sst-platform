@@ -1,4 +1,4 @@
-import { Home, Table2, History, FileText } from 'lucide-vue-next'
+import { Home, Table2, AlertTriangle, History, FileText } from 'lucide-vue-next'
 import type { DashboardData } from '@/types/dashboard'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { Locale } from '@/i18n'
@@ -22,6 +22,7 @@ export function buildDashboardTabs(dashboard: DashboardData, t: (key: string) =>
       icon: iconForCategory(c.categoria),
     })),
     { key: 'comparativo', label: t('dashboard.tabs.comparativoNormativo'), icon: Table2 },
+    { key: 'no-conformidades', label: t('dashboard.tabs.noConformidades'), icon: AlertTriangle },
     { key: 'historial', label: t('dashboard.tabs.historial'), icon: History },
     { key: 'reportes', label: t('dashboard.tabs.reportes'), icon: FileText },
   ]

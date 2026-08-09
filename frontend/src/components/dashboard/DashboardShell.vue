@@ -8,6 +8,7 @@ import DashboardSidebar from './DashboardSidebar.vue'
 import ResumenTab from './tabs/ResumenTab.vue'
 import CategoryTab from './tabs/CategoryTab.vue'
 import ComparativoTab from './tabs/ComparativoTab.vue'
+import NoConformidadesTab from './tabs/NoConformidadesTab.vue'
 import HistorialTab from './tabs/HistorialTab.vue'
 import ReportesTab from './tabs/ReportesTab.vue'
 import { buildDashboardTabs } from '@/utils/dashboardTabs'
@@ -78,7 +79,12 @@ const bannerTitle = computed(() => {
 
       <slot name="after-banner" />
 
-      <ResumenTab v-if="activeTab === 'resumen'" :dashboard="dashboard" :organization-id="organizationId" />
+      <ResumenTab
+        v-if="activeTab === 'resumen'"
+        :dashboard="dashboard"
+        :organization-id="organizationId"
+        @view-all-non-conformities="activeTab = 'no-conformidades'"
+      />
       <CategoryTab
         v-else-if="activeCategory"
         :category="activeCategory"
@@ -87,6 +93,11 @@ const bannerTitle = computed(() => {
         :correct-reading="props.correctReading"
       />
       <ComparativoTab v-else-if="activeTab === 'comparativo'" :categories="dashboard.categories" />
+      <NoConformidadesTab
+        v-else-if="activeTab === 'no-conformidades'"
+        :service-slug="dashboard.service.slug"
+        :organization-id="organizationId"
+      />
       <HistorialTab
         v-else-if="activeTab === 'historial'"
         :fetch-history="fetchHistory"

@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Eye, ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import type { VariableSummary, NonConformity, NonConformityPriority, NonConformityStatus } from '@/types/dashboard'
+import { Eye, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-vue-next'
+import type { VariableSummary, NonConformity, NonConformityPriority, GlobalCompliance } from '@/types/dashboard'
 import type { Locale } from '@/i18n'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { variableLabel } from '@/utils/variableLabel'
 import { formatRange } from '@/utils/formatRange'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
-import { PRIORITY_STYLES, STATUS_STYLES } from '@/utils/nonConformityStyles'
+import { PRIORITY_STYLES } from '@/utils/nonConformityStyles'
 import { categoriaEnumFromLabel } from '@/utils/higieneCategorias'
 import { roundDisplay } from '@/utils/formatNumber'
 import Modal from '@/components/ui/Modal.vue'
+import ComplianceRing from './ComplianceRing.vue'
 import {
   getClientHeatmap,
   getAdminHeatmap,
@@ -21,7 +22,6 @@ import {
   getAdminNonConformitiesPaginated,
   getNonConformityVariableOptions,
   createNonConformity,
-  updateNonConformity,
   DashboardRequestError,
   type HeatmapImage,
   type HigieneCategoria,
@@ -47,7 +47,16 @@ const props = defineProps<{
    * categoría nueva, la opción de subir su imagen aparece de una, sin
    * paso adicional (misma prop reactiva). */
   enabledCategorias: string[]
+  /** Para el donut de "Cumplimiento global" junto a la tabla Comparativo —
+   * mismo dato que ya alimenta la tarjeta compacta de Hoja 1
+   * (dashboard.globalCompliance), sin cálculo nuevo. Antes vivía como un
+   * <ComplianceRing> suelto en ResumenTab.vue (admin), reposicionado acá
+   * (2026-08) para que quede junto a la tabla en ambos lados — cliente
+   * nunca lo tuvo. */
+  globalCompliance: GlobalCompliance
 }>()
+
+const emit = defineEmits<{ viewAllNonConformities: [] }>()
 
 const { t, locale } = useI18n()
 const isAdmin = computed(() => !!props.organizationId)
@@ -224,15 +233,6 @@ async function submitNew() {
   }
 }
 
-async function changeEstado(item: NonConformity, estado: NonConformityStatus) {
-  const previous = item.estado
-  item.estado = estado
-  try {
-    await updateNonConformity(props.organizationId!, props.serviceSlug, item.id, { estado })
-  } catch {
-    item.estado = previous
-  }
-}
 
 function formatFecha(iso: string): string {
   return new Date(iso).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'es-CO')
@@ -389,78 +389,107 @@ onMounted(() => {
       </Modal>
     </div>
 
-    <!-- Comparativo vs. norma (resumen de cada valor cabecera) -->
-    <div>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-        {{ t('dashboard.riskSections.comparativoTitle') }}
-      </p>
-      <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse text-sm">
-            <thead>
-              <tr class="bg-sky-100 text-left text-[11px] uppercase tracking-wide text-navy-700">
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.variable') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.medicion') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.incertidumbre') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.norma') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.estado') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="{ categoria, variable } in filteredHeadlineCards" :key="categoria" class="border-t border-line">
-                <td class="px-4 py-3 text-navy-900">
-                  {{
-                    variable
-                      ? variableLabel(variable.codigo, variable.nombre, locale as Locale)
-                      : categoryLabel(categoria, locale as Locale)
-                  }}
-                </td>
-                <td class="px-4 py-3 font-mono text-navy-900">
-                  {{ variable ? `${roundDisplay(variable.promedio)} ${variable.unidadMedida}` : '—' }}
-                </td>
-                <td class="px-4 py-3 font-mono text-navy-700">{{ variable?.incertidumbre ?? '—' }}</td>
-                <td class="px-4 py-3 font-mono text-navy-700">
-                  {{ variable ? formatRange(variable.limiteMin, variable.limiteMax) : '—' }}
-                </td>
-                <td class="px-4 py-3">
-                  <span
-                    v-if="variable"
-                    :class="[
-                      SEMAPHORE_STYLES[resolveDisplayStatus(variable)].bg,
-                      SEMAPHORE_STYLES[resolveDisplayStatus(variable)].text,
-                      SEMAPHORE_STYLES[resolveDisplayStatus(variable)].border,
-                    ]"
-                    class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
-                  >
+    <!-- Comparativo vs. norma (resumen de cada valor cabecera), con el
+    donut de cumplimiento global al lado — mismo dato ya mostrado en la
+    tarjeta compacta de indicadores globales, solo reubicado acá para que
+    el usuario lo relacione visualmente con el detalle de la tabla. Título
+    del anillo AFUERA de su tarjeta (hide-title), igual que el de la tabla
+    vecina — adentro (como venía ComplianceRing.vue de por sí) los dos
+    títulos quedaban a alturas distintas, desalineados. -->
+    <div class="grid gap-4 lg:grid-cols-[240px_1fr] lg:items-start">
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.complianceRing.title') }}
+        </p>
+        <ComplianceRing :compliance="globalCompliance" hide-title />
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.riskSections.comparativoTitle') }}
+        </p>
+        <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-sky-100 text-left text-[11px] uppercase tracking-wide text-navy-700">
+                  <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.variable') }}</th>
+                  <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.medicion') }}</th>
+                  <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.incertidumbre') }}</th>
+                  <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.norma') }}</th>
+                  <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.estado') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="{ categoria, variable } in filteredHeadlineCards" :key="categoria" class="border-t border-line">
+                  <td class="px-4 py-3 text-navy-900">
+                    {{
+                      variable
+                        ? variableLabel(variable.codigo, variable.nombre, locale as Locale)
+                        : categoryLabel(categoria, locale as Locale)
+                    }}
+                  </td>
+                  <td class="px-4 py-3 font-mono text-navy-900">
+                    {{ variable ? `${roundDisplay(variable.promedio)} ${variable.unidadMedida}` : '—' }}
+                  </td>
+                  <td class="px-4 py-3 font-mono text-navy-700">{{ variable?.incertidumbre ?? '—' }}</td>
+                  <td class="px-4 py-3 font-mono text-navy-700">
+                    {{ variable ? formatRange(variable.limiteMin, variable.limiteMax) : '—' }}
+                  </td>
+                  <td class="px-4 py-3">
                     <span
-                      :class="SEMAPHORE_STYLES[resolveDisplayStatus(variable)].dot"
-                      class="h-1.5 w-1.5 rounded-full"
-                    />
-                    {{ t(SEMAPHORE_LABEL_KEY[resolveDisplayStatus(variable)]) }}
-                  </span>
-                  <span v-else class="text-navy-700/50">—</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                      v-if="variable"
+                      :class="[
+                        SEMAPHORE_STYLES[resolveDisplayStatus(variable)].bg,
+                        SEMAPHORE_STYLES[resolveDisplayStatus(variable)].text,
+                        SEMAPHORE_STYLES[resolveDisplayStatus(variable)].border,
+                      ]"
+                      class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
+                    >
+                      <span
+                        :class="SEMAPHORE_STYLES[resolveDisplayStatus(variable)].dot"
+                        class="h-1.5 w-1.5 rounded-full"
+                      />
+                      {{ t(SEMAPHORE_LABEL_KEY[resolveDisplayStatus(variable)]) }}
+                    </span>
+                    <span v-else class="text-navy-700/50">—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Recomendaciones / no conformidades -->
     <div>
-      <div class="mb-3 flex items-center justify-between">
+      <div class="mb-3 flex items-center justify-between gap-2">
         <p class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
           {{ t('dashboard.riskSections.recomendacionesTitle') }}
         </p>
-        <button
-          v-if="isAdmin"
-          type="button"
-          class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-cream"
-          @click="showAddForm = !showAddForm"
-        >
-          {{ t('dashboard.riskSections.addButton') }}
-        </button>
+        <div class="flex shrink-0 items-center gap-2">
+          <button
+            v-if="isAdmin"
+            type="button"
+            class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-cream"
+            @click="showAddForm = !showAddForm"
+          >
+            {{ t('dashboard.riskSections.addButton') }}
+          </button>
+          <!-- Redirige a la pestaña dedicada "No conformidades" (2026-08) —
+          este resumen embebido en Hoja 1 sigue recortado a RESUMEN_LIMIT
+          (5, solo ABIERTA); la pestaña dedicada muestra el listado completo,
+          sin recortar. -->
+          <button
+            type="button"
+            class="inline-flex items-center gap-1 rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-cream"
+            @click="emit('viewAllNonConformities')"
+          >
+            {{ t('dashboard.riskSections.viewAllButton') }}
+            <ChevronRight class="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       <form
@@ -527,77 +556,35 @@ onMounted(() => {
         </div>
       </form>
 
-      <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse text-sm">
-            <thead>
-              <tr class="bg-sky-100 text-left text-[11px] uppercase tracking-wide text-navy-700">
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.prioridad') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.descripcion') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.variable') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.zona') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.riskSections.fecha') }}</th>
-                <th class="px-4 py-3 font-semibold">{{ t('dashboard.comparisonTable.estado') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in nonConformities" :key="item.id" class="border-t border-line align-top">
-                <td class="px-4 py-3">
-                  <span
-                    :class="[
-                      PRIORITY_STYLES[item.prioridad].bg,
-                      PRIORITY_STYLES[item.prioridad].text,
-                      PRIORITY_STYLES[item.prioridad].border,
-                    ]"
-                    class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
-                  >
-                    <!-- Punto de color: mismo tratamiento que el badge de
-                    estado de la tabla comparativa y las tarjetas KPI. -->
-                    <span :class="PRIORITY_STYLES[item.prioridad].dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />
-                    {{ t(`dashboard.riskSections.priority.${item.prioridad}`) }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-navy-900">{{ item.descripcion }}</td>
-                <td class="px-4 py-3 text-navy-900">{{ item.variableNombre }}</td>
-                <td class="px-4 py-3 text-navy-700">{{ item.zona ?? '—' }}</td>
-                <td class="px-4 py-3 text-navy-700">{{ formatFecha(item.fecha) }}</td>
-                <td class="px-4 py-3">
-                  <select
-                    v-if="isAdmin"
-                    :value="item.estado"
-                    class="rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
-                    :class="[
-                      STATUS_STYLES[item.estado].bg,
-                      STATUS_STYLES[item.estado].text,
-                      STATUS_STYLES[item.estado].border,
-                    ]"
-                    @change="changeEstado(item, ($event.target as HTMLSelectElement).value as NonConformityStatus)"
-                  >
-                    <option value="ABIERTA">{{ t('dashboard.riskSections.status.ABIERTA') }}</option>
-                    <option value="EN_SEGUIMIENTO">{{ t('dashboard.riskSections.status.EN_SEGUIMIENTO') }}</option>
-                    <option value="CERRADA">{{ t('dashboard.riskSections.status.CERRADA') }}</option>
-                  </select>
-                  <span
-                    v-else
-                    :class="[
-                      STATUS_STYLES[item.estado].bg,
-                      STATUS_STYLES[item.estado].text,
-                      STATUS_STYLES[item.estado].border,
-                    ]"
-                    class="inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
-                  >
-                    {{ t(`dashboard.riskSections.status.${item.estado}`) }}
-                  </span>
-                </td>
-              </tr>
-              <tr v-if="nonConformities.length === 0">
-                <td colspan="6" class="px-4 py-6 text-center text-sm text-navy-700/60">
-                  {{ t('dashboard.riskSections.recomendacionesEmpty') }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Tarjetas en vez de tabla (2026-08, "dejarlo bonito, más visual")
+      — este resumen ya viene recortado a lo más urgente (RESUMEN_LIMIT,
+      solo ABIERTA); el detalle completo (estado editable para admin,
+      histórico, filtros) vive en la pestaña dedicada "No conformidades"
+      (botón "Ver todas" arriba). -->
+      <div v-if="nonConformities.length > 0" class="flex flex-wrap gap-3">
+        <div
+          v-for="item in nonConformities"
+          :key="item.id"
+          class="flex min-w-[240px] flex-1 items-start gap-2.5 rounded-lg border border-line-strong bg-white p-3"
+        >
+          <span
+            class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+            :class="PRIORITY_STYLES[item.prioridad].bg"
+          >
+            <AlertTriangle class="h-4 w-4" :class="PRIORITY_STYLES[item.prioridad].text" aria-hidden="true" />
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm text-navy-900">
+              <span class="font-semibold">{{ item.variableNombre }}:</span> {{ item.descripcion }}
+            </p>
+            <p class="mt-0.5 text-[11px] text-navy-700/60">
+              {{ item.zona ?? '—' }} · {{ formatFecha(item.fecha) }}
+            </p>
+          </div>
         </div>
+      </div>
+      <div v-else class="rounded-lg border border-dashed border-line-strong bg-white px-4 py-6 text-center text-sm text-navy-700/60">
+        {{ t('dashboard.riskSections.recomendacionesEmpty') }}
       </div>
     </div>
   </div>

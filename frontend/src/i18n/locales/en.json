@@ -464,6 +464,7 @@
     "tabs": {
       "dashboard": "Dashboard",
       "comparativoNormativo": "Regulatory Comparison",
+      "noConformidades": "Non-conformities",
       "historial": "History",
       "reportes": "Reports"
     },
@@ -510,6 +511,7 @@
       "recomendacionesTitle": "Recommendations / Non-conformities",
       "recomendacionesEmpty": "No recommendations or non-conformities recorded.",
       "addButton": "Add recommendation",
+      "viewAllButton": "View all",
       "prioridad": "Priority",
       "descripcion": "Description",
       "zona": "Zone / Point",
@@ -595,6 +597,12 @@
     },
     "comparativo": {
       "subtitle": "Audit view: every variable across all categories, in a single table."
+    },
+    "noConformidadesTab": {
+      "subtitle": "Full list of recommendations and non-conformities, uncut.",
+      "prevPage": "Previous",
+      "nextPage": "Next",
+      "pageOf": "Page {page} of {totalPages}"
     },
     "historial": {
       "desde": "From",
