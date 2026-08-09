@@ -58,21 +58,28 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
     </div>
 
     <template v-else>
-      <!-- compact (mismo tratamiento ya construido para Hoja 1 cliente):
-      tarjetas más chicas, alineadas en una sola fila hasta 5 columnas en
-      vez de 3 — "las tarjetas deben quedar más pequeñas pero alineadas". -->
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <SummaryCard
-          v-for="h in headlineByCategory"
-          :key="h.categoria"
-          :titulo="categoryLabel(h.categoria, locale as Locale)"
-          :valor="h.v.estado === 'SIN_DATOS' ? '—' : String(roundDisplay(h.v.promedio))"
-          :unidad="h.v.estado === 'SIN_DATOS' ? '' : h.v.unidadMedida"
-          :cumplimiento-pct="roundDisplay(h.v.cumplimientoPct)"
-          :estado="resolveDisplayStatus(h.v)"
-          :icon="iconForCategory(h.categoria)"
-          compact
-        />
+      <div>
+        <!-- Título que sí tiene la fila equivalente en Hoja 1 cliente
+        (dashboard.clientDashboardTab.valorCabecera) — acá faltaba. -->
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.clientDashboardTab.valorCabecera') }}
+        </p>
+        <!-- compact (mismo tratamiento ya construido para Hoja 1 cliente):
+        tarjetas más chicas, alineadas en una sola fila hasta 5 columnas en
+        vez de 3 — "las tarjetas deben quedar más pequeñas pero alineadas". -->
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <SummaryCard
+            v-for="h in headlineByCategory"
+            :key="h.categoria"
+            :titulo="categoryLabel(h.categoria, locale as Locale)"
+            :valor="h.v.estado === 'SIN_DATOS' ? '—' : String(roundDisplay(h.v.promedio))"
+            :unidad="h.v.estado === 'SIN_DATOS' ? '' : h.v.unidadMedida"
+            :cumplimiento-pct="roundDisplay(h.v.cumplimientoPct)"
+            :estado="resolveDisplayStatus(h.v)"
+            :icon="iconForCategory(h.categoria)"
+            compact
+          />
+        </div>
       </div>
     </template>
 

@@ -37,17 +37,21 @@ const showReportModal = ref(false)
 
 <template>
   <div class="grid gap-6">
-    <SectionTitleBanner :title="currentTitle" />
-
-    <div v-if="activeHoja === 'hoja1' || activeHoja === 'hoja2'" class="flex flex-wrap justify-end gap-3 print:hidden">
-      <button
-        type="button"
-        class="rounded-sm bg-[var(--org-primary,#0b1a33)] px-5 py-2.5 text-sm font-medium text-cream transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--org-primary,#0b1a33)]"
-        @click="showReportModal = true"
-      >
-        {{ t('dashboard.clientDashboardTab.generateReport') }}
-      </button>
-    </div>
+    <!-- Botón en línea con el banner (antes: fila propia debajo, dos filas
+    para lo que cabe en una) — mismo tratamiento que "Cargar variables" en
+    el admin: fondo claro, no el mismo tono que el banner oscuro donde
+    vive ahora. -->
+    <SectionTitleBanner :title="currentTitle">
+      <template v-if="activeHoja === 'hoja1' || activeHoja === 'hoja2'" #actions>
+        <button
+          type="button"
+          class="rounded-sm bg-white px-4 py-1.5 text-xs font-semibold text-navy-900 transition-opacity hover:opacity-90 print:hidden"
+          @click="showReportModal = true"
+        >
+          {{ t('dashboard.clientDashboardTab.generateReport') }}
+        </button>
+      </template>
+    </SectionTitleBanner>
 
     <ClientDashboardTab
       v-if="activeHoja === 'hoja1'"
