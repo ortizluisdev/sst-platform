@@ -6,6 +6,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import type { GlobalCompliance } from '@/types/dashboard'
 import { SEMAPHORE_HEX } from '@/utils/semaphoreStyles'
 import { CHART_TOOLTIP_STYLE } from '@/utils/chartTheme'
+import { roundDisplay } from '@/utils/formatNumber'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -52,22 +53,35 @@ const chartOptions = {
       <Doughnut v-if="hasData" :data="chartData" :options="chartOptions" />
       <div v-else class="h-full w-full rounded-full border-[10px] border-line-strong" />
       <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span v-if="hasData" class="font-serif text-3xl font-semibold text-navy-900">{{ compliance.pct }}%</span>
+        <span v-if="hasData" class="font-serif text-3xl font-semibold text-navy-900">{{ roundDisplay(compliance.pct) }}%</span>
         <span v-else class="font-serif text-lg font-semibold text-navy-700 opacity-70">{{ t('dashboard.complianceRing.noData') }}</span>
         <span v-if="hasData" class="text-[11px] font-medium text-navy-700">{{ t('dashboard.complianceRing.centerLabel') }}</span>
       </div>
     </div>
+    <!-- Leyenda: un punto del mismo color que su porción del anillo junto a
+     cada categoría — antes solo el número venía coloreado, sin nada que
+     conectara visualmente "este color del anillo = esta categoría" para
+     alguien que no ya sepa de memoria la convención. -->
     <div v-if="hasData" class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
       <div>
-        <p class="font-semibold text-emerald-600">{{ compliance.verde }}</p>
+        <p class="flex items-center justify-center gap-1.5 font-semibold text-emerald-600">
+          <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+          {{ compliance.verde }}
+        </p>
         <p class="text-navy-700 opacity-70">{{ t('dashboard.semaphore.cumple') }}</p>
       </div>
       <div>
-        <p class="font-semibold text-amber-600">{{ compliance.amarillo }}</p>
+        <p class="flex items-center justify-center gap-1.5 font-semibold text-amber-600">
+          <span class="h-2 w-2 shrink-0 rounded-full bg-amber-500" aria-hidden="true" />
+          {{ compliance.amarillo }}
+        </p>
         <p class="text-navy-700 opacity-70">{{ t('dashboard.semaphore.alerta') }}</p>
       </div>
       <div>
-        <p class="font-semibold text-red-600">{{ compliance.rojo }}</p>
+        <p class="flex items-center justify-center gap-1.5 font-semibold text-red-600">
+          <span class="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden="true" />
+          {{ compliance.rojo }}
+        </p>
         <p class="text-navy-700 opacity-70">{{ t('dashboard.semaphore.critico') }}</p>
       </div>
     </div>
