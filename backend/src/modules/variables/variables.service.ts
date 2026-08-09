@@ -40,6 +40,7 @@ import {
   calcularTiempoMaximoExposicion,
   JORNADA_HORAS,
 } from '../../utils/uvRadiationCalculations.js'
+import { roundDisplay } from '../../utils/roundDisplay.js'
 
 interface CriticalReading {
   variable: string
@@ -69,7 +70,7 @@ function buildCriticalEmailBody(readings: CriticalReading[], serviceNombre: stri
       <tr>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(r.variable)}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(r.puesto)} (${escapeHtmlLocal(r.areaPlanta)})</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${r.valor} ${escapeHtmlLocal(r.unidadMedida)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${roundDisplay(r.valor)} ${escapeHtmlLocal(r.unidadMedida)}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlLocal(normLabel(r))}</td>
       </tr>`,
     )
@@ -698,7 +699,7 @@ export function createVariablesService(prisma: PrismaClient) {
           organizationId: input.organizationId,
           toAdmins: true,
           message: `${criticalReadings.length} resultado(s) crítico(s) en "${service.nombre}" para "${organization.nombre}": ${criticalReadings
-            .map((r) => `${r.variable} en "${r.puesto}" (${r.valor} ${r.unidadMedida})`)
+            .map((r) => `${r.variable} en "${r.puesto}" (${roundDisplay(r.valor)} ${r.unidadMedida})`)
             .join('; ')}`,
           metadata: { uploadId, serviceSlug: input.serviceSlug, criticalReadings },
           link: `/dashboard/historial/${uploadId}`,

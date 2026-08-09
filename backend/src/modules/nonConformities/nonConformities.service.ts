@@ -1,6 +1,7 @@
 import type { PrismaClient, SemaphoreStatus, HigieneCategoria } from '@prisma/client'
 import { createNonConformitiesRepository } from './nonConformities.repository.js'
 import type { CreateNonConformityInput, UpdateNonConformityInput, ListNonConformitiesQuery } from './nonConformities.schema.js'
+import { roundDisplay } from '../../utils/roundDisplay.js'
 
 export class NonConformitiesError extends Error {
   constructor(
@@ -119,7 +120,10 @@ export function createNonConformitiesService(prisma: PrismaClient) {
         categoria: input.categoria,
         zona: input.zona,
         prioridad: input.semaforo === 'ROJO' ? 'ALTA' : 'MEDIA',
-        descripcion: `${input.variableNombre} fuera de norma en "${input.workPointNombre}": ${input.valor} ${input.unidadMedida}.`,
+        // Formato corto y escaneable (2026-08): antes era una oración larga
+        // ("[Variable] fuera de norma en "[Puesto]": [valor] [unidad].") con
+        // el valor crudo sin redondear (ej. 99.69889997833323 %).
+        descripcion: `${input.variableNombre}: ${roundDisplay(input.valor)} ${input.unidadMedida} — fuera de norma (${input.workPointNombre})`,
       })
     },
   }
