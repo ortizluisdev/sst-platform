@@ -108,14 +108,14 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
   vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
   completa (top-0): ahí el navbar no convive con el sidebar abierto. -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/20 bg-navy-700 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >
-    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/25 px-1 pb-3">
+    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/15 px-1 pb-3">
       <button
         type="button"
-        class="hidden shrink-0 rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:block"
+        class="hidden shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:block"
         :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
         @click="toggleCollapsed"
       >
@@ -124,7 +124,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
       </button>
       <button
         type="button"
-        class="rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:hidden"
+        class="rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:hidden"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -134,7 +134,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
 
     <p
       v-if="auth.user"
-      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/25 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white"
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80"
       :class="{ 'lg:hidden': collapsed }"
     >
       {{ t(auth.roleLabelKey) }}
@@ -146,7 +146,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
     "Higiene Industrial", no una segunda selección independiente. -->
     <div v-if="services.length > 0" class="mb-3">
       <p
-        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
+        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.sidebar.servicesLabel') }}
@@ -158,8 +158,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               service.slug === selectedServiceSlug
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2' : 'px-3 py-2',
             ]"
             :aria-expanded="service.slug === selectedServiceSlug"
@@ -192,7 +192,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
           <ul
             v-if="service.slug === selectedServiceSlug && visibleTopTabs.length > 0"
             class="mt-1 flex flex-col gap-1"
-            :class="collapsed ? '' : 'ml-4 border-l border-white/25 pl-2'"
+            :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
           >
             <li v-for="tab in visibleTopTabs" :key="tab.key">
               <button
@@ -200,8 +200,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                 class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                 :class="[
                   tab.key === modelValue
-                    ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                    : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
                   collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                 ]"
                 :title="collapsed ? tab.label : undefined"
@@ -228,7 +228,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
               que sí tienen ícono). -->
               <ul
                 v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
-                class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/25 pl-2"
+                class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
                 :class="{ 'lg:hidden': collapsed }"
               >
                 <li v-for="hoja in sheetsConfig!.sheets" :key="hoja.key">
@@ -237,8 +237,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                     class="flex w-full items-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                     :class="
                       activeHoja === hoja.key
-                        ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                        : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20'
+                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
                     "
                     @click="selectHoja(hoja.key as 'hoja1' | 'hoja2' | 'hoja3')"
                   >
@@ -268,7 +268,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
               <ul
                 v-if="sheetsConfig?.mode === 'realtabs' && tab.key === sheetsConfig.sheets[0]!.key"
                 class="mt-1 flex flex-col gap-1"
-                :class="collapsed ? '' : 'ml-4 border-l border-white/25 pl-2'"
+                :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
               >
                 <li v-for="hijaTab in realtabsHojaTabs" :key="hijaTab.key">
                   <button
@@ -276,8 +276,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                     class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                     :class="[
                       hijaTab.key === modelValue
-                        ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                        : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
                       collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                     ]"
                     :title="collapsed ? hojaShortLabel(hijaTab.key) : undefined"
@@ -298,9 +298,9 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
 
     <!-- General de la cuenta — fuera de cualquier servicio, por eso vive
     separada por una línea en vez de mezclada con las pestañas de arriba. -->
-    <div class="mt-3 border-t border-white/25 pt-3">
+    <div class="mt-3 border-t border-white/15 pt-3">
       <p
-        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
+        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.sidebar.generalLabel') }}
@@ -319,8 +319,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             :title="collapsed ? t('dashboard.sidebar.notificationsLink') : undefined"
             :class="[
               modelValue === 'notificaciones'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             @click="selectTab('notificaciones')"
@@ -337,8 +337,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               modelValue === 'perfil'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('myProfile.sidebarLink') : undefined"
@@ -356,8 +356,8 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               modelValue === 'configuracion'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('settings.sidebarLink') : undefined"

@@ -92,24 +92,24 @@ function handleTabClick(tab: TabDef) {
   vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
   completa (top-0): ahí el navbar no convive con el sidebar abierto.
 
-  Fondo bg-navy-700 (2026-08, "que se vea igual que el sidebar cliente" —
-  antes quedaba en blanco, distinto del cliente; se probaron dos grises
-  intermedios y ninguno convenció, así que termina en la misma familia navy
-  de siempre, un tono más claro que navy-900 a pedido del usuario) — mismo
-  criterio de contraste de texto que DashboardSidebar.vue (white/90
-  inactivo, white/25 superficies activas/hover) y border-sky-400 en vez del
-  fallback de --org-primary para el indicador activo: acá nunca hay
-  branding real de una empresa, así que ese fallback siempre caía en un
-  navy muy similar al del fondo (casi invisible encima). -->
+  Fondo bg-navy-900 (2026-08, "que se vea igual que el sidebar cliente" —
+  antes quedaba en blanco, distinto del cliente) — mismo tono y mismos
+  valores de contraste que DashboardSidebar.vue (white/70 inactivo nivel
+  superior, white/60 anidado, white/45 encabezados de sección, bg-white/5
+  en el ítem activo — no bg-white/25, que se veía como un recuadro muy
+  visible al expandir un servicio, el motivo del reporte original) y
+  border-sky-400 en vez del fallback de --org-primary para el indicador
+  activo: acá nunca hay branding real de una empresa, así que ese fallback
+  siempre caía en un navy casi idéntico al del fondo (invisible encima). -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/20 bg-navy-700 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
-    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/25 px-1 pb-3">
+    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/15 px-1 pb-3">
       <button
         type="button"
-        class="hidden shrink-0 rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:block"
+        class="hidden shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:block"
         :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
         @click="toggleCollapsed"
       >
@@ -118,7 +118,7 @@ function handleTabClick(tab: TabDef) {
       </button>
       <button
         type="button"
-        class="rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:hidden"
+        class="rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:hidden"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -127,7 +127,7 @@ function handleTabClick(tab: TabDef) {
     </div>
 
     <p
-      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/25 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white"
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80"
       :class="{ 'lg:hidden': collapsed }"
     >
       {{ t(auth.roleLabelKey) }}
@@ -135,7 +135,7 @@ function handleTabClick(tab: TabDef) {
 
     <div>
       <p
-        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
+        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.adminShell.operacionSection') }}
@@ -156,8 +156,8 @@ function handleTabClick(tab: TabDef) {
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               service.slug === props.selectedServiceSlug
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
@@ -189,7 +189,7 @@ function handleTabClick(tab: TabDef) {
           <ul
             v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
             class="mt-1 flex flex-col gap-1"
-            :class="collapsed ? '' : 'ml-4 border-l border-white/25 pl-2'"
+            :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
           >
             <li v-for="tab in props.serviceTabs" :key="tab.key">
               <button
@@ -197,8 +197,8 @@ function handleTabClick(tab: TabDef) {
                 class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                 :class="[
                   tab.key === activeTab
-                    ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                    : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
                   collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                 ]"
                 :title="collapsed ? tab.label : undefined"
@@ -213,9 +213,9 @@ function handleTabClick(tab: TabDef) {
       </ul>
     </div>
 
-    <div class="mt-4 border-t border-white/25 pt-3">
+    <div class="mt-4 border-t border-white/15 pt-3">
       <p
-        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
+        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.adminShell.administracionSection') }}
@@ -228,8 +228,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-clientes'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.clientesLink') : undefined"
@@ -245,8 +245,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-notificaciones'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.notificacionesLink') : undefined"
@@ -262,8 +262,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-gestion-notificaciones'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.gestionNotificacionesLink') : undefined"
@@ -279,8 +279,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-mi-perfil'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('myProfile.sidebarLink') : undefined"
@@ -296,8 +296,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-configuracion'
-                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
-                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('settings.sidebarLink') : undefined"
