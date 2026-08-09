@@ -10,7 +10,7 @@ import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { serviceLabel } from '@/utils/serviceLabel'
 import { formatDate } from '@/utils/formatDate'
-import { formatSummaryValue } from '@/utils/formatSummaryValue'
+import { roundDisplay } from '@/utils/formatNumber'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { HEADLINE_CODE_POR_CATEGORIA } from '../client/headlineVariables'
 
@@ -51,9 +51,9 @@ const lastUpdatedLabel = computed(() =>
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid gap-8">
     <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line-strong bg-white px-5 py-4"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line-strong bg-white px-6 py-5"
     >
       <div>
         <h1 class="font-serif text-xl font-semibold text-navy-900">
@@ -77,15 +77,17 @@ const lastUpdatedLabel = computed(() =>
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <SummaryCard
           v-for="h in headlineByCategory"
           :key="h.categoria"
           :titulo="categoryLabel(h.categoria, locale as Locale)"
-          :valor="formatSummaryValue(h.v)"
-          :cumplimiento-pct="h.v.cumplimientoPct"
+          :valor="h.v.estado === 'SIN_DATOS' ? '—' : String(roundDisplay(h.v.promedio))"
+          :unidad="h.v.estado === 'SIN_DATOS' ? '' : h.v.unidadMedida"
+          :cumplimiento-pct="roundDisplay(h.v.cumplimientoPct)"
           :estado="resolveDisplayStatus(h.v)"
           :icon="iconForCategory(h.categoria)"
+          enhanced
         />
       </div>
 
