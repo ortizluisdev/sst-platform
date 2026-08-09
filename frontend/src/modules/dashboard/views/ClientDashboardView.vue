@@ -129,7 +129,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
 </script>
 
 <template>
-  <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null">
+  <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null" enhanced>
     <!-- Skeleton en vez de un mensaje de texto: la pantalla se sentía "en
     blanco" hasta que todo el dashboard aparecía de golpe. No intenta
     replicar el sidebar real (varía por servicio) — solo el área de

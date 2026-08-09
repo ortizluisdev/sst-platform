@@ -90,7 +90,7 @@ async function submit() {
 </script>
 
 <template>
-  <DashboardLayout>
+  <DashboardLayout enhanced>
     <div class="mx-auto max-w-md">
       <div class="rounded-md border border-line-strong bg-white p-6 sm:p-8">
         <h1 class="text-lg font-bold text-navy-900">{{ t('profile.pageTitle') }}</h1>

@@ -10,7 +10,15 @@ import { formatDate } from '@/utils/formatDate'
 import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
 import type { Locale } from '@/i18n'
 
-const props = defineProps<{ lastSync?: string | null }>()
+const props = defineProps<{
+  lastSync?: string | null
+  /** Rediseño de navbar/ancho (2026-08, "sidebar/navbar/footer del
+   * dashboard cliente") — mismo patrón `enhanced`/`isAdmin` que ya usan
+   * SummaryCard.vue/DashboardRiskSections.vue: sin esta prop, el navbar se
+   * ve exactamente igual que siempre. AdminShell.vue (panel admin) nunca la
+   * pasa, a propósito — su navbar/ancho no debe cambiar en este alcance. */
+  enhanced?: boolean
+}>()
 
 const auth = useAuthStore()
 const logoFailed = ref(false)
@@ -62,8 +70,11 @@ const switchTo = computed(() => ({
 
 <template>
   <div class="flex min-h-screen flex-col bg-cream" :style="auth.brandingCssVars">
-    <header class="border-b border-line-strong bg-white px-4 py-3.5 shadow-sm print:hidden sm:px-6">
-      <div class="mx-auto flex max-w-[1280px] items-center justify-between gap-3">
+    <header
+      class="border-b border-line-strong bg-white shadow-sm print:hidden"
+      :class="enhanced ? 'px-4 py-4 sm:px-8 sm:py-5' : 'px-4 py-3.5 sm:px-6'"
+    >
+      <div class="mx-auto flex items-center justify-between gap-3" :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'">
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
@@ -75,7 +86,7 @@ const switchTo = computed(() => ({
           </button>
         </div>
 
-        <div class="flex shrink-0 items-center gap-2 sm:gap-4">
+        <div class="flex shrink-0 items-center" :class="enhanced ? 'gap-3 sm:gap-5' : 'gap-2 sm:gap-4'">
           <NotificationBell v-if="auth.user" />
 
           <!-- Logo propio del cliente; si no tiene organización (los dos roles
@@ -104,7 +115,8 @@ const switchTo = computed(() => ({
 
           <router-link
             :to="switchTo"
-            class="text-[13px] font-semibold tracking-wide text-navy-700 no-underline transition-colors hover:opacity-70"
+            class="font-semibold tracking-wide text-navy-700 no-underline transition-colors hover:opacity-70"
+            :class="enhanced ? 'text-sm' : 'text-[13px]'"
             :aria-label="t('nav.switchTo')"
           >
             {{ otherLocale.toUpperCase() }}
@@ -113,7 +125,8 @@ const switchTo = computed(() => ({
           <div v-if="auth.user" ref="profileMenuEl" class="relative">
             <button
               type="button"
-              class="flex items-center gap-1.5 rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100"
+              class="flex items-center rounded-sm text-navy-700 transition-colors hover:bg-sky-100"
+              :class="enhanced ? 'gap-2 p-2' : 'gap-1.5 p-1.5'"
               :aria-label="t('dashboard.layout.profileMenuLabel')"
               :aria-expanded="profileMenuOpen"
               @click="toggleProfileMenu"
@@ -122,10 +135,13 @@ const switchTo = computed(() => ({
                 v-if="auth.user.fotoBase64"
                 :src="auth.user.fotoBase64"
                 :alt="t('dashboard.layout.profileMenuLabel')"
-                class="h-6 w-6 shrink-0 rounded-full object-cover"
+                class="shrink-0 rounded-full object-cover"
+                :class="enhanced ? 'h-7 w-7' : 'h-6 w-6'"
               />
-              <UserCircle v-else class="h-6 w-6 shrink-0" aria-hidden="true" />
-              <span class="hidden text-sm min-[400px]:inline">{{ auth.user.nombre }}</span>
+              <UserCircle v-else class="shrink-0" :class="enhanced ? 'h-7 w-7' : 'h-6 w-6'" aria-hidden="true" />
+              <span class="hidden min-[400px]:inline" :class="enhanced ? 'text-sm font-medium' : 'text-sm'">{{
+                auth.user.nombre
+              }}</span>
               <ChevronDown class="h-4 w-4 shrink-0" aria-hidden="true" />
             </button>
 
@@ -148,7 +164,10 @@ const switchTo = computed(() => ({
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
+    <main
+      class="mx-auto w-full flex-1 px-4 py-6 sm:px-6 sm:py-8"
+      :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'"
+    >
       <slot />
     </main>
 

@@ -4,7 +4,7 @@ import NotificationsPanel from '@/modules/notifications/components/Notifications
 </script>
 
 <template>
-  <DashboardLayout>
+  <DashboardLayout enhanced>
     <NotificationsPanel />
   </DashboardLayout>
 </template>

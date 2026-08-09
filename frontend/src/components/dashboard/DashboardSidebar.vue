@@ -103,7 +103,7 @@ function toggleCollapsed() {
   />
 
   <nav
-    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-line-strong bg-white p-3 transition-transform duration-300 ease-in-out print:hidden lg:sticky lg:top-6 lg:z-auto lg:max-w-none lg:translate-x-0 lg:rounded-lg lg:border"
+    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-navy-900 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:sticky lg:top-6 lg:z-auto lg:max-w-none lg:translate-x-0 lg:rounded-lg lg:border"
     :class="collapsed ? 'lg:w-16' : 'lg:w-64'"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >
@@ -113,23 +113,33 @@ function toggleCollapsed() {
     — un v-if las sacaría del DOM en cualquier ancho de pantalla si
     `collapsed` quedó en `true` desde una sesión de escritorio anterior
     (persiste en localStorage), rompiendo el logo en móvil. -->
-    <div class="mb-3 flex items-start justify-between gap-2 border-b border-line px-1 pb-3">
+    <div class="mb-3 flex items-start justify-between gap-2 border-b border-white/15 px-1 pb-3">
+      <!-- Placa blanca detrás del logo: el isotipo/wordmark usa un
+      degradado navy oscuro (#0b1a33→#5b8dc7) pensado para fondo claro —
+      sobre navy-900 se perdería casi por completo. Mismo criterio que el
+      logo del cliente en el navbar (DashboardLayout.vue), que también
+      envuelve el logo en una placa clara en vez de generar variantes de
+      color nuevas del asset. -->
       <div :class="{ 'lg:hidden': collapsed }">
-        <picture>
-          <source :srcset="logoWebp" type="image/webp" />
-          <img :src="logoPng" alt="RoMa" class="block h-8 w-auto" width="572" height="166" />
-        </picture>
-        <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60">
+        <div class="inline-flex items-center rounded-md bg-white px-2 py-1.5">
+          <picture>
+            <source :srcset="logoWebp" type="image/webp" />
+            <img :src="logoPng" alt="RoMa" class="block h-7 w-auto" width="572" height="166" />
+          </picture>
+        </div>
+        <p class="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/45">
           {{ t('dashboard.sidebar.tagline') }}
         </p>
       </div>
-      <picture :class="collapsed ? 'hidden lg:block' : 'hidden'">
-        <source :srcset="logoWebp" type="image/webp" />
-        <img :src="logoPng" alt="RoMa" class="block h-7 w-7 object-cover object-left" width="572" height="166" />
-      </picture>
+      <div :class="collapsed ? 'hidden rounded-md bg-white p-1 lg:block' : 'hidden'">
+        <picture>
+          <source :srcset="logoWebp" type="image/webp" />
+          <img :src="logoPng" alt="RoMa" class="block h-6 w-6 object-cover object-left" width="572" height="166" />
+        </picture>
+      </div>
       <button
         type="button"
-        class="hidden shrink-0 rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-400/10 lg:block"
+        class="hidden shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:block"
         :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
         @click="toggleCollapsed"
       >
@@ -138,7 +148,7 @@ function toggleCollapsed() {
       </button>
       <button
         type="button"
-        class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-400/10 lg:hidden"
+        class="rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:hidden"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -148,7 +158,7 @@ function toggleCollapsed() {
 
     <p
       v-if="auth.user"
-      class="mb-3 inline-flex w-fit items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700"
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80"
       :class="{ 'lg:hidden': collapsed }"
     >
       {{ t(auth.roleLabelKey) }}
@@ -160,7 +170,7 @@ function toggleCollapsed() {
     "Higiene Industrial", no una segunda selección independiente. -->
     <div v-if="services.length > 0" class="mb-3">
       <p
-        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60"
+        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.sidebar.servicesLabel') }}
@@ -172,8 +182,8 @@ function toggleCollapsed() {
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
             :class="
               service.slug === selectedServiceSlug
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
             "
             :aria-expanded="service.slug === selectedServiceSlug"
             :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
@@ -201,7 +211,7 @@ function toggleCollapsed() {
           se pidió. -->
           <ul
             v-if="service.slug === selectedServiceSlug && visibleTopTabs.length > 0"
-            class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+            class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
             :class="{ 'lg:hidden': collapsed }"
           >
             <li v-for="tab in visibleTopTabs" :key="tab.key">
@@ -210,8 +220,8 @@ function toggleCollapsed() {
                 class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                 :class="
                   tab.key === modelValue
-                    ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                    : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
+                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
                 "
                 @click="selectTab(tab.key)"
               >
@@ -232,7 +242,7 @@ function toggleCollapsed() {
               listar hojas que no aplican. -->
               <ul
                 v-if="tab.key === 'resumen' && tab.key === modelValue && sheetsConfig?.mode === 'substate'"
-                class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+                class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
               >
                 <li v-for="hoja in sheetsConfig!.sheets" :key="hoja.key">
                   <button
@@ -240,8 +250,8 @@ function toggleCollapsed() {
                     class="flex w-full items-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                     :class="
                       activeHoja === hoja.key
-                        ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                        : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
+                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
                     "
                     @click="selectHoja(hoja.key as 'hoja1' | 'hoja2' | 'hoja3')"
                   >
@@ -266,7 +276,7 @@ function toggleCollapsed() {
               desaparecía al hacer clic en cualquier hoja. -->
               <ul
                 v-if="sheetsConfig?.mode === 'realtabs' && tab.key === sheetsConfig.sheets[0]!.key"
-                class="ml-4 mt-1 flex flex-col gap-1 border-l border-line-strong pl-2"
+                class="ml-4 mt-1 flex flex-col gap-1 border-l border-white/15 pl-2"
               >
                 <li v-for="hijaTab in realtabsHojaTabs" :key="hijaTab.key">
                   <button
@@ -274,8 +284,8 @@ function toggleCollapsed() {
                     class="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                     :class="
                       hijaTab.key === modelValue
-                        ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                        : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10'
+                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
                     "
                     @click="selectTab(hijaTab.key)"
                   >
@@ -292,9 +302,9 @@ function toggleCollapsed() {
 
     <!-- General de la cuenta — fuera de cualquier servicio, por eso vive
     separada por una línea en vez de mezclada con las pestañas de arriba. -->
-    <div class="mt-3 border-t border-line pt-3">
+    <div class="mt-3 border-t border-white/15 pt-3">
       <p
-        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60"
+        class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.sidebar.generalLabel') }}
@@ -313,8 +323,8 @@ function toggleCollapsed() {
             :title="collapsed ? t('dashboard.sidebar.notificationsLink') : undefined"
             :class="
               modelValue === 'notificaciones'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
             "
             @click="selectTab('notificaciones')"
           >
@@ -330,8 +340,8 @@ function toggleCollapsed() {
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
             :class="
               modelValue === 'perfil'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
             "
             :title="collapsed ? t('myProfile.sidebarLink') : undefined"
             @click="selectTab('perfil')"
@@ -348,8 +358,8 @@ function toggleCollapsed() {
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors"
             :class="
               modelValue === 'configuracion'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10'
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10'
             "
             :title="collapsed ? t('settings.sidebarLink') : undefined"
             @click="selectTab('configuracion')"
