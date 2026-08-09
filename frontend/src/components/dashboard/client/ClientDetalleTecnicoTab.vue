@@ -16,6 +16,7 @@ import { variableLabel } from '@/utils/variableLabel'
 import { formatDate } from '@/utils/formatDate'
 import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
+import SkeletonTableRow from '@/components/ui/SkeletonTableRow.vue'
 
 const props = defineProps<{
   dashboard: DashboardData
@@ -134,112 +135,160 @@ function formatNorma(min: number | null, max: number | null): string {
 
 <template>
   <div class="grid gap-6">
-    <div class="flex flex-wrap items-end gap-3 rounded-lg border border-line-strong bg-white p-4 print:hidden">
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.detalleTecnico.filtroFecha')
-        }}</label>
-        <select
-          v-model="selectedUploadId"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
+    <div class="rounded-lg border border-line-strong bg-white p-5 print:hidden">
+      <div class="flex flex-wrap items-start justify-between gap-6">
+        <div class="flex flex-1 flex-wrap gap-x-8 gap-y-4">
+          <!-- Cuándo -->
+          <div class="flex flex-col gap-2">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+              {{ t('dashboard.detalleTecnico.filtroGrupoPeriodo') }}
+            </p>
+            <div class="flex min-w-[160px] flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                t('dashboard.detalleTecnico.filtroFecha')
+              }}</label>
+              <select
+                v-model="selectedUploadId"
+                class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+              >
+                <option value="">{{ t('dashboard.detalleTecnico.filtroUltima') }}</option>
+                <option v-for="u in filteredUploadHistory" :key="u.id" :value="u.id">
+                  {{ formatDate(u.fechaEvaluacion, locale as Locale) }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dónde -->
+          <div class="flex flex-col gap-2">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+              {{ t('dashboard.detalleTecnico.filtroGrupoUbicacion') }}
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.uploadForm.zonaLabel')
+                }}</label>
+                <select
+                  v-model="selectedZona"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodasZonas') }}</option>
+                  <option v-for="zona in zonaOptions" :key="zona" :value="zona">{{ zona }}</option>
+                </select>
+              </div>
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.uploadForm.seccionLabel')
+                }}</label>
+                <select
+                  v-model="selectedSeccion"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodasSecciones') }}</option>
+                  <option v-for="seccion in seccionOptions" :key="seccion" :value="seccion">{{ seccion }}</option>
+                </select>
+              </div>
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.uploadForm.cargoLabel')
+                }}</label>
+                <select
+                  v-model="selectedCargo"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodosCargos') }}</option>
+                  <option v-for="cargo in cargoOptions" :key="cargo" :value="cargo">{{ cargo }}</option>
+                </select>
+              </div>
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.uploadForm.trabajadorLabel')
+                }}</label>
+                <select
+                  v-model="selectedTrabajador"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodosTrabajadores') }}</option>
+                  <option v-for="trabajador in trabajadorOptions" :key="trabajador" :value="trabajador">
+                    {{ trabajador }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Qué -->
+          <div class="flex flex-col gap-2">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+              {{ t('dashboard.detalleTecnico.filtroGrupoAlcance') }}
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.detalleTecnico.filtroArea')
+                }}</label>
+                <select
+                  v-model="selectedArea"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodas') }}</option>
+                  <option v-for="area in displayDashboard.filtrosDisponibles.areasPlanta" :key="area" :value="area">
+                    {{ area }}
+                  </option>
+                </select>
+              </div>
+              <div class="flex min-w-[150px] flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
+                  t('dashboard.detalleTecnico.filtroProceso')
+                }}</label>
+                <select
+                  v-model="selectedProceso"
+                  class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900 transition-colors focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">{{ t('dashboard.detalleTecnico.filtroTodos') }}</option>
+                  <option
+                    v-for="proceso in displayDashboard.filtrosDisponibles.procesosActividad"
+                    :key="proceso"
+                    :value="proceso"
+                  >
+                    {{ proceso }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acción secundaria, separada de la grilla de filtros para que no
+        compita visualmente con ellos. -->
+        <button
+          type="button"
+          class="flex shrink-0 items-center gap-2 rounded-sm border border-line-strong px-4 py-2 text-sm font-medium text-navy-700 transition-colors hover:border-navy-900 hover:text-navy-900"
+          @click="limpiarFiltros"
         >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroUltima') }}</option>
-          <option v-for="u in filteredUploadHistory" :key="u.id" :value="u.id">
-            {{ formatDate(u.fechaEvaluacion, locale as Locale) }}
-          </option>
-        </select>
+          <Filter class="h-4 w-4" aria-hidden="true" />
+          {{ t('dashboard.detalleTecnico.limpiarFiltros') }}
+        </button>
       </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.uploadForm.zonaLabel')
-        }}</label>
-        <select
-          v-model="selectedZona"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasZonas') }}</option>
-          <option v-for="zona in zonaOptions" :key="zona" :value="zona">{{ zona }}</option>
-        </select>
-      </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.uploadForm.seccionLabel')
-        }}</label>
-        <select
-          v-model="selectedSeccion"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodasSecciones') }}</option>
-          <option v-for="seccion in seccionOptions" :key="seccion" :value="seccion">{{ seccion }}</option>
-        </select>
-      </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.uploadForm.cargoLabel')
-        }}</label>
-        <select
-          v-model="selectedCargo"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosCargos') }}</option>
-          <option v-for="cargo in cargoOptions" :key="cargo" :value="cargo">{{ cargo }}</option>
-        </select>
-      </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.uploadForm.trabajadorLabel')
-        }}</label>
-        <select
-          v-model="selectedTrabajador"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodosTrabajadores') }}</option>
-          <option v-for="trabajador in trabajadorOptions" :key="trabajador" :value="trabajador">{{ trabajador }}</option>
-        </select>
-      </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.detalleTecnico.filtroArea')
-        }}</label>
-        <select
-          v-model="selectedArea"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodas') }}</option>
-          <option v-for="area in displayDashboard.filtrosDisponibles.areasPlanta" :key="area" :value="area">
-            {{ area }}
-          </option>
-        </select>
-      </div>
-      <div class="flex min-w-[160px] flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{
-          t('dashboard.detalleTecnico.filtroProceso')
-        }}</label>
-        <select
-          v-model="selectedProceso"
-          class="rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-        >
-          <option value="">{{ t('dashboard.detalleTecnico.filtroTodos') }}</option>
-          <option
-            v-for="proceso in displayDashboard.filtrosDisponibles.procesosActividad"
-            :key="proceso"
-            :value="proceso"
-          >
-            {{ proceso }}
-          </option>
-        </select>
-      </div>
-      <button
-        type="button"
-        class="flex items-center gap-2 rounded-sm border border-navy-900 px-4 py-2 text-sm font-medium text-navy-900 transition-colors hover:bg-navy-900 hover:text-cream"
-        @click="limpiarFiltros"
-      >
-        <Filter class="h-4 w-4" aria-hidden="true" />
-        {{ t('dashboard.detalleTecnico.limpiarFiltros') }}
-      </button>
     </div>
 
-    <p v-if="filtering" class="text-sm text-navy-700 opacity-70">{{ t('dashboard.detalleTecnico.filtrando') }}</p>
+    <!-- Skeleton en vez de reemplazar la tabla por un texto: se siente como
+    que la tabla sigue ahí cargando, no como que desapareció y volvió. -->
+    <div v-if="filtering" class="grid grid-cols-1 gap-5">
+      <div v-for="i in 2" :key="i" class="overflow-hidden rounded-lg border border-line-strong bg-white shadow-sm">
+        <div class="flex items-center gap-2.5 border-b border-line-strong bg-sky-100 px-5 py-3.5">
+          <div class="h-5 w-5 animate-pulse rounded-full bg-navy-700/20" aria-hidden="true" />
+          <div class="h-3.5 w-40 animate-pulse rounded-full bg-navy-700/20" aria-hidden="true" />
+        </div>
+        <table class="w-full border-collapse text-sm">
+          <tbody>
+            <SkeletonTableRow v-for="row in 3" :key="row" :columns="4" />
+          </tbody>
+        </table>
+      </div>
+      <span class="sr-only">{{ t('dashboard.detalleTecnico.filtrando') }}</span>
+    </div>
     <p
       v-else-if="displayDashboard.categories.every((c) => c.variables.length === 0)"
       class="rounded-lg border border-dashed border-line-strong bg-white p-10 text-center text-sm text-navy-700"
