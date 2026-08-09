@@ -66,10 +66,17 @@ const dashboard = ref<DashboardData | null>(null)
 // cliente. DashboardShell no reconoce estas claves (nunca se les agrega su
 // v-else-if, ver comentario en el template) — este panel intercepta esas
 // claves antes de delegar a DashboardShell.
+//
+// "no-conformidades" (buildDashboardTabs) se excluye acá específicamente
+// para admin: cubre el mismo terreno que "recomendaciones" pero con menos
+// capacidad (solo ver + cambiar estado, sin crear/editar/eliminar/
+// historial) — mostrar ambas en el sidebar admin era redundante. El
+// cliente sigue viéndola sin cambios (buildDashboardTabs() en sí no se
+// tocó, solo se filtra el resultado acá).
 const tabs = computed<TabDef[]>(() =>
   dashboard.value
     ? [
-        ...buildDashboardTabs(dashboard.value, t, locale.value as Locale),
+        ...buildDashboardTabs(dashboard.value, t, locale.value as Locale).filter((tab) => tab.key !== 'no-conformidades'),
         { key: 'recomendaciones', label: t('dashboard.nonConformitiesAdmin.tabLabel'), icon: ShieldAlert },
         { key: 'configuracion', label: t('dashboard.higieneConfig.tabLabel'), icon: SlidersHorizontal },
       ]

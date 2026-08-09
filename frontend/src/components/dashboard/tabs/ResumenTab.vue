@@ -7,8 +7,6 @@ import SummaryCard from '../SummaryCard.vue'
 import DashboardRiskSections from '../DashboardRiskSections.vue'
 import { iconForCategory } from '@/utils/categoryIcon'
 import { categoryLabel } from '@/utils/categoryLabel'
-import { serviceLabel } from '@/utils/serviceLabel'
-import { formatDate } from '@/utils/formatDate'
 import { roundDisplay } from '@/utils/formatNumber'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { HEADLINE_CODE_POR_CATEGORIA } from '../client/headlineVariables'
@@ -42,33 +40,13 @@ const headlineCards = computed(() =>
  * (DashboardRiskSections.vue), que debe mostrar únicamente las categorías
  * de servicios contratados vigentes. */
 const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c.categoria))
-
-const lastUpdatedLabel = computed(() =>
-  props.dashboard.lastUpdated
-    ? formatDate(props.dashboard.lastUpdated, locale.value as Locale)
-    : t('dashboard.layout.noDataYet'),
-)
 </script>
 
 <template>
+  <!-- Sin tarjeta de título/fecha propia: esa info ya está en el banner de
+  ruta (servicio — empresa — pestaña, arriba de este componente) y en el
+  footer (última sincronización) — repetirla acá era redundante. -->
   <div class="grid gap-8">
-    <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line-strong bg-white px-6 py-5"
-    >
-      <div>
-        <h1 class="font-serif text-xl font-semibold text-navy-900">
-          {{ t('dashboard.resumen.titlePrefix')
-          }}{{ serviceLabel(dashboard.service.slug, dashboard.service.nombre, locale as Locale) }}
-        </h1>
-        <p class="text-xs text-navy-700 opacity-70">
-          {{ t('dashboard.resumen.lastUpdatePrefix') }}{{ lastUpdatedLabel }}
-        </p>
-      </div>
-      <span class="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-navy-700">
-        {{ dashboard.totalWorkPoints }}{{ t('dashboard.resumen.workPointsSuffix') }}
-      </span>
-    </div>
-
     <div
       v-if="dashboard.categories.length === 0"
       class="rounded-lg border border-dashed border-line-strong bg-white p-10 text-center text-sm text-navy-700"
@@ -77,7 +55,10 @@ const lastUpdatedLabel = computed(() =>
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- compact (mismo tratamiento ya construido para Hoja 1 cliente):
+      tarjetas más chicas, alineadas en una sola fila hasta 5 columnas en
+      vez de 3 — "las tarjetas deben quedar más pequeñas pero alineadas". -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <SummaryCard
           v-for="h in headlineByCategory"
           :key="h.categoria"
@@ -87,7 +68,7 @@ const lastUpdatedLabel = computed(() =>
           :cumplimiento-pct="roundDisplay(h.v.cumplimientoPct)"
           :estado="resolveDisplayStatus(h.v)"
           :icon="iconForCategory(h.categoria)"
-          enhanced
+          compact
         />
       </div>
     </template>
