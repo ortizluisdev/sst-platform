@@ -37,6 +37,14 @@ export async function buildApp() {
     // del visitante real, lo que rompe la trazabilidad anti-spam de ip_address
     // y el rate-limit por IP.
     trustProxy: true,
+    // Default de Fastify es 1 MiB — insuficiente para el mapa de calor
+    // (imagen hasta 3MB cruda, ver heatmapImageSchema, que en base64 pesa
+    // ~4.1MB por el overhead propio de esa codificación) y quedaba
+    // rechazado con 413 antes de llegar a nuestra propia validación de
+    // tamaño. 6 MiB cubre eso con margen; el resto de payloads JSON de la
+    // app (logo de 500KB, formularios normales) quedan muy por debajo, así
+    // que subir el techo acá no relaja nada para ellos.
+    bodyLimit: 6 * 1024 * 1024,
   })
 
   await registerErrorHandler(app)
