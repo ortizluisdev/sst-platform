@@ -2,8 +2,9 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, Menu, UserCircle } from 'lucide-vue-next'
-import romaIsotype from '@/assets/logo/roma-isotype.svg'
+import { ChevronDown, Languages, Menu, UserCircle } from 'lucide-vue-next'
+import logoPng from '@/assets/logo/roma-logo.png'
+import logoWebp from '@/assets/logo/roma-logo.webp'
 import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { provideSidebarCollapse } from '@/composables/useSidebarCollapse'
@@ -16,13 +17,15 @@ const props = defineProps<{
   /** Rediseño de navbar/ancho (2026-08, "sidebar/navbar/footer del
    * dashboard cliente") — mismo patrón `enhanced`/`isAdmin` que ya usan
    * SummaryCard.vue/DashboardRiskSections.vue: sin esta prop, el navbar se
-   * ve exactamente igual que siempre. AdminShell.vue (panel admin) nunca la
-   * pasa, a propósito — su navbar/ancho no debe cambiar en este alcance. */
+   * ve exactamente igual que siempre. Las 4 páginas que usan este layout
+   * (AdminShell.vue, ClientDashboardView.vue, NotificationsView.vue,
+   * UpdateProfileView.vue) la pasan siempre — hoy no queda ningún uso sin
+   * ella. */
   enhanced?: boolean
-  /** Separada de `enhanced`: ClientDashboardView.vue es la única página que
-   * renderiza <DashboardSidebar> dentro del slot (ahora fixed a toda la
-   * altura) — NotificationsView.vue/UpdateProfileView.vue pasan `enhanced`
-   * (mismo navbar ancho) pero nunca tuvieron sidebar, así que no deben
+  /** Separada de `enhanced`: AdminShell.vue (su propio AdminNavSidebar.vue) y
+   * ClientDashboardView.vue (DashboardSidebar.vue) son las dos páginas con
+   * sidebar fijo — NotificationsView.vue/UpdateProfileView.vue pasan
+   * `enhanced` (mismo navbar) pero nunca tuvieron sidebar, así que no deben
    * reservarle un padding-left que quedaría vacío. */
   withSidebar?: boolean
 }>()
@@ -39,11 +42,11 @@ const drawer = provideSidebarDrawer()
 // Provisto acá aunque DashboardSidebar.vue viva dentro del <slot /> (lo
 // renderiza el componente de página, no este layout) — provide/inject
 // funciona a través de slots por jerarquía de componentes, no de posición
-// en el template. Necesario para calcular el padding-left del navbar/main/
-// footer "app shell" (ver sidebarOffsetClass) cuando el sidebar real,
-// ahora fixed a toda la altura, se superpone visualmente sobre esa franja
-// izquierda — mismo ancho que exponen las clases lg:w-64/lg:w-16 de
-// DashboardSidebar.vue.
+// en el template. Necesario para calcular el padding-left del main/footer
+// "app shell" (ver sidebarOffsetClass): el sidebar es fixed y arranca debajo
+// del navbar (que ahora es continuo, de ancho completo — 2026-08), así que
+// solo main/footer (no el header) necesitan ese padding — mismo ancho que
+// exponen las clases lg:w-64/lg:w-16 de DashboardSidebar.vue.
 const { collapsed: sidebarCollapsed } = provideSidebarCollapse()
 // Sin `withSidebar`, nunca se aplica: AdminShell.vue usa su propio
 // AdminNavSidebar.vue (en flujo normal, no fixed) y no debe desbalancearse;
@@ -103,10 +106,19 @@ const switchTo = computed(() => ({
   >
     <header
       class="shrink-0 border-b border-line-strong bg-white shadow-sm print:hidden"
-      :class="[enhanced ? 'px-4 py-4 sm:px-8 sm:py-5' : 'px-4 py-3.5 sm:px-6', sidebarOffsetClass]"
+      :class="enhanced ? 'px-4 py-3 sm:px-8 lg:h-20 lg:py-0' : 'px-4 py-3.5 sm:px-6'"
     >
-      <div class="mx-auto flex items-center justify-between gap-3" :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'">
-        <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+      <div
+        class="mx-auto flex h-full items-center justify-between gap-3"
+        :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'"
+      >
+        <!-- Logo RoMa: antes vivía arriba del sidebar (AdminNavSidebar.vue /
+        DashboardSidebar.vue) — ahora vive acá, en el navbar, que pasa a ser
+        una franja continua de ancho completo por encima del sidebar (2026-08,
+        "navbar continuo hasta el final") en vez de solo empezar donde
+        terminaba el sidebar. Mismo tratamiento visual que tenía (isotipo +
+        wordmark + tagline), solo cambia dónde vive. -->
+        <div class="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100 lg:hidden"
@@ -115,36 +127,50 @@ const switchTo = computed(() => ({
           >
             <Menu class="h-5 w-5" />
           </button>
+
+          <div v-if="withSidebar">
+            <picture>
+              <source :srcset="logoWebp" type="image/webp" />
+              <img :src="logoPng" alt="RoMa" class="block h-7 w-auto sm:h-8" width="572" height="166" />
+            </picture>
+            <p class="mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60 sm:block">
+              {{ t('dashboard.sidebar.tagline') }}
+            </p>
+          </div>
         </div>
 
-        <div class="flex shrink-0 items-center" :class="enhanced ? 'gap-3 sm:gap-5' : 'gap-2 sm:gap-4'">
+        <!-- Orden de derecha a izquierda pedido: notificaciones, identidad de
+        la empresa (logo+nombre+NIT, solo cliente), perfil+cerrar sesión,
+        idioma al final. -->
+        <div class="flex min-w-0 shrink-0 items-center gap-2 sm:gap-4">
           <NotificationBell v-if="auth.user" />
 
-          <!-- Logo propio del cliente; si no tiene organización (los dos roles
-          admin), el isotipo de RoMa ocupa el mismo lugar. Sin marco/tarjeta
-          (2026-08, "no me gusta cómo se ve con marco") — antes llevaba borde
-          + fondo tenue en el color de marca, se veía pesado; ahora es solo
-          la imagen, más grande, con esquinas levemente redondeadas
-          (`rounded-[5%]`, no una píldora). -->
-          <div v-if="auth.user" class="flex h-14 items-center justify-center">
+          <!-- Identidad de la empresa: antes solo el logo (cuadrado, h-14);
+          ahora "menos alto, más ancho" + nombre y NIT al lado, para que
+          quede claro de qué empresa es el dashboard sin depender solo del
+          logo. Sin marco/tarjeta, igual que antes. Solo cliente (el admin no
+          pertenece a ninguna organización) y solo si el logo cargó — si
+          falla, se oculta todo el bloque en vez de mostrar un espacio roto
+          (la marca RoMa ya está a la izquierda, no hace falta un respaldo). -->
+          <div
+            v-if="auth.user && orgLogoUrl && !logoFailed"
+            class="hidden min-w-0 items-center gap-2 border-l border-line pl-3 sm:flex"
+          >
             <img
-              v-if="orgLogoUrl && !logoFailed"
               :src="orgLogoUrl"
               :alt="t('dashboard.layout.clientLogoAlt')"
-              class="block h-14 w-auto max-w-[190px] rounded-[5%] object-contain"
+              class="block h-9 w-auto max-w-[64px] shrink-0 rounded-[5%] object-contain sm:max-w-[96px]"
               @error="logoFailed = true"
             />
-            <img v-else :src="romaIsotype" alt="" class="block h-12 w-12 rounded-[5%]" aria-hidden="true" />
+            <div class="hidden min-w-0 flex-col leading-tight md:flex">
+              <span class="truncate text-sm font-semibold text-navy-900" :title="auth.organizationNombre ?? undefined">
+                {{ auth.organizationNombre }}
+              </span>
+              <span v-if="auth.organizationNit" class="truncate text-xs text-navy-700/60">
+                {{ t('dashboard.layout.nitPrefix') }} {{ auth.organizationNit }}
+              </span>
+            </div>
           </div>
-
-          <router-link
-            :to="switchTo"
-            class="font-semibold tracking-wide text-navy-700 no-underline transition-colors hover:opacity-70"
-            :class="enhanced ? 'text-sm' : 'text-[13px]'"
-            :aria-label="t('nav.switchTo')"
-          >
-            {{ otherLocale.toUpperCase() }}
-          </router-link>
 
           <div v-if="auth.user" ref="profileMenuEl" class="relative">
             <button
@@ -184,6 +210,19 @@ const switchTo = computed(() => ({
               </button>
             </div>
           </div>
+
+          <!-- Cambio de idioma: antes texto plano ("EN"/"ES"); ahora una
+          píldora con ícono, mismo tratamiento visual que el resto de
+          controles del navbar (hover:bg-sky-100). -->
+          <router-link
+            :to="switchTo"
+            class="flex shrink-0 items-center gap-1.5 rounded-full border border-line-strong px-2.5 py-1.5 text-navy-700 no-underline transition-colors hover:bg-sky-100"
+            :aria-label="t('dashboard.layout.switchLanguageLabel')"
+            :title="t('nav.switchTo')"
+          >
+            <Languages class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span class="text-xs font-semibold tracking-wide">{{ otherLocale.toUpperCase() }}</span>
+          </router-link>
         </div>
       </div>
     </header>

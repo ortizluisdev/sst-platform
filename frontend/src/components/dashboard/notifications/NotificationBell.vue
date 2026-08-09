@@ -36,7 +36,7 @@ onUnmounted(() => {
   <div ref="rootEl" class="relative">
     <button
       type="button"
-      class="relative rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100"
+      class="relative rounded-full bg-sky-100/60 p-2 text-navy-700 transition-colors hover:bg-sky-100"
       :aria-label="t('dashboard.notifications.bellLabel')"
       @click="toggle"
     >

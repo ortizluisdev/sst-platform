@@ -11,8 +11,6 @@ import { useAuthStore } from '@/stores/auth'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { Locale } from '@/i18n'
 import { CLIENT_SHEETS_CONFIG } from '@/config/clientSheets.config'
-import logoPng from '@/assets/logo/roma-logo.png'
-import logoWebp from '@/assets/logo/roma-logo.webp'
 
 const props = defineProps<{
   tabs: TabDef[]
@@ -103,41 +101,18 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
     @click="drawer.close()"
   />
 
+  <!-- `lg:top-20` (no `inset-y-0`, que arrancaría en y=0): el logo RoMa que
+  antes vivía en este bloque ahora vive en el navbar (DashboardLayout.vue,
+  "navbar continuo de ancho completo por encima del sidebar", 2026-08) — en
+  escritorio el sidebar arranca debajo de ese navbar (misma altura, h-20) en
+  vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
+  completa (top-0): ahí el navbar no convive con el sidebar abierto. -->
   <nav
-    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >
-    <!-- Dos versiones del logo, nunca un v-if entre ellas: `collapsed` solo
-    tiene efecto visual en escritorio (el botón que lo activa vive en
-    `lg:`), así que cuál se ve se decide 100% por clases `lg:` condicionadas
-    — un v-if las sacaría del DOM en cualquier ancho de pantalla si
-    `collapsed` quedó en `true` desde una sesión de escritorio anterior
-    (persiste en localStorage), rompiendo el logo en móvil. -->
-    <div class="mb-3 flex items-start justify-between gap-2 border-b border-white/15 px-1 pb-3">
-      <!-- Placa blanca detrás del logo: el isotipo/wordmark usa un
-      degradado navy oscuro (#0b1a33→#5b8dc7) pensado para fondo claro —
-      sobre navy-900 se perdería casi por completo. Mismo criterio que el
-      logo del cliente en el navbar (DashboardLayout.vue), que también
-      envuelve el logo en una placa clara en vez de generar variantes de
-      color nuevas del asset. -->
-      <div :class="{ 'lg:hidden': collapsed }">
-        <div class="inline-flex items-center rounded-md bg-white px-2 py-1.5">
-          <picture>
-            <source :srcset="logoWebp" type="image/webp" />
-            <img :src="logoPng" alt="RoMa" class="block h-7 w-auto" width="572" height="166" />
-          </picture>
-        </div>
-        <p class="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/45">
-          {{ t('dashboard.sidebar.tagline') }}
-        </p>
-      </div>
-      <div :class="collapsed ? 'hidden rounded-md bg-white p-1 lg:block' : 'hidden'">
-        <picture>
-          <source :srcset="logoWebp" type="image/webp" />
-          <img :src="logoPng" alt="RoMa" class="block h-6 w-6 object-cover object-left" width="572" height="166" />
-        </picture>
-      </div>
+    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/15 px-1 pb-3">
       <button
         type="button"
         class="hidden shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:block"

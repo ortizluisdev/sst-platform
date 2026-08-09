@@ -114,19 +114,25 @@ export async function meHandler(request: FastifyRequest, reply: FastifyReply) {
   const permissions = await resolveUserPermissions(request.server.prisma, user.id, membership?.organizationId)
 
   let branding: { primaryColor: string; secondaryColor: string } | null = null
+  let organizationNombre: string | null = null
+  let organizationNit: string | null = null
   if (membership?.organizationId) {
     const organization = await request.server.prisma.organization.findUnique({
       where: { id: membership.organizationId },
-      select: { primaryColor: true, secondaryColor: true },
+      select: { primaryColor: true, secondaryColor: true, nombre: true, nit: true },
     })
     if (organization?.primaryColor && organization?.secondaryColor) {
       branding = { primaryColor: organization.primaryColor, secondaryColor: organization.secondaryColor }
     }
+    organizationNombre = organization?.nombre ?? null
+    organizationNit = organization?.nit ?? null
   }
 
   return reply.code(200).send({
     user: { id: user.id, documentNumber: user.documentNumber, nombre: user.nombre, fotoBase64: user.fotoBase64 },
     organizationId: membership?.organizationId ?? null,
+    organizationNombre,
+    organizationNit,
     mustUpdateProfile: user.mustUpdateProfile,
     permissions: [...permissions],
     branding,

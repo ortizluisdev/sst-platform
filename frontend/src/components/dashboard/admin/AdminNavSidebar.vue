@@ -11,8 +11,6 @@ import type { TabDef } from '@/types/dashboardTabs'
 import { serviceLabel } from '@/utils/serviceLabel'
 import { iconForService } from '@/utils/serviceIcon'
 import type { Locale } from '@/i18n'
-import logoPng from '@/assets/logo/roma-logo.png'
-import logoWebp from '@/assets/logo/roma-logo.webp'
 
 const props = defineProps<{
   services: ServiceOption[]
@@ -83,32 +81,24 @@ function handleTabClick(tab: TabDef) {
 
   <!-- Fijo (2026-08, "navbar/sidebar/footer fijos igual que la vista
   cliente") — antes era `lg:sticky lg:top-6 lg:w-64` dentro del flex normal
-  de AdminShell.vue, ahora `fixed inset-y-0 left-0` como DashboardSidebar.vue
-  (cliente), con el mismo ancho colapsado/expandido y el mismo drawer móvil
-  fuera de pantalla (`-translate-x-full` en mobile, siempre visible en
-  `lg:`). Paleta clara sin cambios — el pedido fue de comportamiento
-  (fijo + colapso), no de color. -->
+  de AdminShell.vue, ahora `fixed` como DashboardSidebar.vue (cliente), con
+  el mismo ancho colapsado/expandido y el mismo drawer móvil fuera de
+  pantalla (`-translate-x-full` en mobile, siempre visible en `lg:`). Paleta
+  clara sin cambios — el pedido fue de comportamiento (fijo + colapso), no de
+  color.
+
+  `lg:top-20` (no `inset-y-0`, que arrancaría en y=0): el logo RoMa que antes
+  vivía en este bloque ahora vive en el navbar (DashboardLayout.vue, "navbar
+  continuo de ancho completo por encima del sidebar", 2026-08) — en
+  escritorio el sidebar arranca debajo de ese navbar (misma altura, h-20) en
+  vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
+  completa (top-0): ahí el navbar no convive con el sidebar abierto. -->
   <nav
-    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-line-strong bg-white p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-line-strong bg-white p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
-    <div class="mb-3 flex items-start justify-between gap-2 border-b border-line px-1 pb-3">
-      <div :class="{ 'lg:hidden': collapsed }">
-        <picture>
-          <source :srcset="logoWebp" type="image/webp" />
-          <img :src="logoPng" alt="RoMa" class="block h-8 w-auto" width="572" height="166" />
-        </picture>
-        <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60">
-          {{ t('dashboard.sidebar.tagline') }}
-        </p>
-      </div>
-      <div :class="collapsed ? 'hidden lg:block' : 'hidden'">
-        <picture>
-          <source :srcset="logoWebp" type="image/webp" />
-          <img :src="logoPng" alt="RoMa" class="block h-7 w-7 object-cover object-left" width="572" height="166" />
-        </picture>
-      </div>
+    <div class="mb-3 flex items-center justify-end gap-2 border-b border-line px-1 pb-3">
       <button
         type="button"
         class="hidden shrink-0 rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100 lg:block"

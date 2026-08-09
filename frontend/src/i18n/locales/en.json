@@ -448,7 +448,9 @@
       "noDataYet": "No data yet",
       "lastSync": "Last data sync: ",
       "copyright": "RoMa Applied Science S.A.S.",
-      "clientLogoAlt": "Your company's logo"
+      "clientLogoAlt": "Your company's logo",
+      "nitPrefix": "Tax ID",
+      "switchLanguageLabel": "Switch language"
     },
     "sidebar": {
       "navAriaLabel": "Dashboard navigation",

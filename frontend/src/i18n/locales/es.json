@@ -448,7 +448,9 @@
       "noDataYet": "Sin datos aún",
       "lastSync": "Última sincronización de datos: ",
       "copyright": "RoMa Applied Science S.A.S.",
-      "clientLogoAlt": "Logo de tu empresa"
+      "clientLogoAlt": "Logo de tu empresa",
+      "nitPrefix": "NIT",
+      "switchLanguageLabel": "Cambiar idioma"
     },
     "sidebar": {
       "navAriaLabel": "Navegación del dashboard",

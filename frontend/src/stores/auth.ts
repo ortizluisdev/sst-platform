@@ -16,6 +16,11 @@ export interface OrganizationBranding {
 interface AuthState {
   user: CurrentUser | null
   organizationId: string | null
+  /** Nombre/NIT de la empresa activa — solo el rol cliente los trae (el
+   * admin no pertenece a ninguna organización). Usados en el navbar
+   * (DashboardLayout.vue) junto al logo de la empresa. */
+  organizationNombre: string | null
+  organizationNit: string | null
   permissions: string[]
   /** null = todavía no se consultó /api/auth/me; false/true = resultado conocido. */
   isAuthenticated: boolean | null
@@ -35,6 +40,8 @@ export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
     organizationId: null,
+    organizationNombre: null,
+    organizationNit: null,
     permissions: [],
     isAuthenticated: null,
     mustUpdateProfile: false,
@@ -67,6 +74,8 @@ export const useAuthStore = defineStore('auth', {
         const { data } = await apiClient.get('/auth/me')
         this.user = data.user
         this.organizationId = data.organizationId
+        this.organizationNombre = data.organizationNombre
+        this.organizationNit = data.organizationNit
         this.permissions = data.permissions
         this.mustUpdateProfile = data.mustUpdateProfile
         this.branding = data.branding
