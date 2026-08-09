@@ -92,16 +92,17 @@ function handleTabClick(tab: TabDef) {
   vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
   completa (top-0): ahí el navbar no convive con el sidebar abierto.
 
-  Fondo bg-navy-900 (2026-08, "que se vea igual que el sidebar cliente" —
+  Fondo bg-navy-700 (2026-08, "que se vea igual que el sidebar cliente" —
   antes quedaba en blanco, distinto del cliente; se probaron dos grises
-  intermedios y ninguno convenció, así que termina en el mismo navy-900 de
-  siempre) — mismo criterio de contraste de texto que DashboardSidebar.vue
-  (white/90 inactivo, white/25 superficies activas/hover) y border-sky-400
-  en vez del fallback de --org-primary para el indicador activo: acá nunca
-  hay branding real de una empresa, así que ese fallback siempre caía en el
-  mismo navy oscuro del fondo (invisible encima de sí mismo). -->
+  intermedios y ninguno convenció, así que termina en la misma familia navy
+  de siempre, un tono más claro que navy-900 a pedido del usuario) — mismo
+  criterio de contraste de texto que DashboardSidebar.vue (white/90
+  inactivo, white/25 superficies activas/hover) y border-sky-400 en vez del
+  fallback de --org-primary para el indicador activo: acá nunca hay
+  branding real de una empresa, así que ese fallback siempre caía en un
+  navy muy similar al del fondo (casi invisible encima). -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/20 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/20 bg-navy-700 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
