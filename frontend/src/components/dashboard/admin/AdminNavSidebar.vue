@@ -83,25 +83,31 @@ function handleTabClick(tab: TabDef) {
   cliente") — antes era `lg:sticky lg:top-6 lg:w-64` dentro del flex normal
   de AdminShell.vue, ahora `fixed` como DashboardSidebar.vue (cliente), con
   el mismo ancho colapsado/expandido y el mismo drawer móvil fuera de
-  pantalla (`-translate-x-full` en mobile, siempre visible en `lg:`). Paleta
-  clara sin cambios — el pedido fue de comportamiento (fijo + colapso), no de
-  color.
+  pantalla (`-translate-x-full` en mobile, siempre visible en `lg:`).
 
   `lg:top-20` (no `inset-y-0`, que arrancaría en y=0): el logo RoMa que antes
   vivía en este bloque ahora vive en el navbar (DashboardLayout.vue, "navbar
   continuo de ancho completo por encima del sidebar", 2026-08) — en
   escritorio el sidebar arranca debajo de ese navbar (misma altura, h-20) en
   vez de superponerse. En móvil sigue siendo el drawer de siempre a pantalla
-  completa (top-0): ahí el navbar no convive con el sidebar abierto. -->
+  completa (top-0): ahí el navbar no convive con el sidebar abierto.
+
+  Fondo #353A40 (2026-08, "que se vea igual que el sidebar cliente" — antes
+  quedaba en blanco, distinto del cliente) — mismo tono oscuro que
+  DashboardSidebar.vue, mismo criterio de contraste de texto (white/90
+  inactivo, white/25 superficies activas/hover, border-sky-400 en vez del
+  fallback de --org-primary para el indicador activo: acá nunca hay
+  branding real de una empresa, así que ese fallback siempre caía en un
+  navy oscuro casi invisible sobre este fondo). -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-line-strong bg-white p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/20 bg-[#353A40] p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
-    <div class="mb-3 flex items-center justify-end gap-2 border-b border-line px-1 pb-3">
+    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/25 px-1 pb-3">
       <button
         type="button"
-        class="hidden shrink-0 rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100 lg:block"
+        class="hidden shrink-0 rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:block"
         :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
         @click="toggleCollapsed"
       >
@@ -110,7 +116,7 @@ function handleTabClick(tab: TabDef) {
       </button>
       <button
         type="button"
-        class="rounded-sm p-1.5 text-navy-700 transition-colors hover:bg-sky-100 lg:hidden"
+        class="rounded-sm p-1.5 text-white/90 transition-colors hover:bg-white/20 lg:hidden"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -119,7 +125,7 @@ function handleTabClick(tab: TabDef) {
     </div>
 
     <p
-      class="mb-3 inline-flex w-fit items-center rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700"
+      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/25 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white"
       :class="{ 'lg:hidden': collapsed }"
     >
       {{ t(auth.roleLabelKey) }}
@@ -127,29 +133,29 @@ function handleTabClick(tab: TabDef) {
 
     <div>
       <p
-        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60"
+        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.adminShell.operacionSection') }}
       </p>
 
       <ul class="mt-1 flex flex-col gap-1">
-        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-navy-700/50" :class="{ 'lg:hidden': collapsed }">
+        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-white/70" :class="{ 'lg:hidden': collapsed }">
           {{ t('dashboard.adminShell.noActiveServices') }}
         </li>
         <li
           v-for="service in visibleServices"
           :key="service.slug"
           class="rounded-md transition-colors"
-          :class="expandedSlug === service.slug ? 'bg-sky-400/5' : ''"
+          :class="expandedSlug === service.slug ? 'bg-white/10' : ''"
         >
           <button
             type="button"
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               service.slug === props.selectedServiceSlug
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
@@ -181,7 +187,7 @@ function handleTabClick(tab: TabDef) {
           <ul
             v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
             class="mt-1 flex flex-col gap-1"
-            :class="collapsed ? '' : 'ml-4 border-l border-line-strong pl-2'"
+            :class="collapsed ? '' : 'ml-4 border-l border-white/25 pl-2'"
           >
             <li v-for="tab in props.serviceTabs" :key="tab.key">
               <button
@@ -189,8 +195,8 @@ function handleTabClick(tab: TabDef) {
                 class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                 :class="[
                   tab.key === activeTab
-                    ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                    : 'border-l-[3px] border-transparent text-navy-700/80 hover:bg-sky-400/10',
+                    ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                    : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
                   collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                 ]"
                 :title="collapsed ? tab.label : undefined"
@@ -205,9 +211,9 @@ function handleTabClick(tab: TabDef) {
       </ul>
     </div>
 
-    <div class="mt-4 border-t border-line pt-3">
+    <div class="mt-4 border-t border-white/25 pt-3">
       <p
-        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-60"
+        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90"
         :class="{ 'lg:hidden': collapsed }"
       >
         {{ t('dashboard.adminShell.administracionSection') }}
@@ -220,8 +226,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-clientes'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.clientesLink') : undefined"
@@ -237,8 +243,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-notificaciones'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.notificacionesLink') : undefined"
@@ -254,8 +260,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-gestion-notificaciones'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('dashboard.adminShell.gestionNotificacionesLink') : undefined"
@@ -271,8 +277,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-mi-perfil'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('myProfile.sidebarLink') : undefined"
@@ -288,8 +294,8 @@ function handleTabClick(tab: TabDef) {
             class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               $route.name === 'admin-configuracion'
-                ? 'border-l-[3px] border-[var(--org-primary,#0b1a33)] text-navy-900 font-semibold'
-                : 'border-l-[3px] border-transparent text-navy-700 hover:bg-sky-400/10',
+                ? 'border-l-[3px] border-sky-400 bg-white/25 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/90 hover:bg-white/20',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :title="collapsed ? t('settings.sidebarLink') : undefined"
