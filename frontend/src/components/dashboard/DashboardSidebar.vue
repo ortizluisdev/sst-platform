@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, LayoutGrid, Settings, User, X } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { TabDef } from '@/types/dashboardTabs'
 import type { ServiceOption } from '@/types/organization'
 import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
+import { useSidebarCollapse } from '@/composables/useSidebarCollapse'
 import { useAuthStore } from '@/stores/auth'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { Locale } from '@/i18n'
@@ -85,13 +86,12 @@ function selectHoja(key: 'hoja1' | 'hoja2' | 'hoja3') {
 // hojas) se ocultan del todo en vez de mostrarse angostos — un árbol
 // anidado a puro ícono queda ilegible; clic en un servicio sigue navegando
 // normal, el usuario expande de nuevo para ver sus pestañas.
-const COLLAPSE_STORAGE_KEY = 'roma-sidebar-collapsed'
-const collapsed = ref(localStorage.getItem(COLLAPSE_STORAGE_KEY) === 'true')
-watch(collapsed, (value) => localStorage.setItem(COLLAPSE_STORAGE_KEY, String(value)))
-
-function toggleCollapsed() {
-  collapsed.value = !collapsed.value
-}
+//
+// Compartido vía provide/inject (2026-08, "app shell" fijo) — antes era un
+// ref 100% local acá. DashboardLayout.vue (proveedor) necesita el mismo
+// valor para calcular el padding-left del navbar/footer fijos, que ahora
+// deben dejar el espacio exacto que ocupa este sidebar (también fijo).
+const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
 </script>
 
 <template>
@@ -103,7 +103,7 @@ function toggleCollapsed() {
   />
 
   <nav
-    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-navy-900 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:sticky lg:top-6 lg:z-auto lg:max-w-none lg:translate-x-0 lg:rounded-lg lg:border"
+    class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:translate-x-0"
     :class="collapsed ? 'lg:w-16' : 'lg:w-64'"
     :aria-label="t('dashboard.sidebar.navAriaLabel')"
   >

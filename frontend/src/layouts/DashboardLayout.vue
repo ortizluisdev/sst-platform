@@ -6,6 +6,7 @@ import { ChevronDown, Menu, UserCircle } from 'lucide-vue-next'
 import romaIsotype from '@/assets/logo/roma-isotype.svg'
 import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
+import { provideSidebarCollapse } from '@/composables/useSidebarCollapse'
 import { formatDate } from '@/utils/formatDate'
 import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
 import type { Locale } from '@/i18n'
@@ -18,6 +19,12 @@ const props = defineProps<{
    * ve exactamente igual que siempre. AdminShell.vue (panel admin) nunca la
    * pasa, a propósito — su navbar/ancho no debe cambiar en este alcance. */
   enhanced?: boolean
+  /** Separada de `enhanced`: ClientDashboardView.vue es la única página que
+   * renderiza <DashboardSidebar> dentro del slot (ahora fixed a toda la
+   * altura) — NotificationsView.vue/UpdateProfileView.vue pasan `enhanced`
+   * (mismo navbar ancho) pero nunca tuvieron sidebar, así que no deben
+   * reservarle un padding-left que quedaría vacío. */
+  withSidebar?: boolean
 }>()
 
 const auth = useAuthStore()
@@ -29,6 +36,26 @@ const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
 const drawer = provideSidebarDrawer()
+// Provisto acá aunque DashboardSidebar.vue viva dentro del <slot /> (lo
+// renderiza el componente de página, no este layout) — provide/inject
+// funciona a través de slots por jerarquía de componentes, no de posición
+// en el template. Necesario para calcular el padding-left del navbar/main/
+// footer "app shell" (ver sidebarOffsetClass) cuando el sidebar real,
+// ahora fixed a toda la altura, se superpone visualmente sobre esa franja
+// izquierda — mismo ancho que exponen las clases lg:w-64/lg:w-16 de
+// DashboardSidebar.vue.
+const { collapsed: sidebarCollapsed } = provideSidebarCollapse()
+// Sin `withSidebar`, nunca se aplica: AdminShell.vue usa su propio
+// AdminNavSidebar.vue (en flujo normal, no fixed) y no debe desbalancearse;
+// NotificationsView.vue/UpdateProfileView.vue pasan `enhanced` pero nunca
+// tuvieron sidebar, un padding-left ahí dejaría un hueco vacío.
+// pl-20/pl-72 (no pl-16/pl-64, que es el ancho exacto del sidebar): deja
+// ~16-24px de aire entre el borde del sidebar y el contenido, si no queda
+// pegado.
+const sidebarOffsetClass = computed(() => {
+  if (!props.withSidebar) return ''
+  return sidebarCollapsed.value ? 'lg:pl-20' : 'lg:pl-72'
+})
 
 // El color de marca del cliente (--org-primary) queda reservado para
 // botones, pills activos y estados de éxito/error — nunca como fondo del
@@ -69,10 +96,14 @@ const switchTo = computed(() => ({
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-cream" :style="auth.brandingCssVars">
+  <div
+    class="flex flex-col bg-cream"
+    :class="enhanced ? 'h-screen overflow-hidden' : 'min-h-screen'"
+    :style="auth.brandingCssVars"
+  >
     <header
-      class="border-b border-line-strong bg-white shadow-sm print:hidden"
-      :class="enhanced ? 'px-4 py-4 sm:px-8 sm:py-5' : 'px-4 py-3.5 sm:px-6'"
+      class="shrink-0 border-b border-line-strong bg-white shadow-sm print:hidden"
+      :class="[enhanced ? 'px-4 py-4 sm:px-8 sm:py-5' : 'px-4 py-3.5 sm:px-6', sidebarOffsetClass]"
     >
       <div class="mx-auto flex items-center justify-between gap-3" :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'">
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -165,13 +196,23 @@ const switchTo = computed(() => ({
     </header>
 
     <main
-      class="mx-auto w-full flex-1 px-4 py-6 sm:px-6 sm:py-8"
-      :class="enhanced ? 'max-w-[1800px]' : 'max-w-[1280px]'"
+      class="w-full px-4 py-6 sm:px-6 sm:py-8"
+      :class="[
+        enhanced
+          ? withSidebar
+            ? 'flex-1 overflow-y-auto'
+            : 'mx-auto flex-1 overflow-y-auto max-w-[1800px]'
+          : 'mx-auto flex-1 max-w-[1280px]',
+        sidebarOffsetClass,
+      ]"
     >
       <slot />
     </main>
 
-    <footer class="border-t border-line px-4 py-4 print:hidden sm:px-6">
+    <footer
+      class="shrink-0 border-t border-line px-4 py-4 print:hidden sm:px-6"
+      :class="sidebarOffsetClass"
+    >
       <div
         class="mx-auto flex max-w-[1280px] flex-col items-center gap-1 text-center text-xs text-navy-700/60 sm:flex-row sm:justify-between sm:text-left"
       >

@@ -5,6 +5,7 @@ import { createPinia } from 'pinia'
 import { Home, ClipboardCheck, Truck, Users, Map, AlertTriangle, History, FileText } from 'lucide-vue-next'
 import DashboardSidebar from './DashboardSidebar.vue'
 import { SIDEBAR_DRAWER_KEY } from '@/composables/useSidebarDrawer'
+import { SIDEBAR_COLLAPSE_KEY } from '@/composables/useSidebarCollapse'
 import es from '@/i18n/locales/es.json'
 import en from '@/i18n/locales/en.json'
 import type { TabDef } from '@/types/dashboardTabs'
@@ -12,6 +13,7 @@ import type { TabDef } from '@/types/dashboardTabs'
 const i18n = createI18n({ legacy: false, locale: 'es', messages: { es, en } })
 
 const drawerStub = { isOpen: { value: false }, open: () => {}, close: () => {}, toggle: () => {} }
+const collapseStub = { collapsed: { value: false }, toggle: () => {} }
 
 function mountSidebar(props: { tabs: TabDef[]; selectedServiceSlug: string; modelValue?: string }) {
   return mount(DashboardSidebar, {
@@ -23,7 +25,7 @@ function mountSidebar(props: { tabs: TabDef[]; selectedServiceSlug: string; mode
     },
     global: {
       plugins: [i18n, createPinia()],
-      provide: { [SIDEBAR_DRAWER_KEY as symbol]: drawerStub },
+      provide: { [SIDEBAR_DRAWER_KEY as symbol]: drawerStub, [SIDEBAR_COLLAPSE_KEY as symbol]: collapseStub },
     },
   })
 }

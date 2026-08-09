@@ -129,7 +129,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
 </script>
 
 <template>
-  <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null" enhanced>
+  <DashboardLayout :last-sync="dashboard?.lastUpdated ?? null" enhanced with-sidebar>
     <!-- Skeleton en vez de un mensaje de texto: la pantalla se sentía "en
     blanco" hasta que todo el dashboard aparecía de golpe. No intenta
     replicar el sidebar real (varía por servicio) — solo el área de
@@ -141,7 +141,10 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
       </div>
       <span class="sr-only">{{ t('dashboard.clientView.loading') }}</span>
     </div>
-    <div v-else-if="serviceSlug === 'seguridad-vial'" class="grid gap-6 lg:grid-cols-[auto_1fr]">
+    <template v-else-if="serviceSlug === 'seguridad-vial'">
+      <!-- DashboardSidebar es `fixed` a toda la altura (2026-08, "app
+      shell") — ya no ocupa una columna de grid, el padding-left que le deja
+      espacio vive en DashboardLayout.vue (sidebarOffsetClass). -->
       <DashboardSidebar
         v-model="activeTab"
         v-model:active-hoja="activeHoja"
@@ -159,8 +162,8 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
           :active-tab="(activeTab as 'dashboard' | 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas' | 'historial' | 'reportes')"
         />
       </div>
-    </div>
-    <div v-else-if="dashboard" class="grid gap-6 lg:grid-cols-[auto_1fr]">
+    </template>
+    <template v-else-if="dashboard">
       <DashboardSidebar
         v-model="activeTab"
         v-model:active-hoja="activeHoja"
@@ -190,6 +193,6 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
           :tabs="tabs"
         />
       </div>
-    </div>
+    </template>
   </DashboardLayout>
 </template>
