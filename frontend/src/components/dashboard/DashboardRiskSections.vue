@@ -11,6 +11,7 @@ import { SEMAPHORE_STYLES, SEMAPHORE_LABEL_KEY } from '@/utils/semaphoreStyles'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { PRIORITY_STYLES, STATUS_STYLES } from '@/utils/nonConformityStyles'
 import { categoriaEnumFromLabel } from '@/utils/higieneCategorias'
+import { roundDisplay } from '@/utils/formatNumber'
 import Modal from '@/components/ui/Modal.vue'
 import {
   getClientHeatmap,
@@ -103,11 +104,19 @@ const uploadableCategorias = computed(() =>
   ),
 )
 
+// Antes se desplazaba un 90% del ancho visible del track — con tarjetas de
+// ancho fijo eso casi nunca coincidía con el borde de una tarjeta (scroll-
+// snap peleando contra un desplazamiento arbitrario), así que "Continuar"
+// a veces se sentía como que no hacía nada o se quedaba a medio camino.
+// Ahora se mueve exactamente el ancho de una tarjeta (+ el gap real del
+// contenedor, leído del propio DOM en vez de asumir el valor de gap-4).
 function scrollCarousel(direction: 'prev' | 'next') {
   const el = carouselTrack.value
-  if (!el) return
-  const amount = el.clientWidth * 0.9 * (direction === 'next' ? 1 : -1)
-  el.scrollBy({ left: amount, behavior: 'smooth' })
+  const firstCard = el?.firstElementChild as HTMLElement | null
+  if (!el || !firstCard) return
+  const gap = parseFloat(getComputedStyle(el).columnGap || '0')
+  const step = firstCard.offsetWidth + gap
+  el.scrollBy({ left: step * (direction === 'next' ? 1 : -1), behavior: 'smooth' })
 }
 
 async function loadHeatmap() {
@@ -238,7 +247,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <!-- min-w-0: el padre (ResumenTab.vue/ClientDashboardTab.vue) es un
+  "grid gap-6" de una sola columna sin ancho fijo — por default un ítem de
+  grid tiene min-width:auto (el min-content de su contenido), así que
+  cualquier hijo con un ancho mínimo grande (ej. el carrusel de mapas de
+  calor) empuja esta columna, y con ella toda la página, más ancha de lo
+  que debería. min-w-0 corta esa cascada en la raíz de este componente. -->
+  <div class="grid min-w-0" :class="isAdmin ? 'gap-8' : 'gap-6'">
     <!-- Tendencia de riesgo — mapas de calor por categoría + zona -->
     <div>
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
@@ -305,13 +320,30 @@ onMounted(() => {
         >
           <ChevronLeft class="h-4 w-4" />
         </button>
-        <div ref="carouselTrack" class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1" style="scrollbar-width: none">
+        <div
+          ref="carouselTrack"
+          class="flex min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1"
+          style="scrollbar-width: none"
+        >
           <div
             v-for="img in carouselImages"
             :key="img.id"
-            class="w-56 shrink-0 snap-start overflow-hidden rounded-lg border border-line-strong bg-white"
+            class="w-[calc((100%-2rem)/3)] shrink-0 snap-start overflow-hidden rounded-lg border border-line-strong bg-white"
           >
-            <img :src="img.imageBase64" alt="" class="h-32 w-full object-cover" />
+            <!-- loading="lazy" + decoding="async": estas imágenes pueden
+            pesar hasta 3MB crudos (ver heatmapImageSchema) — decodificarlas
+            de forma síncrona en el hilo principal podía "congelar" el
+            layout un instante y luego saltar al tamaño final una vez
+            terminaba, dando la sensación de que la pantalla arranca chica
+            y de golpe se agranda. bg-cream reserva el espacio con un color
+            neutro mientras decodifica, en vez de quedar en blanco. -->
+            <img
+              :src="img.imageBase64"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              class="h-40 w-full bg-cream object-cover"
+            />
             <div class="p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-navy-700">
                 {{ t(`clients.categoryConfig.categorias.${img.categoria}`) }}
@@ -344,7 +376,12 @@ onMounted(() => {
         max-width="2xl"
         @close="viewingImage = null"
       >
-        <img :src="viewingImage.imageBase64" alt="" class="mt-4 max-h-[70vh] w-full rounded-sm object-contain" />
+        <img
+          :src="viewingImage.imageBase64"
+          alt=""
+          decoding="async"
+          class="mt-4 max-h-[70vh] w-full rounded-sm object-contain"
+        />
         <p v-if="viewingImage.zonaNombre" class="mt-3 text-sm text-navy-700">
           <span class="font-semibold text-navy-900">{{ t('dashboard.riskSections.heatmapZonaLabel') }}:</span>
           {{ viewingImage.zonaNombre }}
@@ -379,7 +416,7 @@ onMounted(() => {
                   }}
                 </td>
                 <td class="px-4 py-3 font-mono text-navy-900">
-                  {{ variable ? `${variable.promedio} ${variable.unidadMedida}` : '—' }}
+                  {{ variable ? `${isAdmin ? roundDisplay(variable.promedio) : variable.promedio} ${variable.unidadMedida}` : '—' }}
                 </td>
                 <td class="px-4 py-3 font-mono text-navy-700">{{ variable?.incertidumbre ?? '—' }}</td>
                 <td class="px-4 py-3 font-mono text-navy-700">
@@ -512,8 +549,17 @@ onMounted(() => {
                       PRIORITY_STYLES[item.prioridad].text,
                       PRIORITY_STYLES[item.prioridad].border,
                     ]"
-                    class="inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
+                    class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase"
                   >
+                    <!-- Punto de color: mismo tratamiento que el badge de
+                    estado de la tabla comparativa y las tarjetas KPI, solo
+                    en el panel admin — la vista cliente no lo recibe, a
+                    propósito, para no tocar su diseño. -->
+                    <span
+                      v-if="isAdmin"
+                      :class="PRIORITY_STYLES[item.prioridad].dot"
+                      class="h-1.5 w-1.5 shrink-0 rounded-full"
+                    />
                     {{ t(`dashboard.riskSections.priority.${item.prioridad}`) }}
                   </span>
                 </td>
