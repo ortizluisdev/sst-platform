@@ -672,6 +672,10 @@
     },
     "clientAnalisisTab": {
       "indicesGlobales": "Risk analysis indices",
+      "resumenTitle": "Summary",
+      "tendenciasTitle": "Calculated trends",
+      "grupoBTitle": "Methodologies under validation",
+      "grupoBBadge": "Under validation",
       "cumplimientoGlobal": "Global compliance",
       "variablesIncumplimiento": "Non-compliant variables",
       "medicionesRealizadas": "Measurements taken",

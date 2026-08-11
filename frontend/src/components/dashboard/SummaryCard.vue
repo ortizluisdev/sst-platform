@@ -38,20 +38,26 @@ const styles = SEMAPHORE_STYLES[props.estado]
 <template>
   <div
     class="rounded-lg border border-line-strong bg-white"
-    :class="['border-l-4', styles.accent, compact ? 'p-3' : enhanced ? 'p-5' : 'p-4']"
+    :class="['border-l-4', styles.accent, compact ? 'p-3.5' : enhanced ? 'p-5' : 'p-4']"
   >
-    <div class="flex items-center gap-2" :class="compact ? 'gap-1.5' : 'gap-2'">
-      <component
-        :is="icon"
-        v-if="icon"
-        class="shrink-0 text-sky-400"
-        :class="compact ? 'h-3 w-3' : 'h-4 w-4'"
-        aria-hidden="true"
-      />
-      <p
-        class="truncate font-semibold uppercase tracking-wide text-navy-700 opacity-70"
-        :class="compact ? 'text-[10px]' : 'text-xs'"
-      >
+    <!-- Compacta (2026-08, "se ven muy vacías y los íconos muy pequeños"):
+    ícono grande a la derecha, coloreado según el estado (antes siempre
+    text-sky-400 sin importar el semáforo, y h-3 — diminuto) — mismo
+    layout espejado que ClientStatCard.vue compacto, para que el color del
+    ícono refuerce el mismo estado que ya comunica el borde/pill. -->
+    <div v-if="compact" class="flex items-start justify-between gap-2">
+      <p class="min-w-0 truncate text-[10px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+        {{ titulo }}
+      </p>
+      <component v-if="icon" :is="icon" class="h-5 w-5 shrink-0" :class="styles.text" aria-hidden="true" />
+    </div>
+    <div v-else class="flex items-center gap-2">
+      <!-- Coloreado según el estado (2026-08, "colocale más colorcitos" en
+      CategoryTab.vue — Lighting/Sound/Thermal Stress/UV Radiation/
+      Vibration) — antes siempre text-sky-400 sin importar el semáforo,
+      mismo criterio que ya tenía el modo compacto arriba. -->
+      <component :is="icon" v-if="icon" class="h-4 w-4 shrink-0" :class="styles.text" aria-hidden="true" />
+      <p class="truncate text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ titulo }}
       </p>
     </div>
@@ -60,9 +66,9 @@ const styles = SEMAPHORE_STYLES[props.estado]
      instrumento, no como cifra de marketing (serif). En modo enhanced, la
      unidad se separa en un tamaño menor para que el número sea lo primero
      que se lee — antes ambos iban en el mismo tamaño, compitiendo. -->
-    <p v-if="compact" class="mt-1.5 flex items-baseline gap-1">
-      <span class="font-mono text-xl font-bold tabular-nums text-navy-900">{{ valor }}</span>
-      <span v-if="unidad" class="font-mono text-[11px] font-medium text-navy-700/60">{{ unidad }}</span>
+    <p v-if="compact" class="mt-2 flex items-baseline gap-1">
+      <span class="font-mono text-2xl font-bold tabular-nums text-navy-900">{{ valor }}</span>
+      <span v-if="unidad" class="font-mono text-xs font-medium text-navy-700/60">{{ unidad }}</span>
     </p>
     <p v-else-if="enhanced" class="mt-2.5 flex items-baseline gap-1.5">
       <span class="font-mono text-3xl font-bold tabular-nums text-navy-900">{{ valor }}</span>
@@ -76,7 +82,7 @@ const styles = SEMAPHORE_STYLES[props.estado]
      Norma, más abajo en la misma vista). -->
     <span
       v-if="compact"
-      class="mt-1.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase"
+      class="mt-2.5 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase"
       :class="[styles.bg, styles.text, styles.border]"
     >
       <span :class="styles.dot" class="h-1.5 w-1.5 shrink-0 rounded-full" />

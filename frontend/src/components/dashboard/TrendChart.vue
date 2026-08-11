@@ -12,6 +12,7 @@ import {
   Filler,
   type ScriptableContext,
 } from 'chart.js'
+import type { Component } from 'vue'
 import type { TrendPoint } from '@/types/dashboard'
 import { CHART_PALETTE, CHART_SKY_RGBA, CHART_TOOLTIP_STYLE } from '@/utils/chartTheme'
 
@@ -24,6 +25,13 @@ const props = defineProps<{
    * representativa por categoría, no un promedio entre unidades distintas. */
   codigo: string
   trend: TrendPoint[]
+  /** Ícono opcional junto al título (2026-08, "colocale más colorcitos" en
+   * ClientAnalisisTab.vue) — sin esta prop, la tarjeta se ve exactamente
+   * igual que siempre; CategoryTab.vue (admin) nunca la pasa. */
+  icon?: Component
+  /** Clase Tailwind de color para el ícono (ej. "text-amber-500") — junto
+   * con `icon`, nunca sola. */
+  iconColorClass?: string
 }>()
 
 /** Relleno en degradado sutil bajo la línea — Chart.js necesita el
@@ -81,7 +89,10 @@ const chartOptions = {
 
 <template>
   <div class="rounded-lg border border-line-strong bg-white p-4 sm:p-5">
-    <p class="mb-4 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{ titulo }}</p>
+    <div class="mb-4 flex items-center gap-2">
+      <component v-if="icon" :is="icon" class="h-4 w-4 shrink-0" :class="iconColorClass ?? 'text-sky-400'" aria-hidden="true" />
+      <p class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{ titulo }}</p>
+    </div>
     <div class="h-[180px] w-full sm:h-[200px]">
       <Line :data="chartData" :options="chartOptions" />
     </div>

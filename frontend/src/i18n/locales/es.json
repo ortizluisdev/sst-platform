@@ -672,6 +672,10 @@
     },
     "clientAnalisisTab": {
       "indicesGlobales": "Índices de análisis de riesgo",
+      "resumenTitle": "Resumen",
+      "tendenciasTitle": "Tendencias calculadas",
+      "grupoBTitle": "Metodologías en validación",
+      "grupoBBadge": "En validación",
       "cumplimientoGlobal": "Cumplimiento global",
       "variablesIncumplimiento": "Variables en incumplimiento",
       "medicionesRealizadas": "Mediciones realizadas",

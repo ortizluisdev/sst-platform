@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Percent, XCircle, ListChecks } from 'lucide-vue-next'
+import { Percent, XCircle, ListChecks, TrendingUp } from 'lucide-vue-next'
 import type { CategoryCardStatus, DashboardData, TrendPoint } from '@/types/dashboard'
 import { categoryLabel } from '@/utils/categoryLabel'
+import { iconForCategory, iconColorForCategory } from '@/utils/categoryIcon'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { roundDisplay } from '@/utils/formatNumber'
 import type { Locale } from '@/i18n'
@@ -99,6 +100,12 @@ const matrizValor = computed(() =>
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.clientAnalisisTab.indicesGlobales') }}
       </p>
+
+      <!-- Resumen: los 3 números "crudos" del periodo, siempre con datos
+      reales (nunca "pendiente"). -->
+      <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+        {{ t('dashboard.clientAnalisisTab.resumenTitle') }}
+      </p>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.cumplimientoGlobal')"
@@ -117,10 +124,15 @@ const matrizValor = computed(() =>
           :valor="String(dashboard.globalCompliance.total)"
           :icon="ListChecks"
         />
+      </div>
 
-        <!-- Grupo A: series temporales — calculadas, "Datos insuficientes"
-         cuando falta historial (no "Pendiente", esa etiqueta es solo para
-         el Grupo B, que sigue sin metodología definida). -->
+      <!-- Grupo A: series temporales — calculadas, "Datos insuficientes"
+       cuando falta historial (no "Pendiente", esa etiqueta es solo para
+       el Grupo B, que sigue sin metodología definida). -->
+      <p class="mb-2 mt-5 text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+        {{ t('dashboard.clientAnalisisTab.tendenciasTitle') }}
+      </p>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.tendenciaGlobal')"
           :valor="tendenciaGlobalValor ?? t('dashboard.clientAnalisisTab.datosInsuficientes')"
@@ -135,10 +147,21 @@ const matrizValor = computed(() =>
           "
           :pendiente="!dashboard.probabilidadIncumplimiento"
         />
+      </div>
 
-        <!-- Grupo B: metodologías propuestas y aprobadas para calcular,
-         pendientes de validación formal con el responsable SST — ver
-         grupoBDisclaimer debajo de esta grilla. -->
+      <!-- Grupo B: metodologías propuestas y aprobadas para calcular,
+       pendientes de validación formal con el responsable SST — badge junto
+       al título en vez de solo una nota chiquita al final (antes se leía
+       igual que "sin datos", cuando en realidad es "sin aprobar todavía"). -->
+      <div class="mb-2 mt-5 flex items-center gap-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-navy-700/50">
+          {{ t('dashboard.clientAnalisisTab.grupoBTitle') }}
+        </p>
+        <span class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-600">
+          {{ t('dashboard.clientAnalisisTab.grupoBBadge') }}
+        </span>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ClientStatCard
           :titulo="t('dashboard.clientAnalisisTab.riesgoSalud')"
           :valor="riesgoSaludValor ?? t('dashboard.clientDashboardTab.sinNormaAplicable')"
@@ -178,6 +201,8 @@ const matrizValor = computed(() =>
         unidad-medida="%"
         codigo="IGHO"
         :trend="evolucionIghoTrend"
+        :icon="TrendingUp"
+        icon-color-class="text-emerald-500"
       />
       <p
         v-else
@@ -199,6 +224,8 @@ const matrizValor = computed(() =>
           :unidad-medida="variable!.unidadMedida"
           :codigo="codigo"
           :trend="trendHistorico"
+          :icon="iconForCategory(categoria)"
+          :icon-color-class="iconColorForCategory(categoria)"
         />
       </div>
       <p

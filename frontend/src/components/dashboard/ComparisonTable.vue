@@ -7,6 +7,7 @@ import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { categoryLabel } from '@/utils/categoryLabel'
 import { variableLabel } from '@/utils/variableLabel'
 import { formatRange } from '@/utils/formatRange'
+import { iconForCategory, iconColorForCategory } from '@/utils/categoryIcon'
 
 defineProps<{ categories: CategorySummary[] }>()
 
@@ -30,7 +31,15 @@ const { t, locale } = useI18n()
           <template v-for="category in categories" :key="category.categoria">
             <tr class="bg-cream">
               <td colspan="5" class="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-navy-700">
-                {{ categoryLabel(category.categoria, locale as Locale) }}
+                <span class="inline-flex items-center gap-1.5">
+                  <component
+                    :is="iconForCategory(category.categoria)"
+                    class="h-3.5 w-3.5 shrink-0"
+                    :class="iconColorForCategory(category.categoria)"
+                    aria-hidden="true"
+                  />
+                  {{ categoryLabel(category.categoria, locale as Locale) }}
+                </span>
               </td>
             </tr>
             <tr v-for="v in category.variables" :key="v.definitionId" class="border-t border-line">

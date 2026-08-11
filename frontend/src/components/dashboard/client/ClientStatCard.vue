@@ -30,32 +30,41 @@ const styles = props.estado ? SEMAPHORE_STYLES[props.estado] : null
 <template>
   <div
     class="rounded-lg border border-line-strong bg-white"
-    :class="[styles ? ['border-l-4', styles.accent] : '', compact ? 'p-3' : 'p-5']"
+    :class="[styles ? ['border-l-4', styles.accent] : '', compact ? 'p-3.5' : 'p-5']"
   >
-    <div class="flex" :class="compact ? 'items-start gap-1.5' : 'items-center gap-2'">
-      <span
-        v-if="icon"
-        class="flex shrink-0 items-center justify-center rounded-md"
-        :class="[styles ? styles.bg : 'bg-sky-50', compact ? 'h-5 w-5' : 'h-7 w-7']"
-      >
-        <component
-          :is="icon"
-          :class="[styles ? styles.text : 'text-sky-400', compact ? 'h-3 w-3' : 'h-4 w-4']"
-          aria-hidden="true"
-        />
-      </span>
-      <p
-        class="font-semibold uppercase tracking-wide text-navy-700 opacity-70"
-        :class="compact ? 'line-clamp-2 text-[10px] leading-tight' : 'truncate text-xs'"
-      >
+    <!-- Compacta (2026-08, "se ven muy vacías y los íconos muy pequeños"):
+    ícono grande a la derecha SIN caja de fondo (antes era un cuadrito
+    diminuto h-3 dentro de otro h-5 — dos capas de "chiquito"), título a la
+    izquierda — mismo layout que el no-compacto pero espejado, para llenar
+    mejor el ancho de la tarjeta en vez de todo apilado a la izquierda. -->
+    <div v-if="compact" class="flex items-start justify-between gap-2">
+      <p class="line-clamp-2 min-w-0 text-[10px] font-semibold uppercase leading-tight tracking-wide text-navy-700 opacity-70">
         {{ titulo }}
       </p>
+      <component
+        v-if="icon"
+        :is="icon"
+        class="h-5 w-5 shrink-0"
+        :class="styles ? styles.text : 'text-sky-400'"
+        aria-hidden="true"
+      />
+    </div>
+    <!-- No compacta: mismo layout espejado (título izquierda, ícono grande
+    sin caja a la derecha) que el modo compacto de arriba — antes era un
+    cuadrito de ícono h-4 dentro de otro h-7 pegado a la izquierda, que ya
+    no coincidía con el lenguaje visual del resto del dashboard (2026-08,
+    "uniformidad con el resto, se ve como diferente"). -->
+    <div v-else class="flex items-start justify-between gap-2">
+      <p class="min-w-0 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+        {{ titulo }}
+      </p>
+      <component v-if="icon" :is="icon" class="h-6 w-6 shrink-0" :class="styles ? styles.text : 'text-sky-400'" aria-hidden="true" />
     </div>
     <p
       class="font-serif font-semibold"
       :class="[
         pendiente ? 'text-navy-700 opacity-40' : 'text-navy-900',
-        compact ? 'mt-1.5 text-xl' : 'mt-2.5 text-3xl',
+        compact ? 'mt-2 text-2xl' : 'mt-2.5 text-3xl',
       ]"
     >
       {{ valor }}

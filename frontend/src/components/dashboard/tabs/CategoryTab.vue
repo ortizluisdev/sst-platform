@@ -7,6 +7,7 @@ import SummaryCard from '../SummaryCard.vue'
 import TrendChart from '../TrendChart.vue'
 import CorrectReadingModal from '../CorrectReadingModal.vue'
 import { SEMAPHORE_STYLES } from '@/utils/semaphoreStyles'
+import { iconForCategory, iconColorForCategory } from '@/utils/categoryIcon'
 import { formatSummaryValue } from '@/utils/formatSummaryValue'
 import { resolveDisplayStatus } from '@/utils/resolveDisplayStatus'
 import { variableLabel } from '@/utils/variableLabel'
@@ -82,15 +83,17 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         :valor="formatSummaryValue(v)"
         :cumplimiento-pct="v.cumplimientoPct"
         :estado="resolveDisplayStatus(v)"
+        :icon="iconForCategory(category.categoria)"
       />
     </div>
 
     <div class="overflow-hidden rounded-lg border border-line-strong bg-white">
-      <p
-        class="border-b border-line-strong px-4 py-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70"
-      >
-        {{ t('dashboard.category.detailHeading') }}
-      </p>
+      <div class="flex items-center gap-2 border-b border-line-strong px-4 py-3">
+        <component :is="iconForCategory(category.categoria)" class="h-4 w-4 shrink-0" :class="iconColorForCategory(category.categoria)" aria-hidden="true" />
+        <p class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.category.detailHeading') }}
+        </p>
+      </div>
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm">
           <thead>
@@ -173,6 +176,8 @@ const workPointRows = computed<WorkPointRow[]>(() => {
         :unidad-medida="v.unidadMedida"
         :codigo="v.codigo"
         :trend="trend"
+        :icon="iconForCategory(category.categoria)"
+        :icon-color-class="iconColorForCategory(category.categoria)"
       />
     </div>
 
