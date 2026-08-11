@@ -155,7 +155,7 @@ function handleTabClick(tab: TabDef) {
             type="button"
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
-              service.slug === props.selectedServiceSlug
+              expandedSlug === service.slug
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
