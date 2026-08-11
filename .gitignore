@@ -1,6 +1,12 @@
 # Variables reales de docker-compose — nunca commitear, solo el .example.
 .env.docker
 
+# Override de docker-compose usado en el servidor de producción — trae
+# credenciales reales de la base de datos en texto plano (DATABASE_URL).
+# No estaba cubierto por ningún patrón hasta ahora (auditoría de seguridad
+# 2026-08-11) — un "git add -A" desde ese directorio lo habría subido.
+docker-compose.override.yml
+
 # Volcados de BD usados para el cutover a Docker — nunca al repo. Excluye
 # explícitamente las migraciones de Prisma (también son .sql) — sin esto,
 # *.sql las ignoraba en silencio y nunca llegaban a git (detectado 2026-08-08,
