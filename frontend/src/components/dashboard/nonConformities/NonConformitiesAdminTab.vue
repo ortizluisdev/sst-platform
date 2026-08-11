@@ -130,7 +130,7 @@ async function handleDelete(item: NonConformity) {
 </script>
 
 <template>
-  <div class="grid gap-4">
+  <div class="grid min-w-0 gap-4">
     <p class="text-sm text-navy-700 opacity-70">{{ t('dashboard.nonConformitiesAdmin.subtitle') }}</p>
 
     <div class="flex flex-wrap items-center justify-between gap-3">

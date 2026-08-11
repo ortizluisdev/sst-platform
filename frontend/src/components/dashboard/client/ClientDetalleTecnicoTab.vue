@@ -134,7 +134,7 @@ function formatNorma(min: number | null, max: number | null): string {
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid min-w-0 gap-6">
     <div class="rounded-lg border border-line-strong bg-white p-5 print:hidden">
       <div class="flex flex-wrap items-start justify-between gap-6">
         <div class="flex flex-1 flex-wrap gap-x-8 gap-y-4">

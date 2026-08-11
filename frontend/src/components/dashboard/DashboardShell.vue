@@ -71,10 +71,10 @@ const bannerTitle = computed(() => {
 </script>
 
 <template>
-  <div class="grid gap-6" :class="hideSidebar ? '' : 'lg:grid-cols-[220px_1fr] lg:items-start'">
+  <div class="grid min-w-0 gap-6" :class="hideSidebar ? '' : 'lg:grid-cols-[220px_1fr] lg:items-start'">
     <DashboardSidebar v-if="!hideSidebar" v-model="activeTab" :tabs="tabs" :services="[]" selected-service-slug="" />
 
-    <div class="grid gap-6">
+    <div class="grid min-w-0 gap-6">
       <SectionTitleBanner :title="bannerTitle">
         <template v-if="$slots['banner-actions']" #actions>
           <slot name="banner-actions" />

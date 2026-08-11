@@ -47,7 +47,7 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
   <!-- Sin tarjeta de título/fecha propia: esa info ya está en el banner de
   ruta (servicio — empresa — pestaña, arriba de este componente) y en el
   footer (última sincronización) — repetirla acá era redundante. -->
-  <div class="grid gap-8">
+  <div class="grid min-w-0 gap-8">
     <GlobalIndicatorsRow :dashboard="dashboard" />
 
     <div

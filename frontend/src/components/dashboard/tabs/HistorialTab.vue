@@ -81,7 +81,7 @@ function statusLabel(s: UploadHistoryEntry['status']): string {
 </script>
 
 <template>
-  <div class="grid gap-4">
+  <div class="grid min-w-0 gap-4">
     <div class="flex flex-wrap items-end gap-4 rounded-lg border border-line-strong bg-white px-5 py-4">
       <div>
         <label for="desde" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">{{

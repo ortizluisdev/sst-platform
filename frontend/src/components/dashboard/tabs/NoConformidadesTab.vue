@@ -69,7 +69,7 @@ async function changeEstado(item: NonConformity, estado: NonConformityStatus) {
 </script>
 
 <template>
-  <div class="grid gap-4">
+  <div class="grid min-w-0 gap-4">
     <p class="text-sm text-navy-700 opacity-70">{{ t('dashboard.noConformidadesTab.subtitle') }}</p>
 
     <div class="overflow-hidden rounded-lg border border-line-strong bg-white">

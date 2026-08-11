@@ -140,13 +140,13 @@ async function correctReading(readingId: string, valor: number, reason: string) 
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid min-w-0 gap-6">
     <p v-if="status === 'loading'" class="text-sm text-navy-700">{{ t('dashboard.clientView.loading') }}</p>
-    <div v-else-if="dashboard && sharedActiveTab === 'recomendaciones'" class="grid gap-6">
+    <div v-else-if="dashboard && sharedActiveTab === 'recomendaciones'" class="grid min-w-0 gap-6">
       <SectionTitleBanner :title="sectionBannerTitle" />
       <NonConformitiesAdminTab :organization-id="props.organizationId" :service-slug="SERVICE_SLUG" />
     </div>
-    <div v-else-if="dashboard && sharedActiveTab === 'configuracion'" class="grid gap-6">
+    <div v-else-if="dashboard && sharedActiveTab === 'configuracion'" class="grid min-w-0 gap-6">
       <SectionTitleBanner :title="sectionBannerTitle" />
       <HigieneConfigTab :organization-id="props.organizationId" @categories-changed="loadDashboard" />
     </div>

@@ -36,7 +36,7 @@ const showReportModal = ref(false)
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid min-w-0 gap-6">
     <!-- Botón en línea con el banner (antes: fila propia debajo, dos filas
     para lo que cabe en una) — mismo tratamiento que "Cargar variables" en
     el admin: fondo claro, no el mismo tono que el banner oscuro donde

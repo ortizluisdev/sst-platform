@@ -73,8 +73,8 @@ const workPointRows = computed<WorkPointRow[]>(() => {
 </script>
 
 <template>
-  <div class="grid gap-6">
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid min-w-0 gap-6">
+    <div class="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <SummaryCard
         v-for="v in category.variables"
         :key="v.definitionId"
@@ -165,7 +165,7 @@ const workPointRows = computed<WorkPointRow[]>(() => {
       {{ t('dashboard.category.heatmapPlaceholder') }}
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid min-w-0 gap-4 sm:grid-cols-2">
       <TrendChart
         v-for="v in category.variables"
         :key="v.definitionId"

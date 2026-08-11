@@ -32,7 +32,7 @@ const enabledCategorias = computed(() => props.dashboard.categories.map((c) => c
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid min-w-0 gap-6">
     <GlobalIndicatorsRow :dashboard="dashboard" />
 
     <div>

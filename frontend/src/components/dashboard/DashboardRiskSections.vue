@@ -255,7 +255,7 @@ onMounted(() => {
   que debería. min-w-0 corta esa cascada en la raíz de este componente. -->
   <div class="grid min-w-0 gap-8">
     <!-- Tendencia de riesgo — mapas de calor por categoría + zona -->
-    <div>
+    <div class="min-w-0">
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.riskSections.heatmapTitle') }}
       </p>
@@ -311,7 +311,7 @@ onMounted(() => {
       <p v-if="carouselImages.length === 0" class="rounded-lg border border-line-strong bg-white p-6 text-center text-sm text-navy-700/60">
         {{ t('dashboard.riskSections.heatmapEmpty') }}
       </p>
-      <div v-else class="relative">
+      <div v-else class="relative min-w-0">
         <button
           type="button"
           class="absolute left-0 top-1/2 z-10 -translate-x-3 -translate-y-1/2 rounded-full border border-line-strong bg-white p-1.5 text-navy-700 shadow-sm hover:bg-cream"
@@ -396,15 +396,15 @@ onMounted(() => {
     del anillo AFUERA de su tarjeta (hide-title), igual que el de la tabla
     vecina — adentro (como venía ComplianceRing.vue de por sí) los dos
     títulos quedaban a alturas distintas, desalineados. -->
-    <div class="grid gap-4 lg:grid-cols-[240px_1fr] lg:items-start">
-      <div>
+    <div class="grid min-w-0 gap-4 lg:grid-cols-[240px_1fr] lg:items-start">
+      <div class="min-w-0">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
           {{ t('dashboard.complianceRing.title') }}
         </p>
         <ComplianceRing :compliance="globalCompliance" hide-title />
       </div>
 
-      <div>
+      <div class="min-w-0">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
           {{ t('dashboard.riskSections.comparativoTitle') }}
         </p>
@@ -463,9 +463,9 @@ onMounted(() => {
     </div>
 
     <!-- Recomendaciones / no conformidades -->
-    <div>
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <p class="text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+    <div class="min-w-0">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p class="min-w-0 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
           {{ t('dashboard.riskSections.recomendacionesTitle') }}
         </p>
         <div class="flex shrink-0 items-center gap-2">

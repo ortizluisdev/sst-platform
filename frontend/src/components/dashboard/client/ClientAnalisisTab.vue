@@ -94,7 +94,7 @@ const matrizValor = computed(() =>
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid min-w-0 gap-6">
     <div>
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.clientAnalisisTab.indicesGlobales') }}
