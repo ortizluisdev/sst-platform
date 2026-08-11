@@ -102,8 +102,8 @@ function handleTabClick(tab: TabDef) {
   activo: acá nunca hay branding real de una empresa, así que ese fallback
   siempre caía en un navy casi idéntico al del fondo (invisible encima). -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
-    :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
+    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    :class="[collapsed ? 'lg:w-20' : 'lg:w-64', drawer.isOpen.value ? 'translate-x-0' : '-translate-x-full']"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
     <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/15 px-1 pb-3">

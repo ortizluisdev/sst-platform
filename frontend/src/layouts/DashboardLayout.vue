@@ -228,7 +228,7 @@ const switchTo = computed(() => ({
     </header>
 
     <main
-      class="w-full px-4 py-6 sm:px-6 sm:py-8"
+      class="w-full overflow-x-hidden px-4 py-6 sm:px-6 sm:py-8"
       :class="[
         enhanced
           ? withSidebar
