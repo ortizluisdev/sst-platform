@@ -50,7 +50,6 @@ watch(status, async (value) => {
         <p class="text-sm leading-relaxed text-navy-700">
           {{ t('auth.login.successGreeting', { nombre: user.nombre }) }}
         </p>
-        <p class="text-xs leading-relaxed text-navy-700 opacity-75">{{ t('auth.login.successPending') }}</p>
       </div>
     </template>
 

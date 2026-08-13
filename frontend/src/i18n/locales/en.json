@@ -386,8 +386,7 @@
       "subtitle": "Access your RoMa+ indicator dashboard.",
       "submit": "Log in",
       "forgotPassword": "Forgot your password?",
-      "successGreeting": "Welcome, {nombre}!",
-      "successPending": "Your account doesn't have any contracted services with an available dashboard yet. Contact your RoMa+ administrator."
+      "successGreeting": "Welcome, {nombre}!"
     },
     "forgotPassword": {
       "title": "Forgot password",

@@ -386,8 +386,7 @@
       "subtitle": "Ingresa a tu panel de indicadores RoMa+.",
       "submit": "Iniciar sesión",
       "forgotPassword": "¿Olvidaste tu contraseña?",
-      "successGreeting": "¡Bienvenido, {nombre}!",
-      "successPending": "Tu cuenta aún no tiene servicios contratados con dashboard disponible. Contacta a tu administrador de RoMa+."
+      "successGreeting": "¡Bienvenido, {nombre}!"
     },
     "forgotPassword": {
       "title": "Recuperar contraseña",
