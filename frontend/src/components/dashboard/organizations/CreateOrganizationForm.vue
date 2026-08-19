@@ -7,6 +7,7 @@ import BrandingFields from './BrandingFields.vue'
 import { useCreateOrganizationForm } from '@/composables/useCreateOrganizationForm'
 import { useToast } from '@/composables/useToast'
 import { serviceLabel } from '@/utils/serviceLabel'
+import { iconForService } from '@/utils/serviceIcon'
 import type { Locale } from '@/i18n'
 
 const emit = defineEmits<{ created: [] }>()
@@ -94,16 +95,36 @@ watch(status, (value) => {
         <p class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
           {{ t('organizations.form.service') }}
         </p>
-        <div class="grid gap-2 rounded-sm border border-line-strong bg-white px-4 py-3 sm:grid-cols-2">
-          <label v-for="service in services" :key="service.slug" class="flex items-center gap-2 text-sm text-navy-900">
+        <!-- Tarjetas de selección en vez de una lista plana de checkboxes
+        (2026-08, "mejorar modal de forma profesional") — cada servicio es
+        su propia tarjeta clicable, con ícono y resaltado cuando está
+        seleccionada, en vez de una fila angosta de texto+checkbox. El
+        checkbox lleva `shrink-0` (el bug real reportado: sin él, el único
+        nombre de servicio que envuelve a 2 líneas —"Modelado Científico
+        del Comportamiento Social"— achicaba el checkbox de 16px a 13px de
+        ancho, porque flexbox lo comprimía para hacerle espacio al texto
+        largo) e `items-start` (no `items-center`, que con texto de 2
+        líneas dejaba el checkbox descentrado respecto al bloque completo). -->
+        <div class="grid gap-2 sm:grid-cols-2">
+          <label
+            v-for="service in services"
+            :key="service.slug"
+            class="flex cursor-pointer items-start gap-2.5 rounded-md border p-3 text-sm transition-colors"
+            :class="
+              serviceSlugs.includes(service.slug)
+                ? 'border-sky-400 bg-sky-50 text-navy-900'
+                : 'border-line-strong bg-white text-navy-900 hover:bg-cream'
+            "
+          >
             <input
               type="checkbox"
               :value="service.slug"
               :checked="serviceSlugs.includes(service.slug)"
-              class="h-4 w-4 rounded-sm border-line-strong"
+              class="mt-0.5 h-4 w-4 shrink-0 rounded-sm border-line-strong"
               @change="toggleService(service.slug, ($event.target as HTMLInputElement).checked)"
             />
-            {{ serviceLabel(service.slug, service.nombre, locale as Locale) }}
+            <component :is="iconForService(service.slug)" class="mt-0.5 h-4 w-4 shrink-0 text-sky-400" aria-hidden="true" />
+            <span class="min-w-0">{{ serviceLabel(service.slug, service.nombre, locale as Locale) }}</span>
           </label>
         </div>
         <p v-if="errors.serviceSlugs" class="mt-1.5 text-xs text-red-600">{{ errors.serviceSlugs }}</p>
