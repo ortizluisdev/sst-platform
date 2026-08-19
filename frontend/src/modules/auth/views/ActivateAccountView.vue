@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AuthCard from '@/components/ui/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
+import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import { useActivationForm } from '@/composables/useActivationForm'
 import { useToast } from '@/composables/useToast'
@@ -63,6 +64,7 @@ useHead(() => ({ title: `${t('auth.activation.title')} — RoMa`, meta: [{ name:
         autocomplete="new-password"
         :error="errors.newPassword"
       />
+      <PasswordRequirementsList :password="newPassword ?? ''" />
 
       <SubmitButton :loading="status === 'loading'" :loading-label="t('auth.form.submitting')">
         {{ t('auth.activation.submit') }}

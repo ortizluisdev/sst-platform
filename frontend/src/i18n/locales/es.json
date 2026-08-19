@@ -381,6 +381,14 @@
       "documentInvalid": "Ingresa un número de documento válido",
       "passwordSpecial": "Debe incluir al menos un carácter especial"
     },
+    "passwordRequirements": {
+      "title": "La contraseña debe tener:",
+      "min": "Mínimo 10 caracteres",
+      "lowercase": "Una minúscula",
+      "uppercase": "Una mayúscula",
+      "number": "Un número",
+      "special": "Un carácter especial"
+    },
     "login": {
       "title": "Iniciar sesión",
       "subtitle": "Ingresa a tu panel de indicadores RoMa+.",

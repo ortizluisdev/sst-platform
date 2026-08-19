@@ -381,6 +381,14 @@
       "documentInvalid": "Enter a valid document number",
       "passwordSpecial": "Must include at least one special character"
     },
+    "passwordRequirements": {
+      "title": "Password must have:",
+      "min": "At least 10 characters",
+      "lowercase": "One lowercase letter",
+      "uppercase": "One uppercase letter",
+      "number": "One number",
+      "special": "One special character"
+    },
     "login": {
       "title": "Log in",
       "subtitle": "Access your RoMa+ indicator dashboard.",

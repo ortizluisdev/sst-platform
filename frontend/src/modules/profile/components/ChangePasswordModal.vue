@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FormField from '@/components/ui/FormField.vue'
+import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import Modal from '@/components/ui/Modal.vue'
 import { useToast } from '@/composables/useToast'
@@ -74,6 +75,7 @@ async function submit() {
         :label="t('myProfile.newPassword')"
         :error="errors.newPassword"
       />
+      <PasswordRequirementsList :password="newPassword" />
       <FormField
         id="change-password-confirm"
         v-model="confirmNewPassword"
