@@ -70,6 +70,7 @@ export function createOrganizationsService(prisma: PrismaClient) {
         nit: org.nit,
         contactEmail: org.contactEmail,
         isActive: org.isActive,
+        createdAt: org.createdAt.toISOString(),
         primaryColor: org.primaryColor,
         secondaryColor: org.secondaryColor,
         services: org.services.map((s) => ({ slug: s.service.slug, nombre: s.service.nombre, isActive: s.isActive })),

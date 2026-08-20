@@ -33,6 +33,7 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
           nit: true,
           contactEmail: true,
           isActive: true,
+          createdAt: true,
           primaryColor: true,
           secondaryColor: true,
           services: {
