@@ -7,7 +7,7 @@ import type { useAuthStore } from '@/stores/auth'
  * desincronicen si cambian las claves de permiso.
  */
 export function getDashboardPath(auth: ReturnType<typeof useAuthStore>, locale: string): string {
-  if (auth.hasPermission('platform.variables.upload')) return `/${locale}/dashboard/admin/operacion`
+  if (auth.hasPermission('platform.variables.upload')) return `/${locale}/dashboard/admin/dashboard`
   // Un cliente puede tener más de un servicio contratado (permisos
   // "dashboard.<slug>.view") — no hay forma de saber cuál es "el" servicio
   // sin asumir uno, así que se toma el primero que aparezca y se deja que
