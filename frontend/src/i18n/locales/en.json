@@ -958,6 +958,7 @@
     },
     "adminShell": {
       "navAriaLabel": "Admin navigation",
+      "dashboardLink": "Dashboard",
       "operacionSection": "Operations",
       "administracionSection": "Administration",
       "orgSelectorLabel": "Organization",
@@ -968,6 +969,20 @@
     },
     "operacion": {
       "placeholder": "This panel is under construction — the service this organization contracted doesn't have a dashboard implemented yet."
+    },
+    "adminGeneralDashboard": {
+      "pageTitle": "Dashboard",
+      "resumenTitle": "Overview",
+      "clientesRegistrados": "Registered clients",
+      "serviciosActivos": "Active services",
+      "clientesPorServicioTitle": "Clients by service",
+      "clientesDeServicio": "Clients — {service}",
+      "accountStatusTitle": "Account status",
+      "accountStatus": {
+        "ACTIVE": "Active",
+        "PENDING_ACTIVATION": "Pending activation",
+        "SUSPENDED": "Suspended"
+      }
     }
   },
   "variableCatalog": {
