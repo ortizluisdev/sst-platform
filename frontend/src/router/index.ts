@@ -87,7 +87,13 @@ const router = createRouter({
       component: () => import('@/layouts/AdminShell.vue'),
       meta: { requiresAuth: true },
       children: [
-        { path: '', redirect: { name: 'admin-operacion' } },
+        { path: '', redirect: { name: 'admin-dashboard' } },
+        {
+          path: 'dashboard',
+          name: 'admin-dashboard',
+          component: () => import('@/modules/dashboard/views/AdminDashboardView.vue'),
+          meta: { permission: 'platform.variables.upload' },
+        },
         {
           path: 'operacion/:orgId?/:serviceSlug?',
           name: 'admin-operacion',
