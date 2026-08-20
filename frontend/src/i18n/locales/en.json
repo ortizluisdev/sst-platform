@@ -982,6 +982,13 @@
         "ACTIVE": "Active",
         "PENDING_ACTIVATION": "Pending activation",
         "SUSPENDED": "Suspended"
+      },
+      "monthlyRegistrationsTitle": "New clients per month",
+      "organizationsTableTitle": "Company list",
+      "table": {
+        "nombre": "Company",
+        "servicios": "Contracted services",
+        "estado": "Account status"
       }
     }
   },
