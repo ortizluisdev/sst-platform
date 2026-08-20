@@ -2,7 +2,18 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Bell, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquarePlus, Settings, User, Users, X } from 'lucide-vue-next'
+import {
+  Bell,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  LayoutDashboard,
+  MessageSquarePlus,
+  Settings,
+  User,
+  Users,
+  X,
+} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { useSidebarCollapse } from '@/composables/useSidebarCollapse'
@@ -138,90 +149,27 @@ function handleTabClick(tab: TabDef) {
         class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
         :class="{ 'lg:hidden': collapsed }"
       >
-        {{ t('dashboard.adminShell.operacionSection') }}
+        {{ t('dashboard.adminShell.administracionSection') }}
       </p>
 
       <ul class="mt-1 flex flex-col gap-1">
-        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-white/70" :class="{ 'lg:hidden': collapsed }">
-          {{ t('dashboard.adminShell.noActiveServices') }}
-        </li>
-        <li
-          v-for="service in visibleServices"
-          :key="service.slug"
-          class="rounded-md transition-colors"
-          :class="expandedSlug === service.slug ? 'bg-white/10' : ''"
-        >
-          <button
-            type="button"
-            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
+        <li>
+          <router-link
+            :to="`/${locale}/dashboard/admin/dashboard`"
+            class="flex items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
-              expandedSlug === service.slug
+              $route.name === 'admin-dashboard'
                 ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
-            :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
-            :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
-            @click="handleServiceClick(service)"
+            :title="collapsed ? t('dashboard.adminShell.dashboardLink') : undefined"
+            @click="drawer.close()"
           >
-            <component :is="iconForService(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{
-              serviceLabel(service.slug, service.nombre, locale as Locale)
-            }}</span>
-            <ChevronRight
-              v-if="isExpandable(service.slug)"
-              class="h-4 w-4 shrink-0 transition-transform duration-200"
-              :class="[expandedSlug === service.slug ? 'rotate-90' : '', { 'lg:hidden': collapsed }]"
-              aria-hidden="true"
-            />
-          </button>
-
-          <!-- v-if simple (no un truco de grid-rows ni <Transition>): solo el
-          servicio realmente expandido renderiza props.serviceTabs. Se probó
-          con grid-template-rows (0fr↔1fr) y con <Transition> y ambos dejaban
-          el acordeón en un estado inconsistente (una entrada "atascada" a
-          medio animar, mostrando el contenido del otro servicio) — la
-          prioridad acá es que nunca se vea información cruzada entre
-          servicios, aunque el despliegue sea instantáneo en vez de animado.
-          Colapsado: igual que DashboardSidebar.vue (cliente) — las pestañas
-          siguen visibles, solo el ícono (sin indentado ni texto), para que
-          el usuario pueda seguir seleccionando cada una. -->
-          <ul
-            v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
-            class="mt-1 flex flex-col gap-1"
-            :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
-          >
-            <li v-for="tab in props.serviceTabs" :key="tab.key">
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
-                :class="[
-                  tab.key === activeTab
-                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
-                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
-                  collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
-                ]"
-                :title="collapsed ? tab.label : undefined"
-                @click="handleTabClick(tab)"
-              >
-                <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span :class="{ 'lg:hidden': collapsed }">{{ tab.label }}</span>
-              </button>
-            </li>
-          </ul>
+            <LayoutDashboard class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span :class="{ 'lg:hidden': collapsed }">{{ t('dashboard.adminShell.dashboardLink') }}</span>
+          </router-link>
         </li>
-      </ul>
-    </div>
-
-    <div class="mt-4 border-t border-white/15 pt-3">
-      <p
-        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
-        :class="{ 'lg:hidden': collapsed }"
-      >
-        {{ t('dashboard.adminShell.administracionSection') }}
-      </p>
-
-      <ul class="flex flex-col gap-1">
         <li v-if="auth.hasPermission('platform.organizations.manage') || auth.hasPermission('platform.users.approve')">
           <router-link
             :to="`/${locale}/dashboard/admin/clientes`"
@@ -306,6 +254,76 @@ function handleTabClick(tab: TabDef) {
             <Settings class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span :class="{ 'lg:hidden': collapsed }">{{ t('settings.sidebarLink') }}</span>
           </router-link>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mt-4 border-t border-white/15 pt-3">
+      <p
+        class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
+        :class="{ 'lg:hidden': collapsed }"
+      >
+        {{ t('dashboard.adminShell.operacionSection') }}
+      </p>
+
+      <ul class="mt-1 flex flex-col gap-1">
+        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-white/70" :class="{ 'lg:hidden': collapsed }">
+          {{ t('dashboard.adminShell.noActiveServices') }}
+        </li>
+        <li
+          v-for="service in visibleServices"
+          :key="service.slug"
+          class="rounded-md transition-colors"
+          :class="expandedSlug === service.slug ? 'bg-white/10' : ''"
+        >
+          <button
+            type="button"
+            class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
+            :class="[
+              expandedSlug === service.slug
+                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
+              collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
+            ]"
+            :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
+            :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
+            @click="handleServiceClick(service)"
+          >
+            <component :is="iconForService(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{
+              serviceLabel(service.slug, service.nombre, locale as Locale)
+            }}</span>
+            <ChevronRight
+              v-if="isExpandable(service.slug)"
+              class="h-4 w-4 shrink-0 transition-transform duration-200"
+              :class="[expandedSlug === service.slug ? 'rotate-90' : '', { 'lg:hidden': collapsed }]"
+              aria-hidden="true"
+            />
+          </button>
+
+          <ul
+            v-if="expandedSlug === service.slug && props.serviceTabs.length > 0"
+            class="mt-1 flex flex-col gap-1"
+            :class="collapsed ? '' : 'ml-4 border-l border-white/15 pl-2'"
+          >
+            <li v-for="tab in props.serviceTabs" :key="tab.key">
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
+                :class="[
+                  tab.key === activeTab
+                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                    : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
+                  collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
+                ]"
+                :title="collapsed ? tab.label : undefined"
+                @click="handleTabClick(tab)"
+              >
+                <component :is="tab.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span :class="{ 'lg:hidden': collapsed }">{{ tab.label }}</span>
+              </button>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
