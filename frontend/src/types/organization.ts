@@ -81,6 +81,10 @@ export interface OrganizationListItem {
   nit: string | null
   contactEmail: string | null
   isActive: boolean
+  /** ISO 8601 — fecha de alta de la empresa (Organization.createdAt en el
+   * backend). Alimenta la tendencia de registros mensuales del dashboard
+   * general de admin (adminDashboardStats.ts). */
+  createdAt: string
   primaryColor: string | null
   secondaryColor: string | null
   services: OrganizationContractedService[]

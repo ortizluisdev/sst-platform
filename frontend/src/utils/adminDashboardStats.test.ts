@@ -9,6 +9,7 @@ function makeOrg(overrides: Partial<OrganizationListItem> = {}): OrganizationLis
     nit: '900123456',
     contactEmail: 'contacto@empresa1.com',
     isActive: true,
+    createdAt: '2026-08-01T00:00:00.000Z',
     primaryColor: null,
     secondaryColor: null,
     services: [],
