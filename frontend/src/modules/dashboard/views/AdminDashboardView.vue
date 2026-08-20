@@ -90,14 +90,14 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
 </script>
 
 <template>
-  <div class="grid gap-6">
+  <div class="grid gap-3">
     <SectionTitleBanner :title="t('dashboard.adminGeneralDashboard.pageTitle')" />
 
     <section>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+      <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
         {{ t('dashboard.adminGeneralDashboard.resumenTitle') }}
       </p>
-      <div class="grid gap-4 sm:grid-cols-2">
+      <div class="grid gap-3 sm:grid-cols-2">
         <ClientStatCard
           :titulo="t('dashboard.adminGeneralDashboard.clientesRegistrados')"
           :valor="String(stats.totalClientes)"
@@ -113,94 +113,98 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       </div>
     </section>
 
-    <section>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-        {{ t('dashboard.adminGeneralDashboard.clientesPorServicioTitle') }}
-      </p>
-      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <ClientStatCard
-            v-for="service in stats.clientesPorServicio"
-            :key="service.slug"
-            :titulo="
-              t('dashboard.adminGeneralDashboard.clientesDeServicio', {
-                service: serviceLabel(service.slug, service.nombre, locale as Locale),
-              })
-            "
-            :valor="String(service.count)"
-            :icon="iconForService(service.slug)"
-            compact
-          />
+    <div class="grid gap-3 lg:grid-cols-2">
+      <section>
+        <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.adminGeneralDashboard.clientesPorServicioTitle') }}
+        </p>
+        <div class="grid grid-cols-[1fr_auto] gap-3">
+          <div class="grid grid-cols-2 gap-2">
+            <ClientStatCard
+              v-for="service in stats.clientesPorServicio"
+              :key="service.slug"
+              :titulo="
+                t('dashboard.adminGeneralDashboard.clientesDeServicio', {
+                  service: serviceLabel(service.slug, service.nombre, locale as Locale),
+                })
+              "
+              :valor="String(service.count)"
+              :icon="iconForService(service.slug)"
+              compact
+            />
+          </div>
+          <ServiceDistributionDonut :slices="serviceDonutSlices" class="w-40 shrink-0" />
         </div>
-        <ServiceDistributionDonut :slices="serviceDonutSlices" />
-      </div>
-    </section>
+      </section>
 
-    <section>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-        {{ t('dashboard.adminGeneralDashboard.accountStatusTitle') }}
-      </p>
-      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div class="grid gap-4 sm:grid-cols-3">
-          <ClientStatCard
-            v-for="card in accountStatusCards"
-            :key="card.status"
-            :titulo="card.label"
-            :valor="card.valor"
-            :estado="card.estado"
-            compact
-          />
+      <section>
+        <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.adminGeneralDashboard.accountStatusTitle') }}
+        </p>
+        <div class="grid grid-cols-[1fr_auto] gap-3">
+          <div class="grid grid-cols-2 gap-2">
+            <ClientStatCard
+              v-for="card in accountStatusCards"
+              :key="card.status"
+              :titulo="card.label"
+              :valor="card.valor"
+              :estado="card.estado"
+              compact
+            />
+          </div>
+          <ComplianceRing :compliance="accountStatusCompliance" hide-title compact class="w-40 shrink-0" />
         </div>
-        <ComplianceRing :compliance="accountStatusCompliance" hide-title />
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-        {{ t('dashboard.adminGeneralDashboard.monthlyRegistrationsTitle') }}
-      </p>
-      <MonthlyCountChart :data="monthlyRegistrations" />
-    </section>
+    <div class="grid gap-3 lg:grid-cols-[1fr_1.4fr]">
+      <section class="flex min-h-0 min-w-0 flex-col">
+        <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.adminGeneralDashboard.monthlyRegistrationsTitle') }}
+        </p>
+        <MonthlyCountChart :data="monthlyRegistrations" class="min-w-0 flex-1" />
+      </section>
 
-    <section>
-      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-        {{ t('dashboard.adminGeneralDashboard.organizationsTableTitle') }}
-      </p>
-      <div class="overflow-x-auto rounded-lg border border-line-strong bg-white">
-        <table class="w-full border-collapse text-sm">
-          <thead>
-            <tr class="bg-sky-100 text-left text-[11px] uppercase tracking-wide text-navy-700">
-              <th class="px-4 py-3 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.nombre') }}</th>
-              <th class="px-4 py-3 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.servicios') }}</th>
-              <th class="px-4 py-3 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.estado') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="org in organizations" :key="org.id" class="border-t border-line">
-              <td class="px-4 py-3">
-                <p class="font-semibold text-navy-900">{{ org.nombre }}</p>
-                <p class="text-xs text-navy-700/60">{{ t('organizations.form.nit') }}: {{ org.nit ?? '—' }}</p>
-              </td>
-              <td class="px-4 py-3 text-navy-700">
-                <span v-if="org.services.length === 0">—</span>
-                <span v-else>{{
-                  org.services.map((s) => serviceLabel(s.slug, s.nombre, locale as Locale)).join(', ')
-                }}</span>
-              </td>
-              <td class="px-4 py-3">
-                <span
-                  v-if="org.responsable"
-                  class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase"
-                  :class="statusBadgeClass(org.responsable.accountStatus)"
-                >
-                  {{ t(`organizations.list.responsableStatus.${org.responsable.accountStatus}`) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <section class="flex min-h-0 min-w-0 flex-col">
+        <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+          {{ t('dashboard.adminGeneralDashboard.organizationsTableTitle') }}
+        </p>
+        <div class="max-h-52 overflow-y-auto rounded-lg border border-line-strong bg-white">
+          <table class="w-full border-collapse text-xs">
+            <thead>
+              <tr class="sticky top-0 bg-sky-100 text-left text-[10px] uppercase tracking-wide text-navy-700">
+                <th class="px-3 py-2 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.nombre') }}</th>
+                <th class="px-3 py-2 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.servicios') }}</th>
+                <th class="px-3 py-2 font-semibold">{{ t('dashboard.adminGeneralDashboard.table.estado') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="org in organizations" :key="org.id" class="border-t border-line">
+                <td class="px-3 py-1.5">
+                  <p class="font-semibold text-navy-900">{{ org.nombre }}</p>
+                  <p class="text-[10px] text-navy-700/60">{{ t('organizations.form.nit') }}: {{ org.nit ?? '—' }}</p>
+                </td>
+                <td class="px-3 py-1.5 text-navy-700">
+                  <span v-if="org.services.length === 0">—</span>
+                  <span v-else>{{
+                    org.services.map((s) => serviceLabel(s.slug, s.nombre, locale as Locale)).join(', ')
+                  }}</span>
+                </td>
+                <td class="px-3 py-1.5">
+                  <span
+                    v-if="org.responsable"
+                    class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase"
+                    :class="statusBadgeClass(org.responsable.accountStatus)"
+                  >
+                    {{ t(`organizations.list.responsableStatus.${org.responsable.accountStatus}`) }}
+                  </span>
+                  <span v-else>—</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </div>
 </template>

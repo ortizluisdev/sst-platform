@@ -50,8 +50,8 @@ const chartOptions = {
 </script>
 
 <template>
-  <div class="rounded-lg border border-line-strong bg-white p-4 sm:p-5">
-    <div class="h-48 sm:h-56">
+  <div class="h-full rounded-lg border border-line-strong bg-white p-3">
+    <div class="h-full min-h-[140px]">
       <Bar :data="chartData" :options="chartOptions" />
     </div>
   </div>

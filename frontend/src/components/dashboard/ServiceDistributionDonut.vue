@@ -51,22 +51,22 @@ const chartOptions = {
 </script>
 
 <template>
-  <div class="rounded-lg border border-line-strong bg-white p-4 sm:p-5">
-    <div class="relative mx-auto h-[150px] w-[150px] sm:h-[170px] sm:w-[170px]">
+  <div class="rounded-lg border border-line-strong bg-white p-3">
+    <div class="relative mx-auto h-[100px] w-[100px]">
       <div class="absolute inset-3 rounded-full bg-navy-900/[0.03] blur-md" aria-hidden="true" />
       <Doughnut v-if="hasData" :data="chartData" :options="chartOptions" />
       <div v-else class="h-full w-full rounded-full border-[10px] border-line-strong" />
       <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span v-if="hasData" class="font-serif text-3xl font-semibold text-navy-900">{{ total }}</span>
-        <span v-else class="font-serif text-lg font-semibold text-navy-700 opacity-70">{{
+        <span v-if="hasData" class="font-serif text-2xl font-semibold text-navy-900">{{ total }}</span>
+        <span v-else class="font-serif text-sm font-semibold text-navy-700 opacity-70">{{
           t('dashboard.complianceRing.noData')
         }}</span>
       </div>
     </div>
-    <ul v-if="hasData" class="mt-4 flex flex-col gap-1.5 text-xs">
+    <ul v-if="hasData" class="mt-2 flex flex-col gap-1 text-[11px]">
       <li v-for="slice in slices" :key="slice.label" class="flex items-center justify-between gap-2">
         <span class="flex min-w-0 items-center gap-1.5 truncate text-navy-700">
-          <span class="h-2 w-2 shrink-0 rounded-full" :style="{ backgroundColor: slice.color }" aria-hidden="true" />
+          <span class="h-1.5 w-1.5 shrink-0 rounded-full" :style="{ backgroundColor: slice.color }" aria-hidden="true" />
           <span class="truncate">{{ slice.label }}</span>
         </span>
         <span class="shrink-0 font-semibold text-navy-900">{{ slice.value }}</span>
