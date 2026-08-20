@@ -10,9 +10,12 @@ const { t } = useI18n()
 
 const fileError = ref('')
 
-// SVG-only (no PNG): escala sin pixelado a cualquier tamaño del navbar, sin
-// importar la resolución del logo original que suba el cliente.
-const ALLOWED_TYPES = ['image/svg+xml']
+// SVG (escala sin pixelarse) + PNG/JPG como respaldo — el SVG-only exigía
+// que un cliente con logo raster (ej. con degradados/fotografía) lo pasara
+// por un conversor automático antes de subirlo, y esos conversores suelen
+// dejar paths sin `fill` (negro por defecto del spec SVG) — se veía oscuro
+// en vez de a color (2026-08, feedback de cliente).
+const ALLOWED_TYPES = ['image/svg+xml', 'image/png', 'image/jpeg']
 const MAX_BYTES = 500 * 1024
 
 const logoInput = ref<HTMLInputElement | null>(null)
@@ -55,7 +58,7 @@ function handleFileChange(event: Event) {
         id="branding-logo"
         ref="logoInput"
         type="file"
-        accept="image/svg+xml"
+        accept="image/svg+xml,image/png,image/jpeg"
         class="hidden"
         @change="handleFileChange"
       />

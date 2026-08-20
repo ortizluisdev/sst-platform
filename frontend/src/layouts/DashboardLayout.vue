@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown, Languages, Menu, UserCircle } from 'lucide-vue-next'
@@ -32,9 +32,18 @@ const props = defineProps<{
 
 const auth = useAuthStore()
 const logoFailed = ref(false)
+// `?v=` invalida el `Cache-Control: max-age=86400` del backend (ver
+// organizationBranding.controller.ts) cuando se guarda un logo nuevo desde
+// Settings — sin esto la URL queda idéntica y el navegador ni siquiera
+// vuelve a pedirla en 24h (2026-08, feedback de cliente).
 const orgLogoUrl = computed(() =>
-  auth.organizationId ? `${import.meta.env.VITE_API_BASE_URL}/organizations/${auth.organizationId}/logo` : null,
+  auth.organizationId
+    ? `${import.meta.env.VITE_API_BASE_URL}/organizations/${auth.organizationId}/logo?v=${auth.logoVersion}`
+    : null,
 )
+watch(orgLogoUrl, () => {
+  logoFailed.value = false
+})
 const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()

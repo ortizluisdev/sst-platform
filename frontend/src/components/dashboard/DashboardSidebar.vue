@@ -143,7 +143,15 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
     <!-- Acordeón servicio → pestañas → hoja, igual que AdminNavSidebar.vue:
     las pestañas del servicio activo van ANIDADAS bajo su servicio (no en una
     lista aparte al mismo nivel) — así queda claro que "Dashboard" es hijo de
-    "Higiene Industrial", no una segunda selección independiente. -->
+    "Higiene Industrial", no una segunda selección independiente.
+
+    El indicador de ítem activo usa --org-secondary (fallback sky-400, el
+    valor de siempre) — a diferencia de AdminNavSidebar.vue, ESTE sidebar sí
+    tiene branding real de una empresa detrás (2026-08, feedback de cliente:
+    "no se reflejan los colores que configuré" en el menú), así que el
+    fondo se queda neutral (bg-navy-900, decisión ya tomada en
+    DashboardLayout.vue) pero el acento sí debe leer el color de marca,
+    igual que botones/banners/ModalAccentStrip.vue. -->
     <div v-if="services.length > 0" class="mb-3">
       <p
         class="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-white/45"
@@ -158,7 +166,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               service.slug === selectedServiceSlug
-                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2' : 'px-3 py-2',
             ]"
@@ -200,7 +208,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                 class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                 :class="[
                   tab.key === modelValue
-                    ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                    ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                     : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
                   collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                 ]"
@@ -237,7 +245,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                     class="flex w-full items-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                     :class="
                       activeHoja === hoja.key
-                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                         : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10'
                     "
                     @click="selectHoja(hoja.key as 'hoja1' | 'hoja2' | 'hoja3')"
@@ -276,7 +284,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
                     class="flex w-full items-center gap-2 whitespace-nowrap rounded-md text-left text-[13px] font-medium transition-colors"
                     :class="[
                       hijaTab.key === modelValue
-                        ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                        ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                         : 'border-l-[3px] border-transparent text-white/60 hover:bg-white/10',
                       collapsed ? 'justify-center px-1.5 py-2' : 'px-2.5 py-1.5',
                     ]"
@@ -319,7 +327,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             :title="collapsed ? t('dashboard.sidebar.notificationsLink') : undefined"
             :class="[
               modelValue === 'notificaciones'
-                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
@@ -337,7 +345,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               modelValue === 'perfil'
-                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
@@ -356,7 +364,7 @@ const { collapsed, toggle: toggleCollapsed } = useSidebarCollapse()
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
             :class="[
               modelValue === 'configuracion'
-                ? 'border-l-[3px] border-sky-400 bg-white/5 text-white font-semibold'
+                ? 'border-l-[3px] border-[var(--org-secondary,#38bdf8)] bg-white/5 text-white font-semibold'
                 : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10',
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"

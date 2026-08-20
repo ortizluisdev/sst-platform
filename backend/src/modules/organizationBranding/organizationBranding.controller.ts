@@ -67,7 +67,7 @@ export async function getLogoHandler(request: FastifyRequest, reply: FastifyRepl
   const logoBase64 = await service.getLogoForOrganization(organizationId)
   if (!logoBase64) return reply.code(404).send()
 
-  const match = logoBase64.match(/^data:(image\/(?:png|svg\+xml));base64,(.+)$/)
+  const match = logoBase64.match(/^data:(image\/(?:png|jpeg|svg\+xml));base64,(.+)$/)
   if (!match) return reply.code(404).send()
 
   const [, contentType, payload] = match

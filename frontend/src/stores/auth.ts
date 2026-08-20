@@ -29,6 +29,12 @@ interface AuthState {
    * fuerza (ver router/index.ts). */
   mustUpdateProfile: boolean
   branding: OrganizationBranding | null
+  /** Incrementado cada vez que se guarda un logo nuevo — se agrega como
+   * query param a la URL del logo (DashboardLayout.vue) para invalidar el
+   * `Cache-Control: max-age=86400` del backend, que si no cambia la URL no
+   * vuelve a pedir el archivo en 24h (2026-08, feedback de cliente: "cambié
+   * la imagen pero en el navbar no se actualiza"). */
+  logoVersion: number
 }
 
 /**
@@ -46,6 +52,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: null,
     mustUpdateProfile: false,
     branding: null,
+    logoVersion: 0,
   }),
 
   getters: {
@@ -93,6 +100,14 @@ export const useAuthStore = defineStore('auth', {
     // (ej. recargar la página).
     setAvatar(fotoBase64: string | null) {
       if (this.user) this.user.fotoBase64 = fotoBase64
+    },
+
+    // GeneralSettingsPanel.vue la llama tras guardar branding — mismo motivo
+    // que setAvatar: sin esto los colores y el logo del navbar/sidebar
+    // seguían con los valores viejos hasta el próximo fetchMe.
+    setBranding(branding: OrganizationBranding) {
+      this.branding = branding
+      this.logoVersion++
     },
 
     async logout() {

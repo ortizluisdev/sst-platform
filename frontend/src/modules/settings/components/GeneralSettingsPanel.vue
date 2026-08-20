@@ -105,6 +105,7 @@ async function submitBranding() {
       primaryColor: primaryColor.value,
       secondaryColor: secondaryColor.value,
     })
+    auth.setBranding({ primaryColor: primaryColor.value, secondaryColor: secondaryColor.value })
     brandingSuccess.value = true
   } catch (err) {
     if (err instanceof BrandingValidationError) {
