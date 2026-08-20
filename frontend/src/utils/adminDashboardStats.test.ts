@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAdminDashboardStats } from './adminDashboardStats'
+import { computeAdminDashboardStats, computeMonthlyRegistrations } from './adminDashboardStats'
 import type { OrganizationListItem, ServiceOption } from '@/types/organization'
 
 function makeOrg(overrides: Partial<OrganizationListItem> = {}): OrganizationListItem {
@@ -91,5 +91,52 @@ describe('computeAdminDashboardStats', () => {
       clientesPorServicio: [],
       cuentasPorEstado: { ACTIVE: 0, PENDING_ACTIVATION: 0, SUSPENDED: 0 },
     })
+  })
+})
+
+describe('computeMonthlyRegistrations', () => {
+  const NOW = new Date('2026-08-20T12:00:00.000Z')
+
+  it('devuelve 6 meses en orden cronológico, más reciente al final', () => {
+    const result = computeMonthlyRegistrations([], 6, NOW)
+    expect(result.map((r) => r.label)).toEqual(['2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08'])
+  })
+
+  it('sin organizaciones, todos los meses en 0', () => {
+    const result = computeMonthlyRegistrations([], 6, NOW)
+    expect(result.every((r) => r.count === 0)).toBe(true)
+  })
+
+  it('cuenta organizaciones creadas en meses distintos', () => {
+    const orgs = [
+      makeOrg({ id: 'a', createdAt: '2026-08-02T13:49:38.531Z' }),
+      makeOrg({ id: 'b', createdAt: '2026-08-09T14:20:13.400Z' }),
+      makeOrg({ id: 'c', createdAt: '2026-06-15T00:00:00.000Z' }),
+    ]
+    const result = computeMonthlyRegistrations(orgs, 6, NOW)
+    const byLabel = Object.fromEntries(result.map((r) => [r.label, r.count]))
+    expect(byLabel['2026-08']).toBe(2)
+    expect(byLabel['2026-06']).toBe(1)
+    expect(byLabel['2026-07']).toBe(0)
+  })
+
+  it('organización creada el primer día del mes cae en ese mes', () => {
+    const orgs = [makeOrg({ id: 'a', createdAt: '2026-07-01T00:00:00.000Z' })]
+    const result = computeMonthlyRegistrations(orgs, 6, NOW)
+    const byLabel = Object.fromEntries(result.map((r) => [r.label, r.count]))
+    expect(byLabel['2026-07']).toBe(1)
+  })
+
+  it('organización creada el último día del mes (justo antes de medianoche UTC) cae en ese mes', () => {
+    const orgs = [makeOrg({ id: 'a', createdAt: '2026-07-31T23:59:59.999Z' })]
+    const result = computeMonthlyRegistrations(orgs, 6, NOW)
+    const byLabel = Object.fromEntries(result.map((r) => [r.label, r.count]))
+    expect(byLabel['2026-07']).toBe(1)
+  })
+
+  it('organización creada antes del rango de 6 meses no se cuenta en ningún bucket', () => {
+    const orgs = [makeOrg({ id: 'a', createdAt: '2025-01-01T00:00:00.000Z' })]
+    const result = computeMonthlyRegistrations(orgs, 6, NOW)
+    expect(result.every((r) => r.count === 0)).toBe(true)
   })
 })
