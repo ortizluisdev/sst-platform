@@ -985,6 +985,7 @@
       },
       "monthlyRegistrationsTitle": "New clients per month",
       "organizationsTableTitle": "Company list",
+      "viewClientsLink": "View clients",
       "table": {
         "nombre": "Company",
         "servicios": "Contracted services",

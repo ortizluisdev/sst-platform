@@ -3,7 +3,7 @@ import { computed, inject, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
-import { Briefcase, Building2 } from 'lucide-vue-next'
+import { ArrowRight, Briefcase, Building2 } from 'lucide-vue-next'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import ClientStatCard from '@/components/dashboard/client/ClientStatCard.vue'
 import ServiceDistributionDonut from '@/components/dashboard/ServiceDistributionDonut.vue'
@@ -102,13 +102,11 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
           :titulo="t('dashboard.adminGeneralDashboard.clientesRegistrados')"
           :valor="String(stats.totalClientes)"
           :icon="Building2"
-          compact
         />
         <ClientStatCard
           :titulo="t('dashboard.adminGeneralDashboard.serviciosActivos')"
           :valor="String(stats.totalServicios)"
           :icon="Briefcase"
-          compact
         />
       </div>
     </section>
@@ -142,7 +140,7 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
           {{ t('dashboard.adminGeneralDashboard.accountStatusTitle') }}
         </p>
         <div class="grid grid-cols-[1fr_auto] gap-3">
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-1 gap-2">
             <ClientStatCard
               v-for="card in accountStatusCards"
               :key="card.status"
@@ -166,9 +164,18 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       </section>
 
       <section class="flex min-h-0 min-w-0 flex-col">
-        <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
-          {{ t('dashboard.adminGeneralDashboard.organizationsTableTitle') }}
-        </p>
+        <div class="mb-1.5 flex items-center justify-between gap-2">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-navy-700 opacity-70">
+            {{ t('dashboard.adminGeneralDashboard.organizationsTableTitle') }}
+          </p>
+          <router-link
+            :to="{ name: 'admin-clientes' }"
+            class="flex items-center gap-1 text-xs font-semibold text-sky-600 hover:text-sky-700"
+          >
+            {{ t('dashboard.adminGeneralDashboard.viewClientsLink') }}
+            <ArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
+          </router-link>
+        </div>
         <div class="max-h-52 overflow-y-auto rounded-lg border border-line-strong bg-white">
           <table class="w-full border-collapse text-xs">
             <thead>
