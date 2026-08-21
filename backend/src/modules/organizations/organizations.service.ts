@@ -150,3 +150,33 @@ export function createOrganizationsService(prisma: PrismaClient) {
 }
 
 export type OrganizationsService = ReturnType<typeof createOrganizationsService>
+
+export interface OrganizationServiceState {
+  slug: string
+  isActive: boolean
+}
+
+/**
+ * Diferencia pura entre el estado actual de servicios contratados y el
+ * conjunto deseado — separada de cualquier acceso a Prisma para poder
+ * testearla sin base de datos (2026-08, "agregar/quitar servicios").
+ *
+ * - Un slug deseado que hoy no está activo (sea porque nunca existió la
+ *   fila, o porque existe pero isActive=false) va a `toGrant` — el
+ *   repository decide si eso significa crear la fila o solo reactivarla.
+ * - Un slug hoy activo que ya no está en la lista deseada va a `toRevoke`
+ *   — nunca se borra la fila, solo se desactiva (ver Global Constraints).
+ * - Un slug ya inactivo que tampoco está en la lista deseada no aparece en
+ *   ningún lado: ya está en el estado correcto, no hay nada que revocar
+ *   dos veces.
+ */
+export function computeServiceDiff(
+  current: OrganizationServiceState[],
+  desiredSlugs: string[],
+): { toGrant: string[]; toRevoke: string[] } {
+  const currentActiveSlugs = new Set(current.filter((s) => s.isActive).map((s) => s.slug))
+  const desiredSet = new Set(desiredSlugs)
+  const toGrant = desiredSlugs.filter((slug) => !currentActiveSlugs.has(slug))
+  const toRevoke = current.filter((s) => s.isActive && !desiredSet.has(s.slug)).map((s) => s.slug)
+  return { toGrant, toRevoke }
+}
