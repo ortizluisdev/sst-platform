@@ -898,6 +898,10 @@ enum AuditAction {
   /// panel Admin) — ver Organization.deletedAt.
   ORGANIZATION_DELETED
   ORGANIZATION_RESTORED
+  /// Admin edita logo/colores de una empresa ya creada, desde "Clientes" →
+  /// "Marca" (2026-08) — distinto de ORGANIZATION_BRANDING_UPDATED, que es
+  /// el propio cliente editando su marca desde Configuración general.
+  ORGANIZATION_BRANDING_UPDATED_BY_ADMIN
 }
 
 /// Registro de acciones sensibles: quién, cuándo, qué. metadata guarda
