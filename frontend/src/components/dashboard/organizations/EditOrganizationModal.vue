@@ -86,6 +86,7 @@ function handleSubmit() {
         :label="t('organizations.form.contactEmail')"
         :error="contactEmailError"
       />
+      <p class="-mt-2 text-xs text-navy-700/60">{{ t('organizations.editModal.emailSyncNotice') }}</p>
     </div>
 
     <p class="mt-3 text-xs text-navy-700/60">{{ t('organizations.editModal.responsableNotice') }}</p>

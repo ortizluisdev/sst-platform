@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router'
 import CreateOrganizationModal from '@/components/dashboard/organizations/CreateOrganizationModal.vue'
 import EditOrganizationModal from '@/components/dashboard/organizations/EditOrganizationModal.vue'
 import CategoryConfigModal from '@/components/dashboard/organizations/CategoryConfigModal.vue'
+import ServicesConfigModal from '@/components/dashboard/organizations/ServicesConfigModal.vue'
+import BrandingConfigModal from '@/components/dashboard/organizations/BrandingConfigModal.vue'
 import SuspendUserModal from '@/components/dashboard/notifications/SuspendUserModal.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import {
@@ -42,6 +44,8 @@ const showCreateModal = ref(false)
 const editingOrganization = ref<OrganizationListItem | null>(null)
 const editServerErrors = ref<Record<string, string>>({})
 const categoryConfigOrganization = ref<OrganizationListItem | null>(null)
+const servicesConfigOrganization = ref<OrganizationListItem | null>(null)
+const brandingConfigOrganization = ref<OrganizationListItem | null>(null)
 const suspendTarget = ref<OrganizationListItem | null>(null)
 const actioningId = ref<string | null>(null)
 const resentIds = ref<Set<string>>(new Set())
@@ -97,6 +101,16 @@ async function handleEditSubmit(values: { nombre: string; nit: string; contactEm
       useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.actionError'))
     }
   }
+}
+
+function handleServicesSaved() {
+  servicesConfigOrganization.value = null
+  load()
+}
+
+function handleBrandingSaved() {
+  brandingConfigOrganization.value = null
+  load()
 }
 
 async function handleSuspend(reason: string) {
@@ -343,6 +357,20 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                       {{ t('clients.categoryConfig.openButton') }}
                     </button>
                     <button
+                      type="button"
+                      class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
+                      @click="servicesConfigOrganization = org"
+                    >
+                      {{ t('clients.servicesConfig.openButton') }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
+                      @click="brandingConfigOrganization = org"
+                    >
+                      {{ t('clients.brandingConfig.openButton') }}
+                    </button>
+                    <button
                       v-if="tab === 'active' && org.responsable"
                       type="button"
                       class="rounded-sm border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
@@ -411,6 +439,21 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
       :organization-id="categoryConfigOrganization.id"
       :organization-nombre="categoryConfigOrganization.nombre"
       @cancel="categoryConfigOrganization = null"
+    />
+    <ServicesConfigModal
+      v-if="servicesConfigOrganization"
+      :organization-id="servicesConfigOrganization.id"
+      :organization-nombre="servicesConfigOrganization.nombre"
+      :current-service-slugs="servicesConfigOrganization.services.filter((s) => s.isActive).map((s) => s.slug)"
+      @saved="handleServicesSaved"
+      @cancel="servicesConfigOrganization = null"
+    />
+    <BrandingConfigModal
+      v-if="brandingConfigOrganization"
+      :organization-id="brandingConfigOrganization.id"
+      :organization-nombre="brandingConfigOrganization.nombre"
+      @saved="handleBrandingSaved"
+      @cancel="brandingConfigOrganization = null"
     />
   </div>
 </template>
