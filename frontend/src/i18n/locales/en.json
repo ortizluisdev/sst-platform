@@ -1079,8 +1079,9 @@
     },
     "editModal": {
       "title": "Edit company",
-      "responsableNotice": "The responsible person's position and phone were set when the account was created and can't be edited here.",
-      "brandingNotice": "The logo and colors are set by the client themselves when activating their account — they can't be edited here."
+      "emailSyncNotice": "This email also updates the responsible person's email (used for notifications and to recover their password).",
+      "responsableNotice": "The responsible person's document number (used to log in), position, and phone were set when the account was created and can't be edited here.",
+      "brandingNotice": "The logo and colors are edited from the \"Brand\" button in the client list."
     }
   },
   "profile": {
@@ -1226,6 +1227,23 @@
         "RADIACION_UV": "UV Radiation",
         "VIBRACION": "Vibration"
       }
+    },
+    "servicesConfig": {
+      "openButton": "Services",
+      "title": "Contracted services",
+      "hint": "Removing a service only hides it from the client's dashboard — historical data already loaded is never deleted, and adding it back brings it right back.",
+      "loadError": "Couldn't load the services.",
+      "actionError": "Couldn't save the changes.",
+      "minOneRequired": "Select at least one service.",
+      "saveSuccess": "Services updated successfully."
+    },
+    "brandingConfig": {
+      "openButton": "Brand",
+      "title": "Company brand",
+      "hint": "This can also be edited by the client themselves from their General settings — whichever change was saved last is the one that stays.",
+      "loadError": "Couldn't load the company's brand.",
+      "actionError": "Couldn't save the brand.",
+      "saveSuccess": "Brand updated successfully."
     }
   },
   "reports": {

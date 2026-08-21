@@ -1079,8 +1079,9 @@
     },
     "editModal": {
       "title": "Editar empresa",
-      "responsableNotice": "El cargo y el teléfono del responsable se definieron al crear la cuenta y no se pueden editar aquí.",
-      "brandingNotice": "El logo y los colores los define el propio cliente al activar su cuenta — no se editan aquí."
+      "emailSyncNotice": "Este correo también actualiza el email del responsable (usado para notificaciones y para recuperar su contraseña).",
+      "responsableNotice": "El número de documento del responsable (usado para iniciar sesión), el cargo y el teléfono se definieron al crear la cuenta y no se pueden editar aquí.",
+      "brandingNotice": "El logo y los colores se editan desde el botón \"Marca\", en el listado de empresas."
     }
   },
   "profile": {
@@ -1226,6 +1227,23 @@
         "RADIACION_UV": "Radiación UV",
         "VIBRACION": "Vibración"
       }
+    },
+    "servicesConfig": {
+      "openButton": "Servicios",
+      "title": "Servicios contratados",
+      "hint": "Quitar un servicio solo lo oculta del panel del cliente — los datos históricos ya cargados no se borran, y volver a agregarlo los trae de vuelta.",
+      "loadError": "No se pudieron cargar los servicios.",
+      "actionError": "No se pudieron guardar los cambios.",
+      "minOneRequired": "Selecciona al menos un servicio.",
+      "saveSuccess": "Servicios actualizados correctamente."
+    },
+    "brandingConfig": {
+      "openButton": "Marca",
+      "title": "Marca de la empresa",
+      "hint": "Estos datos también los puede editar el propio cliente desde su Configuración general — el último cambio guardado es el que queda.",
+      "loadError": "No se pudo cargar la marca de la empresa.",
+      "actionError": "No se pudo guardar la marca.",
+      "saveSuccess": "Marca actualizada correctamente."
     }
   },
   "reports": {
