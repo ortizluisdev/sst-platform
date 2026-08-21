@@ -301,9 +301,12 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                   <p class="text-xs text-navy-700/60">{{ t('organizations.form.nit') }}: {{ org.nit ?? '—' }}</p>
                 </td>
                 <td class="px-4 py-3 text-navy-700">
-                  <span v-if="org.services.length === 0">—</span>
+                  <span v-if="org.services.filter((s) => s.isActive).length === 0">—</span>
                   <span v-else>{{
-                    org.services.map((s) => serviceLabel(s.slug, s.nombre, locale as Locale)).join(', ')
+                    org.services
+                      .filter((s) => s.isActive)
+                      .map((s) => serviceLabel(s.slug, s.nombre, locale as Locale))
+                      .join(', ')
                   }}</span>
                 </td>
                 <td class="px-4 py-3 text-navy-700">
@@ -349,7 +352,7 @@ function statusBadgeClass(accountStatus: 'PENDING_ACTIVATION' | 'ACTIVE' | 'SUSP
                       {{ t('dashboard.servicesManagement.edit') }}
                     </button>
                     <button
-                      v-if="org.services.some((s) => s.slug === 'higiene-industrial')"
+                      v-if="org.services.some((s) => s.slug === 'higiene-industrial' && s.isActive)"
                       type="button"
                       class="rounded-sm border border-line-strong px-3 py-1.5 text-xs font-semibold text-navy-700 hover:border-navy-900"
                       @click="categoryConfigOrganization = org"
