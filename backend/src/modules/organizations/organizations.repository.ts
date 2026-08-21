@@ -61,8 +61,25 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       })
     },
 
+    /** Si `contactEmail` cambia, también actualiza el email del responsable
+     * (User.email) en la misma transacción — ambos deben quedar siempre
+     * sincronizados (ver nota en organizations.schema.ts: "un solo correo
+     * por empresa"). El responsable es el primer miembro por orden de
+     * creación, mismo criterio que findResponsable() y listFull(). */
     update(id: string, data: { nombre?: string; nit?: string; contactEmail?: string }) {
-      return prisma.organization.update({ where: { id }, data })
+      return prisma.$transaction(async (tx) => {
+        const organization = await tx.organization.update({ where: { id }, data })
+        if (data.contactEmail !== undefined) {
+          const membership = await tx.userOrganization.findFirst({
+            where: { organizationId: id },
+            orderBy: { createdAt: 'asc' },
+          })
+          if (membership) {
+            await tx.user.update({ where: { id: membership.userId }, data: { email: data.contactEmail } })
+          }
+        }
+        return organization
+      })
     },
 
     /** Responsable de la organización con su accountStatus — usado para
