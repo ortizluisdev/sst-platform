@@ -87,3 +87,11 @@ export async function restoreOrganization(organizationId: string): Promise<void>
     rethrow(err)
   }
 }
+
+export async function updateOrganizationServices(organizationId: string, serviceSlugs: string[]): Promise<void> {
+  try {
+    await apiClient.put(`/admin/organizations/${organizationId}/services`, { serviceSlugs })
+  } catch (err) {
+    rethrow(err)
+  }
+}
