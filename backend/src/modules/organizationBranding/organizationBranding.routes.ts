@@ -1,6 +1,13 @@
 import type { FastifyInstance } from 'fastify'
-import { requireAuth } from '../../plugins/auth-guard.js'
-import { saveBrandingHandler, getBrandingHandler, updateBrandingHandler, getLogoHandler } from './organizationBranding.controller.js'
+import { requireAuth, requirePermission } from '../../plugins/auth-guard.js'
+import {
+  saveBrandingHandler,
+  getBrandingHandler,
+  updateBrandingHandler,
+  getLogoHandler,
+  getOrganizationBrandingHandler,
+  updateOrganizationBrandingHandler,
+} from './organizationBranding.controller.js'
 
 export async function organizationBrandingRoutes(app: FastifyInstance) {
   // Guardado inicial, solo aplica si la empresa todavía no tiene branding —
@@ -16,6 +23,20 @@ export async function organizationBrandingRoutes(app: FastifyInstance) {
   // general, siempre sobrescribe (sin la condición "if unset" de arriba).
   app.get('/api/dashboard/organization/branding', { preHandler: [requireAuth] }, getBrandingHandler)
   app.put('/api/dashboard/organization/branding', { preHandler: [requireAuth] }, updateBrandingHandler)
+
+  // Admin — edita el branding de CUALQUIER empresa por id (distinto del
+  // par de arriba, que siempre opera sobre "mi propia empresa"). Mismo
+  // permiso que el resto de "Clientes" (organizations.routes.ts).
+  app.get<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId/branding',
+    { preHandler: [requireAuth, requirePermission('platform.organizations.manage')] },
+    getOrganizationBrandingHandler,
+  )
+  app.put<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId/branding',
+    { preHandler: [requireAuth, requirePermission('platform.organizations.manage')] },
+    updateOrganizationBrandingHandler,
+  )
 
   // Público, sin requireAuth — ver comentario en getLogoHandler.
   app.get<{ Params: { organizationId: string } }>(

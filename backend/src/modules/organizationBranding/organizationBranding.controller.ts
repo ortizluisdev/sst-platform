@@ -46,6 +46,38 @@ export async function updateBrandingHandler(request: FastifyRequest, reply: Fast
   }
 }
 
+/** Lee el branding de una empresa cualquiera, dado su id — para precargar
+ * el modal "Marca" en Clientes. Distinto de getBrandingHandler (que lee la
+ * empresa del usuario logueado). */
+export async function getOrganizationBrandingHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { organizationId } = request.params as { organizationId: string }
+  const service = createOrganizationBrandingService(request.server.prisma)
+  try {
+    const branding = await service.getBrandingForOrganization(organizationId)
+    return reply.code(200).send(branding)
+  } catch (err) {
+    if (err instanceof OrganizationBrandingError) return reply.code(404).send({ message: err.message })
+    throw err
+  }
+}
+
+/** Edita el branding de una empresa cualquiera, dado su id — usado por el
+ * modal "Marca" en Clientes. */
+export async function updateOrganizationBrandingHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = saveBrandingSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const { organizationId } = request.params as { organizationId: string }
+  const service = createOrganizationBrandingService(request.server.prisma)
+  try {
+    await service.updateBrandingForOrganization(organizationId, parsed.data, request.user.sub)
+    return reply.code(204).send()
+  } catch (err) {
+    if (err instanceof OrganizationBrandingError) return reply.code(404).send({ message: err.message })
+    throw err
+  }
+}
+
 /** Público — sin requireAuth. Un logo de empresa no es dato sensible, y el
  * navegador debe poder cargarlo vía <img src> aunque frontend/backend vivan
  * en dominios distintos en producción (ahí una cookie SameSite=Lax no viaja

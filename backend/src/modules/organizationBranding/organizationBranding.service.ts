@@ -67,6 +67,39 @@ export function createOrganizationBrandingService(prisma: PrismaClient) {
       await repository.updateBranding(organizationId, input)
       await repository.createAuditLog({ userId, organizationId, action: 'ORGANIZATION_BRANDING_UPDATED' })
     },
+
+    /** Lectura por admin, dado un organizationId directo (a diferencia de
+     * getBrandingForUser, que lo resuelve a partir del usuario logueado) —
+     * usada por el botón "Marca" en Clientes. NO_ORGANIZATION acá significa
+     * "esa empresa no existe", no "el usuario no tiene organización". */
+    async getBrandingForOrganization(organizationId: string) {
+      const organization = await repository.findBrandingForOrganization(organizationId)
+      if (!organization) {
+        throw new OrganizationBrandingError('NO_ORGANIZATION', 'Empresa no encontrada')
+      }
+      return {
+        logoBase64: organization.logoBase64 ?? null,
+        primaryColor: organization.primaryColor ?? null,
+        secondaryColor: organization.secondaryColor ?? null,
+      }
+    },
+
+    /** Edición por admin — siempre sobrescribe, igual que
+     * updateBrandingForUser, pero con su propia acción de auditoría
+     * (ORGANIZATION_BRANDING_UPDATED_BY_ADMIN) para distinguir en el rastro
+     * quién hizo el cambio: el propio cliente o el admin. */
+    async updateBrandingForOrganization(organizationId: string, input: SaveBrandingInput, adminUserId: string) {
+      const organization = await repository.findBrandingForOrganization(organizationId)
+      if (!organization) {
+        throw new OrganizationBrandingError('NO_ORGANIZATION', 'Empresa no encontrada')
+      }
+      await repository.updateBranding(organizationId, input)
+      await repository.createAuditLog({
+        userId: adminUserId,
+        organizationId,
+        action: 'ORGANIZATION_BRANDING_UPDATED_BY_ADMIN',
+      })
+    },
   }
 }
 

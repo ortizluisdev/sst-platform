@@ -49,7 +49,7 @@ export function createOrganizationBrandingRepository(prisma: PrismaClient) {
     createAuditLog(input: {
       userId: string
       organizationId: string
-      action: 'ORGANIZATION_BRANDING_SET' | 'ORGANIZATION_BRANDING_UPDATED'
+      action: 'ORGANIZATION_BRANDING_SET' | 'ORGANIZATION_BRANDING_UPDATED' | 'ORGANIZATION_BRANDING_UPDATED_BY_ADMIN'
     }) {
       return prisma.auditLog.create({
         data: { userId: input.userId, organizationId: input.organizationId, action: input.action },
