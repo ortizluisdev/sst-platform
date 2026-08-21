@@ -77,3 +77,9 @@ export function formatFieldErrors(error: z.ZodError): Record<string, string> {
   }
   return errors
 }
+
+export const updateOrganizationServicesSchema = z.object({
+  serviceSlugs: z.array(z.string().min(1)).min(1, 'Selecciona al menos un servicio'),
+})
+
+export type UpdateOrganizationServicesInput = z.infer<typeof updateOrganizationServicesSchema>

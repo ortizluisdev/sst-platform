@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { createOrganizationsRepository } from './organizations.repository.js'
 import { createActivationService } from '../activation/activation.service.js'
-import type { CreateOrganizationInput, UpdateOrganizationInput } from './organizations.schema.js'
+import type { CreateOrganizationInput, UpdateOrganizationInput, UpdateOrganizationServicesInput } from './organizations.schema.js'
 
 export class OrganizationsError extends Error {
   constructor(
@@ -105,6 +105,57 @@ export function createOrganizationsService(prisma: PrismaClient) {
       })
 
       return updated
+    },
+
+    /** Agrega/quita servicios contratados — nunca borra filas ni datos
+     * históricos, ver Global Constraints. Un log de auditoría por servicio
+     * que cambia (ORG_SERVICE_GRANTED/ORG_SERVICE_REVOKED, valores ya
+     * existentes en el enum pero sin uso hasta ahora), no uno genérico por
+     * la petición completa. */
+    async updateServices(
+      organizationId: string,
+      input: UpdateOrganizationServicesInput,
+      updatedByUserId: string,
+      ipAddress: string,
+    ) {
+      const existing = await repository.findById(organizationId)
+      if (!existing) throw new OrganizationsError('NOT_FOUND', 'Empresa no encontrada')
+
+      const services = await Promise.all(input.serviceSlugs.map((slug) => repository.findServiceBySlug(slug)))
+      const missingIndex = services.findIndex((s) => !s)
+      if (missingIndex !== -1) throw new OrganizationsError('SERVICE_NOT_FOUND', 'Servicio no encontrado')
+
+      const current = await repository.listOrganizationServicesWithSlugs(organizationId)
+      const diff = computeServiceDiff(current, input.serviceSlugs)
+
+      const grants = diff.toGrant.map((slug) => ({
+        slug,
+        serviceId: services[input.serviceSlugs.indexOf(slug)]!.id,
+      }))
+      // `services` (arriba) solo resuelve los slugs DESEADOS — los que se
+      // revocan pueden no estar ahí, por eso se resuelven aparte.
+      const revokedServices = diff.toRevoke.length > 0 ? await repository.findServiceIdsBySlugs(diff.toRevoke) : []
+
+      await repository.applyServiceDiff(organizationId, grants, revokedServices.map((s) => s.id))
+
+      for (const grant of grants) {
+        await repository.createAuditLog({
+          userId: updatedByUserId,
+          organizationId,
+          action: 'ORG_SERVICE_GRANTED',
+          metadata: { serviceSlug: grant.slug },
+          ipAddress,
+        })
+      }
+      for (const slug of diff.toRevoke) {
+        await repository.createAuditLog({
+          userId: updatedByUserId,
+          organizationId,
+          action: 'ORG_SERVICE_REVOKED',
+          metadata: { serviceSlug: slug },
+          ipAddress,
+        })
+      }
     },
 
     /** Borrado suave — bloqueado mientras el responsable de la empresa tenga

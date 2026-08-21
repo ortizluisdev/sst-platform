@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createOrganizationSchema, updateOrganizationSchema, formatFieldErrors } from './organizations.schema.js'
+import { createOrganizationSchema, updateOrganizationSchema, updateOrganizationServicesSchema, formatFieldErrors } from './organizations.schema.js'
 import { createOrganizationsService, OrganizationsError } from './organizations.service.js'
 
 function statusForError(code: OrganizationsError['code']): number {
@@ -47,6 +47,23 @@ export async function updateOrganizationHandler(request: FastifyRequest, reply: 
   try {
     const organization = await service.update(organizationId, parsed.data, request.user.sub, request.ip)
     return reply.code(200).send({ organization })
+  } catch (err) {
+    if (err instanceof OrganizationsError) {
+      return reply.code(statusForError(err.code)).send({ message: err.message })
+    }
+    throw err
+  }
+}
+
+export async function updateOrganizationServicesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = updateOrganizationServicesSchema.safeParse(request.body)
+  if (!parsed.success) return reply.code(422).send({ errors: formatFieldErrors(parsed.error) })
+
+  const { organizationId } = request.params as { organizationId: string }
+  const service = createOrganizationsService(request.server.prisma)
+  try {
+    await service.updateServices(organizationId, parsed.data, request.user.sub, request.ip)
+    return reply.code(204).send()
   } catch (err) {
     if (err instanceof OrganizationsError) {
       return reply.code(statusForError(err.code)).send({ message: err.message })

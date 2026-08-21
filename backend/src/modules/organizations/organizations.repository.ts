@@ -15,6 +15,10 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
       return prisma.service.findUnique({ where: { slug } })
     },
 
+    findServiceIdsBySlugs(slugs: string[]) {
+      return prisma.service.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } })
+    },
+
     findById(id: string) {
       return prisma.organization.findUnique({ where: { id } })
     },
@@ -90,6 +94,52 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
         where: { organizationId },
         select: { user: { select: { accountStatus: true } } },
         orderBy: { createdAt: 'asc' },
+      })
+    },
+
+    /** Estado actual de servicios contratados con su slug — insumo de
+     * computeServiceDiff() en organizations.service.ts. */
+    async listOrganizationServicesWithSlugs(organizationId: string) {
+      const rows = await prisma.organizationService.findMany({
+        where: { organizationId },
+        select: { isActive: true, service: { select: { slug: true } } },
+      })
+      return rows.map((r) => ({ slug: r.service.slug, isActive: r.isActive }))
+    },
+
+    /** Aplica el diff calculado por computeServiceDiff(): crea/reactiva las
+     * filas de `grants` (upsert — puede ser una fila nueva o una que se
+     * había desactivado antes) y desactiva las de `revokeServiceIds` (nunca
+     * las borra, ver Global Constraints del plan). Si "higiene-industrial"
+     * está entre los slugs otorgados, crea sus 5 filas de
+     * OrganizationCategoryConfig si todavía no existen (skipDuplicates —
+     * mismo default que createWithResponsible, nunca pisa configuración ya
+     * personalizada de una contratación anterior). */
+    async applyServiceDiff(
+      organizationId: string,
+      grants: { serviceId: string; slug: string }[],
+      revokeServiceIds: string[],
+    ) {
+      await prisma.$transaction(async (tx) => {
+        for (const grant of grants) {
+          await tx.organizationService.upsert({
+            where: { organizationId_serviceId: { organizationId, serviceId: grant.serviceId } },
+            update: { isActive: true },
+            create: { organizationId, serviceId: grant.serviceId, isActive: true },
+          })
+        }
+        if (revokeServiceIds.length > 0) {
+          await tx.organizationService.updateMany({
+            where: { organizationId, serviceId: { in: revokeServiceIds } },
+            data: { isActive: false },
+          })
+        }
+        if (grants.some((g) => g.slug === 'higiene-industrial')) {
+          await tx.organizationCategoryConfig.createMany({
+            data: TODAS_LAS_CATEGORIAS.map((categoria) => ({ organizationId, categoria, habilitada: true })),
+            skipDuplicates: true,
+          })
+        }
       })
     },
 
@@ -176,7 +226,13 @@ export function createOrganizationsRepository(prisma: PrismaClient) {
     createAuditLog(input: {
       userId: string
       organizationId: string
-      action: 'USER_CREATED_BY_ADMIN' | 'ORGANIZATION_UPDATED' | 'ORGANIZATION_DELETED' | 'ORGANIZATION_RESTORED'
+      action:
+        | 'USER_CREATED_BY_ADMIN'
+        | 'ORGANIZATION_UPDATED'
+        | 'ORGANIZATION_DELETED'
+        | 'ORGANIZATION_RESTORED'
+        | 'ORG_SERVICE_GRANTED'
+        | 'ORG_SERVICE_REVOKED'
       metadata?: Record<string, unknown>
       ipAddress?: string | null
     }) {

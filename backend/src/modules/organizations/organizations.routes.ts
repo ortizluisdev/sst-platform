@@ -4,6 +4,7 @@ import {
   createOrganizationHandler,
   listOrganizationsFullHandler,
   updateOrganizationHandler,
+  updateOrganizationServicesHandler,
   deleteOrganizationHandler,
   restoreOrganizationHandler,
 } from './organizations.controller.js'
@@ -31,6 +32,12 @@ export async function organizationsRoutes(app: FastifyInstance) {
     '/api/admin/organizations/:organizationId',
     { preHandler: [requireAuth, requirePermission(PERMISSION)] },
     updateOrganizationHandler,
+  )
+
+  app.put<{ Params: { organizationId: string } }>(
+    '/api/admin/organizations/:organizationId/services',
+    { preHandler: [requireAuth, requirePermission(PERMISSION)] },
+    updateOrganizationServicesHandler,
   )
 
   app.delete<{ Params: { organizationId: string } }>(
