@@ -3,7 +3,12 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/components/ui/Modal.vue'
 import { useToast } from '@/composables/useToast'
-import { listServices, updateOrganizationServices, OrganizationRequestError } from '@/services/organizations.service'
+import {
+  listServices,
+  updateOrganizationServices,
+  OrganizationRequestError,
+  OrganizationValidationError,
+} from '@/services/organizations.service'
 import { iconForService } from '@/utils/serviceIcon'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { ServiceOption } from '@/types/organization'
@@ -57,7 +62,13 @@ async function handleSave() {
     useToast().success(t('clients.servicesConfig.saveSuccess'))
     emit('saved')
   } catch (err) {
-    useToast().error(err instanceof OrganizationRequestError ? err.message : t('clients.servicesConfig.actionError'))
+    if (err instanceof OrganizationValidationError && 'serviceSlugs' in err.fieldErrors) {
+      useToast().error(t('clients.servicesConfig.minOneRequired'))
+    } else if (err instanceof OrganizationRequestError) {
+      useToast().error(err.message)
+    } else {
+      useToast().error(t('clients.servicesConfig.actionError'))
+    }
   } finally {
     saving.value = false
   }
