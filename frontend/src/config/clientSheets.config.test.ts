@@ -35,10 +35,10 @@ describe('CLIENT_SHEETS_CONFIG', () => {
     expect(config.sheets.map((s) => s.key)).toEqual(['hoja1', 'hoja2', 'hoja3'])
   })
 
-  it('seguridad-vial: dashboard + hoja1..4 (5 sheets), mode realtabs, numerado 1..5', () => {
+  it('seguridad-vial: dashboard + resumen + hoja1..4 (6 sheets), mode realtabs, numerado 1..6', () => {
     const config = CLIENT_SHEETS_CONFIG['seguridad-vial']!
     expect(config.mode).toBe('realtabs')
-    expect(config.sheets.map((s) => s.key)).toEqual(['dashboard', 'hoja1', 'hoja2', 'hoja3', 'hoja4'])
-    expect(config.sheets.map((s) => s.number)).toEqual([1, 2, 3, 4, 5])
+    expect(config.sheets.map((s) => s.key)).toEqual(['dashboard', 'resumen', 'hoja1', 'hoja2', 'hoja3', 'hoja4'])
+    expect(config.sheets.map((s) => s.number)).toEqual([1, 2, 3, 4, 5, 6])
   })
 })

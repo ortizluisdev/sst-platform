@@ -1271,8 +1271,10 @@
     "loadError": "No se pudo cargar la información.",
     "noData": "Sin datos",
     "tabs": {
-      "dashboard": "Hoja 1 · Dashboard",
+      "dashboard": "Dashboard",
       "dashboardShort": "Dashboard",
+      "resumen": "Hoja 1 · Generalidad",
+      "resumenShort": "Hoja 1",
       "hoja1": "Hoja 2 · Generalidad",
       "hoja1Short": "Hoja 2",
       "hoja2": "Hoja 3 · Vehículos",

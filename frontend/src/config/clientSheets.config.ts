@@ -45,10 +45,11 @@ export const CLIENT_SHEETS_CONFIG: Record<string, ClientServiceSheetsConfig> = {
     mode: 'realtabs',
     sheets: [
       { key: 'dashboard', number: 1, labelKey: 'roadSafety.tabs.dashboard', shortLabelKey: 'roadSafety.tabs.dashboardShort' },
-      { key: 'hoja1', number: 2, labelKey: 'roadSafety.tabs.hoja1', shortLabelKey: 'roadSafety.tabs.hoja1Short' },
-      { key: 'hoja2', number: 3, labelKey: 'roadSafety.tabs.hoja2', shortLabelKey: 'roadSafety.tabs.hoja2Short' },
-      { key: 'hoja3', number: 4, labelKey: 'roadSafety.tabs.hoja3', shortLabelKey: 'roadSafety.tabs.hoja3Short' },
-      { key: 'hoja4', number: 5, labelKey: 'roadSafety.tabs.hoja4', shortLabelKey: 'roadSafety.tabs.hoja4Short' },
+      { key: 'resumen', number: 2, labelKey: 'roadSafety.tabs.resumen', shortLabelKey: 'roadSafety.tabs.resumenShort' },
+      { key: 'hoja1', number: 3, labelKey: 'roadSafety.tabs.hoja1', shortLabelKey: 'roadSafety.tabs.hoja1Short' },
+      { key: 'hoja2', number: 4, labelKey: 'roadSafety.tabs.hoja2', shortLabelKey: 'roadSafety.tabs.hoja2Short' },
+      { key: 'hoja3', number: 5, labelKey: 'roadSafety.tabs.hoja3', shortLabelKey: 'roadSafety.tabs.hoja3Short' },
+      { key: 'hoja4', number: 6, labelKey: 'roadSafety.tabs.hoja4', shortLabelKey: 'roadSafety.tabs.hoja4Short' },
     ],
   },
 }

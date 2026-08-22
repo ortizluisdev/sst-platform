@@ -1271,8 +1271,10 @@
     "loadError": "Could not load the information.",
     "noData": "No data",
     "tabs": {
-      "dashboard": "Sheet 1 · Dashboard",
+      "dashboard": "Dashboard",
       "dashboardShort": "Dashboard",
+      "resumen": "Sheet 1 · General",
+      "resumenShort": "Sheet 1",
       "hoja1": "Sheet 2 · General",
       "hoja1Short": "Sheet 2",
       "hoja2": "Sheet 3 · Vehicles",
