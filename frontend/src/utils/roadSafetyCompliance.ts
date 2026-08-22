@@ -25,3 +25,29 @@ export function buildPesvGlobalCompliance(pasos: RoadSafetyPesvPaso[]): GlobalCo
   const pct = total > 0 ? Math.round((verde / total) * 100) : 0
   return { pct, verde, amarillo, rojo, total }
 }
+
+export interface PesvFaseCompliance {
+  fase: string
+  promedioAvance: number
+}
+
+/** Agrupa los pasos PESV por fase (F1-F4) y promedia su `porcentajeAvance`
+ * — a diferencia de `buildPesvGlobalCompliance` (que usa el campo
+ * `cumplimiento`), esta usa el % de avance numérico porque el HTML de
+ * referencia del cliente pide un promedio por fase, no un conteo de
+ * estados. Pasos sin `porcentajeAvance` (null) se excluyen del promedio de
+ * su fase — mismo criterio de "sin dato distinto de 0" que el resto del
+ * sistema. Fases sin ningún paso con dato quedan con promedioAvance: 0 (no
+ * hay división por cero) y aparecen igual en el resultado, en el orden fijo
+ * F1-F4 (no el orden en que aparecen en `pasos`, que puede variar). */
+export function buildPesvByFaseCompliance(pasos: RoadSafetyPesvPaso[]): PesvFaseCompliance[] {
+  const FASES = ['F1', 'F2', 'F3', 'F4']
+  return FASES.map((fase) => {
+    const conDato = pasos.filter((p) => p.fase === fase && p.porcentajeAvance != null)
+    const promedioAvance =
+      conDato.length > 0
+        ? Math.round(conDato.reduce((sum, p) => sum + (p.porcentajeAvance ?? 0), 0) / conDato.length)
+        : 0
+    return { fase, promedioAvance }
+  })
+}
