@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { ClipboardCheck, Truck, IdCard, Map, AlertTriangle, History, FileText, Home } from 'lucide-vue-next'
+import { ClipboardCheck, Truck, IdCard, Map, AlertTriangle, History, FileText, Home, Gauge } from 'lucide-vue-next'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import DashboardShell from '@/components/dashboard/DashboardShell.vue'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar.vue'
@@ -51,10 +51,10 @@ async function loadDashboard() {
   if (serviceSlug.value === 'seguridad-vial') {
     status.value = 'ready'
     dashboard.value = null
-    // Mismo reset que hace Higiene Industrial abajo (activeTab = 'resumen')
-    // al entrar a un servicio distinto — acá el primer tab real es
-    // 'dashboard', igual que 'resumen' en Higiene Industrial.
-    activeTab.value = 'dashboard'
+    // Aterriza en 'resumen' (la nueva Hoja 1), no en 'dashboard' — mismo
+    // criterio que Higiene Industrial, que aterriza en 'resumen' y ese tab
+    // ya muestra su primera hoja por defecto (activeHoja = 'hoja1').
+    activeTab.value = 'resumen'
     return
   }
 
@@ -106,6 +106,7 @@ const tabs = computed(() => (dashboard.value ? buildDashboardTabs(dashboard.valu
 // hacía de landing por defecto, mezclando ambos roles.
 const roadSafetyTabs = computed<TabDef[]>(() => [
   { key: 'dashboard', label: t('roadSafety.tabs.dashboardShort'), icon: Home },
+  { key: 'resumen', label: t('roadSafety.tabs.resumenShort'), icon: Gauge },
   { key: 'hoja1', label: t('roadSafety.tabs.hoja1'), icon: ClipboardCheck },
   { key: 'hoja2', label: t('roadSafety.tabs.hoja2'), icon: Truck },
   { key: 'hoja3', label: t('roadSafety.tabs.hoja3'), icon: IdCard },
@@ -159,7 +160,7 @@ function fetchFilteredDashboard(filters: DashboardFilters) {
         <GeneralSettingsPanel v-else-if="activeTab === 'configuracion'" />
         <RoadSafetyClientPanel
           v-else
-          :active-tab="(activeTab as 'dashboard' | 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas' | 'historial' | 'reportes')"
+          :active-tab="(activeTab as 'dashboard' | 'resumen' | 'hoja1' | 'hoja2' | 'hoja3' | 'hoja4' | 'alertas' | 'historial' | 'reportes')"
         />
       </div>
     </template>
