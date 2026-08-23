@@ -92,6 +92,16 @@ onMounted(async () => {
 // dashboard con la ruta real en vez de duplicar el estado de selección.
 watch(serviceSlug, loadDashboard)
 
+// El ítem "Dashboard" del sidebar (GENERAL) es una clave reservada de
+// `modelValue`, igual que 'notificaciones'/'perfil'/'configuracion' — pero
+// a diferencia de esas tres, no hay un panel local que renderizar para
+// ella: es una pantalla aparte (ClientHomeView.vue, ruta
+// 'dashboard-resumen'), así que en vez de un `v-if` en el template, se
+// navega fuera de esta vista apenas se detecta.
+watch(activeTab, (value) => {
+  if (value === 'dashboard') router.push(`/${locale.value}/dashboard/resumen`)
+})
+
 function selectService(slug: string) {
   router.push(`/${locale.value}/dashboard/${slug}`)
 }
