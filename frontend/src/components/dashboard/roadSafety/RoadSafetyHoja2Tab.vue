@@ -209,7 +209,7 @@ async function handleCorrectSubmit(value: RoadSafetyFieldValue, reason: string) 
           <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
             {{ t('roadSafety.hoja2.estadoFlotaTitle') }}
           </p>
-          <HorizontalBarChart :items="estadoFlotaItems" :max="vehiculos.length" />
+          <HorizontalBarChart :items="estadoFlotaItems" :max="vehiculos.length || 1" />
         </div>
         <div class="rounded-lg border border-line-strong bg-white p-4">
           <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-700 opacity-70">
