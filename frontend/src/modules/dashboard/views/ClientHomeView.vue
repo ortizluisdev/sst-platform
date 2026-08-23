@@ -59,9 +59,12 @@ async function handleMarkRead(id: string) {
   try {
     await markNotificationRead(id)
   } catch {
-    // Silencioso a propósito, mismo criterio que NotificationsPanel.vue:
-    // el estado ya se actualizó de forma optimista en pantalla, un error de
-    // red al confirmar no amerita interrumpir al usuario con un toast.
+    // Mismo criterio que NotificationsPanel.vue: si la confirmación falla,
+    // se revierte el estado optimista y se resincroniza el contador desde
+    // el servidor, en vez de dejar la UI mostrando "leído" indefinidamente.
+    noticia.isRead = false
+    noticia.readAt = null
+    await notificationsStore.fetchUnreadCount()
   }
 }
 
