@@ -1398,7 +1398,21 @@
       "icc": "ICC",
       "resultado": "Resultado",
       "alerta": "Alerta",
-      "empty": "No hay conductores registrados todavía."
+      "empty": "No hay conductores registrados todavía.",
+      "iccTitle": "Índice de competencia del conductor (ICC)",
+      "competenciasTitle": "Competencias — promedio de la flota",
+      "exportCsv": "Descargar CSV",
+      "competencia": {
+        "conduccionSegura": "Conducción segura",
+        "manejoDefensivo": "Manejo defensivo",
+        "manejoComentadoDiurno": "Manejo comentado diurno",
+        "manejoComentadoNocturno": "Manejo comentado nocturno",
+        "conocimientoVehiculo": "Conocimiento del vehículo",
+        "normasTransito": "Normas de tránsito",
+        "gestionFatiga": "Gestión de la fatiga",
+        "investigacionSiniestros": "Investigación de siniestros",
+        "primerosAuxilios": "Primeros auxilios"
+      }
     },
     "hoja4": {
       "empty": "No hay rutas registradas todavía — sube el libro completo para ver el rutograma.",

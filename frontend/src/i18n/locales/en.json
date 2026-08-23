@@ -1398,7 +1398,21 @@
       "icc": "DCI",
       "resultado": "Result",
       "alerta": "Alert",
-      "empty": "No drivers registered yet."
+      "empty": "No drivers registered yet.",
+      "iccTitle": "Driver competency index (ICC)",
+      "competenciasTitle": "Competencies — fleet average",
+      "exportCsv": "Download CSV",
+      "competencia": {
+        "conduccionSegura": "Safe driving",
+        "manejoDefensivo": "Defensive driving",
+        "manejoComentadoDiurno": "Daytime commented driving",
+        "manejoComentadoNocturno": "Nighttime commented driving",
+        "conocimientoVehiculo": "Vehicle knowledge",
+        "normasTransito": "Traffic rules",
+        "gestionFatiga": "Fatigue management",
+        "investigacionSiniestros": "Incident investigation",
+        "primerosAuxilios": "First aid"
+      }
     },
     "hoja4": {
       "empty": "No routes registered yet — upload the full workbook to see the route map.",
