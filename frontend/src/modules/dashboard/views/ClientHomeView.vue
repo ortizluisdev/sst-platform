@@ -73,12 +73,12 @@ async function handleMarkRead(id: string) {
 // esta pantalla (sus únicas hojas/tabs son las de cada servicio, a las que
 // se navega aparte), así que se le pasa un arreglo vacío de tabs y un slug
 // vacío. El único ítem que puede quedar activo es "Dashboard" (GENERAL,
-// value inicial 'dashboard'), nunca uno de SERVICIOS.
+// value inicial 'inicio'), nunca uno de SERVICIOS.
 const emptyTabs: TabDef[] = []
-const activeTab = ref('dashboard')
+const activeTab = ref('inicio')
 
 watch(activeTab, (value) => {
-  if (value === 'dashboard') return // ya estamos acá, no-op
+  if (value === 'inicio') return // ya estamos acá, no-op
   if (value === 'notificaciones') {
     router.push({ name: 'dashboard-notificaciones' })
     return

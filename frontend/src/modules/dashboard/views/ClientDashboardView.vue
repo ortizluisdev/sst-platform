@@ -99,7 +99,7 @@ watch(serviceSlug, loadDashboard)
 // 'dashboard-resumen'), así que en vez de un `v-if` en el template, se
 // navega fuera de esta vista apenas se detecta.
 watch(activeTab, (value) => {
-  if (value === 'dashboard') router.push(`/${locale.value}/dashboard/resumen`)
+  if (value === 'inicio') router.push(`/${locale.value}/dashboard/resumen`)
 })
 
 function selectService(slug: string) {
