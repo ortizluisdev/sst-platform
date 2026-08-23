@@ -465,10 +465,22 @@
       "tagline": "Applied Science",
       "servicesLabel": "Services",
       "generalLabel": "General",
+      "dashboardLink": "Dashboard",
       "closeMenu": "Close navigation menu",
       "notificationsLink": "Notifications",
       "collapse": "Collapse to icons only",
       "expand": "Expand menu"
+    },
+    "home": {
+      "pageTitle": "Dashboard — RoMa+",
+      "loading": "Loading...",
+      "serviciosTitle": "My services",
+      "sinServicios": "You don't have any contracted services yet.",
+      "sinDato": "No data available",
+      "verDetalle": "View details",
+      "noticiasTitle": "News",
+      "verTodasLink": "View all",
+      "sinNoticias": "No news right now."
     },
     "tabs": {
       "dashboard": "Dashboard",

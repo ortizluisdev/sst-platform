@@ -64,6 +64,12 @@ const router = createRouter({
       component: () => import('@/modules/profile/views/UpdateProfileView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/:locale(es|en)/dashboard/resumen',
+      name: 'dashboard-resumen',
+      component: () => import('@/modules/dashboard/views/ClientHomeView.vue'),
+      meta: { requiresAuth: true },
+    },
     // Ruta paramétrica: sirve cualquier servicio contratado, no solo Higiene
     // Industrial — sigue funcionando para bookmarks/links viejos a
     // /dashboard/higiene-industrial porque ese slug encaja igual acá.
