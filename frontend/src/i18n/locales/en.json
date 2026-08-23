@@ -1378,7 +1378,14 @@
       "labrado": "Tread depth (mm)",
       "anomalia": "Consumption anomaly",
       "alerta": "Alert",
-      "empty": "No vehicles match the filter."
+      "empty": "No vehicles match the filter.",
+      "sinTipo": "No type",
+      "vencido": "Expired",
+      "exportCsv": "Download CSV",
+      "tipoDistribucionTitle": "Distribution by vehicle type",
+      "estadoFlotaTitle": "Fleet status",
+      "rendimientoTitle": "Fuel efficiency",
+      "vencimientosTitle": "SOAT/RTM expirations"
     },
     "hoja3": {
       "documento": "Document",

@@ -1378,7 +1378,14 @@
       "labrado": "Labrado (mm)",
       "anomalia": "Anomalía consumo",
       "alerta": "Alerta",
-      "empty": "No hay vehículos que coincidan con el filtro."
+      "empty": "No hay vehículos que coincidan con el filtro.",
+      "sinTipo": "Sin tipo",
+      "vencido": "Vencido",
+      "exportCsv": "Descargar CSV",
+      "tipoDistribucionTitle": "Distribución por tipo de vehículo",
+      "estadoFlotaTitle": "Estado de la flota",
+      "rendimientoTitle": "Rendimiento de combustible",
+      "vencimientosTitle": "Vencimientos SOAT/RTM"
     },
     "hoja3": {
       "documento": "Documento",
