@@ -1435,6 +1435,7 @@
       "telefono1": "Phone 1",
       "telefono2": "Phone 2",
       "condicionesRiesgo": "Route analysis — risk conditions",
+      "condicionesEmpty": "No risk conditions marked for this route.",
       "puntosRuta": "Route points",
       "kmVia": "KM / road / reference",
       "senales": "Traffic signs",

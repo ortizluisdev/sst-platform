@@ -1435,6 +1435,7 @@
       "telefono1": "Teléfono 1",
       "telefono2": "Teléfono 2",
       "condicionesRiesgo": "Análisis de ruta — condiciones de riesgo",
+      "condicionesEmpty": "Sin condiciones de riesgo marcadas para esta ruta.",
       "puntosRuta": "Puntos de la ruta",
       "kmVia": "KM / vía / referencia",
       "senales": "Señales de tránsito",

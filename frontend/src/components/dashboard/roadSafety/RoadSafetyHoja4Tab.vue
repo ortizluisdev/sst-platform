@@ -164,15 +164,17 @@ function fecha(value: string | null): string {
           >
             {{ t('roadSafety.hoja4.condicionesRiesgo') }}
           </p>
-          <div class="grid gap-2 p-4 sm:grid-cols-2">
-            <label
-              v-for="c in ruta.condicionesRiesgo"
+          <div class="flex flex-wrap gap-2 p-4">
+            <span
+              v-for="c in ruta.condicionesRiesgo.filter((c) => c.marcado)"
               :key="c.clave"
-              class="flex items-center gap-2 text-sm text-navy-900"
+              class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700"
             >
-              <input type="checkbox" :checked="c.marcado" disabled class="h-4 w-4 rounded-sm border-line-strong" />
               {{ c.etiqueta }}
-            </label>
+            </span>
+            <p v-if="!ruta.condicionesRiesgo.some((c) => c.marcado)" class="text-sm text-navy-700/50">
+              {{ t('roadSafety.hoja4.condicionesEmpty') }}
+            </p>
           </div>
         </div>
 
