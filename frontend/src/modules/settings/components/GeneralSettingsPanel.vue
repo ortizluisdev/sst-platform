@@ -138,7 +138,22 @@ onMounted(() => {
       </div>
       <p class="mb-3 mt-1 text-xs text-navy-700/60">{{ t('settings.notifications.hint') }}</p>
 
-      <p v-if="prefsStatus === 'loading'" class="text-sm text-navy-700">{{ t('settings.loading') }}</p>
+      <!-- Esqueleto con la forma real de la tabla — mismo criterio que
+      MyProfilePanel.vue/NotificationsPanel.vue, evita el salto/parpadeo al
+      reemplazar todo de golpe cuando llegan los datos. -->
+      <div
+        v-if="prefsStatus === 'loading'"
+        class="animate-pulse overflow-hidden rounded-lg border border-line-strong"
+        role="presentation"
+        aria-hidden="true"
+      >
+        <div class="h-9 bg-sky-100" />
+        <div v-for="i in 8" :key="i" class="grid grid-cols-3 items-center gap-4 border-t border-line px-4 py-3">
+          <div class="h-3.5 w-32 rounded-full bg-line-strong" />
+          <div class="mx-auto h-4 w-4 rounded-sm bg-line-strong" />
+          <div class="mx-auto h-4 w-4 rounded-sm bg-line-strong" />
+        </div>
+      </div>
       <p
         v-else-if="prefsStatus === 'error'"
         class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -196,7 +211,22 @@ onMounted(() => {
       </div>
       <p class="mb-3 mt-1 text-xs text-navy-700/60">{{ t('settings.branding.hint') }}</p>
 
-      <p v-if="brandingStatus === 'loading'" class="text-sm text-navy-700">{{ t('settings.loading') }}</p>
+      <!-- Esqueleto con la forma real del formulario de marca
+      (BrandingFields.vue: logo, 2 colores, 2 vistas previas) — mismo
+      criterio que el resto de esqueletos de esta pantalla. -->
+      <div v-if="brandingStatus === 'loading'" class="grid animate-pulse gap-4" role="presentation" aria-hidden="true">
+        <div class="h-9 w-40 rounded-sm bg-line-strong" />
+        <div class="h-10 w-32 rounded-sm bg-line-strong" />
+        <div class="grid grid-cols-2 gap-4">
+          <div class="h-11 rounded-sm bg-line-strong" />
+          <div class="h-11 rounded-sm bg-line-strong" />
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="h-14 rounded-md bg-line-strong" />
+          <div class="h-14 rounded-md bg-line-strong" />
+        </div>
+        <div class="h-10 w-40 rounded-sm bg-line-strong" />
+      </div>
       <form v-else class="grid gap-4" novalidate @submit.prevent="submitBranding">
         <BrandingFields
           v-model:logo-base64="logoBase64"

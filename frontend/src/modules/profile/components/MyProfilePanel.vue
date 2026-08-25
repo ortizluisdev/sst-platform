@@ -165,7 +165,46 @@ const showPasswordModal = ref(false)
   <div class="grid gap-6">
     <SectionTitleBanner :title="t('myProfile.sidebarLink')" />
 
-    <p v-if="loadStatus === 'loading'" class="text-sm text-navy-700">{{ t('myProfile.loading') }}</p>
+    <!-- Esqueleto con la misma forma de las 3 tarjetas reales (cabecera,
+    datos personales, firma) — en vez de un texto "Cargando..." que dejaba
+    la pantalla casi en blanco y de golpe reemplazaba todo por el layout
+    real (salto brusco al terminar). El espacio ya queda reservado con el
+    tamaño real, así no hay salto de layout cuando llegan los datos. -->
+    <div v-if="loadStatus === 'loading'" class="grid gap-6" role="presentation" aria-hidden="true">
+      <div
+        class="flex animate-pulse flex-col items-center gap-4 rounded-md border border-line-strong bg-line-strong/40 p-6 sm:flex-row sm:items-center sm:p-8"
+      >
+        <div class="h-24 w-24 shrink-0 rounded-full bg-line-strong" />
+        <div class="min-w-0 flex-1 space-y-2">
+          <div class="mx-auto h-5 w-40 rounded-full bg-line-strong sm:mx-0" />
+          <div class="mx-auto h-3.5 w-56 rounded-full bg-line-strong sm:mx-0" />
+          <div class="mx-auto h-5 w-32 rounded-full bg-line-strong sm:mx-0" />
+        </div>
+        <div class="h-9 w-full shrink-0 rounded-sm bg-line-strong sm:w-40" />
+      </div>
+
+      <div class="animate-pulse rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+        <div class="h-4 w-40 rounded-full bg-line-strong" />
+        <div class="mt-2 h-3 w-64 rounded-full bg-line-strong" />
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+          <div class="h-11 rounded-sm bg-line-strong sm:col-span-2" />
+          <div class="h-11 rounded-sm bg-line-strong" />
+          <div class="h-11 rounded-sm bg-line-strong" />
+          <div class="h-11 rounded-sm bg-line-strong" />
+          <div class="h-11 rounded-sm bg-line-strong" />
+        </div>
+        <div class="mt-5 h-11 w-full rounded-sm bg-line-strong" />
+      </div>
+
+      <div class="animate-pulse rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+        <div class="h-4 w-40 rounded-full bg-line-strong" />
+        <div class="mt-2 h-3 w-72 rounded-full bg-line-strong" />
+        <div class="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <div class="h-20 w-40 shrink-0 rounded-sm bg-line-strong" />
+          <div class="h-9 w-32 rounded-sm bg-line-strong" />
+        </div>
+      </div>
+    </div>
     <p
       v-else-if="loadStatus === 'error'"
       class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"

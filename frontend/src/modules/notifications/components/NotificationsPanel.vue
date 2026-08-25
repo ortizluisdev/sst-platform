@@ -117,7 +117,27 @@ async function handleMarkRead(id: string) {
       </select>
     </div>
 
-    <p v-if="status === 'loading'" class="mt-6 text-sm text-navy-700">{{ t('dashboard.notifications.loading') }}</p>
+    <!-- Esqueleto con la forma real de las filas (NotificationItem.vue) en
+    vez de un texto "Cargando..." — mismo criterio que MyProfilePanel.vue,
+    evita el salto/parpadeo al reemplazar todo de golpe cuando llegan los
+    datos. -->
+    <div
+      v-if="status === 'loading'"
+      class="mt-4 animate-pulse overflow-hidden rounded-md border border-line-strong bg-white"
+      role="presentation"
+      aria-hidden="true"
+    >
+      <div v-for="i in 6" :key="i" class="flex gap-3 border-b border-line px-4 py-3 last:border-b-0">
+        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-line-strong" />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <div class="h-4 w-28 rounded-full bg-line-strong" />
+            <div class="h-3 w-16 shrink-0 rounded-full bg-line-strong" />
+          </div>
+          <div class="mt-2 h-3.5 w-full max-w-md rounded-full bg-line-strong" />
+        </div>
+      </div>
+    </div>
     <p v-else-if="items.length === 0" class="mt-6 text-sm text-navy-700/60">
       {{ t('dashboard.notifications.empty') }}
     </p>
