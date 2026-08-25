@@ -83,7 +83,11 @@ onMounted(async () => {
   // sidebar en vez de la que loadDashboard() acaba de poner por defecto.
   // Solo se revisa una vez al montar: cambiar de servicio después usa el
   // reset normal de loadDashboard(), no este query inicial.
-  if (route.query.tab === 'notificaciones' || route.query.tab === 'perfil') {
+  if (
+    route.query.tab === 'notificaciones' ||
+    route.query.tab === 'perfil' ||
+    route.query.tab === 'configuracion'
+  ) {
     activeTab.value = route.query.tab
   }
 })

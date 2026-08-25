@@ -12,6 +12,7 @@ import { listMyContractedServices } from '@/services/dashboard.service'
 import { listNotifications, markNotificationRead } from '@/services/notification.service'
 import { useNotificationsStore } from '@/stores/notifications'
 import { fetchServiceComplianceSummary } from '@/utils/clientDashboardSummary'
+import { roundDisplay } from '@/utils/formatNumber'
 import { iconForService } from '@/utils/serviceIcon'
 import { serviceLabel } from '@/utils/serviceLabel'
 import type { ServiceOption } from '@/types/organization'
@@ -94,6 +95,16 @@ watch(activeTab, (value) => {
 function selectService(slug: string) {
   router.push(`/${locale.value}/dashboard/${slug}`)
 }
+
+// Higiene Industrial redondea su % de cumplimiento a 1 decimal en su propia
+// pantalla de servicio (roundDisplay, ver GlobalIndicatorsRow.vue,
+// ClientAnalisisTab.vue, ComplianceRing.vue) — esta tarjeta debe mostrar el
+// mismo valor, no el número crudo del adaptador. Seguridad Vial
+// (cumplimientoPesvGlobal) se muestra sin redondear en todo el resto del
+// código, así que acá se respeta ese mismo criterio y no se toca.
+function displayCompliance(slug: string, value: number): number {
+  return slug === 'higiene-industrial' ? roundDisplay(value) : value
+}
 </script>
 
 <template>
@@ -139,7 +150,7 @@ function selectService(slug: string) {
                 v-if="serviceSummaries[service.slug] != null"
                 class="mt-2 font-mono text-2xl font-bold text-navy-900"
               >
-                {{ serviceSummaries[service.slug] }}%
+                {{ displayCompliance(service.slug, serviceSummaries[service.slug]!) }}%
               </p>
               <p v-else class="mt-2 text-xs text-navy-700/50">{{ t('dashboard.home.sinDato') }}</p>
               <button
