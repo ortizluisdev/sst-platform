@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Bell, Palette } from 'lucide-vue-next'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import BrandingFields from '@/components/dashboard/organizations/BrandingFields.vue'
@@ -130,9 +131,12 @@ onMounted(() => {
   <div class="grid gap-6">
     <SectionTitleBanner :title="t('settings.sidebarLink')" />
 
-    <section>
-      <h2 class="mb-1 text-base font-bold text-navy-900">{{ t('settings.notifications.title') }}</h2>
-      <p class="mb-3 text-xs text-navy-700/60">{{ t('settings.notifications.hint') }}</p>
+    <section class="rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+      <div class="flex items-center gap-2">
+        <Bell class="h-5 w-5 shrink-0 text-navy-700/70" aria-hidden="true" />
+        <h2 class="text-base font-bold text-navy-900">{{ t('settings.notifications.title') }}</h2>
+      </div>
+      <p class="mb-3 mt-1 text-xs text-navy-700/60">{{ t('settings.notifications.hint') }}</p>
 
       <p v-if="prefsStatus === 'loading'" class="text-sm text-navy-700">{{ t('settings.loading') }}</p>
       <p
@@ -151,21 +155,26 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in preferences" :key="item.type" class="border-t border-line">
-              <td class="px-4 py-2.5 text-navy-900">{{ t(NOTIFICATION_TYPE_LABEL_KEY[item.type]) }}</td>
-              <td class="px-4 py-2.5 text-center">
+            <tr
+              v-for="(item, index) in preferences"
+              :key="item.type"
+              class="border-t border-line"
+              :class="index % 2 === 1 ? 'bg-cream/40' : 'bg-white'"
+            >
+              <td class="px-4 py-3 text-navy-900">{{ t(NOTIFICATION_TYPE_LABEL_KEY[item.type]) }}</td>
+              <td class="px-4 py-3 text-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded-sm border-line-strong"
+                  class="h-4 w-4 rounded-sm border-line-strong accent-sky-500"
                   :checked="item.inAppEnabled"
                   :disabled="togglingKey === `${item.type}-inAppEnabled`"
                   @change="toggle(item, 'inAppEnabled')"
                 />
               </td>
-              <td class="px-4 py-2.5 text-center">
+              <td class="px-4 py-3 text-center">
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded-sm border-line-strong"
+                  class="h-4 w-4 rounded-sm border-line-strong accent-sky-500"
                   :checked="item.emailEnabled"
                   :disabled="!item.inAppEnabled || togglingKey === `${item.type}-emailEnabled`"
                   @change="toggle(item, 'emailEnabled')"
@@ -180,9 +189,12 @@ onMounted(() => {
       </p>
     </section>
 
-    <section v-if="isOrgUser">
-      <h2 class="mb-1 text-base font-bold text-navy-900">{{ t('settings.branding.title') }}</h2>
-      <p class="mb-3 text-xs text-navy-700/60">{{ t('settings.branding.hint') }}</p>
+    <section v-if="isOrgUser" class="rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+      <div class="flex items-center gap-2">
+        <Palette class="h-5 w-5 shrink-0 text-navy-700/70" aria-hidden="true" />
+        <h2 class="text-base font-bold text-navy-900">{{ t('settings.branding.title') }}</h2>
+      </div>
+      <p class="mb-3 mt-1 text-xs text-navy-700/60">{{ t('settings.branding.hint') }}</p>
 
       <p v-if="brandingStatus === 'loading'" class="text-sm text-navy-700">{{ t('settings.loading') }}</p>
       <form v-else class="grid gap-4" novalidate @submit.prevent="submitBranding">
@@ -198,7 +210,10 @@ onMounted(() => {
         >
           {{ t('settings.branding.saved') }}
         </p>
-        <p v-if="brandingErrorMessage" class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p
+          v-if="brandingErrorMessage"
+          class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {{ brandingErrorMessage }}
         </p>
 
