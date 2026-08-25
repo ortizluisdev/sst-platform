@@ -1363,6 +1363,7 @@
       "alertIccBajo": "ICC {icc} (below the 70 threshold)"
     },
     "upload": {
+      "openButton": "Upload registry",
       "label": "Upload registry (Excel)",
       "hint": "Upload the full workbook (registro_seguridad_vial_MSSV_1.xlsx) — replaces the current vehicles, people, PESV, and route data.",
       "chooseButton": "Choose file",

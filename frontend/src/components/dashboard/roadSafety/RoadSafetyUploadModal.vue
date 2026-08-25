@@ -1,18 +1,25 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import Modal from '@/components/ui/Modal.vue'
 import { uploadRoadSafetyWorkbook, RoadSafetyRequestError } from '@/services/roadSafety.service'
 
 const props = defineProps<{ organizationId?: string }>()
-const emit = defineEmits<{ uploaded: [] }>()
+const emit = defineEmits<{ uploaded: []; close: [] }>()
 
 const { t } = useI18n()
 const fileInput = ref<HTMLInputElement | null>(null)
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const errorMessage = ref('')
-const lastFileName = ref('')
 const selectedFileName = ref('')
 
+// Mismo comportamiento que ya tenía RoadSafetyUploadCard.vue (ahora
+// reemplazada por este modal, ver RoadSafetyAdminPanel.vue) — un solo
+// archivo .xlsx, sin campos adicionales: a diferencia de Higiene Industrial
+// (que sí necesita zona/sección/cargo/trabajador porque cada carga es UN
+// puesto de trabajo), acá el libro completo ya trae esa granularidad por
+// fila (zona/ciudad/sede de cada vehículo o conductor) — agregar esos
+// selects acá no aplicaría a este modelo de datos.
 async function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -22,10 +29,10 @@ async function onFileChange(event: Event) {
   status.value = 'loading'
   errorMessage.value = ''
   try {
-    const upload = await uploadRoadSafetyWorkbook({ organizationId: props.organizationId }, file)
-    lastFileName.value = upload.originalFile
+    await uploadRoadSafetyWorkbook({ organizationId: props.organizationId }, file)
     status.value = 'success'
     emit('uploaded')
+    emit('close')
   } catch (err) {
     status.value = 'error'
     errorMessage.value = err instanceof RoadSafetyRequestError ? err.message : t('roadSafety.upload.genericError')
@@ -36,11 +43,9 @@ async function onFileChange(event: Event) {
 </script>
 
 <template>
-  <div>
-    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
-      {{ t('roadSafety.upload.label') }}
-    </label>
-    <p class="mb-2 text-xs text-navy-700/60">{{ t('roadSafety.upload.hint') }}</p>
+  <Modal :title="t('roadSafety.upload.label')" max-width="lg" @close="emit('close')">
+    <p class="mb-4 text-sm text-navy-700/70">{{ t('roadSafety.upload.hint') }}</p>
+
     <input
       ref="fileInput"
       type="file"
@@ -60,10 +65,7 @@ async function onFileChange(event: Event) {
       </button>
       <span class="truncate text-sm text-navy-700/70">{{ selectedFileName || t('roadSafety.upload.noFile') }}</span>
     </div>
-    <p v-if="status === 'loading'" class="mt-1.5 text-xs text-navy-700">{{ t('roadSafety.upload.loading') }}</p>
-    <p v-else-if="status === 'success'" class="mt-1.5 text-xs text-emerald-700">
-      {{ t('roadSafety.upload.success', { file: lastFileName }) }}
-    </p>
-    <p v-else-if="status === 'error'" class="mt-1.5 text-xs text-red-600">{{ errorMessage }}</p>
-  </div>
+    <p v-if="status === 'loading'" class="mt-2 text-xs text-navy-700">{{ t('roadSafety.upload.loading') }}</p>
+    <p v-else-if="status === 'error'" class="mt-2 text-xs text-red-600">{{ errorMessage }}</p>
+  </Modal>
 </template>

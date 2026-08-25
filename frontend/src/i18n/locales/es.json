@@ -1363,6 +1363,7 @@
       "alertIccBajo": "ICC {icc} (bajo el umbral de 70)"
     },
     "upload": {
+      "openButton": "Cargar registro",
       "label": "Cargar registro (Excel)",
       "hint": "Sube el libro completo (registro_seguridad_vial_MSSV_1.xlsx) — reemplaza los datos actuales de vehículos, personas, PESV y rutograma.",
       "chooseButton": "Seleccionar archivo",

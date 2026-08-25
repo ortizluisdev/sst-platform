@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ClipboardCheck, Truck, IdCard, Map, AlertTriangle, History, FileText, Home, SlidersHorizontal } from 'lucide-vue-next'
+import {
+  ClipboardCheck,
+  Truck,
+  IdCard,
+  Map,
+  AlertTriangle,
+  History,
+  FileText,
+  Home,
+  SlidersHorizontal,
+} from 'lucide-vue-next'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
-import RoadSafetyUploadCard from '@/components/dashboard/roadSafety/RoadSafetyUploadCard.vue'
+import RoadSafetyUploadModal from '@/components/dashboard/roadSafety/RoadSafetyUploadModal.vue'
 import RoadSafetyDashboardTab from '@/components/dashboard/roadSafety/RoadSafetyDashboardTab.vue'
 import RoadSafetyHoja1Tab from '@/components/dashboard/roadSafety/RoadSafetyHoja1Tab.vue'
 import RoadSafetyHoja2Tab from '@/components/dashboard/roadSafety/RoadSafetyHoja2Tab.vue'
@@ -28,6 +38,8 @@ const selectOrg = inject<(id: string) => void>('operacionSelectOrg', () => {})
 function handleOrgChange(event: Event) {
   selectOrg((event.target as HTMLSelectElement).value)
 }
+
+const showUploadModal = ref(false)
 
 // Mismo patrón de acordeón compartido que HigieneIndustrialPanel.vue — ver
 // AdminShell.vue (posee estas refs, es el ancestro común con AdminNavSidebar).
@@ -111,33 +123,42 @@ function reloadAll() {
 
 <template>
   <div class="grid gap-6">
-    <SectionTitleBanner :title="bannerTitle" />
+    <!-- Selector de empresa + botón de carga en línea con el banner (2026-08,
+    "que quede uniforme con Higiene Industrial") — antes vivían en una
+    tarjeta blanca aparte debajo del banner, con la carga como un bloque
+    siempre visible en vez de un botón que abre modal (RoadSafetyUploadCard,
+    reemplazada por RoadSafetyUploadModal.vue). Mismo tratamiento visual que
+    HigieneIndustrialPanel.vue: select compacto + botón blanco sobre el
+    fondo oscuro del banner, solo en "Dashboard". -->
+    <SectionTitleBanner :title="bannerTitle">
+      <template v-if="sharedActiveTab === 'dashboard'" #actions>
+        <label for="roadsafety-org-select" class="sr-only">{{ t('dashboard.adminShell.orgSelectorLabel') }}</label>
+        <select
+          id="roadsafety-org-select"
+          :value="props.organizationId"
+          class="rounded-sm border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-cream [color-scheme:dark]"
+          @change="handleOrgChange"
+        >
+          <option v-for="org in organizations" :key="org.id" :value="org.id" class="text-navy-900">
+            {{ org.nombre }}
+          </option>
+        </select>
+        <button
+          type="button"
+          class="rounded-sm bg-white px-3 py-1.5 text-xs font-semibold text-navy-900 hover:opacity-90"
+          @click="showUploadModal = true"
+        >
+          {{ t('roadSafety.upload.openButton') }}
+        </button>
+      </template>
+    </SectionTitleBanner>
 
-    <!-- Selector de empresa + carga de Excel: solo en "Dashboard", uniforme
-    con HigieneIndustrialPanel.vue (donde vive únicamente en "Resumen"). -->
-    <section v-if="sharedActiveTab === 'dashboard'" class="overflow-hidden rounded-lg border border-line-strong bg-white print:hidden">
-      <div class="grid gap-3 p-3 sm:grid-cols-[minmax(0,240px)_1fr] sm:items-start sm:p-4">
-        <div>
-          <label
-            for="roadsafety-org-select"
-            class="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy-700"
-          >
-            {{ t('dashboard.adminShell.orgSelectorLabel') }}
-          </label>
-          <select
-            id="roadsafety-org-select"
-            :value="props.organizationId"
-            class="w-full rounded-sm border border-line-strong bg-white px-3 py-2 text-sm text-navy-900"
-            @change="handleOrgChange"
-          >
-            <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.nombre }}</option>
-          </select>
-        </div>
-        <div class="border-t border-line-strong pt-3 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0">
-          <RoadSafetyUploadCard :organization-id="props.organizationId" @uploaded="reloadAll" />
-        </div>
-      </div>
-    </section>
+    <RoadSafetyUploadModal
+      v-if="showUploadModal"
+      :organization-id="props.organizationId"
+      @uploaded="reloadAll"
+      @close="showUploadModal = false"
+    />
 
     <!-- Sin <Transition>: mode="out-in" quedaba "atascado" a medio animar y
     mostraba contenido de la pestaña anterior con el banner ya cambiado —
@@ -147,7 +168,11 @@ function reloadAll() {
       ref="dashboardRef"
       :organization-id="props.organizationId"
     />
-    <RoadSafetyHoja1Tab v-else-if="sharedActiveTab === 'hoja1'" ref="hoja1Ref" :organization-id="props.organizationId" />
+    <RoadSafetyHoja1Tab
+      v-else-if="sharedActiveTab === 'hoja1'"
+      ref="hoja1Ref"
+      :organization-id="props.organizationId"
+    />
     <RoadSafetyHoja2Tab
       v-else-if="sharedActiveTab === 'hoja2'"
       ref="hoja2Ref"
