@@ -1501,10 +1501,10 @@
     },
     "reports": {
       "titulo": {
-        "h1": "Generar Reporte H2 — Informe general",
-        "h2": "Generar Reporte H3 — Informe de flota",
-        "h3": "Generar Reporte H4 — Informe de personas",
-        "h4": "Generar Reporte H5 — Informe de rutograma"
+        "h1": "Generar Reporte H1 — Informe general",
+        "h2": "Generar Reporte H2 — Informe de flota",
+        "h3": "Generar Reporte H3 — Informe de personas",
+        "h4": "Generar Reporte H4 — Informe de rutograma"
       },
       "subtitulo": "Estos datos son solo para este reporte — no se guardan en la empresa.",
       "close": "Cerrar",

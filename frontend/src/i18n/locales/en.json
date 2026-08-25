@@ -1501,10 +1501,10 @@
     },
     "reports": {
       "titulo": {
-        "h1": "Generate H2 Report — General summary",
-        "h2": "Generate H3 Report — Fleet report",
-        "h3": "Generate H4 Report — People report",
-        "h4": "Generate H5 Report — Route map report"
+        "h1": "Generate H1 Report — General summary",
+        "h2": "Generate H2 Report — Fleet report",
+        "h3": "Generate H3 Report — People report",
+        "h4": "Generate H4 Report — Route map report"
       },
       "subtitulo": "This info is only for this report — it isn't saved to the company profile.",
       "close": "Close",
