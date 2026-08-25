@@ -1154,6 +1154,7 @@
   "branding": {
     "fields": {
       "logoLabel": "Logo de tu empresa",
+      "logoTooltip": "Aparece en el navbar del dashboard y en la cabecera de tus reportes PDF descargables.",
       "logoChooseButton": "Seleccionar archivo",
       "logoNoFile": "Ningún archivo seleccionado",
       "logoHint": "SVG, PNG o JPG, hasta 500KB — el SVG se adapta sin pixelarse al navbar.",
@@ -1161,7 +1162,9 @@
       "logoSizeError": "El logo no puede superar 500KB.",
       "logoPreviewAlt": "Vista previa del logo",
       "primaryColorLabel": "Color primario (botones)",
+      "primaryColorTooltip": "Se usa en los botones y elementos activos del dashboard — el navbar siempre queda blanco, sin importar este color.",
       "secondaryColorLabel": "Color secundario (modales)",
+      "secondaryColorTooltip": "Se usa solo como franja superior decorativa en las ventanas emergentes (modales).",
       "secondaryColorHint": "Se usa como franja superior en las ventanas emergentes.",
       "previewLabel": "Vista previa — botón",
       "previewText": "Así se vería un botón",
@@ -1183,7 +1186,17 @@
       "colInApp": "En la app",
       "colEmail": "Por correo",
       "loadError": "Error al cargar tus preferencias.",
-      "actionError": "No se pudo guardar el cambio."
+      "actionError": "No se pudo guardar el cambio.",
+      "tooltips": {
+        "cargaConError": "Se envía cuando una carga de variables falla al procesarse (archivo con errores).",
+        "cuentaReactivada": "Se envía cuando un administrador reactiva tu cuenta.",
+        "cuentaSuspendida": "Se envía cuando un administrador suspende tu cuenta.",
+        "cargaProcesada": "Se envía cuando una carga de variables termina de procesarse correctamente.",
+        "registroPendiente": "Solo para administradores: avisa cuando una empresa nueva queda pendiente de aprobación.",
+        "contactoRecibido": "Solo para administradores: avisa cuando llega un mensaje nuevo del formulario de contacto público.",
+        "lecturaCorregida": "Se envía cuando un administrador corrige el valor de una lectura ya cargada en tu dashboard.",
+        "mensajeAdmin": "Se envía cuando un administrador publica un mensaje o noticia dirigido a ti."
+      }
     },
     "branding": {
       "title": "Marca de tu empresa",

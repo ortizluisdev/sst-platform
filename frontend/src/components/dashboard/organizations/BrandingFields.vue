@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 
 const logoBase64 = defineModel<string>('logoBase64', { required: true })
 const primaryColor = defineModel<string>('primaryColor', { required: true })
@@ -51,8 +52,12 @@ function handleFileChange(event: Event) {
 <template>
   <div class="grid gap-4">
     <div>
-      <label for="branding-logo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+      <label
+        for="branding-logo"
+        class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
+      >
         {{ t('branding.fields.logoLabel') }}
+        <InfoTooltip :text="t('branding.fields.logoTooltip')" />
       </label>
       <input
         id="branding-logo"
@@ -70,9 +75,7 @@ function handleFileChange(event: Event) {
         >
           {{ t('branding.fields.logoChooseButton') }}
         </button>
-        <span class="truncate text-sm text-navy-700/70">{{
-          logoFilename || t('branding.fields.logoNoFile')
-        }}</span>
+        <span class="truncate text-sm text-navy-700/70">{{ logoFilename || t('branding.fields.logoNoFile') }}</span>
       </div>
       <p class="mt-1 text-xs text-navy-700/60">{{ t('branding.fields.logoHint') }}</p>
       <p v-if="fileError" class="mt-1.5 text-xs text-red-600">{{ fileError }}</p>
@@ -81,8 +84,12 @@ function handleFileChange(event: Event) {
 
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label for="branding-primary" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">
+        <label
+          for="branding-primary"
+          class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
+        >
           {{ t('branding.fields.primaryColorLabel') }}
+          <InfoTooltip :text="t('branding.fields.primaryColorTooltip')" />
         </label>
         <input
           id="branding-primary"
@@ -94,9 +101,10 @@ function handleFileChange(event: Event) {
       <div>
         <label
           for="branding-secondary"
-          class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700"
+          class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
         >
           {{ t('branding.fields.secondaryColorLabel') }}
+          <InfoTooltip :text="t('branding.fields.secondaryColorTooltip')" />
         </label>
         <input
           id="branding-secondary"

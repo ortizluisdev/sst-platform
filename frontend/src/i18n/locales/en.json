@@ -1154,6 +1154,7 @@
   "branding": {
     "fields": {
       "logoLabel": "Your company's logo",
+      "logoTooltip": "Shows up in the dashboard navbar and in the header of your downloadable PDF reports.",
       "logoChooseButton": "Choose file",
       "logoNoFile": "No file selected",
       "logoHint": "SVG, PNG, or JPG, up to 500KB — SVG scales without pixelating in the navbar.",
@@ -1161,7 +1162,9 @@
       "logoSizeError": "The logo can't exceed 500KB.",
       "logoPreviewAlt": "Logo preview",
       "primaryColorLabel": "Primary color (buttons)",
+      "primaryColorTooltip": "Used on dashboard buttons and active elements — the navbar always stays white, regardless of this color.",
       "secondaryColorLabel": "Secondary color (modals)",
+      "secondaryColorTooltip": "Used only as a decorative top strip on pop-up windows (modals).",
       "secondaryColorHint": "Used as the top accent strip on pop-up windows.",
       "previewLabel": "Preview — button",
       "previewText": "This is how a button would look",
@@ -1183,7 +1186,17 @@
       "colInApp": "In app",
       "colEmail": "By email",
       "loadError": "Error loading your preferences.",
-      "actionError": "Could not save the change."
+      "actionError": "Could not save the change.",
+      "tooltips": {
+        "cargaConError": "Sent when a variable upload fails to process (file with errors).",
+        "cuentaReactivada": "Sent when an administrator reactivates your account.",
+        "cuentaSuspendida": "Sent when an administrator suspends your account.",
+        "cargaProcesada": "Sent when a variable upload finishes processing successfully.",
+        "registroPendiente": "Admins only: notifies when a new company is pending approval.",
+        "contactoRecibido": "Admins only: notifies when a new message arrives from the public contact form.",
+        "lecturaCorregida": "Sent when an administrator corrects the value of a reading already uploaded to your dashboard.",
+        "mensajeAdmin": "Sent when an administrator publishes a message or announcement addressed to you."
+      }
     },
     "branding": {
       "title": "Your company's brand",

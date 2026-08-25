@@ -35,3 +35,19 @@ export const NOTIFICATION_TYPE_LABEL_KEY: Record<string, string> = {
   LECTURA_CORREGIDA: 'dashboard.notifications.type.lecturaCorregida',
   MENSAJE_ADMIN: 'dashboard.notifications.type.mensajeAdmin',
 }
+
+/** Claves de i18n para el texto del tooltip de ayuda de cada tipo, usado en
+ * la tabla de preferencias de Configuración (GeneralSettingsPanel.vue) —
+ * explica qué dispara esa notificación. SEMAFORO_CRITICO no tiene entrada:
+ * no es un tipo configurable (emailForced en el backend, nunca aparece como
+ * fila en esa tabla — ver notificationPreferences.service.ts). */
+export const NOTIFICATION_TYPE_TOOLTIP_KEY: Partial<Record<string, string>> = {
+  CARGA_PROCESADA: 'settings.notifications.tooltips.cargaProcesada',
+  CARGA_CON_ERROR: 'settings.notifications.tooltips.cargaConError',
+  CUENTA_SUSPENDIDA: 'settings.notifications.tooltips.cuentaSuspendida',
+  CUENTA_REACTIVADA: 'settings.notifications.tooltips.cuentaReactivada',
+  REGISTRO_PENDIENTE: 'settings.notifications.tooltips.registroPendiente',
+  CONTACTO_RECIBIDO: 'settings.notifications.tooltips.contactoRecibido',
+  LECTURA_CORREGIDA: 'settings.notifications.tooltips.lecturaCorregida',
+  MENSAJE_ADMIN: 'settings.notifications.tooltips.mensajeAdmin',
+}

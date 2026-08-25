@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { Bell, Palette } from 'lucide-vue-next'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
+import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 import BrandingFields from '@/components/dashboard/organizations/BrandingFields.vue'
 import {
   listNotificationPreferences,
@@ -17,7 +18,7 @@ import {
   BrandingValidationError,
   BrandingRequestError,
 } from '@/services/organizationBranding.service'
-import { NOTIFICATION_TYPE_LABEL_KEY } from '@/utils/notificationSeverityStyles'
+import { NOTIFICATION_TYPE_LABEL_KEY, NOTIFICATION_TYPE_TOOLTIP_KEY } from '@/utils/notificationSeverityStyles'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
@@ -176,7 +177,15 @@ onMounted(() => {
               class="border-t border-line"
               :class="index % 2 === 1 ? 'bg-cream/40' : 'bg-white'"
             >
-              <td class="px-4 py-3 text-navy-900">{{ t(NOTIFICATION_TYPE_LABEL_KEY[item.type]) }}</td>
+              <td class="px-4 py-3 text-navy-900">
+                <span class="inline-flex items-center gap-1.5">
+                  {{ t(NOTIFICATION_TYPE_LABEL_KEY[item.type]) }}
+                  <InfoTooltip
+                    v-if="NOTIFICATION_TYPE_TOOLTIP_KEY[item.type]"
+                    :text="t(NOTIFICATION_TYPE_TOOLTIP_KEY[item.type]!)"
+                  />
+                </span>
+              </td>
               <td class="px-4 py-3 text-center">
                 <input
                   type="checkbox"
