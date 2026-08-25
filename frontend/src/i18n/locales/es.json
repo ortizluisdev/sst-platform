@@ -980,7 +980,7 @@
       "noActiveServices": "No hay servicios activos en el catálogo."
     },
     "operacion": {
-      "placeholder": "Este panel está en construcción — el servicio contratado por esta empresa todavía no tiene un dashboard implementado."
+      "placeholder": "Estamos trabajando en el dashboard de este servicio. Pronto estará disponible."
     },
     "adminGeneralDashboard": {
       "pageTitle": "Dashboard",

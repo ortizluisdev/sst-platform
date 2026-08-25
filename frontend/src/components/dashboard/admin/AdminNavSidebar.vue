@@ -19,7 +19,7 @@ import { useSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { useSidebarCollapse } from '@/composables/useSidebarCollapse'
 import type { ServiceOption } from '@/types/organization'
 import type { TabDef } from '@/types/dashboardTabs'
-import { serviceLabel } from '@/utils/serviceLabel'
+import { serviceLabel, serviceShortLabel } from '@/utils/serviceLabel'
 import { iconForService } from '@/utils/serviceIcon'
 import type { Locale } from '@/i18n'
 
@@ -55,10 +55,12 @@ function isExpandable(slug: string): boolean {
 
 // Los demás servicios del catálogo (Mantenimiento Basado en Riesgo, Modelado
 // Científico, Riesgo Mecánico y Locativo) no tienen catálogo de variables ni
-// panel real detrás todavía — listarlos en el sidebar como si fueran
-// navegables sería mostrar algo roto. Se ocultan hasta que tengan contenido
-// real, no solo un placeholder "en construcción".
-const visibleServices = computed(() => props.services.filter((s) => isExpandable(s.slug)))
+// panel real detrás todavía — SÍ se listan (2026-08, decisión explícita:
+// mejor que el admin vea que existen y en qué estado están, en vez de que
+// parezca que no existen), pero navegan al placeholder profesional
+// ServicePanelPlaceholder.vue en vez de a un dashboard real (ver
+// isExpandable/AdminOperacionView.vue) — nunca se ocultan.
+const visibleServices = computed(() => props.services)
 
 // Derivado puro (no un ref propio): expandido si y solo si estamos viendo
 // ese servicio en Operación. Atado a la ruta (no a si props.serviceTabs ya
@@ -286,12 +288,12 @@ function handleTabClick(tab: TabDef) {
               collapsed ? 'justify-center px-1.5 py-2.5' : 'px-3 py-2.5',
             ]"
             :aria-expanded="isExpandable(service.slug) ? expandedSlug === service.slug : undefined"
-            :title="collapsed ? serviceLabel(service.slug, service.nombre, locale as Locale) : undefined"
+            :title="serviceLabel(service.slug, service.nombre, locale as Locale)"
             @click="handleServiceClick(service)"
           >
             <component :is="iconForService(service.slug)" class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span class="min-w-0 flex-1 truncate" :class="{ 'lg:hidden': collapsed }">{{
-              serviceLabel(service.slug, service.nombre, locale as Locale)
+              serviceShortLabel(service.slug, service.nombre, locale as Locale)
             }}</span>
             <ChevronRight
               v-if="isExpandable(service.slug)"
