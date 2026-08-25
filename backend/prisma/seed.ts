@@ -174,6 +174,11 @@ interface ClientOrgSeed {
   organizationNit: string
   workPointCount: number
   complianceProfile: ComplianceProfile
+  /** Slugs de servicio contratados — 'higiene-industrial' siempre trae
+   * datos demo (ver seedHigieneIndustrialData); cualquier otro slug acá
+   * solo marca el OrganizationService como activo, sin generar datos
+   * (Seguridad Vial no tiene un generador de datos demo en este seed). */
+  services?: string[]
 }
 
 /** Usuarios cliente de prueba: cada uno es el responsable (login por
@@ -185,9 +190,27 @@ interface ClientOrgSeed {
  * un perfil sano vs. uno crítico) porque un cliente real está revisando el
  * sistema y no debe ver datos de prueba. Correr el seed ya NO debe volver
  * a crear ningún cliente — si algún día hace falta un cliente demo para
- * pruebas, agregarlo de nuevo acá a propósito, nunca por accidente. */
+ * pruebas, agregarlo de nuevo acá a propósito, nunca por accidente.
+ *
+ * 2026-08-25: se reagrega UN cliente de prueba LOCAL (mismo documento
+ * 1000000003 reutilizado, ya libre) a pedido explícito, solo para verificar
+ * en el navegador local el nuevo dashboard de resumen cruzado de servicios
+ * (Tarea 6 del plan client-dashboard-resumen) — nunca se corre este seed
+ * contra producción. */
 function buildClientUsers(): ClientOrgSeed[] {
-  return []
+  return [
+    {
+      documentNumber: '1000000003',
+      email: 'cliente.prueba.qa@example.com',
+      password: requireEnv('SEED_CLIENTE_PASSWORD'),
+      nombre: 'Cliente QA Verificación',
+      organizationName: 'Cliente Prueba QA',
+      organizationNit: '900000099',
+      workPointCount: 3,
+      complianceProfile: 'saludable',
+      services: ['higiene-industrial', 'seguridad-vial'],
+    },
+  ]
 }
 
 // ============================================================
@@ -1397,6 +1420,19 @@ async function main() {
       clientUser.complianceProfile,
       higieneDefinitionByCode,
     )
+
+    // Servicios adicionales sin generador de datos demo propio (ver
+    // comentario de ClientOrgSeed.services) — solo marca el contrato activo,
+    // el panel del servicio se ve en su estado vacío normal.
+    for (const slug of clientUser.services ?? []) {
+      if (slug === 'higiene-industrial') continue
+      const otherService = await prisma.service.findUniqueOrThrow({ where: { slug } })
+      await prisma.organizationService.upsert({
+        where: { organizationId_serviceId: { organizationId: clientOrganizationId, serviceId: otherService.id } },
+        update: { isActive: true },
+        create: { organizationId: clientOrganizationId, serviceId: otherService.id, isActive: true },
+      })
+    }
   }
 
   console.log(`Seed completo: ${SERVICES.length} servicios, ${PERMISSIONS.length} permisos, ${ROLES.length} roles.`)
