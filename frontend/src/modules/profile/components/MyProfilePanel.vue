@@ -2,13 +2,14 @@
 import { onMounted, ref } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useI18n } from 'vue-i18n'
-import { User as UserIcon } from 'lucide-vue-next'
+import { Building2, IdCard, PenTool, User as UserIcon } from 'lucide-vue-next'
 import FormField from '@/components/ui/FormField.vue'
 import SubmitButton from '@/components/ui/SubmitButton.vue'
 import SectionTitleBanner from '@/components/dashboard/SectionTitleBanner.vue'
 import ChangePasswordModal from './ChangePasswordModal.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import { useOrgPrimaryTextClass } from '@/composables/useOrgPrimaryContrast'
 import {
   getMyProfile,
   updateMyProfile,
@@ -20,6 +21,7 @@ import {
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const primaryTextClass = useOrgPrimaryTextClass()
 
 useHead(() => ({ title: `${t('myProfile.sidebarLink')} — RoMa+`, meta: [{ name: 'robots', content: 'noindex' }] }))
 
@@ -174,10 +176,10 @@ const showPasswordModal = ref(false)
     <template v-else>
       <!-- Cabecera: foto, nombre, y acceso a cambiar contraseña -->
       <div
-        class="flex flex-col items-center gap-4 rounded-md border border-line-strong bg-white p-6 sm:flex-row sm:items-center sm:p-8"
+        class="flex flex-col items-center gap-4 rounded-md border border-line-strong bg-[var(--org-primary,#0b1a33)] p-6 shadow-sm sm:flex-row sm:items-center sm:p-8"
       >
         <div class="relative shrink-0">
-          <div class="h-24 w-24 overflow-hidden rounded-full border border-line-strong bg-cream">
+          <div class="h-24 w-24 overflow-hidden rounded-full border border-white/20 bg-cream">
             <img
               v-if="fotoBase64"
               :src="fotoBase64"
@@ -206,15 +208,39 @@ const showPasswordModal = ref(false)
         </div>
 
         <div class="min-w-0 flex-1 text-center sm:text-left">
-          <h1 class="truncate text-lg font-bold text-navy-900">{{ nombre }}</h1>
-          <p class="truncate text-sm text-navy-700/70">{{ email }}</p>
-          <p v-if="avatarError" class="mt-1 text-xs text-red-600">{{ avatarError }}</p>
-          <p v-else class="mt-1 text-xs text-navy-700/50">{{ t('myProfile.avatar.hint') }}</p>
+          <h1 class="truncate text-lg font-bold" :class="primaryTextClass.text">{{ nombre }}</h1>
+          <p class="truncate text-sm opacity-80" :class="primaryTextClass.text">{{ email }}</p>
+          <!-- Fila de badges: rol siempre, empresa solo si es cliente
+          (organizationNombre es null para admin, ver stores/auth.ts).
+          flex-wrap para que no se recorten en móvil si no caben en una
+          línea (mismo criterio que ya documenta SectionTitleBanner.vue
+          sobre truncamiento en pantallas angostas). -->
+          <div class="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            <span
+              class="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold"
+              :class="primaryTextClass.text"
+            >
+              {{ t(auth.roleLabelKey) }}
+            </span>
+            <span
+              v-if="auth.organizationNombre"
+              class="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold"
+              :class="primaryTextClass.text"
+            >
+              <Building2 class="h-3 w-3 shrink-0" aria-hidden="true" />
+              {{ auth.organizationNombre }} · NIT {{ auth.organizationNit }}
+            </span>
+          </div>
+          <p v-if="avatarError" class="mt-1 text-xs text-red-300">{{ avatarError }}</p>
+          <p v-else class="mt-1 text-xs opacity-60" :class="primaryTextClass.text">
+            {{ t('myProfile.avatar.hint') }}
+          </p>
         </div>
 
         <button
           type="button"
-          class="w-full shrink-0 rounded-sm border border-line-strong px-4 py-2.5 text-sm font-semibold text-navy-700 hover:bg-cream sm:w-auto"
+          class="w-full shrink-0 rounded-sm border border-white/25 px-4 py-2.5 text-sm font-semibold hover:bg-white/10 sm:w-auto"
+          :class="primaryTextClass.text"
           @click="showPasswordModal = true"
         >
           {{ t('myProfile.changePasswordButton') }}
@@ -222,13 +248,16 @@ const showPasswordModal = ref(false)
       </div>
 
       <!-- Datos personales -->
-      <div class="rounded-md border border-line-strong bg-white p-6 sm:p-8">
-        <h2 class="text-base font-bold text-navy-900">{{ t('myProfile.personalDataTitle') }}</h2>
+      <div class="rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+        <div class="flex items-center gap-2">
+          <IdCard class="h-5 w-5 shrink-0 text-navy-700/70" aria-hidden="true" />
+          <h2 class="text-base font-bold text-navy-900">{{ t('myProfile.personalDataTitle') }}</h2>
+        </div>
         <p class="mt-1 text-sm text-navy-700/70">{{ t('myProfile.personalDataSubtitle') }}</p>
 
         <form class="mt-6 grid gap-5" novalidate @submit.prevent="submitProfile">
           <div>
-            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-900">{{
               t('myProfile.fields.documentNumber')
             }}</label>
             <input
@@ -247,7 +276,7 @@ const showPasswordModal = ref(false)
               :error="profileErrors.nombre"
             />
             <div>
-              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-700">{{
+              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-navy-900">{{
                 t('myProfile.fields.email')
               }}</label>
               <input
@@ -278,8 +307,11 @@ const showPasswordModal = ref(false)
       </div>
 
       <!-- Firma para reportes -->
-      <div class="rounded-md border border-line-strong bg-white p-6 sm:p-8">
-        <h2 class="text-base font-bold text-navy-900">{{ t('myProfile.firma.title') }}</h2>
+      <div class="rounded-md border border-line-strong bg-white p-6 shadow-sm sm:p-8">
+        <div class="flex items-center gap-2">
+          <PenTool class="h-5 w-5 shrink-0 text-navy-700/70" aria-hidden="true" />
+          <h2 class="text-base font-bold text-navy-900">{{ t('myProfile.firma.title') }}</h2>
+        </div>
         <p class="mt-1 text-sm text-navy-700/70">{{ t('myProfile.firma.subtitle') }}</p>
 
         <div class="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
