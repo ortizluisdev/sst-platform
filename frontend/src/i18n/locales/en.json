@@ -1163,8 +1163,8 @@
       "primaryColorLabel": "Primary color (buttons)",
       "secondaryColorLabel": "Secondary color (modals)",
       "secondaryColorHint": "Used as the top accent strip on pop-up windows.",
-      "previewLabel": "Preview — navbar",
-      "previewText": "This is how your navbar would look",
+      "previewLabel": "Preview — button",
+      "previewText": "This is how a button would look",
       "previewModalLabel": "Preview — modal",
       "previewModalText": "This is how a modal would look"
     },

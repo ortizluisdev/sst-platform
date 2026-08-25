@@ -113,12 +113,13 @@ function handleFileChange(event: Event) {
         <p class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700">
           {{ t('branding.fields.previewLabel') }}
         </p>
-        <div
-          class="flex items-center gap-3 rounded-md border border-line-strong px-4 py-3"
-          :style="{ backgroundColor: primaryColor }"
-        >
-          <img v-if="logoBase64" :src="logoBase64" alt="" class="h-6 w-auto" />
-          <span class="text-sm font-semibold text-cream">{{ t('branding.fields.previewText') }}</span>
+        <div class="rounded-md border border-line-strong bg-cream px-4 py-3">
+          <span
+            class="inline-flex rounded-sm px-4 py-2 text-sm font-semibold text-cream"
+            :style="{ backgroundColor: primaryColor }"
+          >
+            {{ t('branding.fields.previewText') }}
+          </span>
         </div>
       </div>
       <div>

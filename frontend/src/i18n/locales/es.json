@@ -1163,8 +1163,8 @@
       "primaryColorLabel": "Color primario (botones)",
       "secondaryColorLabel": "Color secundario (modales)",
       "secondaryColorHint": "Se usa como franja superior en las ventanas emergentes.",
-      "previewLabel": "Vista previa — navbar",
-      "previewText": "Así se vería tu navbar",
+      "previewLabel": "Vista previa — botón",
+      "previewText": "Así se vería un botón",
       "previewModalLabel": "Vista previa — modal",
       "previewModalText": "Así se vería un modal"
     },
