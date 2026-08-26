@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, Languages, Menu, UserCircle } from 'lucide-vue-next'
+import { Languages, LogOut, Menu, UserCircle } from 'lucide-vue-next'
 import logoPng from '@/assets/logo/roma-logo.png'
 import logoWebp from '@/assets/logo/roma-logo.webp'
 import { useAuthStore } from '@/stores/auth'
 import { provideSidebarDrawer } from '@/composables/useSidebarDrawer'
 import { provideSidebarCollapse } from '@/composables/useSidebarCollapse'
+import { useLogout } from '@/composables/useLogout'
 import { formatDate } from '@/utils/formatDate'
 import NotificationBell from '@/components/dashboard/notifications/NotificationBell.vue'
 import type { Locale } from '@/i18n'
@@ -44,7 +45,6 @@ const orgLogoUrl = computed(() =>
 watch(orgLogoUrl, () => {
   logoFailed.value = false
 })
-const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
 const drawer = provideSidebarDrawer()
@@ -74,27 +74,7 @@ const sidebarOffsetClass = computed(() => {
 // navbar, que se ve poco profesional con colores corporativos arbitrarios
 // (a veces claros, a veces oscuros, a veces feos). El navbar es siempre
 // blanco, sin importar el branding elegido.
-const profileMenuOpen = ref(false)
-const profileMenuEl = ref<HTMLElement | null>(null)
-
-function toggleProfileMenu() {
-  profileMenuOpen.value = !profileMenuOpen.value
-}
-
-function handleClickOutsideProfileMenu(event: MouseEvent) {
-  if (profileMenuEl.value && !profileMenuEl.value.contains(event.target as Node)) {
-    profileMenuOpen.value = false
-  }
-}
-
-onMounted(() => document.addEventListener('click', handleClickOutsideProfileMenu))
-onUnmounted(() => document.removeEventListener('click', handleClickOutsideProfileMenu))
-
-async function handleLogout() {
-  profileMenuOpen.value = false
-  await auth.logout()
-  router.push(`/${locale.value}/ingresar`)
-}
+const logout = useLogout()
 
 const lastSyncLabel = computed(() =>
   props.lastSync ? formatDate(props.lastSync, locale.value as Locale) : t('dashboard.layout.noDataYet'),
@@ -142,7 +122,9 @@ const switchTo = computed(() => ({
               <source :srcset="logoWebp" type="image/webp" />
               <img :src="logoPng" alt="RoMa" class="block h-7 w-auto sm:h-8" width="572" height="166" />
             </picture>
-            <p class="mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60 sm:block">
+            <p
+              class="mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-navy-700 opacity-60 sm:block"
+            >
               {{ t('dashboard.sidebar.tagline') }}
             </p>
           </div>
@@ -151,7 +133,7 @@ const switchTo = computed(() => ({
         <!-- Orden de derecha a izquierda pedido: notificaciones, identidad de
         la empresa (logo+nombre+NIT, solo cliente), perfil+cerrar sesión,
         idioma al final. -->
-        <div class="flex min-w-0 shrink-0 items-center gap-2 sm:gap-4">
+        <div class="flex min-w-0 shrink-0 items-center gap-3 sm:gap-5">
           <NotificationBell v-if="auth.user" />
 
           <!-- Identidad de la empresa: antes solo el logo (cuadrado, h-14);
@@ -181,42 +163,33 @@ const switchTo = computed(() => ({
             </div>
           </div>
 
-          <div v-if="auth.user" ref="profileMenuEl" class="relative">
-            <button
-              type="button"
-              class="flex items-center rounded-sm text-navy-700 transition-colors hover:bg-sky-100"
-              :class="enhanced ? 'gap-2 p-2' : 'gap-1.5 p-1.5'"
-              :aria-label="t('dashboard.layout.profileMenuLabel')"
-              :aria-expanded="profileMenuOpen"
-              @click="toggleProfileMenu"
-            >
-              <img
-                v-if="auth.user.fotoBase64"
-                :src="auth.user.fotoBase64"
-                :alt="t('dashboard.layout.profileMenuLabel')"
-                class="shrink-0 rounded-full object-cover"
-                :class="enhanced ? 'h-7 w-7' : 'h-6 w-6'"
-              />
-              <UserCircle v-else class="shrink-0" :class="enhanced ? 'h-7 w-7' : 'h-6 w-6'" aria-hidden="true" />
-              <span class="hidden min-[400px]:inline" :class="enhanced ? 'text-sm font-medium' : 'text-sm'">{{
-                auth.user.nombre
-              }}</span>
-              <ChevronDown class="h-4 w-4 shrink-0" aria-hidden="true" />
-            </button>
-
-            <div
-              v-if="profileMenuOpen"
-              class="absolute right-0 top-full z-30 mt-2 w-44 rounded-md border border-line-strong bg-white py-1 shadow-lg"
-              role="menu"
-            >
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-sm text-navy-700 transition-colors hover:bg-sky-100"
-                role="menuitem"
-                @click="handleLogout"
-              >
-                {{ t('dashboard.layout.logout') }}
-              </button>
+          <!-- Sin dropdown (2026-08, "si deslogueo déjalo al lado en navbar
+          superior derecha enseguida de cambiar idioma"): antes un clic acá
+          abría un menú con "Cerrar sesión" como único ítem — ahora es solo
+          identidad (avatar+nombre+rol), sin flecha ni clic; el logout vive
+          en su propio botón, ver más abajo. Avatar más grande y rol acá
+          (2026-08, "quita el role de sidebar y déjalo en navbar") — antes
+          el rol vivía como badge en el sidebar (AdminNavSidebar.vue/
+          DashboardSidebar.vue), acompañando el nombre en vez del ícono. -->
+          <div v-if="auth.user" class="flex items-center gap-2.5">
+            <img
+              v-if="auth.user.fotoBase64"
+              :src="auth.user.fotoBase64"
+              :alt="t('dashboard.layout.profileMenuLabel')"
+              class="shrink-0 rounded-full object-cover"
+              :class="enhanced ? 'h-10 w-10' : 'h-9 w-9'"
+            />
+            <UserCircle
+              v-else
+              class="shrink-0 text-navy-700"
+              :class="enhanced ? 'h-10 w-10' : 'h-9 w-9'"
+              aria-hidden="true"
+            />
+            <div class="hidden min-[400px]:flex min-w-0 flex-col leading-tight">
+              <span class="truncate text-sm font-medium text-navy-700">{{ auth.user.nombre }}</span>
+              <span class="truncate text-[11px] font-semibold uppercase tracking-wide text-navy-700/60">
+                {{ t(auth.roleLabelKey) }}
+              </span>
             </div>
           </div>
 
@@ -232,6 +205,19 @@ const switchTo = computed(() => ({
             <Languages class="h-4 w-4 shrink-0" aria-hidden="true" />
             <span class="text-xs font-semibold tracking-wide">{{ otherLocale.toUpperCase() }}</span>
           </router-link>
+
+          <!-- Cerrar sesión: botón propio en rojo, al lado del selector de
+          idioma (2026-08) — antes vivía dentro del dropdown de perfil. -->
+          <button
+            v-if="auth.user"
+            type="button"
+            class="flex shrink-0 items-center rounded-full border border-red-200 p-2 text-red-600 transition-colors hover:bg-red-50"
+            :aria-label="t('dashboard.layout.logout')"
+            :title="t('dashboard.layout.logout')"
+            @click="logout"
+          >
+            <LogOut class="h-4 w-4 shrink-0" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </header>
@@ -250,10 +236,7 @@ const switchTo = computed(() => ({
       <slot />
     </main>
 
-    <footer
-      class="shrink-0 border-t border-line px-4 py-4 print:hidden sm:px-6"
-      :class="sidebarOffsetClass"
-    >
+    <footer class="shrink-0 border-t border-line px-4 py-4 print:hidden sm:px-6" :class="sidebarOffsetClass">
       <div
         class="mx-auto flex max-w-[1280px] flex-col items-center gap-1 text-center text-xs text-navy-700/60 sm:flex-row sm:justify-between sm:text-left"
       >

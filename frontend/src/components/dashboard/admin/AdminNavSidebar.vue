@@ -115,23 +115,14 @@ function handleTabClick(tab: TabDef) {
   activo: acá nunca hay branding real de una empresa, así que ese fallback
   siempre caía en un navy casi idéntico al del fondo (invisible encima). -->
   <nav
-    class="fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
+    class="sidebar-scroll fixed inset-x-0 top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto border-r border-white/10 bg-navy-900 p-3 transition-transform duration-300 ease-in-out print:hidden lg:max-w-none lg:top-20 lg:translate-x-0"
     :class="[collapsed ? 'lg:w-20' : 'lg:w-64', drawer.isOpen.value ? 'translate-x-0' : '-translate-x-full']"
     :aria-label="t('dashboard.adminShell.navAriaLabel')"
   >
-    <div class="mb-3 flex items-center justify-end gap-2 border-b border-white/15 px-1 pb-3">
+    <div class="mb-3 flex items-center justify-end border-b border-white/15 px-1 pb-3 lg:hidden">
       <button
         type="button"
-        class="hidden shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:block"
-        :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
-        @click="toggleCollapsed"
-      >
-        <ChevronsRight v-if="collapsed" class="h-4 w-4" />
-        <ChevronsLeft v-else class="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        class="rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10 lg:hidden"
+        class="rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10"
         :aria-label="t('dashboard.sidebar.closeMenu')"
         @click="drawer.close()"
       >
@@ -139,12 +130,22 @@ function handleTabClick(tab: TabDef) {
       </button>
     </div>
 
-    <p
-      class="mb-3 inline-flex w-fit items-center rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80"
-      :class="{ 'lg:hidden': collapsed }"
-    >
-      {{ t(auth.roleLabelKey) }}
-    </p>
+    <!-- Toggle de colapsar (2026-08, "quita el role de sidebar y déjalo en
+    navbar" — el badge de rol se movió a DashboardLayout.vue, junto al
+    nombre). Siempre visible en escritorio (`lg:block` sin condicionar a
+    `collapsed`): es la única forma de volver a expandir el sidebar una
+    vez colapsado. -->
+    <div class="mb-3 hidden justify-end lg:flex">
+      <button
+        type="button"
+        class="shrink-0 rounded-sm p-1.5 text-white/70 transition-colors hover:bg-white/10"
+        :aria-label="t(collapsed ? 'dashboard.sidebar.expand' : 'dashboard.sidebar.collapse')"
+        @click="toggleCollapsed"
+      >
+        <ChevronsRight v-if="collapsed" class="h-4 w-4" />
+        <ChevronsLeft v-else class="h-4 w-4" />
+      </button>
+    </div>
 
     <div>
       <p
@@ -154,7 +155,7 @@ function handleTabClick(tab: TabDef) {
         {{ t('dashboard.adminShell.administracionSection') }}
       </p>
 
-      <ul class="mt-1 flex flex-col gap-1">
+      <ul class="mt-1 flex flex-col divide-y divide-white/5">
         <li>
           <router-link
             :to="`/${locale}/dashboard/admin/dashboard`"
@@ -268,16 +269,15 @@ function handleTabClick(tab: TabDef) {
         {{ t('dashboard.adminShell.operacionSection') }}
       </p>
 
-      <ul class="mt-1 flex flex-col gap-1">
-        <li v-if="visibleServices.length === 0" class="px-2 py-1.5 text-xs text-white/70" :class="{ 'lg:hidden': collapsed }">
+      <ul class="mt-1 flex flex-col divide-y divide-white/5">
+        <li
+          v-if="visibleServices.length === 0"
+          class="px-2 py-1.5 text-xs text-white/70"
+          :class="{ 'lg:hidden': collapsed }"
+        >
           {{ t('dashboard.adminShell.noActiveServices') }}
         </li>
-        <li
-          v-for="service in visibleServices"
-          :key="service.slug"
-          class="rounded-md transition-colors"
-          :class="expandedSlug === service.slug ? 'bg-white/10' : ''"
-        >
+        <li v-for="service in visibleServices" :key="service.slug">
           <button
             type="button"
             class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md text-left text-sm font-medium transition-colors"
@@ -331,3 +331,31 @@ function handleTabClick(tab: TabDef) {
     </div>
   </nav>
 </template>
+
+<style scoped>
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.sidebar-scroll:hover {
+  scrollbar-color: rgb(148 163 184 / 0.4) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184 / 0.4);
+}
+</style>
